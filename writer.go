@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -80,6 +81,14 @@ func (f *Frame) writeFrame(w io.Writer, l string) (e os.Error) {
 	// Write the frame Command
 	if _, e = fmt.Fprintf(w, "%s\n", f.Command); e != nil {
 		return e
+	}
+	// Content length - Always add it if client does not suppress it and
+	// does not supply it.
+	if _, ok := f.Headers.Contains("suppress-content-length"); !ok {
+		if _, clok := f.Headers.Contains("content-length"); !clok {
+			l := strconv.Itoa(len(f.Body))
+			f.Headers = f.Headers.Add("content-length", l)
+		}
 	}
 	// Write the frame Headers
 	for i := 0; i < len(f.Headers); i += 2 {
