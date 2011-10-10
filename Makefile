@@ -23,6 +23,7 @@ GOFILES=\
 	datafuncs.go \
 	disconnect.go \
 	reader.go \
+	send.go \
 	utils.go \
 	writer.go \
 
