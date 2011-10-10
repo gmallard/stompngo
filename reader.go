@@ -90,6 +90,7 @@ func (c *Connection) readFrame() (f Frame, e os.Error) {
 			break
 		}
 		//
+		s = s[0:len(s)-1]
 		p := strings.SplitN(s, ":", 2)
 		k := p[0]
 		v := p[1]
