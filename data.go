@@ -17,6 +17,7 @@
 package stomp
 
 import (
+	"bufio"
 	"net"
 	"os"
 	"sync"
@@ -87,6 +88,8 @@ type Connection struct {
 	wsd               chan bool // writer shutdown
 	rsd               chan bool // reader shutdown
 	hbd               *heartbeat_data
+	wtr               *bufio.Writer
+	rdr               *bufio.Reader
 }
 
 type Error string
@@ -136,6 +139,8 @@ const (
 	// Unsupported Headers type
 	EBADHDR = Error("unsupported Headers type")
 )
+
+var NULLBUFF = make([]uint8, 0)
 
 type codecdata struct {
 	encoded string

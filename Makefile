@@ -20,5 +20,8 @@ TARG=stomp
 GOFILES=\
 	data.go \
 	datafuncs.go \
+	reader.go \
+	utils.go \
+	writer.go \
 
 include $(GOROOT)/src/Make.pkg
