@@ -17,7 +17,6 @@
 package stomp
 
 import (
-	//	"fmt"
 	"testing"
 )
 // ConnDisc Test: Netconn
@@ -44,3 +43,38 @@ func TestConnDiscStompConn(t *testing.T) {
 	}
 	_ = closeConn(t, n)
 }
+
+// ConnDisc Test: Stomp Disc
+func TestConnDiscStompDisc(t *testing.T) {
+	n, _ := openConn(t)
+	c, _ := Connect(n, test_headers)
+	e := c.Disconnect(Headers{})
+	if e != nil {
+		t.Errorf("Expected no disconnect error, got [%v]\n", e)
+	}
+	_ = closeConn(t, n)
+}
+
+// ConnDisc Test: Stomp Disc Receipt
+func TestConnDiscStompDiscReceipt(t *testing.T) {
+	n, _ := openConn(t)
+	c, _ := Connect(n, test_headers)
+	r := "my-receipt-001"
+	e := c.Disconnect(Headers{"receipt", r})
+	if e != nil {
+		t.Errorf("Expected no disconnect error, got [%v]\n", e)
+	}
+	if c.DisconnectReceipt.Error != nil {
+		t.Errorf("Expected no receipt error, got [%v]\n", c.DisconnectReceipt.Error)
+	}
+	m := c.DisconnectReceipt.Message
+	rr, ok := m.Headers.Contains("receipt-id")
+	if !ok {
+		t.Errorf("Expected receipt-id, not received\n")
+	}
+	if rr != r {
+		t.Errorf("Expected receipt-id [%q], got [%q]\n", r, rr)
+	}
+	_ = closeConn(t, n)
+}
+

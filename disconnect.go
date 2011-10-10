@@ -43,5 +43,10 @@ func (c *Connection) Disconnect(h Headers) (e os.Error) {
 		return e
 	}
 	c.wsd <- true
+	//
+	// Receipt requested
+	if _, ok := ch.Contains("receipt"); ok {
+		c.DisconnectReceipt = <-c.input
+	}
 	return nil
 }

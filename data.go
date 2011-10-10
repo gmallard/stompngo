@@ -75,7 +75,7 @@ type wiredata struct {
 
 type Connection struct {
 	ConnectResponse   *Message
-	DisconnectReceipt *Message
+	DisconnectReceipt MessageData
 	MessageData       <-chan MessageData
 	connected         bool
 	session           string
