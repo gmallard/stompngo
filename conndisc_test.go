@@ -77,4 +77,3 @@ func TestConnDiscStompDiscReceipt(t *testing.T) {
 	}
 	_ = closeConn(t, n)
 }
-
