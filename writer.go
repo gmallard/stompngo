@@ -53,7 +53,7 @@ func (c *Connection) wireWrite(d wiredata) {
 			return
 		}
 	default: // Other frames
-		if e := f.write(c.wtr, c.protocol); e != nil {
+		if e := f.writeFrame(c.wtr, c.protocol); e != nil {
 			d.errchan <- e
 			return
 		}
@@ -76,7 +76,7 @@ func (c *Connection) wireWrite(d wiredata) {
 }
 
 // Frame writer
-func (f *Frame) write(w io.Writer, l string) (e os.Error) {
+func (f *Frame) writeFrame(w io.Writer, l string) (e os.Error) {
 	// Write the frame Command
 	if _, e = fmt.Fprintf(w, "%s\n", f.Command); e != nil {
 		return e

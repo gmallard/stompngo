@@ -23,6 +23,13 @@ import (
 	"strings"
 )
 
+func checkHeaders(h Headers) (e os.Error) {
+	if len(h)%2 != 0 {
+		return EHDRLEN
+	}
+	return nil
+}
+
 func encode(s string) (r string) {
 	r = s
 	for _, tr := range codec_values {
@@ -67,4 +74,43 @@ func readBody(r *bufio.Reader, l int) (b []uint8, e os.Error) {
 	}
 	_, _ = r.ReadByte()
 	return b, e
+}
+
+//
+func connectResponse(s string) (f *Frame, e os.Error) {
+	//
+	f = new(Frame)
+	e = nil
+	// Get f.Command
+	c := strings.SplitN(s, "\n", 2)
+	if len(c) < 2 {
+		return nil, Error("Malformed frame")
+	}
+	f.Command = c[0]
+	if f.Command != CONNECTED && f.Command != ERROR {
+		return nil, EUNKFRM
+	}
+	// Get f.Headers
+	f.Headers = Headers{}
+	b := strings.SplitN(c[1], "\n\n", 2)
+	for _, l := range strings.Split(b[0], "\n") {
+		p := strings.SplitN(l, ":", 2)
+		if len(p) < 2 {
+			return nil, EUNKHDR
+		}
+		k := p[0]
+		v := p[1]
+		if f.Command == ERROR {
+			k = decode(k)
+			v = decode(v)
+		}
+		f.Headers = append(f.Headers, k, v)
+	}
+	// get f.Body
+	if len(b) == 2 {
+		f.Body = []uint8(b[1])
+	} else {
+		return nil, EUNKBDY
+	}
+	return f, nil
 }
