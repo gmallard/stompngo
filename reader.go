@@ -47,7 +47,14 @@ func (c *Connection) reader() {
 		}
 
 		d := MessageData{Message{f.Command, f.Headers, f.Body}, e}
-		c.input <- d
+		if sid, ok := f.Headers.Contains("subscription"); ok {
+			c.subsLock.Lock()
+			c.subs[sid] <- d
+			c.subsLock.Unlock()
+		} else {
+			c.input <- d
+		}
+
 		if q {
 			break
 		}
