@@ -82,22 +82,21 @@ func (c *Connection) connectHandler(h Headers) (e os.Error) {
 		if supported.Supported(v) {
 			c.protocol = v
 		} else {
-			// This client does not support this version
 			return EBADVER
 		}
 	}
 	//
-	if r, ok := c.ConnectResponse.Headers.Contains("session"); ok {
-		c.session = r
+	if s, ok := c.ConnectResponse.Headers.Contains("session"); ok {
+		c.session = s
 	}
-	/*
-		if c.plevel >= SP_11 {
-			e = c.initHeartBeats(ch)
-			if e != nil {
-				return
-			}
+
+	if c.protocol >= SPL_11 {
+		e = c.initializeHeartBeats(h)
+		if e != nil {
+			return e
 		}
-	*/
+	}
+
 	c.connected = true
 	return nil
 }

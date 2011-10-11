@@ -123,3 +123,10 @@ func getSha1(q string) (s string) {
 	s = fmt.Sprintf("%x", g.Sum())
 	return s
 }
+
+func max(a, b int64) int64 {
+	if a > b {
+		return a
+	}
+	return b
+}

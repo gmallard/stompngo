@@ -22,6 +22,7 @@ GOFILES=\
 	data.go \
 	datafuncs.go \
 	disconnect.go \
+	heartbeats.go \
 	reader.go \
 	send.go \
 	subscribe.go \

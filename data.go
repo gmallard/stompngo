@@ -90,6 +90,7 @@ type Connection struct {
 	hbd               *heartbeat_data
 	wtr               *bufio.Writer
 	rdr               *bufio.Reader
+	Hbrf              bool
 }
 
 type Error string
