@@ -19,6 +19,7 @@ include $(GOROOT)/src/Make.inc
 TARG=stomp
 GOFILES=\
 	connect.go \
+	connection.go \
 	data.go \
 	datafuncs.go \
 	disconnect.go \
