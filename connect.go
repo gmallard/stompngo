@@ -54,11 +54,9 @@ func Connect(n net.Conn, h Headers) (c *Connection, e os.Error) {
 	if e != nil {
 		return c, e
 	}
-	//
-	if c.connected {
-		c.rsd = make(chan bool)
-		go c.reader()
-	}
+	// We are connected
+	c.rsd = make(chan bool)
+	go c.reader()
 	//
 	return c, e
 }
