@@ -34,9 +34,9 @@ func (m *Message) BodyString() string {
 
 // protocols
 
-func (p protocols) Supported(l string) bool {
-	for _, p := range supported {
-		if l == p {
+func (p protocols) Supported(v string) bool {
+	for _, s := range supported {
+		if v == s {
 			return true
 		}
 	}
