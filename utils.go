@@ -18,6 +18,8 @@ package stomp
 
 import (
 	"bufio"
+	"crypto/sha1"
+	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -113,4 +115,11 @@ func connectResponse(s string) (f *Frame, e os.Error) {
 		return nil, EUNKBDY
 	}
 	return f, nil
+}
+
+func getSha1(q string) (s string) {
+	g := sha1.New()
+	g.Write([]byte(q))
+	s = fmt.Sprintf("%x", g.Sum())
+	return s
 }

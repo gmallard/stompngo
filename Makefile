@@ -24,6 +24,9 @@ GOFILES=\
 	disconnect.go \
 	reader.go \
 	send.go \
+	subscribe.go \
+	transmit.go \
+	unsubscribe.go \
 	utils.go \
 	writer.go \
 

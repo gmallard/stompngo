@@ -76,6 +76,15 @@ func (h Headers) Contains(k string) (string, bool) {
 	return "", false
 }
 
+func (h Headers) Value(k string) string {
+	for i := 0; i < len(h); i += 2 {
+		if h[i] == k {
+			return h[i+1]
+		}
+	}
+	return ""
+}
+
 func (h Headers) Validate() os.Error {
 	if len(h)%2 != 0 {
 		return EHDRLEN

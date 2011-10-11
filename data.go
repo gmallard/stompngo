@@ -133,6 +133,9 @@ const (
 	EDUPSID = Error("duplicate subscription-id")
 	EBADSID = Error("invalid subscription-id")
 
+	// Unscubscribe error
+	EUNOSID = Error("id required, UNSUBSCRIBE")
+
 	// Unsupported version error
 	EBADVER = Error("unsupported protocol version")
 

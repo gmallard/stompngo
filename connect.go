@@ -34,7 +34,8 @@ func Connect(n net.Conn, h Headers) (c *Connection, e os.Error) {
 		output:    make(chan wiredata),
 		connected: false,
 		session:   "",
-		protocol:  SPL_10}
+		protocol:  SPL_10,
+		subs:      make(map[string]chan MessageData)}
 	c.MessageData = c.input
 	c.wtr = bufio.NewWriter(n)
 	go c.writer()
