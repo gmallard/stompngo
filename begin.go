@@ -22,6 +22,7 @@ import (
 
 // Begin
 func (c *Connection) Begin(h Headers) (e os.Error) {
+	c.log(BEGIN, "start")
 	if !c.connected {
 		return ECONBAD
 	}
@@ -29,5 +30,7 @@ func (c *Connection) Begin(h Headers) (e os.Error) {
 		return EREQTIDBEG
 	}
 	ch := h.Clone()
-	return c.transmitCommon(BEGIN, ch)
+	e = c.transmitCommon(BEGIN, ch)
+	c.log(BEGIN, "end")
+	return e
 }

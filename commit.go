@@ -22,6 +22,7 @@ import (
 
 // Commit
 func (c *Connection) Commit(h Headers) (e os.Error) {
+	c.log(COMMIT, "start")
 	if !c.connected {
 		return ECONBAD
 	}
@@ -29,5 +30,7 @@ func (c *Connection) Commit(h Headers) (e os.Error) {
 		return EREQTIDCOM
 	}
 	ch := h.Clone()
-	return c.transmitCommon(COMMIT, ch)
+	e = c.transmitCommon(COMMIT, ch)
+	c.log(COMMIT, "end")
+	return e
 }

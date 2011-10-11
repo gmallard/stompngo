@@ -22,6 +22,7 @@ import (
 
 // Unsubscribe
 func (c *Connection) Unsubscribe(h Headers) (e os.Error) {
+	c.log(UNSUBSCRIBE, "start")
 	if !c.connected {
 		return ECONBAD
 	}
@@ -46,5 +47,6 @@ func (c *Connection) Unsubscribe(h Headers) (e os.Error) {
 	}
 	close(c.subs[sid])
 	c.subs[sid] = nil, false
+	c.log(UNSUBSCRIBE, "end")
 	return nil
 }

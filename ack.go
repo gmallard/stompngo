@@ -22,6 +22,7 @@ import (
 
 // Ack
 func (c *Connection) Ack(h Headers) (e os.Error) {
+	c.log(ACK, "start")
 	if !c.connected {
 		return ECONBAD
 	}
@@ -32,5 +33,7 @@ func (c *Connection) Ack(h Headers) (e os.Error) {
 		return EREQMIDACK
 	}
 	ch := h.Clone()
-	return c.transmitCommon(ACK, ch)
+	e = c.transmitCommon(ACK, ch)
+	c.log(ACK, "end")
+	return e
 }

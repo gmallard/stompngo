@@ -17,20 +17,20 @@
 package stomp
 
 import (
+	"log"
 	"os"
+	"testing"
 )
 
-// Abort
-func (c *Connection) Abort(h Headers) (e os.Error) {
-	c.log(ABORT, "start")
-	if !c.connected {
-		return ECONBAD
-	}
-	if _, ok := h.Contains("transaction"); !ok {
-		return EREQTIDABT
-	}
-	ch := h.Clone()
-	e = c.transmitCommon(ABORT, ch)
-	c.log(ABORT, "end")
-	return e
+// Test Logger Basic
+func TestLoggerBasic(t *testing.T) {
+	n, _ := openConn(t)
+	c, _ := Connect(n, test_headers)
+	//
+	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
+	c.SetLogger(l)
+	//
+	_ = c.Disconnect(Headers{})
+	_ = closeConn(t, n)
+
 }

@@ -16,6 +16,10 @@
 
 package stomp
 
+import (
+	"log"
+)
+
 // Exported Connection methods
 
 //  Connected?
@@ -33,9 +37,24 @@ func (c *Connection) Protocol() string {
 	return c.protocol
 }
 
+// Set Logger
+func (c *Connection) SetLogger(l *log.Logger) {
+	c.logger = l
+}
+
 // Package exported functions
 
 //  Supported Version?
 func Supported(v string) bool {
 	return supported.Supported(v)
+}
+
+// Unexported Connection methods
+
+func (c *Connection) log(v ...interface{}) {
+	if c.logger == nil {
+		return
+	}
+	c.logger.Print(c.session, v)
+	return
 }
