@@ -23,6 +23,7 @@ import (
 // Test Send Basic
 func TestSendBasic(t *testing.T) {
 	n, _ := openConn(t)
+	test_headers = check11(test_headers)
 	c, _ := Connect(n, test_headers)
 	//
 	m := "A message"

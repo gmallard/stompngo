@@ -55,3 +55,13 @@ func hostAndPort() (string, string) {
 	}
 	return h, p
 }
+
+func check11(h Headers) (Headers) {
+	if os.Getenv("STOMP_TEST11") == "" {
+		return h
+	}
+	h = h.Add("accept-version", "1.0")
+	h = h.Add("host", "localhost")
+	return h
+}
+
