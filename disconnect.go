@@ -29,6 +29,14 @@ func (c *Connection) Disconnect(h Headers) (e os.Error) {
 	if e != nil {
 		return e
 	}
+	if c.hbd != nil { // Shutdown heartbeats if necessary
+		if c.hbd.hbs {
+			c.hbd.ssd <- true
+		}
+		if c.hbd.hbr {
+			c.hbd.rsd <- true
+		}
+	}
 	ch := h.Clone()
 	//
 	c.connected = false
