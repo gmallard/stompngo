@@ -68,13 +68,13 @@ func readBody(r *bufio.Reader, l int) (b []uint8, e os.Error) {
 		return b, e
 	}
 	n, e := io.ReadFull(r, b)
-	if e != nil {
-		return b, e
-	}
-	if n < l {
+	if n < l { // Short read, e is ErrUnexpectedEOF
 		return b[0 : n-1], e
 	}
-	_, _ = r.ReadByte()
+	if e != nil { // Other erors
+		return b, e
+	}
+	_, _ = r.ReadByte() // trailing NUL
 	return b, e
 }
 
