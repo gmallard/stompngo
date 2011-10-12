@@ -68,8 +68,12 @@ func check11(h Headers) Headers {
 	if os.Getenv("STOMP_TEST11") == "" {
 		return h
 	}
-	h = h.Add("accept-version", "1.0")
-	h = h.Add("host", "localhost")
+	h = h.Add("accept-version", "1.1")
+	s := "localhost" // STOMP 1.1 vhost (configure for Apollo)
+	if os.Getenv("STOMP_RMQ") != "" { // Rabbitmq default vhost
+		s = "/"
+	}
+	h = h.Add("host", s)
 	return h
 }
 
