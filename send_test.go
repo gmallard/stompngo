@@ -38,3 +38,23 @@ func TestSendBasic(t *testing.T) {
 	_ = closeConn(t, n)
 
 }
+
+// Test Send Multiple
+func TestSendMultiple(t *testing.T) {
+	n, _ := openConn(t)
+	test_headers = check11(test_headers)
+	c, _ := Connect(n, test_headers)
+	//
+	md := multi_send_data{conn: c,
+		dest:  "/queue/sendmultiple.01.",
+		mpref: "sendmultiple.01.message.prefix ",
+		count: 5}
+	e := sendMultiple(md)
+	if e != nil {
+		t.Errorf("Expected nil error, got [%v]\n", e)
+	}
+	//
+	_ = c.Disconnect(Headers{})
+	_ = closeConn(t, n)
+
+}

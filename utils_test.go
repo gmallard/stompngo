@@ -17,6 +17,7 @@
 package stomp
 
 import (
+	"fmt"
 	"net"
 	"os"
 	"testing"
@@ -25,6 +26,13 @@ import (
 var test_login = "guest"
 var test_passcode = "guest"
 var test_headers = Headers{"login", test_login, "passcode", test_passcode}
+
+type multi_send_data struct {
+	conn  *Connection // this connection
+	dest  string      // queue/topic name
+	mpref string      // message prefix
+	count int         // number of messages
+}
 
 func openConn(t *testing.T) (n net.Conn, err os.Error) {
 	h, p := hostAndPort()
@@ -56,7 +64,7 @@ func hostAndPort() (string, string) {
 	return h, p
 }
 
-func check11(h Headers) (Headers) {
+func check11(h Headers) Headers {
 	if os.Getenv("STOMP_TEST11") == "" {
 		return h
 	}
@@ -65,3 +73,15 @@ func check11(h Headers) (Headers) {
 	return h
 }
 
+func sendMultiple(md multi_send_data) (e os.Error) {
+	h := Headers{"destination", md.dest}
+	for i := 0; i < md.count; i++ {
+		cstr := fmt.Sprintf("%d", i)
+		mts := md.mpref + cstr
+		e = md.conn.Send(h, mts)
+		if e != nil {
+			return e // now
+		}
+	}
+	return nil
+}
