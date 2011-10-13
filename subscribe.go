@@ -51,26 +51,34 @@ func (c *Connection) Subscribe(h Headers) (s chan MessageData, e os.Error) {
 func (c *Connection) establishSubscription(h Headers) (chan MessageData, os.Error, Headers) {
 	c.subsLock.Lock()
 	defer c.subsLock.Unlock()
+	//
+	sid, hid := h.Contains("id")
+	d := h.Value("destination")
+	sha1 := getSha1(d)
 	// No duplicates
-	sid, ok := h.Contains("id")
-	if ok {
+	if hid {
 		if _, q := c.subs[sid]; q {
-			return nil, EDUPSID, h // Duplicate IDs not allowed
+			return nil, EDUPSID, h // Duplicate subscriptions not allowed
+		}
+	} else {
+		if _, q := c.subs[sha1]; q {
+			return nil, EDUPSID, h // Duplicate subscriptions not allowed
 		}
 	}
 	//
 	switch c.protocol {
-	case SPL_10: // No subscription is allowed.
-		if ok { // If 1.0 client wants one, assign it.
-			c.subs[sid] = make(chan MessageData) // Assign subscription
-		}
+	case SPL_10:
+		if hid { // If 1.0 client wants one, assign it.
+			c.subs[sid] = make(chan MessageData)
+		} // No subscription is allowed for 1.0.
 	case SPL_11:
-		if !ok { // Client did not specify
-			q, _ := h.Contains("destination")
-			sid = getSha1(q) // get a sid for them
-			h = h.Add("id", sid)
+		if hid { // Client specified id
+			c.subs[sid] = make(chan MessageData) // Assign subscription
+		} else {
+			h = h.Add("id", sha1)
+			c.subs[sha1] = make(chan MessageData) // Assign subscription
+			sid = sha1                            // reset
 		}
-		c.subs[sid] = make(chan MessageData) // Assign subscription
 	default: // Should not happen
 		panic("subscribe runtime unsupported: " + c.protocol)
 	}
