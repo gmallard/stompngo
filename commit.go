@@ -29,6 +29,9 @@ func (c *Connection) Commit(h Headers) (e os.Error) {
 	if _, ok := h.Contains("transaction"); !ok {
 		return EREQTIDCOM
 	}
+	if h.Value("transaction") == "" {
+		return EREQTIDCOM
+	}
 	ch := h.Clone()
 	e = c.transmitCommon(COMMIT, ch)
 	c.log(COMMIT, "end")

@@ -29,6 +29,9 @@ func (c *Connection) Abort(h Headers) (e os.Error) {
 	if _, ok := h.Contains("transaction"); !ok {
 		return EREQTIDABT
 	}
+	if h.Value("transaction") == "" {
+		return EREQTIDABT
+	}
 	ch := h.Clone()
 	e = c.transmitCommon(ABORT, ch)
 	c.log(ABORT, "end")

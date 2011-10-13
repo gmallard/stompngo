@@ -34,6 +34,9 @@ type multi_send_data struct {
 	count int         // number of messages
 }
 
+var test_tdestpref = "/queue/transtest."
+var test_ttranid = "TransactionA"
+
 func openConn(t *testing.T) (n net.Conn, err os.Error) {
 	h, p := hostAndPort()
 	n, err = net.Dial("tcp", net.JoinHostPort(h, p))
@@ -69,7 +72,7 @@ func check11(h Headers) Headers {
 		return h
 	}
 	h = h.Add("accept-version", "1.1")
-	s := "localhost" // STOMP 1.1 vhost (configure for Apollo)
+	s := "localhost"                  // STOMP 1.1 vhost (configure for Apollo)
 	if os.Getenv("STOMP_RMQ") != "" { // Rabbitmq default vhost
 		s = "/"
 	}

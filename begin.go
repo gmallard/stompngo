@@ -29,6 +29,9 @@ func (c *Connection) Begin(h Headers) (e os.Error) {
 	if _, ok := h.Contains("transaction"); !ok {
 		return EREQTIDBEG
 	}
+	if h.Value("transaction") == "" {
+		return EREQTIDBEG
+	}
 	ch := h.Clone()
 	e = c.transmitCommon(BEGIN, ch)
 	c.log(BEGIN, "end")
