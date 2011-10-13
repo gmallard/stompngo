@@ -17,6 +17,7 @@
 package stomp
 
 import (
+	"os"
 	"testing"
 )
 
@@ -71,30 +72,31 @@ func TestTransSend(t *testing.T) {
 	th := Headers{"transaction", test_ttranid,
 		"destination", test_tdestpref + "1"}
 	m := "transaction message 1"
-
 	e := c.Begin(th)
 	if e != nil {
 		t.Errorf("BEGIN error: %v", e)
 	}
-
 	e = c.Send(th, m)
 	if e != nil {
 		t.Errorf("SEND error: %v", e)
 	}
-
 	e = c.Commit(th)
 	if e != nil {
 		t.Errorf("COMMIT error: %v", e)
 	}
-
 	// Then subscribe and test server message
 	h := Headers{"destination", test_tdestpref + "1"}
-	_, e = c.Subscribe(h)
+	s, e := c.Subscribe(h)
 	if e != nil {
 		t.Errorf("SUBSCRIBE error: %v", e)
 	}
+	var r MessageData
+	if os.Getenv("STOMP_TEST11") == "" {
+		r = <-c.MessageData
+	} else {
+		r = <-s
+	}
 
-	r := <-c.MessageData
 	if r.Error != nil {
 		t.Errorf("read error: %v", r.Error)
 	}
@@ -173,12 +175,18 @@ func TestTransSendRollback(t *testing.T) {
 	}
 
 	// Then subscribe and test server message
-	_, e = c.Subscribe(h)
+	s, e := c.Subscribe(h)
 	if e != nil {
 		t.Errorf("SUBSCRIBE error, expected [nil], got: [%v]", e)
 	}
 
-	r := <-c.MessageData
+	var r MessageData
+	if os.Getenv("STOMP_TEST11") == "" {
+		r = <-c.MessageData
+	} else {
+		r = <-s
+	}
+
 	if r.Error != nil {
 		t.Errorf("Read error, expected [nil], got: [%v]", r.Error)
 	}
@@ -193,7 +201,7 @@ func TestTransSendRollback(t *testing.T) {
 }
 
 // Test transaction message order
-func TestTransactionMessageOrder(t *testing.T) {
+func TestTransMessageOrder(t *testing.T) {
 
 	n, _ := openConn(t)
 	test_headers = check11(test_headers)
@@ -205,7 +213,7 @@ func TestTransactionMessageOrder(t *testing.T) {
 	mt := "Message in transaction"
 
 	// Subscribe
-	_, e := c.Subscribe(h)
+	s, e := c.Subscribe(h)
 	if e != nil {
 		t.Errorf("SUBSCRIBE error: [%v]", e)
 	}
@@ -227,9 +235,15 @@ func TestTransactionMessageOrder(t *testing.T) {
 	if e != nil {
 		t.Errorf("SEND error: [%v]", e)
 	}
-
 	// First receive - should be second message
-	r := <-c.MessageData
+
+	var r MessageData
+	if os.Getenv("STOMP_TEST11") == "" {
+		r = <-c.MessageData
+	} else {
+		r = <-s
+	}
+
 	if r.Error != nil {
 		t.Errorf("Read error: [%v]", r.Error)
 	}
@@ -244,7 +258,12 @@ func TestTransactionMessageOrder(t *testing.T) {
 	}
 
 	// Second receive - should be first message
-	r = <-c.MessageData
+	if os.Getenv("STOMP_TEST11") == "" {
+		r = <-c.MessageData
+	} else {
+		r = <-s
+	}
+
 	if r.Error != nil {
 		t.Errorf("Read error: [%v]", r.Error)
 	}
