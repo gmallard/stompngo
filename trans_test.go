@@ -17,7 +17,6 @@
 package stomp
 
 import (
-	"os"
 	"testing"
 )
 
@@ -32,7 +31,7 @@ func TestTransErrors(t *testing.T) {
 	h := Headers{}
 	e := c.Begin(h)
 	if e == nil {
-		t.Errorf("BEGIN expected [nil], got error: %[v]\n", e)
+		t.Errorf("BEGIN expected error, got: [nil]\n")
 	}
 	if e != EREQTIDBEG {
 		t.Errorf("BEGIN expected error [%v], got [%v]\n", EREQTIDBEG, e)
@@ -41,7 +40,7 @@ func TestTransErrors(t *testing.T) {
 	// Empty transaction id - COMMIT
 	e = c.Commit(h)
 	if e == nil {
-		t.Errorf("COMMIT expected [nil], got error: %[v]\n", e)
+		t.Errorf("COMMIT expected error, got: [nil]\n")
 	}
 	if e != EREQTIDCOM {
 		t.Errorf("COMMIT expected error [%v], got [%v]\n", EREQTIDCOM, e)
@@ -50,7 +49,7 @@ func TestTransErrors(t *testing.T) {
 	// Empty transaction id - ABORT
 	e = c.Abort(h)
 	if e == nil {
-		t.Errorf("ABORT expected [nil], got error: %[v]\n", e)
+		t.Errorf("ABORT expected error, got: [nil]\n")
 	}
 	if e != EREQTIDABT {
 		t.Errorf("ABORT expected error [%v], got [%v]\n", EREQTIDABT, e)
@@ -74,34 +73,30 @@ func TestTransSend(t *testing.T) {
 	m := "transaction message 1"
 	e := c.Begin(th)
 	if e != nil {
-		t.Errorf("BEGIN error: %v", e)
+		t.Errorf("BEGIN expected [nil], got: [%v]\n", e)
 	}
 	e = c.Send(th, m)
 	if e != nil {
-		t.Errorf("SEND error: %v", e)
+		t.Errorf("SEND expected [nil], got: [%v]\n", e)
 	}
 	e = c.Commit(th)
 	if e != nil {
-		t.Errorf("COMMIT error: %v", e)
+		t.Errorf("COMMIT expected [nil], got: [%v]\n", e)
 	}
 	// Then subscribe and test server message
 	h := Headers{"destination", test_tdestpref + "1"}
 	s, e := c.Subscribe(h)
 	if e != nil {
-		t.Errorf("SUBSCRIBE error: %v", e)
-	}
-	var r MessageData
-	if os.Getenv("STOMP_TEST11") == "" {
-		r = <-c.MessageData
-	} else {
-		r = <-s
+		t.Errorf("SUBSCRIBE expected [nil], got: [%v]\n", e)
 	}
 
+	r := getMessageData(c, s)
+
 	if r.Error != nil {
-		t.Errorf("read error: %v", r.Error)
+		t.Errorf("read error:  expected [nil], got: [%v]\n", r.Error)
 	}
 	if m != r.Message.BodyString() {
-		t.Errorf("message error: %v %v", m, r.Message.BodyString())
+		t.Errorf("message error: expected: [%v], got: [%v]\n", m, r.Message.BodyString())
 	}
 
 	//
@@ -147,15 +142,15 @@ func TestTransSendRollback(t *testing.T) {
 
 	e := c.Begin(th)
 	if e != nil {
-		t.Errorf("BEGIN error, expected [nil], got: [%v]", e)
+		t.Errorf("BEGIN error, expected [nil], got: [%v]\n", e)
 	}
 	e = c.Send(th, m)
 	if e != nil {
-		t.Errorf("SEND error, expected [nil], got: [%v]", e)
+		t.Errorf("SEND error, expected [nil], got: [%v]\n", e)
 	}
 	e = c.Abort(th)
 	if e != nil {
-		t.Errorf("ABORT error, expected [nil], got: [%v]", e)
+		t.Errorf("ABORT error, expected [nil], got: [%v]\n", e)
 	}
 
 	// begin, send, commit
@@ -163,35 +158,30 @@ func TestTransSendRollback(t *testing.T) {
 
 	e = c.Begin(th)
 	if e != nil {
-		t.Errorf("BEGIN error, expected [nil], got: [%v]", e)
+		t.Errorf("BEGIN error, expected [nil], got: [%v]\n", e)
 	}
 	e = c.Send(th, m)
 	if e != nil {
-		t.Errorf("SEND error, expected [nil], got: [%v]", e)
+		t.Errorf("SEND error, expected [nil], got: [%v]\n", e)
 	}
 	e = c.Commit(th)
 	if e != nil {
-		t.Errorf("COMMIT error, expected [nil], got: [%v]", e)
+		t.Errorf("COMMIT error, expected [nil], got: [%v]\n", e)
 	}
 
 	// Then subscribe and test server message
 	s, e := c.Subscribe(h)
 	if e != nil {
-		t.Errorf("SUBSCRIBE error, expected [nil], got: [%v]", e)
+		t.Errorf("SUBSCRIBE error, expected [nil], got: [%v]\n", e)
 	}
 
-	var r MessageData
-	if os.Getenv("STOMP_TEST11") == "" {
-		r = <-c.MessageData
-	} else {
-		r = <-s
-	}
+	r := getMessageData(c, s)
 
 	if r.Error != nil {
-		t.Errorf("Read error, expected [nil], got: [%v]", r.Error)
+		t.Errorf("Read error, expected [nil], got: [%v]\n", r.Error)
 	}
 	if m != r.Message.BodyString() {
-		t.Errorf("Message error: [%v] [%v]", m, r.Message.BodyString())
+		t.Errorf("Message error: expected: [%v] got: [%v]\n", m, r.Message.BodyString())
 	}
 
 	//
@@ -215,60 +205,50 @@ func TestTransMessageOrder(t *testing.T) {
 	// Subscribe
 	s, e := c.Subscribe(h)
 	if e != nil {
-		t.Errorf("SUBSCRIBE error: [%v]", e)
+		t.Errorf("SUBSCRIBE expected [nil], got: [%v]\n", e)
 	}
 
 	// Then begin
 	e = c.Begin(th)
 	if e != nil {
-		t.Errorf("BEGIN error: [%v]", e)
+		t.Errorf("BEGIN expected [nil], got: [%v]\n", e)
 	}
 	// Then send in transaction
 	e = c.Send(th, mt) // in transaction
 	if e != nil {
-		t.Errorf("SEND error: [%v]", e)
+		t.Errorf("SEND expected [nil], got: [%v]\n", e)
 	}
 	//
 	mn := "Message NOT in transaction"
 	// Then send NOT in transaction
 	e = c.Send(h, mn) // NOT in transaction
 	if e != nil {
-		t.Errorf("SEND error: [%v]", e)
+		t.Errorf("SEND expected [nil], got: [%v]\n", e)
 	}
 	// First receive - should be second message
-
-	var r MessageData
-	if os.Getenv("STOMP_TEST11") == "" {
-		r = <-c.MessageData
-	} else {
-		r = <-s
-	}
+	r := getMessageData(c, s)
 
 	if r.Error != nil {
-		t.Errorf("Read error: [%v]", r.Error)
+		t.Errorf("Read error: expected [nil], got: [%v]\n", r.Error)
 	}
 	if mn != r.Message.BodyString() {
-		t.Errorf("Message error TMO1: [%v] [%v]", mn, r.Message.BodyString())
+		t.Errorf("Message error TMO1: expected: [%v] got: [%v]", mn, r.Message.BodyString())
 	}
 
 	// Now commit
 	e = c.Commit(th)
 	if e != nil {
-		t.Errorf("COMMIT error: [%v]", e)
+		t.Errorf("COMMIT expected [nil], got: [%v]\n", e)
 	}
 
 	// Second receive - should be first message
-	if os.Getenv("STOMP_TEST11") == "" {
-		r = <-c.MessageData
-	} else {
-		r = <-s
-	}
+	r = getMessageData(c, s)
 
 	if r.Error != nil {
-		t.Errorf("Read error: [%v]", r.Error)
+		t.Errorf("Read error:  expected [nil], got: [%v]\n", r.Error)
 	}
 	if mt != r.Message.BodyString() {
-		t.Errorf("Message error TMO2: [%v] [%v]", mt, r.Message.BodyString())
+		t.Errorf("Message error TMO2: expected: [%v] got: [%v]", mt, r.Message.BodyString())
 	}
 	//
 	_ = c.Disconnect(h)

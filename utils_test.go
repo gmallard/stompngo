@@ -92,3 +92,12 @@ func sendMultiple(md multi_send_data) (e os.Error) {
 	}
 	return nil
 }
+
+func getMessageData(c *Connection, s chan MessageData) (r MessageData) {
+	if os.Getenv("STOMP_TEST11") == "" {
+		r = <-c.MessageData
+	} else {
+		r = <-s
+	}
+	return r
+}
