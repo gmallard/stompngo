@@ -24,8 +24,8 @@ import (
 func TestTransErrors(t *testing.T) {
 
 	n, _ := openConn(t)
-	test_headers = check11(test_headers)
-	c, _ := Connect(n, test_headers)
+	conn_headers := check11(TEST_HEADERS)
+	c, _ := Connect(n, conn_headers)
 
 	// Empty transaction id - BEGIN
 	h := Headers{}
@@ -64,12 +64,12 @@ func TestTransErrors(t *testing.T) {
 func TestTransSend(t *testing.T) {
 
 	n, _ := openConn(t)
-	test_headers = check11(test_headers)
-	c, _ := Connect(n, test_headers)
+	conn_headers := check11(TEST_HEADERS)
+	c, _ := Connect(n, conn_headers)
 
 	// begin, send, commit
-	th := Headers{"transaction", test_ttranid,
-		"destination", test_tdestpref + "1"}
+	th := Headers{"transaction", TEST_TRANID,
+		"destination", TEST_TDESTPREF + "1"}
 	m := "transaction message 1"
 	e := c.Begin(th)
 	if e != nil {
@@ -84,7 +84,7 @@ func TestTransSend(t *testing.T) {
 		t.Errorf("COMMIT expected [nil], got: [%v]\n", e)
 	}
 	// Then subscribe and test server message
-	h := Headers{"destination", test_tdestpref + "1"}
+	h := Headers{"destination", TEST_TDESTPREF + "1"}
 	s, e := c.Subscribe(h)
 	if e != nil {
 		t.Errorf("SUBSCRIBE expected [nil], got: [%v]\n", e)
@@ -109,8 +109,8 @@ func TestTransSend(t *testing.T) {
 func TestTransSendEmptyTid(t *testing.T) {
 
 	n, _ := openConn(t)
-	test_headers = check11(test_headers)
-	c, _ := Connect(n, test_headers)
+	conn_headers := check11(TEST_HEADERS)
+	c, _ := Connect(n, conn_headers)
 
 	// begin, send, commit
 	h := Headers{"transaction", ""}
@@ -131,13 +131,13 @@ func TestTransSendEmptyTid(t *testing.T) {
 func TestTransSendRollback(t *testing.T) {
 
 	n, _ := openConn(t)
-	test_headers = check11(test_headers)
-	c, _ := Connect(n, test_headers)
+	conn_headers := check11(TEST_HEADERS)
+	c, _ := Connect(n, conn_headers)
 
 	// begin, send, abort
-	th := Headers{"transaction", test_ttranid,
-		"destination", test_tdestpref + "2"}
-	h := Headers{"destination", test_tdestpref + "2"}
+	th := Headers{"transaction", TEST_TRANID,
+		"destination", TEST_TDESTPREF + "2"}
+	h := Headers{"destination", TEST_TDESTPREF + "2"}
 	m := "transaction message 1"
 
 	e := c.Begin(th)
@@ -194,12 +194,12 @@ func TestTransSendRollback(t *testing.T) {
 func TestTransMessageOrder(t *testing.T) {
 
 	n, _ := openConn(t)
-	test_headers = check11(test_headers)
-	c, _ := Connect(n, test_headers)
+	conn_headers := check11(TEST_HEADERS)
+	c, _ := Connect(n, conn_headers)
 
-	th := Headers{"transaction", test_ttranid,
-		"destination", test_tdestpref + "2"}
-	h := Headers{"destination", test_tdestpref + "2"}
+	th := Headers{"transaction", TEST_TRANID,
+		"destination", TEST_TDESTPREF + "2"}
+	h := Headers{"destination", TEST_TDESTPREF + "2"}
 	mt := "Message in transaction"
 
 	// Subscribe

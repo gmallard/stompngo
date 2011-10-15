@@ -23,8 +23,8 @@ import (
 // Test Subscribe, no destination
 func TestSubNoSub(t *testing.T) {
 	n, _ := openConn(t)
-	test_headers = check11(test_headers)
-	c, _ := Connect(n, test_headers)
+	conn_headers := check11(TEST_HEADERS)
+	c, _ := Connect(n, conn_headers)
 	//
 	h := Headers{}
 	// Subscribe, no dest
@@ -43,8 +43,8 @@ func TestSubNoSub(t *testing.T) {
 // Test subscribe, no ID
 func TestSubNoIdOnce(t *testing.T) {
 	n, _ := openConn(t)
-	test_headers = check11(test_headers)
-	c, _ := Connect(n, test_headers)
+	conn_headers := check11(TEST_HEADERS)
+	c, _ := Connect(n, conn_headers)
 	//
 	d := "/queue/subunsub.genl.01"
 	h := Headers{"destination", d}
@@ -75,8 +75,8 @@ func TestSubNoIdOnce(t *testing.T) {
 // Test subscribe, no ID, twice to same destination
 func TestSubNoIdTwice(t *testing.T) {
 	n, _ := openConn(t)
-	test_headers = check11(test_headers)
-	c, _ := Connect(n, test_headers)
+	conn_headers := check11(TEST_HEADERS)
+	c, _ := Connect(n, conn_headers)
 	//
 	d := "/queue/subunsub.genl.02"
 	h := Headers{"destination", d}
@@ -132,8 +132,8 @@ func TestSubNoIdTwice(t *testing.T) {
 // Test Unsubscribe, no destination
 func TestUnSubNoSub(t *testing.T) {
 	n, _ := openConn(t)
-	test_headers = check11(test_headers)
-	c, _ := Connect(n, test_headers)
+	conn_headers := check11(TEST_HEADERS)
+	c, _ := Connect(n, conn_headers)
 	//
 	h := Headers{}
 	// Unsubscribe, no dest
@@ -152,8 +152,8 @@ func TestUnSubNoSub(t *testing.T) {
 // Test Unsubscribe, no ID
 func TestUnSubNoId(t *testing.T) {
 	n, _ := openConn(t)
-	test_headers = check11(test_headers)
-	c, _ := Connect(n, test_headers)
+	conn_headers := check11(TEST_HEADERS)
+	c, _ := Connect(n, conn_headers)
 	//
 	h := Headers{"destination", "/queue/unsub.noid"}
 	// Unsubscribe, no id
@@ -172,8 +172,8 @@ func TestUnSubNoId(t *testing.T) {
 // Test Unsubscribe, bad ID
 func TestUnSubBadId(t *testing.T) {
 	n, _ := openConn(t)
-	test_headers = check11(test_headers)
-	c, _ := Connect(n, test_headers)
+	conn_headers := check11(TEST_HEADERS)
+	c, _ := Connect(n, conn_headers)
 	//
 	h := Headers{"destination", "/queue/unsub.badid", "id", "bogus"}
 	// Unsubscribe, bad id

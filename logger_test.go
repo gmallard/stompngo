@@ -25,8 +25,8 @@ import (
 // Test Logger Basic
 func TestLoggerBasic(t *testing.T) {
 	n, _ := openConn(t)
-	test_headers = check11(test_headers)
-	c, _ := Connect(n, test_headers)
+	conn_headers := check11(TEST_HEADERS)
+	c, _ := Connect(n, conn_headers)
 	//
 	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 	c.SetLogger(l)

@@ -36,7 +36,6 @@ func (c *Connection) initializeHeartBeats(ch Headers) (e os.Error) {
 	if !ok || vs == "0,0" {
 		return e
 	}
-
 	// Work area, may or may not become connection heartbeat data
 	w := &heartbeat_data{cx: 0, cy: 0, sx: 0, sy: 0,
 		hbs: true, hbr: true, // possible reset later
@@ -90,19 +89,21 @@ func (c *Connection) initializeHeartBeats(ch Headers) (e os.Error) {
 
 	if w.hbs { // Finish sender parameters if required
 		sm := max(w.cx, w.sy)
-		smd := sm / 5                // 5% in ms
+		smd := sm / 5                // 20% in ms
 		w.sti = 1000000 * (sm - smd) // fudge, ns
 		w.ssd = make(chan bool)      // add shutdown channel
 		w.ls = ct                    // Best guess at start
+		// fmt.Println("start send ticker")
 		go c.sendTicker()
 	}
 
 	if w.hbr { // Finish receiver parameters if required
 		rm := max(w.sx, w.cy)
-		rmd := rm / 10               // 10% in ms
+		rmd := rm / 5                // 20% in ms
 		w.rti = 1000000 * (rm + rmd) // fudge, ns
 		w.rsd = make(chan bool)      // add shutdown channel
 		w.lr = ct                    // Best guess at start
+		// fmt.Println("start receive ticker")
 		go c.receiveTicker()
 	}
 	return nil
@@ -115,7 +116,9 @@ func (c *Connection) sendTicker() {
 		select {
 		case ct := <-ticker.C:
 			ld := ct - c.hbd.ls
-			if ld > (c.hbd.sti - (c.hbd.sti / 5)) { // swag
+			// c.log("HeartBeat send TIC", ct, c.hbd.ls, ld)
+			if ld > (c.hbd.sti - (c.hbd.sti / 5)) { // swag minus to be tolerant
+				c.log("HeartBeat send data")
 				// Send a heartbeat
 				f := Frame{"\n", Headers{}, make([]uint8, 0)} // Heartbeat frame
 				r := make(chan os.Error)
@@ -143,7 +146,9 @@ func (c *Connection) receiveTicker() {
 		select {
 		case ct := <-ticker.C:
 			ld := ct - c.hbd.lr
-			if ld > (c.hbd.rti - (c.hbd.rti / 5)) { // swag
+			c.log("HeartBeat receive TIC", ct, c.hbd.lr, ld)
+			if ld > (c.hbd.rti + (c.hbd.rti / 5)) { // swag plus to be tolerant
+				c.log("HeartBeat Receive Read is dirty")
 				c.Hbrf = true // Flag possible dirty connection
 			}
 		case q = <-c.hbd.rsd:

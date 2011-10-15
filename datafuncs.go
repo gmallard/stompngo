@@ -99,3 +99,13 @@ func (h Headers) Clone() Headers {
 	}
 	return r
 }
+
+func (h Headers) Delete(k string) Headers {
+	r := Headers{}
+	for i := 0; i < len(h); i += 2 {
+		if h[i] != k {
+			r = append(r, h[i], h[i+1])
+		}
+	}
+	return r
+}

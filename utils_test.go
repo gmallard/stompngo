@@ -23,9 +23,9 @@ import (
 	"testing"
 )
 
-var test_login = "guest"
-var test_passcode = "guest"
-var test_headers = Headers{"login", test_login, "passcode", test_passcode}
+var TEST_HEADERS = Headers{"login", "guest", "passcode", "guest"}
+var TEST_TDESTPREF = "/queue/transtest."
+var TEST_TRANID = "TransactionA"
 
 type multi_send_data struct {
 	conn  *Connection // this connection
@@ -33,9 +33,6 @@ type multi_send_data struct {
 	mpref string      // message prefix
 	count int         // number of messages
 }
-
-var test_tdestpref = "/queue/transtest."
-var test_ttranid = "TransactionA"
 
 func openConn(t *testing.T) (n net.Conn, err os.Error) {
 	h, p := hostAndPort()
