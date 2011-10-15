@@ -26,8 +26,10 @@ func (c *Connection) Ack(h Headers) (e os.Error) {
 	if !c.connected {
 		return ECONBAD
 	}
-	if _, ok := h.Contains("subscription"); !ok {
-		return EREQSUBACK
+	if c.protocol >= SPL_11 {
+		if _, ok := h.Contains("subscription"); !ok {
+			return EREQSUBACK
+		}
 	}
 	if _, ok := h.Contains("message-id"); !ok {
 		return EREQMIDACK

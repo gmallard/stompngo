@@ -24,7 +24,7 @@ import (
 )
 
 var TEST_HEADERS = Headers{"login", "guest", "passcode", "guest"}
-var TEST_TDESTPREF = "/queue/transtest."
+var TEST_TDESTPREF = "/queue/test.pref."
 var TEST_TRANID = "TransactionA"
 
 type multi_send_data struct {
@@ -97,4 +97,12 @@ func getMessageData(c *Connection, s chan MessageData) (r MessageData) {
 		r = <-s
 	}
 	return r
+}
+
+func checkReceived(t *testing.T, c *Connection, id string) {
+	select {
+	case v := <-c.MessageData:
+		t.Errorf("Unexpected frame received, id [%s], got [%v]\n", id, v)
+	default:
+	}
 }
