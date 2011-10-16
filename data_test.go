@@ -89,6 +89,25 @@ func TestDataHeadersClone(t *testing.T) {
 	}
 }
 
+// Data Test: Headers Add / Delete
+func TestDataHeadersAddDelete(t *testing.T) {
+	ha := Headers{"ka", "va", "kb", "vb", "kc", "vc"}
+	hb := Headers{"kaa", "va", "kbb", "vb", "kcc", "vc"}
+	hn := ha.AddHeaders(hb)
+	if len(ha)+len(hb) != len(hn) {
+		t.Errorf("Unexpected length AddHeaders, expected: [%v], got: [%v]\n", len(ha)+len(hb), len(hn))
+	}
+	ol := len(hn)
+	hn = hn.Delete("ka")
+	if len(hn) != ol-2 {
+		t.Errorf("Unexpected length Delete 1, expected: [%v], got: [%v]\n", ol-2, len(hn))
+	}
+	hn = hn.Delete("kcc")
+	if len(hn) != ol-4 {
+		t.Errorf("Unexpected length Delete 2, expected: [%v], got: [%v]\n", ol-4, len(hn))
+	}
+}
+
 // Data Test: protocols
 func TestDataprotocols(t *testing.T) {
 	l := SPL_10

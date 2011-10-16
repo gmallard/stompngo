@@ -50,6 +50,11 @@ func (h Headers) Add(k, v string) Headers {
 	return r
 }
 
+func (h Headers) AddHeaders(o Headers) Headers {
+	r := append(h, o...)
+	return r
+}
+
 func (h Headers) Compare(other Headers) bool {
 	if len(h) != len(other) {
 		return false
@@ -85,6 +90,17 @@ func (h Headers) Value(k string) string {
 	return ""
 }
 
+func (h Headers) Index(k string) (r int) {
+	r = -1
+	for i := 0; i < len(h); i += 2 {
+		if h[i] == k {
+			r = i
+			break
+		}
+	}
+	return r
+}
+
 func (h Headers) Validate() os.Error {
 	if len(h)%2 != 0 {
 		return EHDRLEN
@@ -93,19 +109,16 @@ func (h Headers) Validate() os.Error {
 }
 
 func (h Headers) Clone() Headers {
-	r := Headers{}
-	for _, v := range h {
-		r = append(r, v)
-	}
+	r := make(Headers, len(h))
+	copy(r, h)
 	return r
 }
 
 func (h Headers) Delete(k string) Headers {
-	r := Headers{}
-	for i := 0; i < len(h); i += 2 {
-		if h[i] != k {
-			r = append(r, h[i], h[i+1])
-		}
+	r := h.Clone()
+	i := r.Index(k)
+	if i >= 0 {
+		r = append(r[:i], r[i+2:]...)
 	}
 	return r
 }
