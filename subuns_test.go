@@ -17,6 +17,7 @@
 package stomp
 
 import (
+	"os"
 	"testing"
 )
 
@@ -151,6 +152,10 @@ func TestUnSubNoSub(t *testing.T) {
 
 // Test Unsubscribe, no ID
 func TestUnSubNoId(t *testing.T) {
+	if os.Getenv("STOMP_TEST11") == "" {
+		println("TestUnSubNoId norun")
+		return
+	}
 	n, _ := openConn(t)
 	conn_headers := check11(TEST_HEADERS)
 	c, _ := Connect(n, conn_headers)

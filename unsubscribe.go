@@ -35,18 +35,29 @@ func (c *Connection) Unsubscribe(h Headers) (e os.Error) {
 	defer c.subsLock.Unlock()
 	//
 	sid, ok := ch.Contains("id")
-	if !ok {
-		return EUNOSID
-	}
-	if _, p := c.subs[sid]; !p { // subscription does not exist
-		return EBADSID
+	switch c.protocol {
+	case SPL_10:
+		if ok { // User specified 'id'
+			if _, p := c.subs[sid]; !p { // subscription does not exist
+				return EBADSID
+			}
+		}
+	default:
+		if !ok {
+			return EUNOSID
+		}
+		if _, p := c.subs[sid]; !p { // subscription does not exist
+			return EBADSID
+		}
 	}
 	e = c.transmitCommon(UNSUBSCRIBE, ch)
 	if e != nil {
 		return e
 	}
-	close(c.subs[sid])
-	c.subs[sid] = nil, false
+	if ok {
+		close(c.subs[sid])
+		c.subs[sid] = nil, false
+	}
 	c.log(UNSUBSCRIBE, "end")
 	return nil
 }
