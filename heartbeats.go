@@ -88,21 +88,19 @@ func (c *Connection) initializeHeartBeats(ch Headers) (e os.Error) {
 	ct := time.Nanoseconds() // Prime current time
 
 	if w.hbs { // Finish sender parameters if required
-		sm := max(w.cx, w.sy)
-		smd := sm / 5                // 20% in ms
-		w.sti = 1000000 * (sm - smd) // fudge, ns
-		w.ssd = make(chan bool)      // add shutdown channel
-		w.ls = ct                    // Best guess at start
+		sm := max(w.cx, w.sy)   // ticker interval, ms
+		w.sti = 1000000 * sm    // ticker interval, ns
+		w.ssd = make(chan bool) // add shutdown channel
+		w.ls = ct               // Best guess at start
 		// fmt.Println("start send ticker")
 		go c.sendTicker()
 	}
 
 	if w.hbr { // Finish receiver parameters if required
-		rm := max(w.sx, w.cy)
-		rmd := rm / 5                // 20% in ms
-		w.rti = 1000000 * (rm + rmd) // fudge, ns
-		w.rsd = make(chan bool)      // add shutdown channel
-		w.lr = ct                    // Best guess at start
+		rm := max(w.sx, w.cy)   // ticker interval, ms
+		w.rti = 1000000 * rm    // ticker interval, ns
+		w.rsd = make(chan bool) // add shutdown channel
+		w.lr = ct               // Best guess at start
 		// fmt.Println("start receive ticker")
 		go c.receiveTicker()
 	}

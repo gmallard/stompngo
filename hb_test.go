@@ -182,7 +182,7 @@ func TestHB11NoSend(t *testing.T) {
 	c.SetLogger(l)
 	//
 	fmt.Println("TestHB11NoSend start sleep")
-	time.Sleep(1e9 * 30) // 30 secs
+	time.Sleep(1e9 * 120) // 120 secs
 	fmt.Println("TestHB11NoSend end sleep")
 	c.SetLogger(nil)
 	//
@@ -221,7 +221,7 @@ func TestHB11NoReceive(t *testing.T) {
 	c.SetLogger(l)
 	//
 	fmt.Println("TestHB11NoReceive start sleep")
-	time.Sleep(1e9 * 30) // 30 secs
+	time.Sleep(1e9 * 120) // 120 secs
 	fmt.Println("TestHB11NoReceive end sleep")
 	c.SetLogger(nil)
 	//
@@ -256,8 +256,85 @@ func TestHB11SendReceive(t *testing.T) {
 	c.SetLogger(l)
 	//
 	fmt.Println("TestHB11SendReceive start sleep")
-	time.Sleep(1e9 * 60) // 60 secs
+	time.Sleep(1e9 * 120) // 120 secs
 	fmt.Println("TestHB11SendReceive end sleep")
+	c.SetLogger(nil)
+	if c.Hbrf {
+		t.Errorf("Error, dirty heart beat read detected")
+	}
+	//
+	_ = c.Disconnect(Headers{})
+	_ = closeConn(t, n)
+}
+
+// Test Connect to 1.1 - Test HeartBeat - Send and Receive - Match Apollo defaults
+func TestHB11SendReceiveApollo(t *testing.T) {
+	if os.Getenv("STOMP_TEST11") == "" {
+		fmt.Println("TestHB11SendReceiveApollo norun")
+		return
+	}
+	if os.Getenv("STOMP_HB11LONG") == "" {
+		fmt.Println("TestHB11SendReceiveApollo norun LONG")
+		return
+	}
+	//
+	n, _ := openConn(t)
+	conn_headers := check11(TEST_HEADERS)
+	conn_headers = conn_headers.Add("heart-beat", "10000,10")
+	c, e := Connect(n, conn_headers)
+	// Error checks
+	if e != nil {
+		t.Errorf("Heartbeat send-receive connect error, unexpected: %q", e)
+	}
+	if c.hbd == nil {
+		t.Errorf("Heartbeat send-receive error expected hbd value.")
+	}
+	//
+	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
+	c.SetLogger(l)
+	//
+	fmt.Println("TestHB11SendReceiveApollo start sleep")
+	time.Sleep(1e9 * 120) // 120 secs
+	fmt.Println("TestHB11SendReceiveApollo end sleep")
+	c.SetLogger(nil)
+	if c.Hbrf {
+		t.Errorf("Error, dirty heart beat read detected")
+	}
+	//
+	_ = c.Disconnect(Headers{})
+	_ = closeConn(t, n)
+}
+
+// Test Connect to 1.1 - Test HeartBeat - Send and Receive - 
+// Match Apollo defaults reverse
+func TestHB11SendReceiveApolloRev(t *testing.T) {
+	if os.Getenv("STOMP_TEST11") == "" {
+		fmt.Println("TestHB11SendReceiveApolloRev norun")
+		return
+	}
+	if os.Getenv("STOMP_HB11LONG") == "" {
+		fmt.Println("TestHB11SendReceiveApolloRev norun LONG")
+		return
+	}
+	//
+	n, _ := openConn(t)
+	conn_headers := check11(TEST_HEADERS)
+	conn_headers = conn_headers.Add("heart-beat", "10,10000")
+	c, e := Connect(n, conn_headers)
+	// Error checks
+	if e != nil {
+		t.Errorf("Heartbeat send-receive connect error, unexpected: %q", e)
+	}
+	if c.hbd == nil {
+		t.Errorf("Heartbeat send-receive error expected hbd value.")
+	}
+	//
+	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
+	c.SetLogger(l)
+	//
+	fmt.Println("TestHB11SendReceiveApolloRev start sleep")
+	time.Sleep(1e9 * 120) // 120 secs
+	fmt.Println("TestHB11SendReceiveApolloRev end sleep")
 	c.SetLogger(nil)
 	if c.Hbrf {
 		t.Errorf("Error, dirty heart beat read detected")
