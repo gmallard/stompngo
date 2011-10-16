@@ -21,7 +21,7 @@ import (
 )
 
 // Test Send Basic
-func TestSendBasic(t *testing.T) {
+func TestSendBasic(t *testing.T) {		
 	n, _ := openConn(t)
 	conn_headers := check11(TEST_HEADERS)
 	c, _ := Connect(n, conn_headers)
@@ -34,7 +34,7 @@ func TestSendBasic(t *testing.T) {
 		t.Errorf("Expected nil error, got [%v]\n", e)
 	}
 	//
-	_ = c.Disconnect(Headers{})
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 
 }
@@ -54,7 +54,7 @@ func TestSendMultiple(t *testing.T) {
 		t.Errorf("Expected nil error, got [%v]\n", e)
 	}
 	//
-	_ = c.Disconnect(Headers{})
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 
 }

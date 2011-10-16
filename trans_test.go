@@ -55,7 +55,7 @@ func TestTransErrors(t *testing.T) {
 		t.Errorf("ABORT expected error [%v], got [%v]\n", EREQTIDABT, e)
 	}
 	//
-	_ = c.Disconnect(h)
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 
 }
@@ -100,7 +100,7 @@ func TestTransSend(t *testing.T) {
 	}
 
 	//
-	_ = c.Disconnect(h)
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 
 }
@@ -122,7 +122,7 @@ func TestTransSendEmptyTid(t *testing.T) {
 		t.Errorf("BEGIN expected error [%v], got [%v]\n", EREQTIDBEG, e)
 	}
 	//
-	_ = c.Disconnect(h)
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 
 }
@@ -185,7 +185,7 @@ func TestTransSendRollback(t *testing.T) {
 	}
 
 	//
-	_ = c.Disconnect(h)
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 
 }
@@ -251,7 +251,7 @@ func TestTransMessageOrder(t *testing.T) {
 		t.Errorf("Message error TMO2: expected: [%v] got: [%v]", mt, r.Message.BodyString())
 	}
 	//
-	_ = c.Disconnect(h)
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 
 }

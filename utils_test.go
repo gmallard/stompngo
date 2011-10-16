@@ -27,6 +27,8 @@ var TEST_HEADERS = Headers{"login", "guest", "passcode", "guest"}
 var TEST_TDESTPREF = "/queue/test.pref."
 var TEST_TRANID = "TransactionA"
 
+var empty_headers = Headers{}
+
 type multi_send_data struct {
 	conn  *Connection // this connection
 	dest  string      // queue/topic name

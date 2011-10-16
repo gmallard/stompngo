@@ -27,7 +27,7 @@ func TestSubNoSub(t *testing.T) {
 	conn_headers := check11(TEST_HEADERS)
 	c, _ := Connect(n, conn_headers)
 	//
-	h := Headers{}
+	h := empty_headers
 	// Subscribe, no dest
 	_, e := c.Subscribe(h)
 	if e == nil {
@@ -37,7 +37,7 @@ func TestSubNoSub(t *testing.T) {
 		t.Errorf("Subscribe error, expected [%v], got [%v]\n", EREQDSTSUB, e)
 	}
 	//
-	_ = c.Disconnect(Headers{})
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
 
@@ -69,7 +69,7 @@ func TestSubNoIdOnce(t *testing.T) {
 	default:
 	}
 	//
-	_ = c.Disconnect(Headers{})
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
 
@@ -126,7 +126,7 @@ func TestSubNoIdTwice(t *testing.T) {
 	default:
 	}
 	//
-	_ = c.Disconnect(Headers{})
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
 
@@ -136,7 +136,7 @@ func TestUnSubNoSub(t *testing.T) {
 	conn_headers := check11(TEST_HEADERS)
 	c, _ := Connect(n, conn_headers)
 	//
-	h := Headers{}
+	h := empty_headers
 	// Unsubscribe, no dest
 	e := c.Unsubscribe(h)
 	if e == nil {
@@ -146,7 +146,7 @@ func TestUnSubNoSub(t *testing.T) {
 		t.Errorf("Unsubscribe error, expected [%v], got [%v]\n", EREQDSTUNS, e)
 	}
 	//
-	_ = c.Disconnect(Headers{})
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
 
@@ -170,7 +170,7 @@ func TestUnSubNoId(t *testing.T) {
 		t.Errorf("Unsubscribe error, expected [%v], got [%v]\n", EUNOSID, e)
 	}
 	//
-	_ = c.Disconnect(Headers{})
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
 
@@ -190,6 +190,6 @@ func TestUnSubBadId(t *testing.T) {
 		t.Errorf("Unsubscribe error, expected [%v], got [%v]\n", EBADSID, e)
 	}
 	//
-	_ = c.Disconnect(Headers{})
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }

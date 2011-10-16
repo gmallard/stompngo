@@ -31,7 +31,7 @@ func TestLoggerBasic(t *testing.T) {
 	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 	c.SetLogger(l)
 	//
-	_ = c.Disconnect(Headers{})
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 
 }

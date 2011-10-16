@@ -31,7 +31,7 @@ func TestHB10(t *testing.T) {
 	if c.hbd != nil {
 		t.Errorf("Expected no heartbeats for 1.0")
 	}
-	_ = c.Disconnect(Headers{})
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
 
@@ -47,7 +47,7 @@ func TestHB11NoHeader(t *testing.T) {
 	if c.hbd != nil {
 		t.Errorf("Expected no heartbeats for 1.1, no header")
 	}
-	_ = c.Disconnect(Headers{})
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
 
@@ -63,7 +63,7 @@ func TestHB11ZeroHeader(t *testing.T) {
 	if c.hbd != nil {
 		t.Errorf("Expected no heartbeats for 1.1, zero header")
 	}
-	_ = c.Disconnect(Headers{})
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
 
@@ -77,7 +77,7 @@ func TestHB11InitErrors(t *testing.T) {
 		t.Errorf("Expected no heartbeats for error test start")
 	}
 	//
-	h := Headers{}
+	h := empty_headers
 	e := c.initializeHeartBeats(h)
 	if e != nil || c.hbd != nil {
 		t.Errorf("Heartbeat error client no client data: %q %q", e, c.hbd)
@@ -129,7 +129,7 @@ func TestHB11InitErrors(t *testing.T) {
 		t.Errorf("Heartbeat error invalid server sy value expected, got nil: %q %q", e, c.hbd)
 	}
 	//
-	_ = c.Disconnect(Headers{})
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
 
@@ -151,7 +151,7 @@ func TestHB11Connect(t *testing.T) {
 		t.Errorf("Heartbeat expected data, got nil")
 	}
 	//
-	_ = c.Disconnect(Headers{})
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
 
@@ -190,7 +190,7 @@ func TestHB11NoSend(t *testing.T) {
 		t.Errorf("Error, dirty heart beat read detected")
 	}
 	//
-	_ = c.Disconnect(Headers{})
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
 
@@ -225,7 +225,7 @@ func TestHB11NoReceive(t *testing.T) {
 	fmt.Println("TestHB11NoReceive end sleep")
 	c.SetLogger(nil)
 	//
-	_ = c.Disconnect(Headers{})
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
 
@@ -263,7 +263,7 @@ func TestHB11SendReceive(t *testing.T) {
 		t.Errorf("Error, dirty heart beat read detected")
 	}
 	//
-	_ = c.Disconnect(Headers{})
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
 
@@ -301,7 +301,7 @@ func TestHB11SendReceiveApollo(t *testing.T) {
 		t.Errorf("Error, dirty heart beat read detected")
 	}
 	//
-	_ = c.Disconnect(Headers{})
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
 
@@ -340,6 +340,6 @@ func TestHB11SendReceiveApolloRev(t *testing.T) {
 		t.Errorf("Error, dirty heart beat read detected")
 	}
 	//
-	_ = c.Disconnect(Headers{})
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }

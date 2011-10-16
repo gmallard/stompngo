@@ -59,6 +59,6 @@ func TestSubUnsubBasic(t *testing.T) {
 		t.Errorf("Expected no unsubscribe error, got [%v]\n", e)
 	}
 	//
-	_ = c.Disconnect(Headers{})
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
