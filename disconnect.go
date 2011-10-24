@@ -22,6 +22,7 @@ import (
 
 // Disconnect
 func (c *Connection) Disconnect(h Headers) (e os.Error) {
+	c.log(DISCONNECT, "start")
 	if !c.connected {
 		return ECONBAD
 	}
@@ -56,5 +57,6 @@ func (c *Connection) Disconnect(h Headers) (e os.Error) {
 	if _, ok := ch.Contains("receipt"); ok {
 		c.DisconnectReceipt = <-c.input
 	}
+	c.log(DISCONNECT, "end")
 	return nil
 }

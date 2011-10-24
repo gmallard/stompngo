@@ -22,15 +22,20 @@ import (
 
 // Ack
 func (c *Connection) Ack(h Headers) (e os.Error) {
+	c.log(ACK, "start")
 	if !c.connected {
 		return ECONBAD
 	}
-	if _, ok := h.Contains("subscription"); !ok {
-		return EREQSUBACK
+	if c.protocol >= SPL_11 {
+		if _, ok := h.Contains("subscription"); !ok {
+			return EREQSUBACK
+		}
 	}
 	if _, ok := h.Contains("message-id"); !ok {
 		return EREQMIDACK
 	}
 	ch := h.Clone()
-	return c.transmitCommon(ACK, ch)
+	e = c.transmitCommon(ACK, ch)
+	c.log(ACK, "end")
+	return e
 }

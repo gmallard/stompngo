@@ -23,7 +23,8 @@ import (
 // Test write, subscribe, read, unsubscribe
 func TestSubUnsubBasic(t *testing.T) {
 	n, _ := openConn(t)
-	c, _ := Connect(n, test_headers)
+	conn_headers := check11(TEST_HEADERS)
+	c, _ := Connect(n, conn_headers)
 	//
 	m := "A message"
 	d := "/queue/subunsub.basic.01"
@@ -58,6 +59,6 @@ func TestSubUnsubBasic(t *testing.T) {
 		t.Errorf("Expected no unsubscribe error, got [%v]\n", e)
 	}
 	//
-	_ = c.Disconnect(Headers{})
+	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }

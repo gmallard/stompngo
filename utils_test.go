@@ -17,14 +17,24 @@
 package stomp
 
 import (
+	"fmt"
 	"net"
 	"os"
 	"testing"
 )
 
-var test_login = "guest"
-var test_passcode = "guest"
-var test_headers = Headers{"login", test_login, "passcode", test_passcode}
+var TEST_HEADERS = Headers{"login", "guest", "passcode", "guest"}
+var TEST_TDESTPREF = "/queue/test.pref."
+var TEST_TRANID = "TransactionA"
+
+var empty_headers = Headers{}
+
+type multi_send_data struct {
+	conn  *Connection // this connection
+	dest  string      // queue/topic name
+	mpref string      // message prefix
+	count int         // number of messages
+}
 
 func openConn(t *testing.T) (n net.Conn, err os.Error) {
 	h, p := hostAndPort()
@@ -54,4 +64,47 @@ func hostAndPort() (string, string) {
 		p = "51613"
 	}
 	return h, p
+}
+
+func check11(h Headers) Headers {
+	if os.Getenv("STOMP_TEST11") == "" {
+		return h
+	}
+	h = h.Add("accept-version", "1.1")
+	s := "localhost"                  // STOMP 1.1 vhost (configure for Apollo)
+	if os.Getenv("STOMP_RMQ") != "" { // Rabbitmq default vhost
+		s = "/"
+	}
+	h = h.Add("host", s)
+	return h
+}
+
+func sendMultiple(md multi_send_data) (e os.Error) {
+	h := Headers{"destination", md.dest}
+	for i := 0; i < md.count; i++ {
+		cstr := fmt.Sprintf("%d", i)
+		mts := md.mpref + cstr
+		e = md.conn.Send(h, mts)
+		if e != nil {
+			return e // now
+		}
+	}
+	return nil
+}
+
+func getMessageData(c *Connection, s chan MessageData) (r MessageData) {
+	if os.Getenv("STOMP_TEST11") == "" {
+		r = <-c.MessageData
+	} else {
+		r = <-s
+	}
+	return r
+}
+
+func checkReceived(t *testing.T, c *Connection, id string) {
+	select {
+	case v := <-c.MessageData:
+		t.Errorf("Unexpected frame received, id [%s], got [%v]\n", id, v)
+	default:
+	}
 }

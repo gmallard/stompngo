@@ -18,12 +18,17 @@ include $(GOROOT)/src/Make.inc
 
 TARG=stomp
 GOFILES=\
+	abort.go \
+	ack.go \
+	begin.go \
+	commit.go \
 	connect.go \
 	connection.go \
 	data.go \
 	datafuncs.go \
 	disconnect.go \
 	heartbeats.go \
+	nack.go \
 	reader.go \
 	send.go \
 	subscribe.go \

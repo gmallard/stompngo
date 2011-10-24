@@ -17,23 +17,21 @@
 package stomp
 
 import (
+	"log"
 	"os"
+	"testing"
 )
 
-// Commit
-func (c *Connection) Commit(h Headers) (e os.Error) {
-	c.log(COMMIT, "start")
-	if !c.connected {
-		return ECONBAD
-	}
-	if _, ok := h.Contains("transaction"); !ok {
-		return EREQTIDCOM
-	}
-	if h.Value("transaction") == "" {
-		return EREQTIDCOM
-	}
-	ch := h.Clone()
-	e = c.transmitCommon(COMMIT, ch)
-	c.log(COMMIT, "end")
-	return e
+// Test Logger Basic
+func TestLoggerBasic(t *testing.T) {
+	n, _ := openConn(t)
+	conn_headers := check11(TEST_HEADERS)
+	c, _ := Connect(n, conn_headers)
+	//
+	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
+	c.SetLogger(l)
+	//
+	_ = c.Disconnect(empty_headers)
+	_ = closeConn(t, n)
+
 }

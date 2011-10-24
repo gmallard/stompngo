@@ -18,6 +18,7 @@ package stomp
 
 import (
 	"bufio"
+	"log"
 	"net"
 	"os"
 	"sync"
@@ -91,6 +92,7 @@ type Connection struct {
 	wtr               *bufio.Writer
 	rdr               *bufio.Reader
 	Hbrf              bool
+	logger            *log.Logger
 }
 
 type Error string

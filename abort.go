@@ -22,12 +22,18 @@ import (
 
 // Abort
 func (c *Connection) Abort(h Headers) (e os.Error) {
+	c.log(ABORT, "start")
 	if !c.connected {
 		return ECONBAD
 	}
 	if _, ok := h.Contains("transaction"); !ok {
 		return EREQTIDABT
 	}
+	if h.Value("transaction") == "" {
+		return EREQTIDABT
+	}
 	ch := h.Clone()
-	return c.transmitCommon(ABORT, ch)
+	e = c.transmitCommon(ABORT, ch)
+	c.log(ABORT, "end")
+	return e
 }

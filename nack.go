@@ -22,8 +22,12 @@ import (
 
 // Nack
 func (c *Connection) Nack(h Headers) (e os.Error) {
+	c.log(NACK, "start")
 	if !c.connected {
 		return ECONBAD
+	}
+	if c.protocol == SPL_10 {
+		return EBADVER
 	}
 	if _, ok := h.Contains("subscription"); !ok {
 		return EREQSUBNAK
@@ -32,5 +36,7 @@ func (c *Connection) Nack(h Headers) (e os.Error) {
 		return EREQMIDNAK
 	}
 	ch := h.Clone()
-	return c.transmitCommon(NACK, ch)
+	e = c.transmitCommon(NACK, ch)
+	c.log(NACK, "end")
+	return e
 }

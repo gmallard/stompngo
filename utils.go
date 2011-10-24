@@ -18,6 +18,7 @@ package stomp
 
 import (
 	"bufio"
+	"crypto/rand"
 	"crypto/sha1"
 	"fmt"
 	"io"
@@ -117,12 +118,20 @@ func connectResponse(s string) (f *Frame, e os.Error) {
 	return f, nil
 }
 
-func getSha1(q string) (s string) {
+func Sha1(q string) (s string) {
 	g := sha1.New()
 	g.Write([]byte(q))
 	s = fmt.Sprintf("%x", g.Sum())
 	return s
 }
+
+func Uuid() string { 
+        b := make([]byte, 16) 
+        _, _ = io.ReadFull(rand.Reader, b) 
+        b[6] = (b[6] & 0x0F) | 0x40 
+        b[8] = (b[8] &^ 0x40) | 0x80 
+        return fmt.Sprintf("%x-%x-%x-%x-%x", b[:4], b[4:6], b[6:8], b[8:10], b[10:]) 
+} 
 
 func max(a, b int64) int64 {
 	if a > b {

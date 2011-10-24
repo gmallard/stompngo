@@ -83,6 +83,7 @@ func (c *Connection) readFrame() (f Frame, e os.Error) {
 		if s != "\n" {
 			break
 		}
+		// c.log("read slash n")
 	}
 	// Read f.Headers
 	for {

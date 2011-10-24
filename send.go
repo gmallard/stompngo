@@ -22,6 +22,7 @@ import (
 
 // Send
 func (c *Connection) Send(h Headers, b string) (e os.Error) {
+	c.log(SEND, "start")
 	if !c.connected {
 		return ECONBAD
 	}
@@ -34,5 +35,6 @@ func (c *Connection) Send(h Headers, b string) (e os.Error) {
 	r := make(chan os.Error)
 	c.output <- wiredata{f, r}
 	e = <-r
+	c.log(SEND, "end")
 	return e // nil or not
 }
