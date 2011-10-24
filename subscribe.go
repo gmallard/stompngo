@@ -54,7 +54,7 @@ func (c *Connection) establishSubscription(h Headers) (chan MessageData, os.Erro
 	//
 	sid, hid := h.Contains("id")
 	d := h.Value("destination")
-	sha1 := getSha1(d)
+	sha1 := Sha1(d)
 	// No duplicates
 	if hid {
 		if _, q := c.subs[sid]; q {
