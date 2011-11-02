@@ -16,12 +16,8 @@
 
 package stomp
 
-import (
-	"os"
-)
-
 // Abort
-func (c *Connection) Abort(h Headers) (e os.Error) {
+func (c *Connection) Abort(h Headers) (e error) {
 	c.log(ABORT, "start")
 	if !c.connected {
 		return ECONBAD

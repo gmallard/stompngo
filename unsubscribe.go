@@ -16,12 +16,8 @@
 
 package stomp
 
-import (
-	"os"
-)
-
 // Unsubscribe
-func (c *Connection) Unsubscribe(h Headers) (e os.Error) {
+func (c *Connection) Unsubscribe(h Headers) (e error) {
 	c.log(UNSUBSCRIBE, "start")
 	if !c.connected {
 		return ECONBAD
@@ -56,7 +52,7 @@ func (c *Connection) Unsubscribe(h Headers) (e os.Error) {
 	}
 	if ok {
 		close(c.subs[sid])
-		c.subs[sid] = nil, false
+		delete(c.subs, sid)
 	}
 	c.log(UNSUBSCRIBE, "end")
 	return nil

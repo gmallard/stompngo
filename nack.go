@@ -16,12 +16,8 @@
 
 package stomp
 
-import (
-	"os"
-)
-
 // Nack
-func (c *Connection) Nack(h Headers) (e os.Error) {
+func (c *Connection) Nack(h Headers) (e error) {
 	c.log(NACK, "start")
 	if !c.connected {
 		return ECONBAD

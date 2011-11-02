@@ -19,7 +19,6 @@ package stomp
 import (
 	"fmt"
 	"bufio"
-	"os"
 	"strconv"
 	"time"
 )
@@ -77,7 +76,7 @@ func (c *Connection) wireWrite(d wiredata) {
 }
 
 // Frame writer
-func (f *Frame) writeFrame(w *bufio.Writer, l string) (e os.Error) {
+func (f *Frame) writeFrame(w *bufio.Writer, l string) (e error) {
 	// Write the frame Command
 	if _, e = fmt.Fprintf(w, "%s\n", f.Command); e != nil {
 		return e

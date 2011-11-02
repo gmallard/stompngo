@@ -22,11 +22,10 @@ import (
 	"crypto/sha1"
 	"fmt"
 	"io"
-	"os"
 	"strings"
 )
 
-func checkHeaders(h Headers) (e os.Error) {
+func checkHeaders(h Headers) (e error) {
 	if len(h)%2 != 0 {
 		return EHDRLEN
 	}
@@ -49,7 +48,7 @@ func decode(s string) (r string) {
 	return r
 }
 
-func readUntilNul(r *bufio.Reader) (b []uint8, e os.Error) {
+func readUntilNul(r *bufio.Reader) (b []uint8, e error) {
 	b, e = r.ReadBytes(0)
 	if e != nil {
 		return b, e
@@ -62,7 +61,7 @@ func readUntilNul(r *bufio.Reader) (b []uint8, e os.Error) {
 	return b, e
 }
 
-func readBody(r *bufio.Reader, l int) (b []uint8, e os.Error) {
+func readBody(r *bufio.Reader, l int) (b []uint8, e error) {
 	b = make([]byte, l)
 	e = nil
 	if l == 0 {
@@ -80,7 +79,7 @@ func readBody(r *bufio.Reader, l int) (b []uint8, e os.Error) {
 }
 
 //
-func connectResponse(s string) (f *Frame, e os.Error) {
+func connectResponse(s string) (f *Frame, e error) {
 	//
 	f = new(Frame)
 	e = nil
@@ -125,13 +124,13 @@ func Sha1(q string) (s string) {
 	return s
 }
 
-func Uuid() string { 
-        b := make([]byte, 16) 
-        _, _ = io.ReadFull(rand.Reader, b) 
-        b[6] = (b[6] & 0x0F) | 0x40 
-        b[8] = (b[8] &^ 0x40) | 0x80 
-        return fmt.Sprintf("%x-%x-%x-%x-%x", b[:4], b[4:6], b[6:8], b[8:10], b[10:]) 
-} 
+func Uuid() string {
+	b := make([]byte, 16)
+	_, _ = io.ReadFull(rand.Reader, b)
+	b[6] = (b[6] & 0x0F) | 0x40
+	b[8] = (b[8] &^ 0x40) | 0x80
+	return fmt.Sprintf("%x-%x-%x-%x-%x", b[:4], b[4:6], b[6:8], b[8:10], b[10:])
+}
 
 func max(a, b int64) int64 {
 	if a > b {

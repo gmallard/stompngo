@@ -16,12 +16,8 @@
 
 package stomp
 
-import (
-	"os"
-)
-
 // Send
-func (c *Connection) Send(h Headers, b string) (e os.Error) {
+func (c *Connection) Send(h Headers, b string) (e error) {
 	c.log(SEND, "start", h)
 	if !c.connected {
 		return ECONBAD
@@ -32,7 +28,7 @@ func (c *Connection) Send(h Headers, b string) (e os.Error) {
 	e = nil
 	ch := h.Clone()
 	f := Frame{SEND, ch, []uint8(b)}
-	r := make(chan os.Error)
+	r := make(chan error)
 	c.output <- wiredata{f, r}
 	e = <-r
 	c.log(SEND, "end", ch)

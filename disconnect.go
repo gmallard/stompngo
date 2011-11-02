@@ -16,12 +16,8 @@
 
 package stomp
 
-import (
-	"os"
-)
-
 // Disconnect
-func (c *Connection) Disconnect(h Headers) (e os.Error) {
+func (c *Connection) Disconnect(h Headers) (e error) {
 	c.log(DISCONNECT, "start")
 	if !c.connected {
 		return ECONBAD
@@ -44,7 +40,7 @@ func (c *Connection) Disconnect(h Headers) (e os.Error) {
 	c.rsd <- true
 	f := Frame{DISCONNECT, ch, make([]uint8, 0)}
 	//
-	r := make(chan os.Error)
+	r := make(chan error)
 	c.output <- wiredata{f, r}
 	e = <-r
 	//

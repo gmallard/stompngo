@@ -20,7 +20,6 @@ import (
 	"bufio"
 	"log"
 	"net"
-	"os"
 	"sync"
 )
 
@@ -66,12 +65,12 @@ type Frame Message
 
 type MessageData struct {
 	Message Message
-	Error   os.Error
+	Error   error
 }
 
 type wiredata struct {
 	frame   Frame
-	errchan chan os.Error
+	errchan chan error
 }
 
 type Connection struct {

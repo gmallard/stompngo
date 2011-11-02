@@ -18,13 +18,12 @@ package stomp
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 	"time"
 )
 
-func (c *Connection) initializeHeartBeats(ch Headers) (e os.Error) {
+func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
 	e = nil
 	// Client wants Heartbeats ?
 	vc, ok := ch.Contains("heart-beat")
@@ -119,7 +118,7 @@ func (c *Connection) sendTicker() {
 				c.log("HeartBeat send data")
 				// Send a heartbeat
 				f := Frame{"\n", Headers{}, make([]uint8, 0)} // Heartbeat frame
-				r := make(chan os.Error)
+				r := make(chan error)
 				c.output <- wiredata{f, r}
 				e := <-r
 				if e != nil {

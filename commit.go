@@ -16,12 +16,8 @@
 
 package stomp
 
-import (
-	"os"
-)
-
 // Commit
-func (c *Connection) Commit(h Headers) (e os.Error) {
+func (c *Connection) Commit(h Headers) (e error) {
 	c.log(COMMIT, "start")
 	if !c.connected {
 		return ECONBAD

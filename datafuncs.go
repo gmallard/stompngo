@@ -16,13 +16,9 @@
 
 package stomp
 
-import (
-	"os"
-)
-
 // Error
 
-func (e Error) String() string {
+func (e Error) Error() string {
 	return string(e)
 }
 
@@ -101,7 +97,7 @@ func (h Headers) Index(k string) (r int) {
 	return r
 }
 
-func (h Headers) Validate() os.Error {
+func (h Headers) Validate() error {
 	if len(h)%2 != 0 {
 		return EHDRLEN
 	}

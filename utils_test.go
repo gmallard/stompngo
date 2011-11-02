@@ -36,7 +36,7 @@ type multi_send_data struct {
 	count int         // number of messages
 }
 
-func openConn(t *testing.T) (n net.Conn, err os.Error) {
+func openConn(t *testing.T) (n net.Conn, err error) {
 	h, p := hostAndPort()
 	n, err = net.Dial("tcp", net.JoinHostPort(h, p))
 	if err != nil {
@@ -45,7 +45,7 @@ func openConn(t *testing.T) (n net.Conn, err os.Error) {
 	return n, err
 }
 
-func closeConn(t *testing.T, n net.Conn) (err os.Error) {
+func closeConn(t *testing.T, n net.Conn) (err error) {
 	err = n.Close()
 	if err != nil {
 		t.Errorf("Unexpected n.Close() error: %v\n", err)
@@ -79,7 +79,7 @@ func check11(h Headers) Headers {
 	return h
 }
 
-func sendMultiple(md multi_send_data) (e os.Error) {
+func sendMultiple(md multi_send_data) (e error) {
 	h := Headers{"destination", md.dest}
 	for i := 0; i < md.count; i++ {
 		cstr := fmt.Sprintf("%d", i)

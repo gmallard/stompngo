@@ -16,15 +16,11 @@
 
 package stomp
 
-import (
-	"os"
-)
-
 // Common send for transaction verbs, some others
-func (c *Connection) transmitCommon(v string, h Headers) (e os.Error) {
+func (c *Connection) transmitCommon(v string, h Headers) (e error) {
 	ch := h.Clone()
 	f := Frame{v, ch, make([]uint8, 0)}
-	r := make(chan os.Error)
+	r := make(chan error)
 	c.output <- wiredata{f, r}
 	e = <-r
 	return e

@@ -16,12 +16,8 @@
 
 package stomp
 
-import (
-	"os"
-)
-
 // Ack
-func (c *Connection) Ack(h Headers) (e os.Error) {
+func (c *Connection) Ack(h Headers) (e error) {
 	c.log(ACK, "start")
 	if !c.connected {
 		return ECONBAD

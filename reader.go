@@ -17,7 +17,7 @@
 package stomp
 
 import (
-	"os"
+	"io"
 	"strconv"
 	"strings"
 	"time"
@@ -35,7 +35,7 @@ func (c *Connection) reader() {
 	for {
 		f, e := c.readFrame()
 		if e != nil {
-			if e == os.EOF {
+			if e == io.EOF {
 				break
 			}
 			c.input <- MessageData{Message{"", Headers{}, NULLBUFF}, e}
@@ -64,7 +64,7 @@ func (c *Connection) reader() {
 }
 
 // Frame reader
-func (c *Connection) readFrame() (f Frame, e os.Error) {
+func (c *Connection) readFrame() (f Frame, e error) {
 	f = Frame{"", Headers{}, NULLBUFF}
 	e = nil
 	// Read f.Command or line ends (maybe heartbeats)

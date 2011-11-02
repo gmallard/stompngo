@@ -19,11 +19,10 @@ package stomp
 import (
 	"bufio"
 	"net"
-	"os"
 )
 
 // Primary STOMP Connect
-func Connect(n net.Conn, h Headers) (c *Connection, e os.Error) {
+func Connect(n net.Conn, h Headers) (c *Connection, e error) {
 	e = checkHeaders(h)
 	if e != nil {
 		return nil, e
@@ -42,7 +41,7 @@ func Connect(n net.Conn, h Headers) (c *Connection, e os.Error) {
 	c.wsd = make(chan bool)
 	f := Frame{CONNECT, ch, make([]uint8, 0)}
 	//
-	r := make(chan os.Error)
+	r := make(chan error)
 	c.output <- wiredata{f, r}
 	e = <-r
 	//
@@ -62,7 +61,7 @@ func Connect(n net.Conn, h Headers) (c *Connection, e os.Error) {
 }
 
 // Connection handler, one time use.
-func (c *Connection) connectHandler(h Headers) (e os.Error) {
+func (c *Connection) connectHandler(h Headers) (e error) {
 	e = nil
 	c.rdr = bufio.NewReader(c.netconn)
 	b, e := c.rdr.ReadBytes(0)

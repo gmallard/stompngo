@@ -16,12 +16,8 @@
 
 package stomp
 
-import (
-	"os"
-)
-
 // Subscribe
-func (c *Connection) Subscribe(h Headers) (s chan MessageData, e os.Error) {
+func (c *Connection) Subscribe(h Headers) (s chan MessageData, e error) {
 	if !c.connected {
 		return nil, ECONBAD
 	}
@@ -41,14 +37,14 @@ func (c *Connection) Subscribe(h Headers) (s chan MessageData, e os.Error) {
 	//
 	f := Frame{SUBSCRIBE, ch, make([]uint8, 0)}
 	//
-	r := make(chan os.Error)
+	r := make(chan error)
 	c.output <- wiredata{f, r}
 	e = <-r
 	return s, e
 }
 
 // Handle subscribe id
-func (c *Connection) establishSubscription(h Headers) (chan MessageData, os.Error, Headers) {
+func (c *Connection) establishSubscription(h Headers) (chan MessageData, error, Headers) {
 	c.subsLock.Lock()
 	defer c.subsLock.Unlock()
 	//
