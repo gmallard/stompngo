@@ -4,7 +4,7 @@
 
 * Full support of STOMP protocols:
 
-    1. [Prtotol Level 1.0](http://stomp.github.com/stomp-specification-1.0.html)
+    1. [Prototol Level 1.0](http://stomp.github.com/stomp-specification-1.0.html)
     2. [Protocl Level 1.1](http://stomp.github.com/stomp-specification-1.1.html)
 
 ## References ##
