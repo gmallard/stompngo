@@ -85,7 +85,7 @@ func TestAckSameConn(t *testing.T) {
 	if e != nil {
 		t.Errorf("SUBSCRIBE expected [nil], got: [%v]\n", e)
 	}
-	hn := h.Add("current-time", time.LocalTime().String())
+	hn := h.Add("current-time", time.Now().String())
 	e = c.Send(hn, m)
 	if e != nil {
 		t.Errorf("SEND expected [nil], got: [%v]\n", e)
@@ -139,7 +139,7 @@ func TestAckDiffConn(t *testing.T) {
 	m := "ackdc1 message 1"
 	si := TEST_TDESTPREF + "ackdc1.protocol-" + c.protocol
 	// Send
-	hn := h.Add("current-time", time.LocalTime().String())
+	hn := h.Add("current-time", time.Now().String())
 	e := c.Send(hn, m)
 	if e != nil {
 		t.Errorf("SEND expected [nil], got: [%v]\n", e)

@@ -84,7 +84,7 @@ func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
 	}
 
 	c.hbd = w                // OK, we are doing some kind of heartbeating
-	ct := time.Nanoseconds() // Prime current time
+	ct := time.Now().UnixNano() // Prime current time
 
 	if w.hbs { // Finish sender parameters if required
 		sm := max(w.cx, w.sy)   // ticker interval, ms
@@ -107,12 +107,12 @@ func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
 }
 
 func (c *Connection) sendTicker() {
-	ticker := time.NewTicker(c.hbd.sti)
+	ticker := time.NewTicker(time.Duration(c.hbd.sti))
 	q := false
 	for {
 		select {
 		case ct := <-ticker.C:
-			ld := ct - c.hbd.ls
+			ld := ct.UnixNano() - c.hbd.ls
 			// c.log("HeartBeat send TIC", ct, c.hbd.ls, ld)
 			if ld > (c.hbd.sti - (c.hbd.sti / 5)) { // swag minus to be tolerant
 				c.log("HeartBeat send data")
@@ -137,17 +137,19 @@ func (c *Connection) sendTicker() {
 }
 
 func (c *Connection) receiveTicker() {
-	ticker := time.NewTicker(c.hbd.rti)
+	ticker := time.NewTicker(time.Duration(c.hbd.rti))
 	q := false
 	for {
 		select {
 		case ct := <-ticker.C:
-			ld := ct - c.hbd.lr
+			ld := ct.UnixNano() - c.hbd.lr
 			c.log("HeartBeat receive TIC", ct, c.hbd.lr, ld)
 			if ld > (c.hbd.rti + (c.hbd.rti / 5)) { // swag plus to be tolerant
 				c.log("HeartBeat Receive Read is dirty")
 				c.Hbrf = true // Flag possible dirty connection
-			}
+			} else {
+        c.Hbrf = false // Reset
+      }
 		case q = <-c.hbd.rsd:
 			ticker.Stop()
 			break

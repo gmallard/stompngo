@@ -68,7 +68,7 @@ func (c *Connection) wireWrite(d wiredata) {
 	}
 	//
 	if c.hbd != nil {
-		c.hbd.ls = time.Nanoseconds() // Latest good send
+		c.hbd.ls = time.Now().UnixNano() // Latest good send
 	}
 	//
 	d.errchan <- nil

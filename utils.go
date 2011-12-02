@@ -120,7 +120,7 @@ func connectResponse(s string) (f *Frame, e error) {
 func Sha1(q string) (s string) {
 	g := sha1.New()
 	g.Write([]byte(q))
-	s = fmt.Sprintf("%x", g.Sum())
+	s = fmt.Sprintf("%x", g.Sum(nil))
 	return s
 }
 
