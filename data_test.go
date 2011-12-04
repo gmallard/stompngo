@@ -78,11 +78,34 @@ func TestDataHeadersBasic(t *testing.T) {
 	if _, ok := h.Contains(k); ok {
 		t.Errorf("Unexpected true for key: [%v]\n", k)
 	}
-  //
-  h = Headers{k}
-  if e := h.Validate(); e != EHDRLEN {
+	//
+	h = Headers{k}
+	if e := h.Validate(); e != EHDRLEN {
 		t.Errorf("Unexpected error for Validate: [%v]\n", e)
-  }
+	}
+}
+
+// Data Test: Headers UTF8
+func TestDataHeadersUTF8(t *testing.T) {
+	k := "keya"
+	v := "valuea"
+	h := Headers{k, v}
+	if _, e := h.ValidateUTF8(); e != nil {
+		t.Errorf("Unexpected UTF8 error 1: [%v]\n", e)
+	}
+	//
+	h = Headers{k, v, `“Iñtërnâtiônàlizætiøn”`, "valueb", "keyc", `“Iñtërnâtiônàlizætiøn”`}
+	if _, e := h.ValidateUTF8(); e != nil {
+		t.Errorf("Unexpected error UTF8 2: [%v]\n", e)
+	}
+	//
+	h = Headers{k, v, `“Iñtërnâtiônàlizætiøn”`, "\x80", "keyc", `“Iñtërnâtiônàlizætiøn”`}
+	if _, e := h.ValidateUTF8(); e == nil {
+		t.Errorf("Unexpected error UTF8 3, got nil, expected an error")
+		if e != EHDRUTF8 {
+			t.Errorf("Unexpected error UTF8 3, got [%v], expected [%v]\n", e, EHDRUTF8)
+		}
+	}
 }
 
 // Data Test: Headers Clone

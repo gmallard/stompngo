@@ -117,7 +117,8 @@ const (
 	ECONERR = Error("broker returned ERROR frame, CONNECT")
 
 	// ERRRORs for Headers 
-	EHDRLEN = Error("unmatched headers, bad length")
+	EHDRLEN  = Error("unmatched headers, bad length")
+	EHDRUTF8 = Error("header string not UTF8")
 
 	// ERRRORs for response to CONNECT
 	EUNKFRM = Error("unrecognized frame returned, CONNECT")

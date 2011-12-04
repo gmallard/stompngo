@@ -16,6 +16,10 @@
 
 package stomp
 
+import (
+	"unicode/utf8"
+)
+
 // Return a string for an Error.
 func (e Error) Error() string {
 	return string(e)
@@ -118,6 +122,16 @@ func (h Headers) Validate() error {
 		return EHDRLEN
 	}
 	return nil
+}
+
+// Validate Headers are UTF8.
+func (h Headers) ValidateUTF8() (string, error) {
+	for i := range h {
+		if !utf8.ValidString(h[i]) {
+			return h[i], EHDRUTF8
+		}
+	}
+	return "", nil
 }
 
 // Clone a set of Headers.

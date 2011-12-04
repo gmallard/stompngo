@@ -23,6 +23,10 @@ func (c *Connection) Ack(h Headers) (e error) {
 	if !c.connected {
 		return ECONBAD
 	}
+	_, e = checkHeaders(h, c)
+	if e != nil {
+		return e
+	}
 	if c.protocol >= SPL_11 {
 		if _, ok := h.Contains("subscription"); !ok {
 			return EREQSUBACK

@@ -22,6 +22,10 @@ func (c *Connection) Subscribe(h Headers) (s chan MessageData, e error) {
 	if !c.connected {
 		return nil, ECONBAD
 	}
+	_, e = checkHeaders(h, c)
+	if e != nil {
+		return nil, e
+	}
 	if _, ok := h.Contains("destination"); !ok {
 		return nil, EREQDSTSUB
 	}

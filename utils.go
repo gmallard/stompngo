@@ -132,6 +132,20 @@ func Uuid() string {
 	return fmt.Sprintf("%x-%x-%x-%x-%x", b[:4], b[4:6], b[6:8], b[8:10], b[10:])
 }
 
+// Common Header Validation
+func checkHeaders(h Headers, c *Connection) (s string, e error) {
+	if e = h.Validate(); e != nil {
+		return "", e
+	}
+	if c.protocol != SPL_10 {
+		s, e = h.ValidateUTF8()
+		if e != nil {
+			return s, e
+		}
+	}
+	return "", nil
+}
+
 // Internal function used by heartbeat initialization.
 func max(a, b int64) int64 {
 	if a > b {

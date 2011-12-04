@@ -26,6 +26,10 @@ func (c *Connection) Nack(h Headers) (e error) {
 	if c.protocol == SPL_10 {
 		return EBADVER
 	}
+	_, e = checkHeaders(h, c)
+	if e != nil {
+		return e
+	}
 	if _, ok := h.Contains("subscription"); !ok {
 		return EREQSUBNAK
 	}

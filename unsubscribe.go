@@ -24,6 +24,10 @@ func (c *Connection) Unsubscribe(h Headers) (e error) {
 	if !c.connected {
 		return ECONBAD
 	}
+	_, e = checkHeaders(h, c)
+	if e != nil {
+		return e
+	}
 	if _, ok := h.Contains("destination"); !ok {
 		return EREQDSTUNS
 	}
