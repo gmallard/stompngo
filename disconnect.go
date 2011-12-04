@@ -16,14 +16,15 @@
 
 package stomp
 
-// Disconnect
+// Disconnect from a STOMP broker.  Shut down heart beats if necessary.
+// Set 'connected' flag to false to disable further actions with this
+// connection.
 func (c *Connection) Disconnect(h Headers) (e error) {
 	c.log(DISCONNECT, "start")
 	if !c.connected {
 		return ECONBAD
 	}
-	e = checkHeaders(h)
-	if e != nil {
+	if e := h.Validate(); e != nil {
 		return e
 	}
 	if c.hbd != nil { // Shutdown heartbeats if necessary

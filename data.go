@@ -25,7 +25,7 @@ import (
 
 const (
 
-	// Client side
+	// Client generated commands.
 	CONNECT     = "CONNECT"
 	STOMP       = "STOMP"
 	DISCONNECT  = "DISCONNECT"
@@ -38,45 +38,59 @@ const (
 	COMMIT      = "COMMIT"
 	ABORT       = "ABORT"
 
-	// Server side
+	// Server generated commands.
 	CONNECTED = "CONNECTED"
 	MESSAGE   = "MESSAGE"
 	RECEIPT   = "RECEIPT"
 	ERROR     = "ERROR"
 
-	// Protocols
+	// Supported STOMP protocol definitions.
 	SPL_10 = "1.0"
 	SPL_11 = "1.1"
 )
 
+// Protocol slice.
 type protocols []string
 
+// What this package currently supports.
 var supported = protocols{SPL_10, SPL_11}
 
+// Headers definition, a slice of string.  STOMP headers are key and value 
+// pairs.  Key values are found at even numbered indices.  Values
+// are found at odd numbered incices.  Headers are validated for an even
+// number of slice elements.
 type Headers []string
 
+// A STOMP Message, consisting of: a command; a set of Headers; and a
+// body (or message payload).
 type Message struct {
 	Command string
 	Headers Headers
 	Body    []uint8
 }
 
+// Alternate name for a Message.
 type Frame Message
 
+// MessageData passed to the client, containing: the Message; and an error 
+// value which is possibly nil.  Note that this has no relevance on whether
+// a MessageData value contains a "ERROR" frame gennerated by the broker.
 type MessageData struct {
 	Message Message
 	Error   error
 }
 
+// This is outbound on the wire.
 type wiredata struct {
 	frame   Frame
 	errchan chan error
 }
 
+// A representation of a STOMP connection.
 type Connection struct {
-	ConnectResponse   *Message
-	DisconnectReceipt MessageData
-	MessageData       <-chan MessageData
+	ConnectResponse   *Message           // Broker response (CONNECTED/ERROR) if physical connection successful.
+	DisconnectReceipt MessageData        // If receipt requested on DISCONNECT.
+	MessageData       <-chan MessageData // Inbound data for the client.
 	connected         bool
 	session           string
 	protocol          string
@@ -90,18 +104,21 @@ type Connection struct {
 	hbd               *heartbeat_data
 	wtr               *bufio.Writer
 	rdr               *bufio.Reader
-	Hbrf              bool
+	Hbrf              bool // Indicates a heart beat read/receive failure, which is possibly transient.
 	logger            *log.Logger
 }
 
+// Error definition.
 type Error string
 
+// Error constants.
 const (
 	// ERRROR Frame returned
 	ECONERR = Error("broker returned ERROR frame, CONNECT")
 
 	// ERRRORs for Headers 
-	EHDRLEN = Error("unmatched headers, bad length")
+	EHDRLEN  = Error("unmatched headers, bad length")
+	EHDRUTF8 = Error("header string not UTF8")
 
 	// ERRRORs for response to CONNECT
 	EUNKFRM = Error("unrecognized frame returned, CONNECT")
@@ -145,19 +162,25 @@ const (
 	EBADHDR = Error("unsupported Headers type")
 )
 
+// A zero length buffer for convenience.
 var NULLBUFF = make([]uint8, 0)
 
+// Codec data structure definition.
 type codecdata struct {
 	encoded string
 	decoded string
 }
 
+// STOMP specification defined encoded / decoded values for the Message
+// command and headers.
 var codec_values = []codecdata{
 	codecdata{"\\\\", "\\"},
 	codecdata{"\\" + "n", "\n"},
 	codecdata{"\\c", ":"},
 }
 
+// Control data for initialization of heartbeats with STOMP 1.1+, and the
+// subsequent control of any heartbeat routines.
 type heartbeat_data struct {
 	cx int64 // client send value, ms
 	cy int64 // client receive value, ms

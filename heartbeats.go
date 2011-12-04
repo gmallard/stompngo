@@ -23,17 +23,19 @@ import (
 	"time"
 )
 
+// Initialize heart beats if necessary and possible.  Return an error (possibly
+// nil) to mainline of initialization can not complete.  Establish heartbeat
+// send and receive routines as necessary.
 func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
-	e = nil
 	// Client wants Heartbeats ?
 	vc, ok := ch.Contains("heart-beat")
 	if !ok || vc == "0,0" {
-		return e
+		return nil
 	}
 	// Server wants Heartbeats ?
 	vs, ok := c.ConnectResponse.Headers.Contains("heart-beat")
 	if !ok || vs == "0,0" {
-		return e
+		return nil
 	}
 	// Work area, may or may not become connection heartbeat data
 	w := &heartbeat_data{cx: 0, cy: 0, sx: 0, sy: 0,
@@ -83,7 +85,7 @@ func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
 		return nil // none required
 	}
 
-	c.hbd = w                // OK, we are doing some kind of heartbeating
+	c.hbd = w                   // OK, we are doing some kind of heartbeating
 	ct := time.Now().UnixNano() // Prime current time
 
 	if w.hbs { // Finish sender parameters if required
@@ -106,6 +108,7 @@ func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
 	return nil
 }
 
+// The heart beat send watch dog.
 func (c *Connection) sendTicker() {
 	ticker := time.NewTicker(time.Duration(c.hbd.sti))
 	q := false
@@ -136,6 +139,7 @@ func (c *Connection) sendTicker() {
 	return
 }
 
+// The heart beat receive watch dog.
 func (c *Connection) receiveTicker() {
 	ticker := time.NewTicker(time.Duration(c.hbd.rti))
 	q := false
@@ -148,8 +152,8 @@ func (c *Connection) receiveTicker() {
 				c.log("HeartBeat Receive Read is dirty")
 				c.Hbrf = true // Flag possible dirty connection
 			} else {
-        c.Hbrf = false // Reset
-      }
+				c.Hbrf = false // Reset
+			}
 		case q = <-c.hbd.rsd:
 			ticker.Stop()
 			break

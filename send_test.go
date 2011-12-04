@@ -21,7 +21,7 @@ import (
 )
 
 // Test Send Basic
-func TestSendBasic(t *testing.T) {		
+func TestSendBasic(t *testing.T) {
 	n, _ := openConn(t)
 	conn_headers := check11(TEST_HEADERS)
 	c, _ := Connect(n, conn_headers)

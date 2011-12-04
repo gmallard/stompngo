@@ -16,11 +16,16 @@
 
 package stomp
 
-// Ack
+// Ack a STOMP MESSAGE. Headers must contain a "message-id" key, and for
+// STOMP 1.1+ a "subscription" key.
 func (c *Connection) Ack(h Headers) (e error) {
 	c.log(ACK, "start")
 	if !c.connected {
 		return ECONBAD
+	}
+	_, e = checkHeaders(h, c)
+	if e != nil {
+		return e
 	}
 	if c.protocol >= SPL_11 {
 		if _, ok := h.Contains("subscription"); !ok {

@@ -16,11 +16,16 @@
 
 package stomp
 
-// Begin
+// Begin a STOMP transaction. Headers must contain a "transaction" header key
+// with a value that is not an empty string.
 func (c *Connection) Begin(h Headers) (e error) {
 	c.log(BEGIN, "start")
 	if !c.connected {
 		return ECONBAD
+	}
+	_, e = checkHeaders(h, c)
+	if e != nil {
+		return e
 	}
 	if _, ok := h.Contains("transaction"); !ok {
 		return EREQTIDBEG

@@ -16,10 +16,15 @@
 
 package stomp
 
-// Subscribe
+// Subscribe to a STOMP subscription.  Headers must contain a "destintion" header,
+// and for STOMP 1.1+ a "id" header per the specification.
 func (c *Connection) Subscribe(h Headers) (s chan MessageData, e error) {
 	if !c.connected {
 		return nil, ECONBAD
+	}
+	_, e = checkHeaders(h, c)
+	if e != nil {
+		return nil, e
 	}
 	if _, ok := h.Contains("destination"); !ok {
 		return nil, EREQDSTSUB
@@ -28,8 +33,6 @@ func (c *Connection) Subscribe(h Headers) (s chan MessageData, e error) {
 	if _, ok := ch.Contains("ack"); !ok {
 		ch = ch.Add("ack", "auto")
 	}
-	e = nil
-	s = nil
 	s, e, ch = c.establishSubscription(ch)
 	if e != nil {
 		return nil, e
@@ -43,7 +46,9 @@ func (c *Connection) Subscribe(h Headers) (s chan MessageData, e error) {
 	return s, e
 }
 
-// Handle subscribe id
+// Handle subscribe id.  If any client does not supply an ID, try to generate
+// one, which for STOMP 1.1+ clients must be used with UNSUBSCRIBE.
+// Regardless, do not allow duplicate subscription IDs in this session.
 func (c *Connection) establishSubscription(h Headers) (chan MessageData, error, Headers) {
 	c.subsLock.Lock()
 	defer c.subsLock.Unlock()

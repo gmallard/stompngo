@@ -16,7 +16,7 @@
 
 package stomp
 
-// Common send for transaction verbs, some others
+// Common send for many stomp API calls.
 func (c *Connection) transmitCommon(v string, h Headers) (e error) {
 	ch := h.Clone()
 	f := Frame{v, ch, make([]uint8, 0)}

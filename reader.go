@@ -23,7 +23,8 @@ import (
 	"time"
 )
 
-// Network reader
+// Logical network reader.  Read frames from the connection, create MessageData
+// structures from the receivedd data, and push the MessageData to the client.
 func (c *Connection) reader() {
 	//
 	q := false
@@ -63,10 +64,9 @@ func (c *Connection) reader() {
 
 }
 
-// Frame reader
+// Physical frame reader.  This slurps a single frame off of the wire.
 func (c *Connection) readFrame() (f Frame, e error) {
 	f = Frame{"", Headers{}, NULLBUFF}
-	e = nil
 	// Read f.Command or line ends (maybe heartbeats)
 	for {
 		s, e := c.rdr.ReadString('\n')

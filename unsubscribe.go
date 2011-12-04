@@ -16,16 +16,21 @@
 
 package stomp
 
-// Unsubscribe
+// Unsubscribe from a STOMP subscription. Headers must contain a "destintion" header,
+// and an "id" header per the specifications.  The subscription must currently
+// exist for this session.
 func (c *Connection) Unsubscribe(h Headers) (e error) {
 	c.log(UNSUBSCRIBE, "start")
 	if !c.connected {
 		return ECONBAD
 	}
+	_, e = checkHeaders(h, c)
+	if e != nil {
+		return e
+	}
 	if _, ok := h.Contains("destination"); !ok {
 		return EREQDSTUNS
 	}
-	e = nil
 	ch := h.Clone()
 	c.subsLock.Lock()
 	defer c.subsLock.Unlock()

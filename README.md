@@ -36,3 +36,15 @@ See the tests for **relevant environment variables**.
 
 Any and all are welcome by pull request or e-mail patch.
 
+## Canonical Repository ##
+
+For the record, the canonical repository for this project is at:
+
+* [stompngo at github](https://github.com/gmallard/stompngo)
+
+## Issues ##
+
+Please review issues at the canonical repository.  File any new issues there as
+well.
+
+

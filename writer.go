@@ -17,13 +17,14 @@
 package stomp
 
 import (
-	"fmt"
 	"bufio"
+	"fmt"
 	"strconv"
 	"time"
 )
 
-// Network writer
+// Logical network writer.  Read wiredata structures from the communication
+// channel, and put them on the wire.
 func (c *Connection) writer() {
 	q := false
 	for {
@@ -43,7 +44,7 @@ func (c *Connection) writer() {
 
 }
 
-// Wiredata write
+// Wiredata logical write.
 func (c *Connection) wireWrite(d wiredata) {
 	f := d.frame
 	switch f.Command {
@@ -75,7 +76,7 @@ func (c *Connection) wireWrite(d wiredata) {
 	return
 }
 
-// Frame writer
+// Frame writer physical write.
 func (f *Frame) writeFrame(w *bufio.Writer, l string) (e error) {
 	// Write the frame Command
 	if _, e = fmt.Fprintf(w, "%s\n", f.Command); e != nil {

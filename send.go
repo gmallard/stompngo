@@ -16,16 +16,20 @@
 
 package stomp
 
-// Send
+// Send a STOMP MESSAGE.  Headers must contain a "destination" header.
+// The message body (payload) is a string, which may be empty.
 func (c *Connection) Send(h Headers, b string) (e error) {
 	c.log(SEND, "start", h)
 	if !c.connected {
 		return ECONBAD
 	}
+	_, e = checkHeaders(h, c)
+	if e != nil {
+		return e
+	}
 	if _, ok := h.Contains("destination"); !ok {
 		return EREQDSTSND
 	}
-	e = nil
 	ch := h.Clone()
 	f := Frame{SEND, ch, []uint8(b)}
 	r := make(chan error)

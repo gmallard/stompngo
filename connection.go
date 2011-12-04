@@ -22,35 +22,37 @@ import (
 
 // Exported Connection methods
 
-//  Connected?
+// Return connection status.
 func (c *Connection) Connected() bool {
 	return c.connected
 }
 
-//  Session
+// Return broker assigned session id.
 func (c *Connection) Session() string {
 	return c.session
 }
 
-// Protocol
+// Return connection protocol level.
 func (c *Connection) Protocol() string {
 	return c.protocol
 }
 
-// Set Logger
+// Set Logger to a client defined logger for this connection.  
+// Set to "nil" to disable logging.
 func (c *Connection) SetLogger(l *log.Logger) {
 	c.logger = l
 }
 
 // Package exported functions
 
-//  Supported Version?
+// Check version support in this client package.
 func Supported(v string) bool {
 	return supported.Supported(v)
 }
 
 // Unexported Connection methods
 
+// Log data if possible.
 func (c *Connection) log(v ...interface{}) {
 	if c.logger == nil {
 		return
