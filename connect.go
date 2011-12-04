@@ -64,9 +64,8 @@ func Connect(n net.Conn, h Headers) (c *Connection, e error) {
 // Handle broker response, react to version incompatabilities, set up session, 
 // and if necessary initialize heart beats.
 func (c *Connection) connectHandler(h Headers) (e error) {
-	e = nil
 	c.rdr = bufio.NewReader(c.netconn)
-	b, e := c.rdr.ReadBytes(0)
+	b, e := c.rdr.ReadBytes(0);
 	if e != nil {
 		return e
 	}

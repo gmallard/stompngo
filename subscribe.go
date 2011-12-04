@@ -29,8 +29,6 @@ func (c *Connection) Subscribe(h Headers) (s chan MessageData, e error) {
 	if _, ok := ch.Contains("ack"); !ok {
 		ch = ch.Add("ack", "auto")
 	}
-	e = nil
-	s = nil
 	s, e, ch = c.establishSubscription(ch)
 	if e != nil {
 		return nil, e

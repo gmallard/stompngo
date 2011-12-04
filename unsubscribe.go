@@ -27,7 +27,6 @@ func (c *Connection) Unsubscribe(h Headers) (e error) {
 	if _, ok := h.Contains("destination"); !ok {
 		return EREQDSTUNS
 	}
-	e = nil
 	ch := h.Clone()
 	c.subsLock.Lock()
 	defer c.subsLock.Unlock()

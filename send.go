@@ -26,7 +26,6 @@ func (c *Connection) Send(h Headers, b string) (e error) {
 	if _, ok := h.Contains("destination"); !ok {
 		return EREQDSTSND
 	}
-	e = nil
 	ch := h.Clone()
 	f := Frame{SEND, ch, []uint8(b)}
 	r := make(chan error)

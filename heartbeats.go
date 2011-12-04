@@ -27,16 +27,15 @@ import (
 // nil) to mainline of initialization can not complete.  Establish heartbeat
 // send and receive routines as necessary.
 func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
-	e = nil
 	// Client wants Heartbeats ?
 	vc, ok := ch.Contains("heart-beat")
 	if !ok || vc == "0,0" {
-		return e
+		return nil
 	}
 	// Server wants Heartbeats ?
 	vs, ok := c.ConnectResponse.Headers.Contains("heart-beat")
 	if !ok || vs == "0,0" {
-		return e
+		return nil
 	}
 	// Work area, may or may not become connection heartbeat data
 	w := &heartbeat_data{cx: 0, cy: 0, sx: 0, sy: 0,

@@ -61,9 +61,8 @@ func readUntilNul(r *bufio.Reader) (b []uint8, e error) {
 // > 0.  Then read the trailing 'null' byte expected for STOMP frames.
 func readBody(r *bufio.Reader, l int) (b []uint8, e error) {
 	b = make([]byte, l)
-	e = nil
 	if l == 0 {
-		return b, e
+		return b, nil
 	}
 	n, e := io.ReadFull(r, b)
 	if n < l { // Short read, e is ErrUnexpectedEOF
@@ -82,7 +81,6 @@ func readBody(r *bufio.Reader, l int) (b []uint8, e error) {
 func connectResponse(s string) (f *Frame, e error) {
 	//
 	f = new(Frame)
-	e = nil
 	// Get f.Command
 	c := strings.SplitN(s, "\n", 2)
 	if len(c) < 2 {
