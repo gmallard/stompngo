@@ -16,7 +16,8 @@
 
 package stomp
 
-// Commit
+// Commit a STOMP transaction. Headers must contain a "transaction" header key
+// with a value that is not an empty string.
 func (c *Connection) Commit(h Headers) (e error) {
 	c.log(COMMIT, "start")
 	if !c.connected {

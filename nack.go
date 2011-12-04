@@ -16,7 +16,8 @@
 
 package stomp
 
-// Nack
+// Nack a STOMP 1.1+ message. Headers must contain a "message-id" key and
+// a "subscription" key.  Disallowed for STOMP 1.0.
 func (c *Connection) Nack(h Headers) (e error) {
 	c.log(NACK, "start")
 	if !c.connected {

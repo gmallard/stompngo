@@ -23,6 +23,9 @@ import (
 	"time"
 )
 
+// Initialize heart beats if necessary and possible.  Return an error (possibly
+// nil) to mainline of initialization can not complete.  Establish heartbeat
+// send and receive routines as necessary.
 func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
 	e = nil
 	// Client wants Heartbeats ?
@@ -106,6 +109,7 @@ func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
 	return nil
 }
 
+// The heart beat send watch dog.
 func (c *Connection) sendTicker() {
 	ticker := time.NewTicker(time.Duration(c.hbd.sti))
 	q := false
@@ -136,6 +140,7 @@ func (c *Connection) sendTicker() {
 	return
 }
 
+// The heart beat receive watch dog.
 func (c *Connection) receiveTicker() {
 	ticker := time.NewTicker(time.Duration(c.hbd.rti))
 	q := false

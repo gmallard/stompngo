@@ -21,7 +21,8 @@ import (
 	"net"
 )
 
-// Primary STOMP Connect
+// Primary STOMP Connect.  For STOMP 1.1+ the Headers parameter must contain
+// those headers required in the specification.
 func Connect(n net.Conn, h Headers) (c *Connection, e error) {
 	e = checkHeaders(h)
 	if e != nil {
@@ -60,7 +61,9 @@ func Connect(n net.Conn, h Headers) (c *Connection, e error) {
 	return c, e
 }
 
-// Connection handler, one time use.
+// Connection handler, one time use during initial connect.
+// Handle broker response, react to version incompatabilities, set up session, 
+// and if necessary initialize heart beats.
 func (c *Connection) connectHandler(h Headers) (e error) {
 	e = nil
 	c.rdr = bufio.NewReader(c.netconn)
