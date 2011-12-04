@@ -24,8 +24,7 @@ func (c *Connection) Disconnect(h Headers) (e error) {
 	if !c.connected {
 		return ECONBAD
 	}
-	e = checkHeaders(h)
-	if e != nil {
+	if e := h.Validate(); e != nil {
 		return e
 	}
 	if c.hbd != nil { // Shutdown heartbeats if necessary

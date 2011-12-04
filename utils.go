@@ -25,14 +25,6 @@ import (
 	"strings"
 )
 
-// Check headers.
-func checkHeaders(h Headers) (e error) {
-	if len(h)%2 != 0 {
-		return EHDRLEN
-	}
-	return nil
-}
-
 // Encode a string per STOMP 1.1+ specifications.
 func encode(s string) (r string) {
 	r = s

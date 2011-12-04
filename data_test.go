@@ -78,6 +78,11 @@ func TestDataHeadersBasic(t *testing.T) {
 	if _, ok := h.Contains(k); ok {
 		t.Errorf("Unexpected true for key: [%v]\n", k)
 	}
+  //
+  h = Headers{k}
+  if e := h.Validate(); e != EHDRLEN {
+		t.Errorf("Unexpected error for Validate: [%v]\n", e)
+  }
 }
 
 // Data Test: Headers Clone

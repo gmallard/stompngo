@@ -24,8 +24,7 @@ import (
 // Primary STOMP Connect.  For STOMP 1.1+ the Headers parameter must contain
 // those headers required in the specification.
 func Connect(n net.Conn, h Headers) (c *Connection, e error) {
-	e = checkHeaders(h)
-	if e != nil {
+	if e := h.Validate(); e != nil {
 		return nil, e
 	}
 	ch := h.Clone()
