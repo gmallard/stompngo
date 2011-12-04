@@ -17,8 +17,8 @@
 package stomp
 
 import (
-	"fmt"
 	"bufio"
+	"fmt"
 	"strconv"
 	"time"
 )

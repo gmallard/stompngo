@@ -88,8 +88,8 @@ type wiredata struct {
 
 // A representation of a STOMP connection.
 type Connection struct {
-	ConnectResponse   *Message  // Broker response (CONNECTED/ERROR) if physical connection successful.
-	DisconnectReceipt MessageData // If receipt requested on DISCONNECT.
+	ConnectResponse   *Message           // Broker response (CONNECTED/ERROR) if physical connection successful.
+	DisconnectReceipt MessageData        // If receipt requested on DISCONNECT.
 	MessageData       <-chan MessageData // Inbound data for the client.
 	connected         bool
 	session           string

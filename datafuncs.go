@@ -81,7 +81,7 @@ func (h Headers) Contains(k string) (string, bool) {
 // Test if a set of Headers contains a key, value pair.
 func (h Headers) ContainsKV(k string, v string) bool {
 	for i := 0; i < len(h); i += 2 {
-		if h[i] == k && h[i+1] == v{
+		if h[i] == k && h[i+1] == v {
 			return true
 		}
 	}

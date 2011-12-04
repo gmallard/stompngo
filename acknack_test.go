@@ -196,9 +196,7 @@ func TestAckDiffConn(t *testing.T) {
 	_ = c.Disconnect(h)
 	_ = closeConn(t, n)
 
-
 }
-
 
 // Test Nack errors
 func TestNackErrors(t *testing.T) {

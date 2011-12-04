@@ -86,7 +86,7 @@ func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
 		return nil // none required
 	}
 
-	c.hbd = w                // OK, we are doing some kind of heartbeating
+	c.hbd = w                   // OK, we are doing some kind of heartbeating
 	ct := time.Now().UnixNano() // Prime current time
 
 	if w.hbs { // Finish sender parameters if required
@@ -153,8 +153,8 @@ func (c *Connection) receiveTicker() {
 				c.log("HeartBeat Receive Read is dirty")
 				c.Hbrf = true // Flag possible dirty connection
 			} else {
-        c.Hbrf = false // Reset
-      }
+				c.Hbrf = false // Reset
+			}
 		case q = <-c.hbd.rsd:
 			ticker.Stop()
 			break
