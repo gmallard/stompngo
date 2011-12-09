@@ -108,7 +108,8 @@ func TestAckSameConn(t *testing.T) {
 		t.Errorf("ACK expected [nil], got: [%v]\n", e)
 	}
 
-	// Error check: Apollo bug ?
+	time.Sleep(1e9 / 20) // 50ms. See Apollo Jira issue APLO-88
+	// See Apollo Jira issue APLO-88
 	select {
 	case r = <-s:
 		t.Errorf("RECEIVE not expected, got: [%v]\n", r)
@@ -180,7 +181,8 @@ func TestAckDiffConn(t *testing.T) {
 		t.Errorf("ACK expected [nil], got: [%v]\n", e)
 	}
 
-	// Error check: Apollo bug ?
+	time.Sleep(1e9 / 20) // 50ms. See Apollo Jira issue APLO-88
+	// See Apollo Jira issue APLO-88
 	select {
 	case r = <-s:
 		t.Errorf("RECEIVE not expected, got: [%v]\n", r)
