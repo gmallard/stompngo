@@ -48,11 +48,11 @@ func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
 	if len(cp) != 2 { // S/B caught by the server first
 		return Error("invalid client heart-beat header: " + vc)
 	}
-	w.cx, e = strconv.Atoi64(cp[0])
+	w.cx, e = strconv.ParseInt(cp[0], 10, 64)
 	if e != nil {
 		return Error("non-numeric cx heartbeat value: " + cp[0])
 	}
-	w.cy, e = strconv.Atoi64(cp[1])
+	w.cy, e = strconv.ParseInt(cp[1], 10, 64)
 	if e != nil {
 		return Error("non-numeric cy heartbeat value: " + cp[1])
 	}
@@ -62,11 +62,11 @@ func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
 	if len(sp) != 2 {
 		return Error("invalid server heart-beat header: " + vc)
 	}
-	w.sx, e = strconv.Atoi64(sp[0])
+	w.sx, e = strconv.ParseInt(sp[0], 10, 64)
 	if e != nil {
 		return Error("non-numeric sx heartbeat value: " + sp[0])
 	}
-	w.sy, e = strconv.Atoi64(sp[1])
+	w.sy, e = strconv.ParseInt(sp[1], 10, 64)
 	if e != nil {
 		return Error("non-numeric sy heartbeat value: " + sp[1])
 	}
@@ -116,7 +116,7 @@ func (c *Connection) sendTicker() {
 		select {
 		case ct := <-ticker.C:
 			ld := ct.UnixNano() - c.hbd.ls
-			// c.log("HeartBeat send TIC", ct, c.hbd.ls, ld)
+			c.log("HeartBeat send TIC", ct, c.hbd.ls, ld)
 			if ld > (c.hbd.sti - (c.hbd.sti / 5)) { // swag minus to be tolerant
 				c.log("HeartBeat send data")
 				// Send a heartbeat
