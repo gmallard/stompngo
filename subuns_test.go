@@ -54,14 +54,8 @@ func TestSubNoIdOnce(t *testing.T) {
 	if e != nil {
 		t.Errorf("Expected no subscribe error, got [%v]\n", e)
 	}
-	if c.protocol == SPL_10 {
-		if s != nil {
-			t.Errorf("Expected nil subscribe channel, got [%v]\n", s)
-		}
-	} else {
-		if s == nil {
-			t.Errorf("Expected subscribe channel, got [nil]\n")
-		}
+	if s == nil {
+		t.Errorf("Expected subscribe channel, got [nil]\n")
 	}
 	select {
 	case v := <-c.MessageData:
@@ -86,14 +80,8 @@ func TestSubNoIdTwice(t *testing.T) {
 	if e != nil {
 		t.Errorf("Expected no subscribe error, got [%v]\n", e)
 	}
-	if c.protocol == SPL_10 {
-		if s != nil {
-			t.Errorf("Expected nil subscribe channel, got [%v]\n", s)
-		}
-	} else {
-		if s == nil {
-			t.Errorf("Expected subscribe channel, got [nil]\n")
-		}
+	if s == nil {
+		t.Errorf("Expected subscribe channel, got [nil]\n")
 	}
 	select {
 	case v := <-c.MessageData:
@@ -106,8 +94,8 @@ func TestSubNoIdTwice(t *testing.T) {
 		if e != nil {
 			t.Errorf("Expected no subscribe error, got [%v]\n", e)
 		}
-		if s != nil {
-			t.Errorf("Expected nil subscribe channel, got [%v]\n", s)
+		if s == nil {
+			t.Errorf("Expected subscribe channel, got nil\n")
 		}
 	} else {
 		if e == nil {
