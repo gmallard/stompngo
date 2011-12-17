@@ -14,12 +14,11 @@
 
 ## Examples ##
 
-For now good examples are a _TODO_.
+The examples in the included unit tests can be used as a starting point.
 
-The best current examples are in the included unit tests.
+Also see the examples project:
 
-Coming soon: examples on the project's github 
-wiki.
+* [stompngo_examples at github](https://github.com/gmallard/stompngo_examples)
 
 ## QA ##
 
