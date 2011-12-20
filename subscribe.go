@@ -16,6 +16,10 @@
 
 package stomp
 
+import (
+  "log"
+)
+
 // Subscribe to a STOMP subscription.  Headers must contain a "destintion" header,
 // and for STOMP 1.1+ a "id" header per the specification.
 func (c *Connection) Subscribe(h Headers) (s chan MessageData, e error) {
@@ -83,7 +87,7 @@ func (c *Connection) establishSubscription(h Headers) (chan MessageData, error, 
 			sid = sha1                            // reset
 		}
 	default: // Should not happen
-		panic("subscribe runtime unsupported: " + c.protocol)
+		log.Fatalln("subscribe runtime unsupported: " + c.protocol)
 	}
 	return c.subs[sid], nil, h
 }
