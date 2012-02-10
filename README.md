@@ -12,6 +12,13 @@
 * [STOMP 1.0 Protocol](http://stomp.github.com/stomp-specification-1.0.html)
 * [STOMP 1.1 Protocol](http://stomp.github.com/stomp-specification-1.1.html)
 
+## Installation ##
+
+Installation requires a working go environment. For current versions of go,
+from a directory in $GOPATH, issue:
+
+* go get github.com/gmallard/stompngo
+
 ## Examples ##
 
 The examples in the included unit tests can be used as a starting point.
