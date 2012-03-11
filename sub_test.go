@@ -118,66 +118,88 @@ func TestSubNoIdTwice(t *testing.T) {
 	_ = closeConn(t, n)
 }
 
-// Test Unsubscribe, no destination
-func TestUnSubNoSub(t *testing.T) {
+// Test write, subscribe, read, unsubscribe
+func TestSubUnsubBasic(t *testing.T) {
 	n, _ := openConn(t)
 	conn_headers := check11(TEST_HEADERS)
 	c, _ := Connect(n, conn_headers)
 	//
-	h := empty_headers
-	// Unsubscribe, no dest
-	e := c.Unsubscribe(h)
-	if e == nil {
-		t.Errorf("Expected unsubscribe error, got [nil]\n")
+	m := "A message"
+	d := "/queue/subunsub.basic.01"
+	h := Headers{"destination", d}
+	_ = c.Send(h, m)
+	//
+	h = h.Add("id", d)
+	s, e := c.Subscribe(h)
+	if e != nil {
+		t.Errorf("Expected no subscribe error, got [%v]\n", e)
 	}
-	if e != EREQDSTUNS {
-		t.Errorf("Unsubscribe error, expected [%v], got [%v]\n", EREQDSTUNS, e)
+	if s == nil {
+		t.Errorf("Expected subscribe channel, got [nil]\n")
+	}
+	md := <-s // Read message data
+	//
+	if md.Error != nil {
+		t.Errorf("Expected no message data error, got [%v]\n", md.Error)
+	}
+	msg := md.Message
+	rd := msg.Headers.Value("destination")
+	if rd != d {
+		t.Errorf("Expected destination [%v], got [%v]\n", d, rd)
+	}
+	ri := msg.Headers.Value("subscription")
+	if ri != d {
+		t.Errorf("Expected subscription [%v], got [%v]\n", d, ri)
+	}
+	//
+	e = c.Unsubscribe(h)
+	if e != nil {
+		t.Errorf("Expected no unsubscribe error, got [%v]\n", e)
 	}
 	//
 	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
 
-// Test Unsubscribe, no ID
-func TestUnSubNoId(t *testing.T) {
-	if os.Getenv("STOMP_TEST11") == "" {
-		println("TestUnSubNoId norun")
+// Test write, subscribe, read, unsubscribe, 1.0 only, no sub id.
+func TestSubUnsubBasic10(t *testing.T) {
+	if os.Getenv("STOMP_TEST11") != "" {
+		println("TestSubUnsubBasic10 norun")
 		return
 	}
 	n, _ := openConn(t)
 	conn_headers := check11(TEST_HEADERS)
 	c, _ := Connect(n, conn_headers)
 	//
-	h := Headers{"destination", "/queue/unsub.noid"}
-	// Unsubscribe, no id
-	e := c.Unsubscribe(h)
-	if e == nil {
-		t.Errorf("Expected unsubscribe error, got [nil]\n")
+	m := "A message"
+	d := "/queue/subunsub.basic.r10.01"
+	h := Headers{"destination", d}
+	_ = c.Send(h, m)
+	//
+	s, e := c.Subscribe(h)
+	if e != nil {
+		t.Errorf("Expected no subscribe error, got [%v]\n", e)
 	}
-	if e != EUNOSID {
-		t.Errorf("Unsubscribe error, expected [%v], got [%v]\n", EUNOSID, e)
+	if s == nil {
+		t.Errorf("Expected subscribe channel, got [nil]\n")
+	}
+	md := <-s // Read message data
+	//
+	if md.Error != nil {
+		t.Errorf("Expected no message data error, got [%v]\n", md.Error)
+	}
+	msg := md.Message
+	rd := msg.Headers.Value("destination")
+	if rd != d {
+		t.Errorf("Expected destination [%v], got [%v]\n", d, rd)
+	}
+	//
+	e = c.Unsubscribe(h)
+	if e != nil {
+		t.Errorf("Expected no unsubscribe error, got [%v]\n", e)
 	}
 	//
 	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
 
-// Test Unsubscribe, bad ID
-func TestUnSubBadId(t *testing.T) {
-	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
-	//
-	h := Headers{"destination", "/queue/unsub.badid", "id", "bogus"}
-	// Unsubscribe, bad id
-	e := c.Unsubscribe(h)
-	if e == nil {
-		t.Errorf("Expected unsubscribe error, got [nil]\n")
-	}
-	if e != EBADSID {
-		t.Errorf("Unsubscribe error, expected [%v], got [%v]\n", EBADSID, e)
-	}
-	//
-	_ = c.Disconnect(empty_headers)
-	_ = closeConn(t, n)
-}
