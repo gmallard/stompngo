@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 
-package stomp
+package stompngo
 
 // Abort STOMP transaction.  Headers must contain a "transaction" header key
 // with a value that is not an empty string.

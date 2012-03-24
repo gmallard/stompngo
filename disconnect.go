@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 
-package stomp
+package stompngo
 
 // Disconnect from a STOMP broker.  Shut down heart beats if necessary.
 // Set 'connected' flag to false to disable further actions with this

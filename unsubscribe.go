@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 
-package stomp
+package stompngo
 
 // Unsubscribe from a STOMP subscription. Headers must contain a "destintion" header,
 // and an "id" header per the specifications.  The subscription must currently

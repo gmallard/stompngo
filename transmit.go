@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 
-package stomp
+package stompngo
 
 // Common send for many stomp API calls.
 func (c *Connection) transmitCommon(v string, h Headers) (e error) {

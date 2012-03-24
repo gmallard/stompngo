@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 
-package stomp
+package stompngo
 
 // Send a STOMP MESSAGE.  Headers must contain a "destination" header.
 // The message body (payload) is a string, which may be empty.

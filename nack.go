@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 
-package stomp
+package stompngo
 
 // Nack a STOMP 1.1+ message. Headers must contain a "message-id" key and
 // a "subscription" key.  Disallowed for STOMP 1.0.
