@@ -13,11 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-
+/*
+A STOMP 1.1 Compatible Client Library
+*/
 package stompngo
 
 import (
-  "log"
+	"log"
 )
 
 // Subscribe to a STOMP subscription.  Headers must contain a "destintion" header,
@@ -76,8 +78,8 @@ func (c *Connection) establishSubscription(h Headers) (chan MessageData, error, 
 		if hid { // If 1.0 client wants one, assign it.
 			c.subs[sid] = make(chan MessageData)
 		} else {
-      return c.input, nil, h // 1.0 clients with no id take their own chances
-    }
+			return c.input, nil, h // 1.0 clients with no id take their own chances
+		}
 	case SPL_11:
 		if hid { // Client specified id
 			c.subs[sid] = make(chan MessageData) // Assign subscription
