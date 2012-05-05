@@ -41,7 +41,7 @@ func Connect(n net.Conn, h Headers) (c *Connection, e error) {
 	c.wtr = bufio.NewWriter(n)
 	go c.writer()
 	c.wsd = make(chan bool)
-	f := Frame{CONNECT, ch, make([]uint8, 0)}
+	f := Frame{CONNECT, ch, NULLBUFF}
 	//
 	r := make(chan error)
 	c.output <- wiredata{f, r}

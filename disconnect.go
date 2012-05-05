@@ -41,7 +41,7 @@ func (c *Connection) Disconnect(h Headers) (e error) {
 	//
 	c.connected = false
 	c.rsd <- true
-	f := Frame{DISCONNECT, ch, make([]uint8, 0)}
+	f := Frame{DISCONNECT, ch, NULLBUFF}
 	//
 	r := make(chan error)
 	c.output <- wiredata{f, r}

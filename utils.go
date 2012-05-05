@@ -52,7 +52,7 @@ func readUntilNul(r *bufio.Reader) (b []uint8, e error) {
 		return b, e
 	}
 	if len(b) == 1 {
-		b = make([]uint8, 0)
+		b = NULLBUFF
 	} else {
 		b = b[0 : len(b)-1]
 	}

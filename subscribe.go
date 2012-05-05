@@ -44,7 +44,7 @@ func (c *Connection) Subscribe(h Headers) (s chan MessageData, e error) {
 		return nil, e
 	}
 	//
-	f := Frame{SUBSCRIBE, ch, make([]uint8, 0)}
+	f := Frame{SUBSCRIBE, ch, NULLBUFF}
 	//
 	r := make(chan error)
 	c.output <- wiredata{f, r}

@@ -122,7 +122,7 @@ func (c *Connection) sendTicker() {
 			if ld > (c.hbd.sti - (c.hbd.sti / 5)) { // swag minus to be tolerant
 				c.log("HeartBeat send data")
 				// Send a heartbeat
-				f := Frame{"\n", Headers{}, make([]uint8, 0)} // Heartbeat frame
+				f := Frame{"\n", Headers{}, NULLBUFF} // Heartbeat frame
 				r := make(chan error)
 				c.output <- wiredata{f, r}
 				e := <-r

@@ -21,7 +21,7 @@ package stompngo
 // Common send for many stomp API calls.
 func (c *Connection) transmitCommon(v string, h Headers) (e error) {
 	ch := h.Clone()
-	f := Frame{v, ch, make([]uint8, 0)}
+	f := Frame{v, ch, NULLBUFF}
 	r := make(chan error)
 	c.output <- wiredata{f, r}
 	e = <-r
