@@ -109,8 +109,8 @@ func connectResponse(s string) (f *Frame, e error) {
 		f.Headers = append(f.Headers, k, v)
 	}
 	// get f.Body
-	if len(b) == 2 {
-		f.Body = []uint8(b[1])
+	if len(b[1]) == 1 {
+		f.Body = make([]uint8, 0)
 	} else {
 		return nil, EUNKBDY
 	}

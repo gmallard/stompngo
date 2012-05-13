@@ -86,3 +86,18 @@ func TestConnDiscStompDiscReceipt(t *testing.T) {
 	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
+
+// ConnDisc Test: Body Length
+func TestConnBodyLen(t *testing.T) {
+	n, _ := openConn(t)
+	conn_headers := check11(TEST_HEADERS)
+	c, e := Connect(n, conn_headers)
+	if e != nil {
+		t.Errorf("Expected no connect error, got [%v]\n", e)
+	}
+	if len(c.ConnectResponse.Body) != 0 {
+		t.Errorf("Expected body length 0, got [%v]\n", len(c.ConnectResponse.Body))
+	}
+	_ = c.Disconnect(empty_headers)
+	_ = closeConn(t, n)
+}
