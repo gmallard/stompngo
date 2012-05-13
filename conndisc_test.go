@@ -19,6 +19,7 @@ A STOMP 1.1 Compatible Client Library
 package stompngo
 
 import (
+  "os"
 	"testing"
 )
 
@@ -97,6 +98,27 @@ func TestConnBodyLen(t *testing.T) {
 	}
 	if len(c.ConnectResponse.Body) != 0 {
 		t.Errorf("Expected body length 0, got [%v]\n", len(c.ConnectResponse.Body))
+	}
+	_ = c.Disconnect(empty_headers)
+	_ = closeConn(t, n)
+}
+
+// Conn11 Test: Test 1.1 Connection
+func TestConn11(t *testing.T) {
+	n, _ := openConn(t)
+	conn_headers := check11(TEST_HEADERS)
+	c, e := Connect(n, conn_headers)
+	if e != nil {
+		t.Errorf("Expected no connect error, got [%v]\n", e)
+	}
+	if os.Getenv("STOMP_TEST11") != "" {
+		if c.Protocol() != SPL_11 {
+			t.Errorf("Expected protocol 1.1, got [%v]\n", c.Protocol())
+		}
+	} else {
+		if c.Protocol() != SPL_10 {
+			t.Errorf("Expected protocol 1.0, got [%v]\n", c.Protocol())
+		}
 	}
 	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)

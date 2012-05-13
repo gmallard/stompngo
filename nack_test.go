@@ -38,8 +38,8 @@ func TestNackErrors(t *testing.T) {
 		if e == nil {
 			t.Errorf("NACK -1- expected error, got [nil]\n")
 		}
-		if e != EBADVER {
-			t.Errorf("NACK expected error [%v], got [%v]\n", EBADVER, e)
+		if e != EBADVERNAK {
+			t.Errorf("NACK expected error [%v], got [%v]\n", EBADVERNAK, e)
 		}
 		_ = c.Disconnect(h)
 		_ = closeConn(t, n)

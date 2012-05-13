@@ -110,3 +110,16 @@ func checkReceived(t *testing.T, c *Connection, id string) {
 	default:
 	}
 }
+
+// Host and port for Dial
+func badVerHostAndPort() (string, string) {
+	h := os.Getenv("STOMP_HOSTBV") // export only if you understand these tests
+	if h == "" {
+		h = "localhost"
+	}
+	p := os.Getenv("STOMP_PORTBV") // export only if you understand these tests
+	if p == "" {
+		p = "61613"
+	}
+	return h, p
+}

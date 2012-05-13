@@ -26,7 +26,7 @@ func (c *Connection) Nack(h Headers) (e error) {
 		return ECONBAD
 	}
 	if c.protocol == SPL_10 {
-		return EBADVER
+		return EBADVERNAK
 	}
 	_, e = checkHeaders(h, c)
 	if e != nil {

@@ -155,3 +155,13 @@ func max(a, b int64) int64 {
 	}
 	return b
 }
+
+// Internal function, used during CONNECT
+func hasValue(a []string, w string) bool {
+	for _, v := range a {
+		if v == w {
+			return true
+		}
+	}
+	return false
+}

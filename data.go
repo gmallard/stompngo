@@ -158,7 +158,9 @@ const (
 	EUNOSID = Error("id required, UNSUBSCRIBE")
 
 	// Unsupported version error
-	EBADVER = Error("unsupported protocol version")
+	EBADVERCLI = Error("unsupported protocol version, client")
+	EBADVERSVR = Error("unsupported protocol version, server")
+	EBADVERNAK = Error("unsupported protocol version, NACK")
 
 	// Unsupported Headers type
 	EBADHDR = Error("unsupported Headers type")

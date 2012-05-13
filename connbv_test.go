@@ -1,0 +1,98 @@
+//
+// Copyright © 2012 Guy M. Allard
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+/*
+A STOMP 1.1 Compatible Client Library
+*/
+package stompngo
+
+import (
+	"fmt"
+	"net"
+	"os"
+	"testing"
+)
+
+// ConnBadVer Test: Bad Version One
+func TestConnBadVer10One(t *testing.T) {
+	if os.Getenv("STOMP_TESTBV") == "" { // Want bad version check? (Know what you are doing...)
+		fmt.Println("TestConnBadVer10One norun STOMP_TESTBV")
+		return
+	}
+	if os.Getenv("STOMP_TEST11") != "" { // Want bad version check? (Know what you are doing...)
+		fmt.Println("TestConnBadVer10One norun STOMP_TEST11")
+		return
+	}
+	h, p := badVerHostAndPort()
+	n, e := net.Dial("tcp", net.JoinHostPort(h, p))
+	conn_headers := TEST_HEADERS
+	other_headers := Headers{"accept-version", "1.1,2.0,3.14159", "host", h}
+	conn_headers = conn_headers.AddHeaders(other_headers)
+	c, e := Connect(n, conn_headers)
+	if e != EBADVERSVR {
+		t.Errorf("Expected error [%v], got [%v]\n", EBADVERSVR, e)
+	}
+	_ = c.Disconnect(empty_headers)
+	_ = closeConn(t, n)
+}
+
+// ConnBadVer Test: Bad Version Two
+func TestConnBadVer10Two(t *testing.T) {
+	if os.Getenv("STOMP_TESTBV") == "" { // Want bad version check? (Know what you are doing...)
+		fmt.Println("TestConnBadVer10Two norun STOMP_TESTBV")
+		return
+	}
+	if os.Getenv("STOMP_TEST11") != "" { // Want bad version check? (Know what you are doing...)
+		fmt.Println("TestConnBadVer10Two norun STOMP_TEST11")
+		return
+	}
+	h, p := badVerHostAndPort()
+	n, e := net.Dial("tcp", net.JoinHostPort(h, p))
+	conn_headers := TEST_HEADERS
+	other_headers := Headers{"accept-version", "2.0,1.0,3.14159", "host", h}
+	conn_headers = conn_headers.AddHeaders(other_headers)
+	c, e := Connect(n, conn_headers)
+	if e != nil {
+		t.Errorf("Expected nil error, got [%v]\n", e)
+	}
+	if c.Protocol() != SPL_10 {
+		t.Errorf("Expected protocol 1.0, got [%v]\n", c.Protocol())
+	}
+	_ = c.Disconnect(empty_headers)
+	_ = closeConn(t, n)
+}
+
+// ConnBadVer Test: Bad Version Three
+func TestConnBadVer10Three(t *testing.T) {
+	if os.Getenv("STOMP_TESTBV") == "" { // Want bad version check? (Know what you are doing...)
+		fmt.Println("TestConnBadVer10Three norun STOMP_TESTBV")
+		return
+	}
+	if os.Getenv("STOMP_TEST11") != "" { // Want bad version check? (Know what you are doing...)
+		fmt.Println("TestConnBadVer10Three norun STOMP_TEST11")
+		return
+	}
+	h, p := badVerHostAndPort()
+	n, e := net.Dial("tcp", net.JoinHostPort(h, p))
+	conn_headers := TEST_HEADERS
+	other_headers := Headers{"accept-version", "4.5,3.14159", "host", h}
+	conn_headers = conn_headers.AddHeaders(other_headers)
+	c, e := Connect(n, conn_headers)
+	if e != EBADVERCLI {
+		t.Errorf("Expected error [%v], got [%v]\n", EBADVERCLI, e)
+	}
+	_ = c.Disconnect(empty_headers)
+	_ = closeConn(t, n)
+}

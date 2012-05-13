@@ -21,6 +21,7 @@ package stompngo
 import (
 	"bufio"
 	"net"
+	"strings"
 )
 
 // Primary STOMP Connect.  For STOMP 1.1+ the Headers parameter must contain
@@ -38,21 +39,29 @@ func Connect(n net.Conn, h Headers) (c *Connection, e error) {
 		protocol:  SPL_10,
 		subs:      make(map[string]chan MessageData)}
 	c.MessageData = c.input
-	c.wtr = bufio.NewWriter(n)
-	go c.writer()
-	c.wsd = make(chan bool)
-	f := Frame{CONNECT, ch, NULLBUFF}
-	//
-	r := make(chan error)
-	c.output <- wiredata{f, r}
-	e = <-r
+
+	// Check that the cilent wants a version we support
+	if e = c.checkClientVersions(h); e != nil {
+		return c, e
+	}
+
+	// OK, put a CONNECT on the wire
+	c.wtr = bufio.NewWriter(n)        // Create the writer
+	c.wsd = make(chan bool)           // Make the writer shutdown channel
+	go c.writer()                     // Start it
+	f := Frame{CONNECT, ch, NULLBUFF} // Create actual CONNECT frame
+	r := make(chan error)             // Make the error channel fo a write
+	c.output <- wiredata{f, r}        // Send the CONNECT frame
+	e = <-r                           // Retrieve any error
 	//
 	if e != nil {
+		c.wsd <- true // Shutdown the writer, we are done with errors
 		return c, e
 	}
 	//
 	e = c.connectHandler(ch)
 	if e != nil {
+		c.wsd <- true // Shutdown the writer, we are done with errors
 		return c, e
 	}
 	// We are connected
@@ -77,13 +86,13 @@ func (c *Connection) connectHandler(h Headers) (e error) {
 	}
 	//
 	c.ConnectResponse = &Message{f.Command, f.Headers, f.Body}
+	if c.ConnectResponse.Command == ERROR {
+		return ECONERR
+	}
 	//
-	if v, ok := c.ConnectResponse.Headers.Contains("version"); ok {
-		if supported.Supported(v) {
-			c.protocol = v
-		} else {
-			return EBADVER
-		}
+	e = c.checkConnectedVersions(h, c.ConnectResponse.Headers)
+	if e != nil {
+		return e
 	}
 	//
 	if s, ok := c.ConnectResponse.Headers.Contains("session"); ok {
@@ -98,5 +107,60 @@ func (c *Connection) connectHandler(h Headers) (e error) {
 	}
 
 	c.connected = true
+	return nil
+}
+
+// Check client version, one time use during initial connect.
+func (c *Connection) checkClientVersions(h Headers) (e error) {
+	w := h.Value("accept-version")
+	if w == "" { // Not present, client wants 1.0
+		return nil
+	}
+	v := strings.SplitN(w, ",", -1) //
+	for _, sv := range v {
+		if hasValue(supported, sv) {
+			return nil // At least one is supported
+		}
+	}
+	return EBADVERCLI
+}
+
+// Check connected versions, one time use during initial connect.
+func (c *Connection) checkConnectedVersions(ch, sh Headers) (e error) {
+	chw := ch.Value("accept-version")
+	shr := sh.Value("version")
+
+	if chw == shr && supported.Supported(shr) {
+		c.protocol = shr
+		return nil
+	}
+
+	if chw == "" && shr == "" { // Straight up 1.0
+		return nil // c.protocol defaults to SPL_10
+	}
+
+	cv := strings.SplitN(chw, ",", -1) // Client requested versions
+
+	if chw != "" && shr != "" {
+		if hasValue(cv, shr) {
+			c.protocol = shr
+			return nil
+		} else {
+			return EBADVERCLI
+		}
+	}
+
+	if chw != "" && shr == "" { // Client asked for something, server is pure 1.0
+		if hasValue(cv, SPL_10) {
+			return nil // c.protocol defaults to SPL_10
+		}
+	}
+
+	//
+	if !supported.Supported(shr) {
+		return EBADVERSVR // Client and server agree, but we do not support it
+	}
+
+	c.protocol = shr // Could be anything we support
 	return nil
 }
