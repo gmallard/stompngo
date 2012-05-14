@@ -117,7 +117,7 @@ func connectResponse(s string) (f *Frame, e error) {
 	return f, nil
 }
 
-// Return a SHA1 hask for a specified string.
+// Return a SHA1 hash for a specified string.
 func Sha1(q string) (s string) {
 	g := sha1.New()
 	g.Write([]byte(q))
