@@ -14,27 +14,9 @@
 // limitations under the License.
 //
 
+/*
+Package stompngo provides a STOMP 1.0 and 1.1 compatible client library.
+For information on the STOMP messaging protocol, see: 
+http://stomp.github.com/
+*/
 package stompngo
-
-// Commit a STOMP transaction. Headers must contain a "transaction" header key
-// with a value that is not an empty string.
-func (c *Connection) Commit(h Headers) (e error) {
-	c.log(COMMIT, "start")
-	if !c.connected {
-		return ECONBAD
-	}
-	_, e = checkHeaders(h, c)
-	if e != nil {
-		return e
-	}
-	if _, ok := h.Contains("transaction"); !ok {
-		return EREQTIDCOM
-	}
-	if h.Value("transaction") == "" {
-		return EREQTIDCOM
-	}
-	ch := h.Clone()
-	e = c.transmitCommon(COMMIT, ch)
-	c.log(COMMIT, "end")
-	return e
-}

@@ -13,13 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-/*
-A STOMP 1.1 Compatible Client Library
-*/
+
 package stompngo
 
 import (
-  "os"
+	"os"
 	"testing"
 )
 
