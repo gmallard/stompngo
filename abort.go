@@ -16,8 +16,12 @@
 
 package stompngo
 
-// Abort STOMP transaction.  Headers must contain a "transaction" header key
-// with a value that is not an empty string.
+/*
+	Abort a STOMP transaction.  
+
+	Headers MUST contain a "transaction" header key
+	with a value that is not an empty string.
+*/
 func (c *Connection) Abort(h Headers) (e error) {
 	c.log(ABORT, "start")
 	if !c.connected {

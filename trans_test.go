@@ -20,7 +20,9 @@ import (
 	"testing"
 )
 
-// Test transaction errors
+/*
+	Test transaction errors.
+*/
 func TestTransErrors(t *testing.T) {
 
 	n, _ := openConn(t)
@@ -60,7 +62,9 @@ func TestTransErrors(t *testing.T) {
 
 }
 
-// Test transaction send
+/*
+	Test transaction send.
+*/
 func TestTransSend(t *testing.T) {
 
 	n, _ := openConn(t)
@@ -105,7 +109,9 @@ func TestTransSend(t *testing.T) {
 
 }
 
-// Test transaction send empty trans id
+/*
+	Test transaction send empty trans id.
+*/
 func TestTransSendEmptyTid(t *testing.T) {
 
 	n, _ := openConn(t)
@@ -127,7 +133,9 @@ func TestTransSendEmptyTid(t *testing.T) {
 
 }
 
-// Test transaction send then rollback
+/*
+	Test transaction send then rollback.
+*/
 func TestTransSendRollback(t *testing.T) {
 
 	n, _ := openConn(t)
@@ -190,7 +198,9 @@ func TestTransSendRollback(t *testing.T) {
 
 }
 
-// Test transaction message order
+/*
+	Test transaction message order.
+*/
 func TestTransMessageOrder(t *testing.T) {
 
 	n, _ := openConn(t)

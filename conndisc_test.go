@@ -21,13 +21,17 @@ import (
 	"testing"
 )
 
-// ConnDisc Test: Netconn
+/*
+	ConnDisc Test: net.Conn.
+*/
 func TestConnDiscNetconn(t *testing.T) {
 	n, _ := openConn(t)
 	_ = closeConn(t, n)
 }
 
-// ConnDisc Test: Stomp Conn
+/*
+	ConnDisc Test: stompngo.Connect.
+*/
 func TestConnDiscStompConn(t *testing.T) {
 	n, _ := openConn(t)
 	conn_headers := check11(TEST_HEADERS)
@@ -48,7 +52,9 @@ func TestConnDiscStompConn(t *testing.T) {
 	_ = closeConn(t, n)
 }
 
-// ConnDisc Test: Stomp Disc
+/*
+	ConnDisc Test: stompngo.Disconnect.
+*/
 func TestConnDiscStompDisc(t *testing.T) {
 	n, _ := openConn(t)
 	conn_headers := check11(TEST_HEADERS)
@@ -61,7 +67,9 @@ func TestConnDiscStompDisc(t *testing.T) {
 	_ = closeConn(t, n)
 }
 
-// ConnDisc Test: Stomp Disc Receipt
+/*
+	ConnDisc Test: stompngo.Disconnect with receipt requested.
+*/
 func TestConnDiscStompDiscReceipt(t *testing.T) {
 	n, _ := openConn(t)
 	conn_headers := check11(TEST_HEADERS)
@@ -69,6 +77,7 @@ func TestConnDiscStompDiscReceipt(t *testing.T) {
 	r := "my-receipt-001"
 	e := c.Disconnect(Headers{"receipt", r})
 	if e != nil {
+
 		t.Errorf("Expected no disconnect error, got [%v]\n", e)
 	}
 	if c.DisconnectReceipt.Error != nil {
@@ -86,10 +95,13 @@ func TestConnDiscStompDiscReceipt(t *testing.T) {
 	_ = closeConn(t, n)
 }
 
-// ConnDisc Test: Body Length
+/*
+	ConnDisc Test: Body Length of CONNECTED response.
+*/
 func TestConnBodyLen(t *testing.T) {
 	n, _ := openConn(t)
 	conn_headers := check11(TEST_HEADERS)
+
 	c, e := Connect(n, conn_headers)
 	if e != nil {
 		t.Errorf("Expected no connect error, got [%v]\n", e)
@@ -101,7 +113,9 @@ func TestConnBodyLen(t *testing.T) {
 	_ = closeConn(t, n)
 }
 
-// Conn11 Test: Test 1.1 Connection
+/*
+	Conn11 Test: Test 1.1 Connection.
+*/
 func TestConn11(t *testing.T) {
 	n, _ := openConn(t)
 	conn_headers := check11(TEST_HEADERS)

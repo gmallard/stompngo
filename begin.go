@@ -16,8 +16,12 @@
 
 package stompngo
 
-// Begin a STOMP transaction. Headers must contain a "transaction" header key
-// with a value that is not an empty string.
+/*
+	Begin a STOMP transaction. 
+
+	Headers MUST contain a "transaction" header key
+	with a value that is not an empty string.
+*/
 func (c *Connection) Begin(h Headers) (e error) {
 	c.log(BEGIN, "start")
 	if !c.connected {

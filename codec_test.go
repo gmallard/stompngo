@@ -39,7 +39,7 @@ var tdList = []testdata{
 	{"n\\nn", "n\nn"},
 }
 
-// Test STOMP 1.1 Header Codec - Encode
+// Test STOMP 1.1 Header Codec - Basic Encode.
 func TestCodecEncodeBasic(t *testing.T) {
 
 	for _, v := range tdList {
@@ -51,7 +51,9 @@ func TestCodecEncodeBasic(t *testing.T) {
 
 }
 
-// Test STOMP 1.1 Header Codec - Encode
+/*
+	Test STOMP 1.1 Header Codec - Basic Decode.
+*/
 func TestCodecDecodeBasic(t *testing.T) {
 
 	for _, v := range tdList {
@@ -63,7 +65,9 @@ func TestCodecDecodeBasic(t *testing.T) {
 
 }
 
-// Test STOMP 1.1 Send / Receive - no codec error
+/*
+	Test STOMP 1.1 Send / Receive - no codec error.
+*/
 func TestCodec11SendRecvCodec(t *testing.T) {
 	if os.Getenv("STOMP_TEST11") == "" {
 		fmt.Println("Test11SendRecvCodec norun")

@@ -23,7 +23,9 @@ import (
 	"testing"
 )
 
-// ConnBadVer Test: Bad Version One
+/*
+	ConnBadVer Test: Bad Version One.
+*/
 func TestConnBadVer10One(t *testing.T) {
 	if os.Getenv("STOMP_TESTBV") == "" { // Want bad version check? (Know what you are doing...)
 		fmt.Println("TestConnBadVer10One norun STOMP_TESTBV")
@@ -46,7 +48,9 @@ func TestConnBadVer10One(t *testing.T) {
 	_ = closeConn(t, n)
 }
 
-// ConnBadVer Test: Bad Version Two
+/*
+	ConnBadVer Test: Bad Version Two.
+*/
 func TestConnBadVer10Two(t *testing.T) {
 	if os.Getenv("STOMP_TESTBV") == "" { // Want bad version check? (Know what you are doing...)
 		fmt.Println("TestConnBadVer10Two norun STOMP_TESTBV")
@@ -72,7 +76,9 @@ func TestConnBadVer10Two(t *testing.T) {
 	_ = closeConn(t, n)
 }
 
-// ConnBadVer Test: Bad Version Three
+/*
+	ConnBadVer Test: Bad Version Three.
+*/
 func TestConnBadVer10Three(t *testing.T) {
 	if os.Getenv("STOMP_TESTBV") == "" { // Want bad version check? (Know what you are doing...)
 		fmt.Println("TestConnBadVer10Three norun STOMP_TESTBV")

@@ -21,7 +21,9 @@ import (
 	"testing"
 )
 
-// Test Subscribe, no destination
+/*
+	Test Subscribe, no destination.
+*/
 func TestSubNoSub(t *testing.T) {
 	n, _ := openConn(t)
 	conn_headers := check11(TEST_HEADERS)
@@ -41,7 +43,9 @@ func TestSubNoSub(t *testing.T) {
 	_ = closeConn(t, n)
 }
 
-// Test subscribe, no ID
+/*
+	Test subscribe, no ID.
+*/
 func TestSubNoIdOnce(t *testing.T) {
 	n, _ := openConn(t)
 	conn_headers := check11(TEST_HEADERS)
@@ -67,7 +71,9 @@ func TestSubNoIdOnce(t *testing.T) {
 	_ = closeConn(t, n)
 }
 
-// Test subscribe, no ID, twice to same destination
+/*
+	Test subscribe, no ID, twice to same destination.
+*/
 func TestSubNoIdTwice(t *testing.T) {
 	n, _ := openConn(t)
 	conn_headers := check11(TEST_HEADERS)
@@ -118,7 +124,9 @@ func TestSubNoIdTwice(t *testing.T) {
 	_ = closeConn(t, n)
 }
 
-// Test write, subscribe, read, unsubscribe
+/*
+	Test send, subscribe, read, unsubscribe.
+*/
 func TestSubUnsubBasic(t *testing.T) {
 	n, _ := openConn(t)
 	conn_headers := check11(TEST_HEADERS)
@@ -161,7 +169,9 @@ func TestSubUnsubBasic(t *testing.T) {
 	_ = closeConn(t, n)
 }
 
-// Test write, subscribe, read, unsubscribe, 1.0 only, no sub id.
+/*
+	Test send, subscribe, read, unsubscribe, 1.0 only, no sub id.
+*/
 func TestSubUnsubBasic10(t *testing.T) {
 	if os.Getenv("STOMP_TEST11") != "" {
 		println("TestSubUnsubBasic10 norun")

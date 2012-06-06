@@ -22,7 +22,9 @@ import (
 	"testing"
 )
 
-// Test a Stomp 1.1 shovel
+/*
+	Test a Stomp 1.1 shovel.
+*/
 func TestShovel11(t *testing.T) {
 	if os.Getenv("STOMP_TEST11") == "" {
 		fmt.Println("Test11Shovel norun")

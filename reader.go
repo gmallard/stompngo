@@ -23,8 +23,12 @@ import (
 	"time"
 )
 
-// Logical network reader.  Read frames from the connection, create MessageData
-// structures from the receivedd data, and push the MessageData to the client.
+/*
+	Logical network reader.  
+
+	Read STOMP frames from the connection, create MessageData
+	structures from the received data, and push the MessageData to the client.
+*/
 func (c *Connection) reader() {
 	//
 	q := false
@@ -64,7 +68,15 @@ func (c *Connection) reader() {
 
 }
 
-// Physical frame reader.  This slurps a single frame off of the wire.
+/*
+	Physical frame reader.  
+
+	This parses a single STOMP frame from data off of the wire, and
+	returns a Frame, with a possible error.
+
+	Note: this functionality could hang or exhibit other erroneous behavior 
+	if running against a non-compliant STOMP server.
+*/
 func (c *Connection) readFrame() (f Frame, e error) {
 	f = Frame{"", Headers{}, NULLBUFF}
 	// Read f.Command or line ends (maybe heartbeats)

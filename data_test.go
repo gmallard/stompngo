@@ -20,7 +20,9 @@ import (
 	"testing"
 )
 
-// Data Test: Frame Basic
+/*
+	Data Test: Frame Basic.
+*/
 func TestDataFrameBasic(t *testing.T) {
 	c := CONNECT
 	h := Headers{"keya", "valuea"}
@@ -38,7 +40,9 @@ func TestDataFrameBasic(t *testing.T) {
 	}
 }
 
-// Data Test: Message Basic
+/*
+	Data Test: Message Basic.
+*/
 func TestDataMessageBasic(t *testing.T) {
 	f := CONNECT
 	h := Headers{"keya", "valuea"}
@@ -56,7 +60,9 @@ func TestDataMessageBasic(t *testing.T) {
 	}
 }
 
-// Data Test: Headers Basic
+/*
+	Data Test: Headers Basic.
+*/
 func TestDataHeadersBasic(t *testing.T) {
 	k := "keya"
 	v := "valuea"
@@ -85,7 +91,9 @@ func TestDataHeadersBasic(t *testing.T) {
 	}
 }
 
-// Data Test: Headers UTF8
+/*
+	Data Test: Headers UTF8.
+*/
 func TestDataHeadersUTF8(t *testing.T) {
 	k := "keya"
 	v := "valuea"
@@ -108,7 +116,9 @@ func TestDataHeadersUTF8(t *testing.T) {
 	}
 }
 
-// Data Test: Headers Clone
+/*.
+Data Test: Headers Clone
+*/
 func TestDataHeadersClone(t *testing.T) {
 	h := Headers{"ka", "va"}.Add("kb", "vb").Add("kc", "vc")
 	hc := h.Clone()
@@ -117,7 +127,9 @@ func TestDataHeadersClone(t *testing.T) {
 	}
 }
 
-// Data Test: Headers Add / Delete
+/*
+	Data Test: Headers Add / Delete.
+*/
 func TestDataHeadersAddDelete(t *testing.T) {
 	ha := Headers{"ka", "va", "kb", "vb", "kc", "vc"}
 	hb := Headers{"kaa", "va", "kbb", "vb", "kcc", "vc"}
@@ -136,7 +148,9 @@ func TestDataHeadersAddDelete(t *testing.T) {
 	}
 }
 
-// Data Test: protocols
+/*
+	Data Test: protocols.
+*/
 func TestDataprotocols(t *testing.T) {
 	l := SPL_10
 	if !supported.Supported(l) {

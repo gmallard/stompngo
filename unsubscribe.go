@@ -16,9 +16,13 @@
 
 package stompngo
 
-// Unsubscribe from a STOMP subscription. Headers must contain a "destintion" header,
-// and an "id" header per the specifications.  The subscription must currently
-// exist for this session.
+/*
+	Unsubscribe from a STOMP subscription. 
+
+	Headers MUST contain a "destintion" header,
+	and an "id" header per the specifications.  The subscription MUST currently
+	exist for this session.
+*/
 func (c *Connection) Unsubscribe(h Headers) (e error) {
 	c.log(UNSUBSCRIBE, "start")
 	if !c.connected {

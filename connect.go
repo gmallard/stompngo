@@ -22,8 +22,13 @@ import (
 	"strings"
 )
 
-// Primary STOMP Connect.  For STOMP 1.1+ the Headers parameter must contain
-// those headers required in the specification.
+/*
+	Primary STOMP Connect.  
+
+	For STOMP 1.1+ the Headers parameter MUST contain the headers required 
+	by the specification.  Those headers are not magically inferred.
+
+*/
 func Connect(n net.Conn, h Headers) (c *Connection, e error) {
 	if e := h.Validate(); e != nil {
 		return nil, e
@@ -36,6 +41,7 @@ func Connect(n net.Conn, h Headers) (c *Connection, e error) {
 		session:   "",
 		protocol:  SPL_10,
 		subs:      make(map[string]chan MessageData)}
+	// Assumed for now
 	c.MessageData = c.input
 
 	// Check that the cilent wants a version we support
@@ -69,9 +75,12 @@ func Connect(n net.Conn, h Headers) (c *Connection, e error) {
 	return c, e
 }
 
-// Connection handler, one time use during initial connect.
-// Handle broker response, react to version incompatabilities, set up session, 
-// and if necessary initialize heart beats.
+/*
+	Connection handler, one time use during initial connect.
+
+	Handle broker response, react to version incompatabilities, set up session, 
+	and if necessary initialize heart beats.
+*/
 func (c *Connection) connectHandler(h Headers) (e error) {
 	c.rdr = bufio.NewReader(c.netconn)
 	b, e := c.rdr.ReadBytes(0)
@@ -108,7 +117,9 @@ func (c *Connection) connectHandler(h Headers) (e error) {
 	return nil
 }
 
-// Check client version, one time use during initial connect.
+/*
+	Check client version, one time use during initial connect.
+*/
 func (c *Connection) checkClientVersions(h Headers) (e error) {
 	w := h.Value("accept-version")
 	if w == "" { // Not present, client wants 1.0
@@ -123,7 +134,9 @@ func (c *Connection) checkClientVersions(h Headers) (e error) {
 	return EBADVERCLI
 }
 
-// Check connected versions, one time use during initial connect.
+/*
+	Check connected versions, one time use during initial connect.
+*/
 func (c *Connection) checkConnectedVersions(ch, sh Headers) (e error) {
 	chw := ch.Value("accept-version")
 	shr := sh.Value("version")

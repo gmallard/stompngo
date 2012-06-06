@@ -22,37 +22,51 @@ import (
 
 // Exported Connection methods
 
-// Return connection status.
+/*
+	A convience method to return connection status.
+*/
 func (c *Connection) Connected() bool {
 	return c.connected
 }
 
-// Return broker assigned session id.
+/*
+	A convienience method to return broker assigned session id.
+*/
 func (c *Connection) Session() string {
 	return c.session
 }
 
-// Return connection protocol level.
+/*
+	Return connection protocol level.
+*/
 func (c *Connection) Protocol() string {
 	return c.protocol
 }
 
-// Set Logger to a client defined logger for this connection.  
-// Set to "nil" to disable logging.
+/*
+	Set Logger to a client defined logger for this connection.
+
+	Set to "nil" to disable logging.
+*/
 func (c *Connection) SetLogger(l *log.Logger) {
 	c.logger = l
 }
 
 // Package exported functions
 
-// Check version support in this client package.
+/*
+	A convenience method to check if a particular STOMP version is supported
+	in the current implementation.
+*/
 func Supported(v string) bool {
 	return supported.Supported(v)
 }
 
 // Unexported Connection methods
 
-// Log data if possible.
+/*
+	Log data if possible.
+*/
 func (c *Connection) log(v ...interface{}) {
 	if c.logger == nil {
 		return

@@ -20,8 +20,11 @@ import (
 	"log"
 )
 
-// Subscribe to a STOMP subscription.  Headers must contain a "destintion" header,
-// and for STOMP 1.1+ a "id" header per the specification.
+/*
+	Subscribe to a STOMP subscription.  Headers MUST contain a "destintion" header,
+	and for STOMP 1.1+ a "id" header per the specification.  Use the returned
+	channel to receive messages for the subscription.
+*/
 func (c *Connection) Subscribe(h Headers) (s chan MessageData, e error) {
 	if !c.connected {
 		return nil, ECONBAD
@@ -50,9 +53,14 @@ func (c *Connection) Subscribe(h Headers) (s chan MessageData, e error) {
 	return s, e
 }
 
-// Handle subscribe id.  If any client does not supply an ID, try to generate
-// one, which for STOMP 1.1+ clients must be used with UNSUBSCRIBE.
-// Regardless, do not allow duplicate subscription IDs in this session.
+/*
+	Handle subscribe id.  
+
+	If any client does not supply an ID, try to generate
+	one, which for STOMP 1.1+ clients MUST be used with UNSUBSCRIBE.
+
+	Regardless, do not allow duplicate subscription IDs in this session.
+*/
 func (c *Connection) establishSubscription(h Headers) (chan MessageData, error, Headers) {
 	c.subsLock.Lock()
 	defer c.subsLock.Unlock()

@@ -15,8 +15,60 @@
 //
 
 /*
-Package stompngo provides a STOMP 1.0 and 1.1 compatible client library.
-For information on the STOMP messaging protocol, see: 
-http://stomp.github.com/
+	Package stompngo implements a STOMP 1.1 compatible client library.
+	For more STOMP information, see the specification at:
+	http://stomp.github.com/.
+
+
+	Preparation
+
+	Network Connect:
+
+	You are responsible for first establishing a network connection.  
+
+	This network connection will be used when you create a stompngo.Connection to 
+	interact with the STOMP broker.
+
+		h := "localhost"
+		p := "61613"
+		n, err := net.Dial("tcp", net.JoinHostPort(h, p))
+		if err != nil {
+			// Do something sane ...
+		}
+
+
+	Shutdown
+
+	Network Disconnect:
+
+	When processing is complete, you MUST close the network
+	connection.  If you fail to do this, you will leak goroutines!
+
+		err = n.Close() // Could be defered above, think about it!
+		if err != nil {
+			// Do something sane ...
+		}
+
+
+	STOMP Frames
+
+	The STOMP specification defines these physical frames that can be sent from a client to a STOMP broker:
+		CONNECT		connect to a STOMP broker, any version.
+		STOMP		connect to a STOMP broker, specification version 1.1+ only.
+		DISCONNECT	disconnect from a STOMP broker.
+		SEND		Send a message to a named queue or topic.
+		SUBSCRIBE	Prepare to read messages from a named queue or topic.
+		UNSUBSCRIBE	Complete reading messages from a named queue ro topic.
+		ACK		Acknowledge that a message has been received and processed.
+		NACK		Deny that a message has been received and processed, specification version 1.1+ only.
+		BEGIN		Begin a transaction.
+		COMMIT		Commit a transaction.
+		ABORT		Abort a transaction.
+
+	The STOMP specification defines these physical frames that a client can receive from a STOMP broker:
+		CONNECTED	Broker response upon connection success.
+		ERROR		Broker emitted upon any error at any time during an active STOMP connection.
+		MESSAGE		A STOMP message frame, possibly with headers and a data payload.
+		RECEIPT		A receipt from the broker for a previous frame sent by the client.
 */
 package stompngo

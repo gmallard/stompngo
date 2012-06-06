@@ -20,7 +20,9 @@ import (
 	"testing"
 )
 
-// Test Send Basic
+/*
+	Test Send Basic, one message.
+*/
 func TestSendBasic(t *testing.T) {
 	n, _ := openConn(t)
 	conn_headers := check11(TEST_HEADERS)
@@ -39,7 +41,9 @@ func TestSendBasic(t *testing.T) {
 
 }
 
-// Test Send Multiple
+/*
+	Test Send Multiple, multiple messages, 5 to be exact.
+*/
 func TestSendMultiple(t *testing.T) {
 	n, _ := openConn(t)
 	conn_headers := check11(TEST_HEADERS)

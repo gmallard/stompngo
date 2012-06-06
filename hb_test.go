@@ -24,7 +24,9 @@ import (
 	"time"
 )
 
-// HB Test: 1.0
+/*
+	HB Test: 1.0.
+*/
 func TestHB10(t *testing.T) {
 	n, _ := openConn(t)
 	c, _ := Connect(n, TEST_HEADERS)
@@ -35,7 +37,9 @@ func TestHB10(t *testing.T) {
 	_ = closeConn(t, n)
 }
 
-// HB Test: 1.1 No HB Header
+/*
+	HB Test: 1.1 No HB Header.
+*/
 func TestHB11NoHeader(t *testing.T) {
 	n, _ := openConn(t)
 	conn_headers := check11(TEST_HEADERS)
@@ -51,7 +55,9 @@ func TestHB11NoHeader(t *testing.T) {
 	_ = closeConn(t, n)
 }
 
-// HB Test: 1.1 Zero HB Header
+/*
+	HB Test: 1.1 Zero HB Header.
+*/
 func TestHB11ZeroHeader(t *testing.T) {
 	n, _ := openConn(t)
 	conn_headers := check11(TEST_HEADERS)
@@ -67,7 +73,9 @@ func TestHB11ZeroHeader(t *testing.T) {
 	_ = closeConn(t, n)
 }
 
-// HB Test: 1.1 Initialization Errors
+/*
+	HB Test: 1.1 Initialization Errors.
+*/
 func TestHB11InitErrors(t *testing.T) {
 	n, _ := openConn(t)
 	conn_headers := check11(TEST_HEADERS)
@@ -133,7 +141,9 @@ func TestHB11InitErrors(t *testing.T) {
 	_ = closeConn(t, n)
 }
 
-// HB Test: 1.1 Connect Test
+/*
+	HB Test: 1.1 Connect Test.
+*/
 func TestHB11Connect(t *testing.T) {
 	if os.Getenv("STOMP_TEST11") == "" {
 		fmt.Println("TestHB11Connect norun")
@@ -155,7 +165,9 @@ func TestHB11Connect(t *testing.T) {
 	_ = closeConn(t, n)
 }
 
-// Test Connect to 1.1 - Test HeartBeat - Receive only, No Sends From Client
+/*
+	Test Connect to 1.1 - Test HeartBeat - Receive only, No Sends From Client
+*/
 func TestHB11NoSend(t *testing.T) {
 	if os.Getenv("STOMP_TEST11") == "" {
 		fmt.Println("TestHB11NoSend norun")
@@ -194,7 +206,9 @@ func TestHB11NoSend(t *testing.T) {
 	_ = closeConn(t, n)
 }
 
-// Test Connect to 1.1 - Test HeartBeat - Send only, No Receives by Client
+/*
+	Test Connect to 1.1 - Test HeartBeat - Send only, No Receives by Client
+*/
 func TestHB11NoReceive(t *testing.T) {
 	if os.Getenv("STOMP_TEST11") == "" {
 		fmt.Println("TestHB11NoReceive norun")
@@ -229,7 +243,9 @@ func TestHB11NoReceive(t *testing.T) {
 	_ = closeConn(t, n)
 }
 
-// Test Connect to 1.1 - Test HeartBeat - Send and Receive
+/*
+	Test Connect to 1.1 - Test HeartBeat - Send and Receive
+*/
 func TestHB11SendReceive(t *testing.T) {
 	if os.Getenv("STOMP_TEST11") == "" {
 		fmt.Println("TestHB11SendReceive norun")
@@ -267,7 +283,10 @@ func TestHB11SendReceive(t *testing.T) {
 	_ = closeConn(t, n)
 }
 
-// Test Connect to 1.1 - Test HeartBeat - Send and Receive - Match Apollo defaults
+/*
+	Test Connect to 1.1 - Test HeartBeat - Send and Receive - 
+	Match Apollo defaults.
+*/
 func TestHB11SendReceiveApollo(t *testing.T) {
 	if os.Getenv("STOMP_TEST11") == "" {
 		fmt.Println("TestHB11SendReceiveApollo norun")
@@ -305,8 +324,10 @@ func TestHB11SendReceiveApollo(t *testing.T) {
 	_ = closeConn(t, n)
 }
 
-// Test Connect to 1.1 - Test HeartBeat - Send and Receive - 
-// Match Apollo defaults reverse
+/*
+	Test Connect to 1.1 - Test HeartBeat - Send and Receive - 
+	Match reverse of Apollo defaults.
+*/
 func TestHB11SendReceiveApolloRev(t *testing.T) {
 	if os.Getenv("STOMP_TEST11") == "" {
 		fmt.Println("TestHB11SendReceiveApolloRev norun")

@@ -22,7 +22,9 @@ import (
 	"testing"
 )
 
-// Test Nack errors
+/*
+	Test Nack error cases.
+*/
 func TestNackErrors(t *testing.T) {
 
 	n, _ := openConn(t)

@@ -23,7 +23,9 @@ import (
 	"time"
 )
 
-// Test Ack errors
+/*
+	Test Ack errors.
+*/
 func TestAckErrors(t *testing.T) {
 
 	n, _ := openConn(t)
@@ -64,7 +66,9 @@ func TestAckErrors(t *testing.T) {
 
 }
 
-// Test Ack Same Connection
+/*
+	Test Ack Same Connection.
+*/
 func TestAckSameConn(t *testing.T) {
 
 	n, _ := openConn(t)
@@ -127,7 +131,9 @@ func TestAckSameConn(t *testing.T) {
 
 }
 
-// Test Ack Different Connection
+/*
+	Test Ack Different Connection.
+*/
 func TestAckDiffConn(t *testing.T) {
 
 	n, _ := openConn(t)

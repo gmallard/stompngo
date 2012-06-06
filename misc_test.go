@@ -20,7 +20,9 @@ import (
 	"testing"
 )
 
-// Test A zero Byte Message (Corner Case)
+/*
+	Test A zero Byte Message, a corner case.
+*/
 func TestBytes0(t *testing.T) {
 	// Write phase
 	n, _ := openConn(t)
@@ -69,7 +71,9 @@ func TestBytes0(t *testing.T) {
 
 }
 
-// Test A One Byte Message (Corner Case)
+/*
+	Test A One Byte Message, a corner case.
+*/
 func TestBytes1(t *testing.T) {
 	// Write phase
 	n, _ := openConn(t)

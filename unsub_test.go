@@ -21,7 +21,9 @@ import (
 	"testing"
 )
 
-// Test Unsubscribe, no destination
+/*
+	Test Unsubscribe, no destination.
+*/
 func TestUnsubNoSub(t *testing.T) {
 	n, _ := openConn(t)
 	conn_headers := check11(TEST_HEADERS)
@@ -41,7 +43,9 @@ func TestUnsubNoSub(t *testing.T) {
 	_ = closeConn(t, n)
 }
 
-// Test Unsubscribe, no ID
+/*
+	Test Unsubscribe, no ID.
+*/
 func TestUnsubNoId(t *testing.T) {
 	if os.Getenv("STOMP_TEST11") == "" {
 		println("TestUnsubNoId norun")
@@ -65,7 +69,9 @@ func TestUnsubNoId(t *testing.T) {
 	_ = closeConn(t, n)
 }
 
-// Test Unsubscribe, bad ID
+/*
+	Test Unsubscribe, bad ID.
+*/
 func TestUnsubBadId(t *testing.T) {
 	n, _ := openConn(t)
 	conn_headers := check11(TEST_HEADERS)

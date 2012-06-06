@@ -22,7 +22,9 @@ import (
 	"testing"
 )
 
-// Test Logger Basic
+/*
+	Test Logger Basic, confirm by observation.
+*/
 func TestLoggerBasic(t *testing.T) {
 	n, _ := openConn(t)
 	conn_headers := check11(TEST_HEADERS)

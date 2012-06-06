@@ -36,6 +36,9 @@ type multi_send_data struct {
 	count int         // number of messages
 }
 
+/*
+	Open a network connection.
+*/
 func openConn(t *testing.T) (n net.Conn, err error) {
 	h, p := hostAndPort()
 	n, err = net.Dial("tcp", net.JoinHostPort(h, p))
@@ -45,6 +48,9 @@ func openConn(t *testing.T) (n net.Conn, err error) {
 	return n, err
 }
 
+/*
+	Close a network connection.
+*/
 func closeConn(t *testing.T, n net.Conn) (err error) {
 	err = n.Close()
 	if err != nil {
@@ -53,7 +59,9 @@ func closeConn(t *testing.T, n net.Conn) (err error) {
 	return err
 }
 
-// Host and port for Dial
+/*
+	Host and port for Dial
+*/
 func hostAndPort() (string, string) {
 	h := os.Getenv("STOMP_HOST")
 	if h == "" {
@@ -66,6 +74,9 @@ func hostAndPort() (string, string) {
 	return h, p
 }
 
+/*
+	Check if 1.1+ style Headers are needed, and return appropriate Headers.
+*/
 func check11(h Headers) Headers {
 	if os.Getenv("STOMP_TEST11") == "" {
 		return h
@@ -79,6 +90,9 @@ func check11(h Headers) Headers {
 	return h
 }
 
+/*
+	Test helper.  Send multiple messages.
+*/
 func sendMultiple(md multi_send_data) (e error) {
 	h := Headers{"destination", md.dest}
 	for i := 0; i < md.count; i++ {
@@ -92,6 +106,9 @@ func sendMultiple(md multi_send_data) (e error) {
 	return nil
 }
 
+/*
+	Test helper.
+*/
 func getMessageData(c *Connection, s chan MessageData) (r MessageData) {
 	if os.Getenv("STOMP_TEST11") == "" {
 		r = <-c.MessageData
@@ -101,6 +118,9 @@ func getMessageData(c *Connection, s chan MessageData) (r MessageData) {
 	return r
 }
 
+/*
+	Test helper.
+*/
 func checkReceived(t *testing.T, c *Connection, id string) {
 	select {
 	case v := <-c.MessageData:
@@ -109,7 +129,9 @@ func checkReceived(t *testing.T, c *Connection, id string) {
 	}
 }
 
-// Host and port for Dial
+/*
+	Host and port for Dial.
+*/
 func badVerHostAndPort() (string, string) {
 	h := os.Getenv("STOMP_HOSTBV") // export only if you understand these tests
 	if h == "" {

@@ -16,8 +16,13 @@
 
 package stompngo
 
-// Send a STOMP MESSAGE.  Headers must contain a "destination" header.
-// The message body (payload) is a string, which may be empty.
+/*
+	Send a STOMP MESSAGE.  
+
+	Headers MUST contain a "destination" header.
+
+	The message body (payload) is a string, which may be empty.
+*/
 func (c *Connection) Send(h Headers, b string) (e error) {
 	c.log(SEND, "start", h)
 	if !c.connected {
