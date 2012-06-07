@@ -22,6 +22,15 @@ package stompngo
 	Headers MUST contain a "destination" header.
 
 	The message body (payload) is a string, which may be empty.
+
+	Example:
+		h := stompngo.Headers{"destination", "/queue/mymessages"}
+		m := "My message"
+		e := c.Send(h, m)
+		if e != nil {
+			// Do something sane ...
+		}
+
 */
 func (c *Connection) Send(h Headers, b string) (e error) {
 	c.log(SEND, "start", h)

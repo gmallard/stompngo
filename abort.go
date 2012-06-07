@@ -21,6 +21,13 @@ package stompngo
 
 	Headers MUST contain a "transaction" header key
 	with a value that is not an empty string.
+
+	Example:
+		h := stompngo.Headers{"transaction", "transaction-id1"}
+		e := c.Abort(h)
+		if e != nil {
+			// Do something sane ...
+		}
 */
 func (c *Connection) Abort(h Headers) (e error) {
 	c.log(ABORT, "start")

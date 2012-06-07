@@ -21,6 +21,14 @@ package stompngo
 
 	Headers MUST contain a "transaction" header key
 	with a value that is not an empty string.
+
+	Example:
+		h := stompngo.Commit{"transaction", "transaction-id1"}
+		e := c.Begin(h)
+		if e != nil {
+			// Do something sane ...
+		}
+
 */
 func (c *Connection) Commit(h Headers) (e error) {
 	c.log(COMMIT, "start")

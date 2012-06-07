@@ -21,6 +21,15 @@ package stompngo
 
 	Headers MUST contain a "message-id" key, and for
 	STOMP 1.1+ a "subscription" key.
+
+	Example:
+		h := stompngo.Headers{"message-id", "message-id1",
+			"destination", "/queue/mymessages"}
+		e := c.Ack(h)
+		if e != nil {
+			// Do something sane ...
+		}
+
 */
 func (c *Connection) Ack(h Headers) (e error) {
 	c.log(ACK, "start")

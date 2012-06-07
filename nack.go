@@ -22,6 +22,15 @@ package stompngo
 	Headers MUST contain a "message-id" key and	a "subscription" key.  
 
 	Disallowed for an established STOMP 1.0 connection.
+
+	Example:
+		h := stompngo.Headers{"message-id", "message-id1",
+			"destination", "/queue/mymessages"}
+		e := c.Nack(h)
+		if e != nil {
+			// Do something sane ...
+		}
+
 */
 func (c *Connection) Nack(h Headers) (e error) {
 	c.log(NACK, "start")

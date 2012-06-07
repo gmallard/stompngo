@@ -22,6 +22,15 @@ package stompngo
 	Shut down heart beats if necessary.
 	Set 'connected' flag to false to disable further actions with this
 	connection.
+	Obtain a receipt if the client asks for one.
+
+	Example:
+		h := stompngo.Headers{"receipt", "receipt-id1"} // Ask for a receipt
+		e := c.Disconnect(h)
+		if e != nil {
+			// Do something sane ...
+		}
+
 */
 func (c *Connection) Disconnect(h Headers) (e error) {
 	c.log(DISCONNECT, "start")

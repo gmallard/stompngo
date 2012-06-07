@@ -22,6 +22,15 @@ package stompngo
 	Headers MUST contain a "destintion" header,
 	and an "id" header per the specifications.  The subscription MUST currently
 	exist for this session.
+
+	Example:
+		// Possible additional Headers: id.
+		h := stompngo.Headers{"destination", "/queue/myqueue"}
+		e := c.Unsubscribe(h)
+		if e != nil {
+			// Do something sane ...
+		}
+
 */
 func (c *Connection) Unsubscribe(h Headers) (e error) {
 	c.log(UNSUBSCRIBE, "start")

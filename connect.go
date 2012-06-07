@@ -28,6 +28,13 @@ import (
 	For STOMP 1.1+ the Headers parameter MUST contain the headers required 
 	by the specification.  Those headers are not magically inferred.
 
+	Example:
+		h := stompngo.Headers{} // A STOMP 1.0 connection request
+		c, e := stompngo.Connect(h)
+		if e != nil {
+			// Do something sane ...
+		}
+		// Use c
 */
 func Connect(n net.Conn, h Headers) (c *Connection, e error) {
 	if e := h.Validate(); e != nil {

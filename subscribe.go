@@ -24,6 +24,15 @@ import (
 	Subscribe to a STOMP subscription.  Headers MUST contain a "destintion" header,
 	and for STOMP 1.1+ a "id" header per the specification.  Use the returned
 	channel to receive messages for the subscription.
+
+	Example:
+		// Possible additional Headers: ack, id.
+		h := stompngo.Headers{"destination", "/queue/myqueue"}
+		s, e := c.Subscribe(h)
+		if e != nil {
+			// Do something sane ...
+		}
+
 */
 func (c *Connection) Subscribe(h Headers) (s chan MessageData, e error) {
 	if !c.connected {
