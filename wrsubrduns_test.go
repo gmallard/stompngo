@@ -37,12 +37,12 @@ func TestShovel11(t *testing.T) {
 	m := "A message"
 	d := "/queue/subunsub.shovel.01"
 	h := Headers{"destination", d,
-		"dupkey1", "keylatest",
-		"dupkey1", "keybefore1",
-		"dupkey1", "keybefore2"}
+		"dupkey1", "value0",
+		"dupkey1", "value1",
+		"dupkey1", "value2"}
 	_ = c.Send(h, m)
 	//
-	h = h.Add("id", d)
+	h = Headers{"destination", d, "id", d}
 	s, e := c.Subscribe(h)
 	if e != nil {
 		t.Errorf("Expected no subscribe error, got [%v]\n", e)
@@ -65,15 +65,23 @@ func TestShovel11(t *testing.T) {
 		t.Errorf("Expected subscription [%v], got [%v]\n", d, ri)
 	}
 	//
-	if !msg.Headers.ContainsKV("dupkey1", "keylatest") {
-		t.Errorf("Expected true for [%v], [%v]\n", "dupkey1", "keylatest")
-	}
-	if os.Getenv("STOMP_RMQ") == "" { // Apollo is OK, RMQ is not, RMQ Bug?
-		if !msg.Headers.ContainsKV("dupkey1", "keybefore1") {
-			t.Errorf("Expected true for [%v], [%v]\n", "dupkey1", "keybefore1")
+	if os.Getenv("STOMP_RMQ") != "" { // RMQ
+		if !msg.Headers.ContainsKV("dupkey1", "value0") {
+			t.Errorf("Expected true for [%v], [%v]\n", "dupkey1", "value0")
 		}
-		if !msg.Headers.ContainsKV("dupkey1", "keybefore2") {
-			t.Errorf("Expected true for [%v], [%v]\n", "dupkey1", "keybefore2")
+	} else if os.Getenv("STOMP_AMQ11") != "" { // AMQ with 1.1 support
+		if !msg.Headers.ContainsKV("dupkey1", "value2") {
+			t.Errorf("Expected true for [%v], [%v]\n", "dupkey1", "value2")
+		}
+	} else { // Apollo
+		if !msg.Headers.ContainsKV("dupkey1", "value1") {
+			t.Errorf("Expected true for [%v], [%v]\n", "dupkey1", "value0")
+		}
+		if !msg.Headers.ContainsKV("dupkey1", "value1") {
+			t.Errorf("Expected true for [%v], [%v]\n", "dupkey1", "value1")
+		}
+		if !msg.Headers.ContainsKV("dupkey1", "value2") {
+			t.Errorf("Expected true for [%v], [%v]\n", "dupkey1", "value2")
 		}
 	}
 	//
