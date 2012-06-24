@@ -112,11 +112,12 @@ func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
 }
 
 /*
-	The heart beat send watch dog.
+	The heart beat send ticker.
 */
 func (c *Connection) sendTicker() {
 	ticker := time.NewTicker(time.Duration(c.hbd.sti))
 	q := false
+	c.hbd.sc = 0
 	for {
 		select {
 		case ct := <-ticker.C:
@@ -131,6 +132,10 @@ func (c *Connection) sendTicker() {
 				e := <-r
 				if e != nil {
 					fmt.Printf("Heartbeat Send Failure: %v\n", e)
+					c.Hbsf = true
+				} else {
+					c.Hbsf = false
+					c.hbd.sc += 1
 				}
 			}
 		case q = <-c.hbd.ssd:
@@ -145,11 +150,12 @@ func (c *Connection) sendTicker() {
 }
 
 /*
-	The heart beat receive watch dog.
+	The heart beat receive ticker.
 */
 func (c *Connection) receiveTicker() {
 	ticker := time.NewTicker(time.Duration(c.hbd.rti))
 	q := false
+	c.hbd.rc = 0
 	for {
 		select {
 		case ct := <-ticker.C:
@@ -160,6 +166,7 @@ func (c *Connection) receiveTicker() {
 				c.Hbrf = true // Flag possible dirty connection
 			} else {
 				c.Hbrf = false // Reset
+				c.hbd.rc += 1
 			}
 		case q = <-c.hbd.rsd:
 			ticker.Stop()

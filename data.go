@@ -125,6 +125,7 @@ type Connection struct {
 	wtr               *bufio.Writer
 	rdr               *bufio.Reader
 	Hbrf              bool // Indicates a heart beat read/receive failure, which is possibly transient.  Valid for 1.1+ only.
+	Hbsf              bool // Indicates a heart beat send failure, which is possibly transient.  Valid for 1.1+ only.
 	logger            *log.Logger
 }
 
@@ -226,6 +227,9 @@ type heartbeat_data struct {
 	//
 	sti int64 // local sender ticker interval, ns
 	rti int64 // local receiver ticker interval, ns
+	//
+	sc int64 // local sender ticker count
+	rc int64 // local receiver ticker count
 	//
 	ssd chan bool // sender shutdown channel
 	rsd chan bool // receiver shutdown channel

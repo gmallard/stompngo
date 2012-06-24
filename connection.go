@@ -52,6 +52,48 @@ func (c *Connection) SetLogger(l *log.Logger) {
 	c.logger = l
 }
 
+/*
+	Return Heartbeat Send Ticker Interval in ms.  A return value of zero means
+	no heartbeats are being sent.
+*/
+func (c *Connection) SendTickerInterval() int64 {
+	if c.hbd == nil {
+		return 0
+	}
+	return c.hbd.sti / 1000000
+}
+
+/*
+	Return Heartbeat Receive Ticker Interval in ms.  A return value of zero means
+	no heartbeats are being received.
+*/
+func (c *Connection) ReceiveTickerInterval() int64 {
+	if c.hbd == nil {
+		return 0
+	}
+	return c.hbd.rti / 1000000
+}
+
+/*
+	Return Heartbeat Send Ticker count.
+*/
+func (c *Connection) SendTickerCount() int64 {
+	if c.hbd == nil {
+		return 0
+	}
+	return c.hbd.sc
+}
+
+/*
+	Return Heartbeat Receive Ticker count.
+*/
+func (c *Connection) ReceiveTickerCount() int64 {
+	if c.hbd == nil {
+		return 0
+	}
+	return c.hbd.rc
+}
+
 // Package exported functions
 
 /*
