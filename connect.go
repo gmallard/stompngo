@@ -42,7 +42,7 @@ func Connect(n net.Conn, h Headers) (c *Connection, e error) {
 	}
 	ch := h.Clone()
 	c = &Connection{netconn: n,
-		input:     make(chan MessageData),
+		input:     make(chan MessageData, 1),
 		output:    make(chan wiredata),
 		connected: false,
 		session:   "",
