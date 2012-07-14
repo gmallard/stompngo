@@ -136,3 +136,20 @@ func (c *Connection) shutdown() {
 	c.connected = false
 	return
 }
+
+/*
+	Read error handler.
+*/
+func (c *Connection) handleReadError(md MessageData) {
+	// Notify any general subscriber of error
+	c.input <- md
+	// Notify all individual subscribers of error
+	c.subsLock.Lock()
+	for key := range c.subs {
+		c.subs[key] <- md
+	}
+	c.subsLock.Unlock()
+	//
+	c.shutdown() // We are done here .....
+	return
+}

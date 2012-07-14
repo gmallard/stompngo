@@ -17,7 +17,6 @@
 package stompngo
 
 import (
-	"io"
 	"strconv"
 	"strings"
 	"time"
@@ -40,10 +39,9 @@ func (c *Connection) reader() {
 	for {
 		f, e := c.readFrame()
 		if e != nil {
-			if e == io.EOF {
-				break
-			}
-			c.input <- MessageData{Message{"", Headers{}, NULLBUFF}, e}
+			h := f.Headers.Add("connection_read_error", e.Error())
+			md := MessageData{Message{f.Command, h, f.Body}, e}
+			c.handleReadError(md)
 			break
 		}
 
