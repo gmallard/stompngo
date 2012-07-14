@@ -40,14 +40,6 @@ func (c *Connection) Disconnect(h Headers) (e error) {
 	if e := h.Validate(); e != nil {
 		return e
 	}
-	if c.hbd != nil { // Shutdown heartbeats if necessary
-		if c.hbd.hbs {
-			c.hbd.ssd <- true
-		}
-		if c.hbd.hbr {
-			c.hbd.rsd <- true
-		}
-	}
 	ch := h.Clone()
 	//
 	c.connected = false
@@ -61,8 +53,8 @@ func (c *Connection) Disconnect(h Headers) (e error) {
 	if e != nil {
 		return e
 	}
-	c.wsd <- true
-	//
+	// Drive shutdown logic
+	c.shutdown()
 	// Receipt requested
 	if _, ok := ch.Contains("receipt"); ok {
 		c.DisconnectReceipt = <-c.input

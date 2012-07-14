@@ -116,3 +116,23 @@ func (c *Connection) log(v ...interface{}) {
 	c.logger.Print(c.session, v)
 	return
 }
+
+/*
+	Shutdown logic.
+*/
+func (c *Connection) shutdown() {
+	// Shutdown heartbeats if necessary
+	if c.hbd != nil { 
+		if c.hbd.hbs {
+			c.hbd.ssd <- true
+		}
+		if c.hbd.hbr {
+			c.hbd.rsd <- true
+		}
+	}
+	// Stop writer go routine
+	c.wsd <- true
+	// We are not connected
+	c.connected = false
+	return
+}
