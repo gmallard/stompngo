@@ -35,6 +35,7 @@ import (
 
 */
 func (c *Connection) Subscribe(h Headers) (s chan MessageData, e error) {
+	c.log(SUBSCRIBE, "start")
 	if !c.connected {
 		return nil, ECONBAD
 	}
@@ -59,6 +60,7 @@ func (c *Connection) Subscribe(h Headers) (s chan MessageData, e error) {
 	r := make(chan error)
 	c.output <- wiredata{f, r}
 	e = <-r
+	c.log(SUBSCRIBE, "end")
 	return s, e
 }
 
@@ -101,7 +103,7 @@ func (c *Connection) establishSubscription(h Headers) (chan MessageData, error, 
 		} else {
 			h = h.Add("id", sha1)
 			c.subs[sha1] = make(chan MessageData, 1) // Assign subscription
-			sid = sha1                            // reset
+			sid = sha1                               // reset
 		}
 	default: // Should not happen
 		log.Fatalln("subscribe runtime unsupported: " + c.protocol)
