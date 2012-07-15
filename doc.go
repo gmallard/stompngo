@@ -70,5 +70,15 @@
 		ERROR		Broker emitted upon any error at any time during an active STOMP connection.
 		MESSAGE		A STOMP message frame, possibly with headers and a data payload.
 		RECEIPT		A receipt from the broker for a previous frame sent by the client.
+
+
+	Subscribe and MessageData Channels
+
+	The Subscribe method returns a channel from which you receive MessageData values.
+
+	The channel returned has different characteristics depending on the Stomp Version, and the Headers you pass to Subscribe.
+
+	For details on Subscribe requirements and behavior, see: https://github.com/gmallard/stompngo/wiki/subscribe-and-messagedata
+
 */
 package stompngo
