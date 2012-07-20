@@ -149,7 +149,6 @@ func (c *Connection) handleReadError(md MessageData) {
 		c.subs[key] <- md
 	}
 	c.subsLock.Unlock()
-	//
-	c.shutdown() // We are done here .....
+	// Let further shutdown logic proceed normally.
 	return
 }
