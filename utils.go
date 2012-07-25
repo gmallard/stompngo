@@ -87,7 +87,7 @@ func readBody(r *bufio.Reader, l int) (b []uint8, e error) {
 	Handle data from the wire after CONNECT is sent. Attempt to create a Frame
 	from the wire data.
 
-	Called one time per connection at the start.
+	Called one time per connection at connection start.
 */
 func connectResponse(s string) (f *Frame, e error) {
 	//
@@ -127,7 +127,7 @@ func connectResponse(s string) (f *Frame, e error) {
 }
 
 /*
-	A convenience method to return a SHA1 hash for a specified string.
+	Sha1 returns a SHA1 hash for a specified string.
 */
 func Sha1(q string) (s string) {
 	g := sha1.New()
@@ -137,7 +137,7 @@ func Sha1(q string) (s string) {
 }
 
 /*
-	A convenience method to return a UUID.
+	Uuid returns a type 4 UUID.
 */
 func Uuid() string {
 	b := make([]byte, 16)

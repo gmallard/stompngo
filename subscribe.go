@@ -21,9 +21,13 @@ import (
 )
 
 /*
-	Subscribe to a STOMP subscription.  Headers MUST contain a "destintion" header,
-	and for STOMP 1.1+ a "id" header per the specification.  Use the returned
-	channel to receive messages for the subscription.
+	Subscribe to a STOMP subscription.  
+
+	Headers MUST contain a "destintion" header, and for STOMP 1.1+ a "id" 
+	header per the specification.  Use the returned	channel to receive messages 
+	for the subscription.
+
+	For details about the returned MessageData channel, see: https://github.com/gmallard/stompngo/wiki/subscribe-and-messagedata
 
 	Example:
 		// Possible additional Headers: ack, id.

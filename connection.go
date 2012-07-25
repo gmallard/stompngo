@@ -23,28 +23,28 @@ import (
 // Exported Connection methods
 
 /*
-	A convience method to return connection status.
+	Connected returns the current connection status.
 */
 func (c *Connection) Connected() bool {
 	return c.connected
 }
 
 /*
-	A convienience method to return broker assigned session id.
+	Session returns the broker assigned session id.
 */
 func (c *Connection) Session() string {
 	return c.session
 }
 
 /*
-	Return connection protocol level.
+	Protocol returns the current connection protocol level.
 */
 func (c *Connection) Protocol() string {
 	return c.protocol
 }
 
 /*
-	Set Logger to a client defined logger for this connection.
+	SetLogger enables a client defined logger for this connection.
 
 	Set to "nil" to disable logging.
 */
@@ -53,8 +53,8 @@ func (c *Connection) SetLogger(l *log.Logger) {
 }
 
 /*
-	Return Heartbeat Send Ticker Interval in ms.  A return value of zero means
-	no heartbeats are being sent.
+	SendTickerInterval returns any heartbeat send ticker interval in ms.  A return 
+	value of zero means	no heartbeats are being sent.
 */
 func (c *Connection) SendTickerInterval() int64 {
 	if c.hbd == nil {
@@ -64,8 +64,8 @@ func (c *Connection) SendTickerInterval() int64 {
 }
 
 /*
-	Return Heartbeat Receive Ticker Interval in ms.  A return value of zero means
-	no heartbeats are being received.
+	ReceiveTickerInterval returns any heartbeat receive ticker interval in ms.  
+	A return value of zero means no heartbeats are being received.
 */
 func (c *Connection) ReceiveTickerInterval() int64 {
 	if c.hbd == nil {
@@ -75,7 +75,8 @@ func (c *Connection) ReceiveTickerInterval() int64 {
 }
 
 /*
-	Return Heartbeat Send Ticker count.
+	SendTickerCount returns any heartbeat send ticker count.  A return value of
+	zero usually indicates no send heartbeats are enabled.
 */
 func (c *Connection) SendTickerCount() int64 {
 	if c.hbd == nil {
@@ -85,7 +86,8 @@ func (c *Connection) SendTickerCount() int64 {
 }
 
 /*
-	Return Heartbeat Receive Ticker count.
+	ReceiveTickerCount returns any heartbeat receive ticker count. A return
+	value of zero usually indicates no read heartbeats are enabled.
 */
 func (c *Connection) ReceiveTickerCount() int64 {
 	if c.hbd == nil {
@@ -97,8 +99,8 @@ func (c *Connection) ReceiveTickerCount() int64 {
 // Package exported functions
 
 /*
-	A convenience method to check if a particular STOMP version is supported
-	in the current implementation.
+	Supported checks if a particular STOMP version is supported in the current 
+	implementation.
 */
 func Supported(v string) bool {
 	return supported.Supported(v)
@@ -122,7 +124,7 @@ func (c *Connection) log(v ...interface{}) {
 */
 func (c *Connection) shutdown() {
 	// Shutdown heartbeats if necessary
-	if c.hbd != nil { 
+	if c.hbd != nil {
 		if c.hbd.hbs {
 			c.hbd.ssd <- true
 		}

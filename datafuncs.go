@@ -21,21 +21,21 @@ import (
 )
 
 /*
-	Return a string for an Error.
+	Error returns a string for a particular Error.
 */
 func (e Error) Error() string {
 	return string(e)
 }
 
 /*
-	Return a Message body as a string.
+	BodyString returns a Message body as a string.
 */
 func (m *Message) BodyString() string {
 	return string(m.Body)
 }
 
 /*
-	Determine if a particular protocol is supported by the client library.
+	Supported returns true if a given protocol is supported.
 */
 func (p protocols) Supported(v string) bool {
 	for _, s := range supported {
@@ -49,7 +49,7 @@ func (p protocols) Supported(v string) bool {
 // Headers
 
 /*
-Add a key and value pair as a header to a set of Headers.
+	Add appends a key and value pair as a header to a set of Headers.
 */
 func (h Headers) Add(k, v string) Headers {
 	r := append(h, k, v)
@@ -57,7 +57,7 @@ func (h Headers) Add(k, v string) Headers {
 }
 
 /*
-	Add one set of headers to another.
+	AddHeaders appends one set of Headers to another.
 */
 func (h Headers) AddHeaders(o Headers) Headers {
 	r := append(h, o...)
@@ -65,7 +65,7 @@ func (h Headers) AddHeaders(o Headers) Headers {
 }
 
 /*
-	Compare this set of Headers with another set.
+	Compare compares one set of Headers with another.
 */
 func (h Headers) Compare(other Headers) bool {
 	if len(h) != len(other) {
@@ -85,7 +85,7 @@ func (h Headers) Compare(other Headers) bool {
 }
 
 /*
-	Test if a set of Headers contains a key.
+	Contains returns true if a set of Headers contains a key.
 */
 func (h Headers) Contains(k string) (string, bool) {
 	for i := 0; i < len(h); i += 2 {
@@ -97,7 +97,7 @@ func (h Headers) Contains(k string) (string, bool) {
 }
 
 /*
-	Test if a set of Headers contains a key, value pair.
+	ContainsKV returns true if a set of Headers contains a key and value pair.
 */
 func (h Headers) ContainsKV(k string, v string) bool {
 	for i := 0; i < len(h); i += 2 {
@@ -109,8 +109,8 @@ func (h Headers) ContainsKV(k string, v string) bool {
 }
 
 /*
-	Return a header value for a specified key.  If the key is not present
-	return an empty string.
+	Value returns a header value for a specified key.  If the key is not present
+	an empty string is returned.
 */
 func (h Headers) Value(k string) string {
 	for i := 0; i < len(h); i += 2 {
@@ -122,7 +122,7 @@ func (h Headers) Value(k string) string {
 }
 
 /*
-	Return the index of a keader key in the Headers slice.  Return -1 if the
+	Index returns the index of a keader key in Headers.  Return -1 if the
 	key is not present.
 */
 func (h Headers) Index(k string) (r int) {
@@ -137,7 +137,7 @@ func (h Headers) Index(k string) (r int) {
 }
 
 /*
-	Validate a set of Headers.
+	Validate performs bacic validation of a set of Headers.
 */
 func (h Headers) Validate() error {
 	if len(h)%2 != 0 {
@@ -147,7 +147,7 @@ func (h Headers) Validate() error {
 }
 
 /*
-	Validate Headers are UTF8.
+	ValidateUTF8 validates that header strings are UTF8.
 */
 func (h Headers) ValidateUTF8() (string, error) {
 	for i := range h {
@@ -159,7 +159,7 @@ func (h Headers) ValidateUTF8() (string, error) {
 }
 
 /*
-	Clone a set of Headers.
+	Clone copies a set of Headers.
 */
 func (h Headers) Clone() Headers {
 	r := make(Headers, len(h))
@@ -168,7 +168,7 @@ func (h Headers) Clone() Headers {
 }
 
 /*
-	Delete a key and value pair from a set of Headers.
+	Delete removes a key and value pair from a set of Headers.
 */
 func (h Headers) Delete(k string) Headers {
 	r := h.Clone()
