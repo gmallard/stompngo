@@ -135,3 +135,20 @@ func TestConn11(t *testing.T) {
 	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
+
+/*
+	Conn11Receipt Test: Test receipt not allowed on connect.
+*/
+func TestConn11Receipt(t *testing.T) {
+	n, _ := openConn(t)
+	conn_headers := check11(TEST_HEADERS)
+	nch := conn_headers.Add("receipt", "abcd1234")
+	_, e := Connect(n, nch)
+	if e == nil {
+		t.Errorf("Expected connect error, got nil\n")
+	}
+	if e != ENORECPT {
+		t.Errorf("Expected [%v], got [%v]\n", ENORECPT, e)
+	}
+	_ = closeConn(t, n)
+}

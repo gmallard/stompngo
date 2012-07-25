@@ -40,6 +40,9 @@ func Connect(n net.Conn, h Headers) (c *Connection, e error) {
 	if e := h.Validate(); e != nil {
 		return nil, e
 	}
+	if _, ok := h.Contains("receipt"); ok {
+		return nil, ENORECPT
+	}
 	ch := h.Clone()
 	c = &Connection{netconn: n,
 		input:     make(chan MessageData, 1),

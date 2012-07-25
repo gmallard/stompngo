@@ -189,6 +189,9 @@ const (
 
 	// Unsupported Headers type.
 	EBADHDR = Error("unsupported Headers type")
+
+	// Receipt not allowed on connect
+	ENORECPT = Error("receipt not allowed on CONNECT")
 )
 
 /*
