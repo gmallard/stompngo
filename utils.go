@@ -151,6 +151,9 @@ func Uuid() string {
 	Common Header Validation.
 */
 func checkHeaders(h Headers, c *Connection) (s string, e error) {
+	if h == nil {
+		return "", EHDRNIL
+	}
 	if e = h.Validate(); e != nil {
 		return "", e
 	}

@@ -146,6 +146,7 @@ const (
 	// ERRRORs for Headers.
 	EHDRLEN  = Error("unmatched headers, bad length")
 	EHDRUTF8 = Error("header string not UTF8")
+	EHDRNIL  = Error("headers can not be nil")
 
 	// ERRORs for response to CONNECT.
 	EUNKFRM = Error("unrecognized frame returned, CONNECT")

@@ -37,6 +37,9 @@ import (
 		// Use c
 */
 func Connect(n net.Conn, h Headers) (c *Connection, e error) {
+	if h == nil {
+		return nil, EHDRNIL
+	}
 	if e := h.Validate(); e != nil {
 		return nil, e
 	}

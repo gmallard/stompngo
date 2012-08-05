@@ -37,7 +37,8 @@ func (c *Connection) Disconnect(h Headers) (e error) {
 	if !c.connected {
 		return ECONBAD
 	}
-	if e := h.Validate(); e != nil {
+	_, e = checkHeaders(h, c)
+	if e != nil {
 		return e
 	}
 	ch := h.Clone()

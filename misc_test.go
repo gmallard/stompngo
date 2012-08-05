@@ -121,3 +121,68 @@ func TestBytes1(t *testing.T) {
 	_ = closeConn(t, n)
 
 }
+
+/*
+	Test nil Headers.
+*/
+func TestNilHeaders(t *testing.T) {
+	n, _ := openConn(t)
+	//
+	_, e := Connect(n, nil)
+	if e == nil {
+		t.Errorf("Expected [%v], got [nil]\n", EHDRNIL)
+	}
+	if e != EHDRNIL {
+		t.Errorf("Expected [%v], got [%v]\n", EHDRNIL, e)
+	}
+	//
+	conn_headers := check11(TEST_HEADERS)
+	c, _ := Connect(n, conn_headers)
+	//
+	e = nil
+	e = c.Abort(nil)
+	if e == nil {
+		t.Errorf("Abort Expected [%v], got [nil]\n", EHDRNIL)
+	}
+	//
+	e = nil
+	e = c.Ack(nil)
+	if e == nil {
+		t.Errorf("Ack Expected [%v], got [nil]\n", EHDRNIL)
+	}
+	//
+	e = nil
+	e = c.Begin(nil)
+	if e == nil {
+		t.Errorf("Begin Expected [%v], got [nil]\n", EHDRNIL)
+	}
+	//
+	e = nil
+	e = c.Commit(nil)
+	if e == nil {
+		t.Errorf("Commit Expected [%v], got [nil]\n", EHDRNIL)
+	}
+	//
+	e = nil
+	e = c.Disconnect(nil)
+	if e == nil {
+		t.Errorf("Disconnect Expected [%v], got [nil]\n", EHDRNIL)
+	}
+	//
+	if c.protocol > SPL_10 {
+		e = nil
+		e = c.Disconnect(nil)
+		if e == nil {
+			t.Errorf("Nack Expected [%v], got [nil]\n", EHDRNIL)
+		}
+	}
+	//
+	e = nil
+	e = c.Send(nil, "")
+	if e == nil {
+		t.Errorf("Send Expected [%v], got [nil]\n", EHDRNIL)
+	}
+	//
+	_ = c.Disconnect(empty_headers)
+	_ = closeConn(t, n)
+}
