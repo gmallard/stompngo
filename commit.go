@@ -30,12 +30,12 @@ package stompngo
 		}
 
 */
-func (c *Connection) Commit(h Headers) (e error) {
+func (c *Connection) Commit(h Headers) error {
 	c.log(COMMIT, "start")
 	if !c.connected {
 		return ECONBAD
 	}
-	_, e = checkHeaders(h, c)
+	_, e := checkHeaders(h, c)
 	if e != nil {
 		return e
 	}

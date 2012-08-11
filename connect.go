@@ -36,7 +36,7 @@ import (
 		}
 		// Use c
 */
-func Connect(n net.Conn, h Headers) (c *Connection, e error) {
+func Connect(n net.Conn, h Headers) (*Connection, error) {
 	if h == nil {
 		return nil, EHDRNIL
 	}
@@ -47,7 +47,7 @@ func Connect(n net.Conn, h Headers) (c *Connection, e error) {
 		return nil, ENORECPT
 	}
 	ch := h.Clone()
-	c = &Connection{netconn: n,
+	c := &Connection{netconn: n,
 		input:     make(chan MessageData, 1),
 		output:    make(chan wiredata),
 		connected: false,
@@ -58,7 +58,7 @@ func Connect(n net.Conn, h Headers) (c *Connection, e error) {
 	c.MessageData = c.input
 
 	// Check that the cilent wants a version we support
-	if e = c.checkClientVersions(h); e != nil {
+	if e := c.checkClientVersions(h); e != nil {
 		return c, e
 	}
 
@@ -69,7 +69,7 @@ func Connect(n net.Conn, h Headers) (c *Connection, e error) {
 	f := Frame{CONNECT, ch, NULLBUFF} // Create actual CONNECT frame
 	r := make(chan error)             // Make the error channel fo a write
 	c.output <- wiredata{f, r}        // Send the CONNECT frame
-	e = <-r                           // Retrieve any error
+	e := <-r                          // Retrieve any error
 	//
 	if e != nil {
 		c.wsd <- true // Shutdown the writer, we are done with errors

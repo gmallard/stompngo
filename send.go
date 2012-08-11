@@ -32,12 +32,12 @@ package stompngo
 		}
 
 */
-func (c *Connection) Send(h Headers, b string) (e error) {
+func (c *Connection) Send(h Headers, b string) error {
 	c.log(SEND, "start", h)
 	if !c.connected {
 		return ECONBAD
 	}
-	_, e = checkHeaders(h, c)
+	_, e := checkHeaders(h, c)
 	if e != nil {
 		return e
 	}

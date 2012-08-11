@@ -38,12 +38,12 @@ import (
 		}
 
 */
-func (c *Connection) Subscribe(h Headers) (s chan MessageData, e error) {
+func (c *Connection) Subscribe(h Headers) (chan MessageData, error) {
 	c.log(SUBSCRIBE, "start")
 	if !c.connected {
 		return nil, ECONBAD
 	}
-	_, e = checkHeaders(h, c)
+	_, e := checkHeaders(h, c)
 	if e != nil {
 		return nil, e
 	}
@@ -54,7 +54,7 @@ func (c *Connection) Subscribe(h Headers) (s chan MessageData, e error) {
 	if _, ok := ch.Contains("ack"); !ok {
 		ch = ch.Add("ack", "auto")
 	}
-	s, e, ch = c.establishSubscription(ch)
+	s, e, ch := c.establishSubscription(ch)
 	if e != nil {
 		return nil, e
 	}

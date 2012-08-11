@@ -29,12 +29,12 @@ package stompngo
 			// Do something sane ...
 		}
 */
-func (c *Connection) Abort(h Headers) (e error) {
+func (c *Connection) Abort(h Headers) error {
 	c.log(ABORT, "start")
 	if !c.connected {
 		return ECONBAD
 	}
-	_, e = checkHeaders(h, c)
+	_, e := checkHeaders(h, c)
 	if e != nil {
 		return e
 	}

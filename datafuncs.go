@@ -125,8 +125,8 @@ func (h Headers) Value(k string) string {
 	Index returns the index of a keader key in Headers.  Return -1 if the
 	key is not present.
 */
-func (h Headers) Index(k string) (r int) {
-	r = -1
+func (h Headers) Index(k string) int {
+	r := -1
 	for i := 0; i < len(h); i += 2 {
 		if h[i] == k {
 			r = i

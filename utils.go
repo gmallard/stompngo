@@ -129,11 +129,10 @@ func connectResponse(s string) (f *Frame, e error) {
 /*
 	Sha1 returns a SHA1 hash for a specified string.
 */
-func Sha1(q string) (s string) {
+func Sha1(q string) string {
 	g := sha1.New()
 	g.Write([]byte(q))
-	s = fmt.Sprintf("%x", g.Sum(nil))
-	return s
+	return fmt.Sprintf("%x", g.Sum(nil))
 }
 
 /*

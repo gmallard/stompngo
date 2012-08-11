@@ -32,7 +32,7 @@ package stompngo
 		}
 
 */
-func (c *Connection) Nack(h Headers) (e error) {
+func (c *Connection) Nack(h Headers) error {
 	c.log(NACK, "start")
 	if !c.connected {
 		return ECONBAD
@@ -40,7 +40,7 @@ func (c *Connection) Nack(h Headers) (e error) {
 	if c.protocol == SPL_10 {
 		return EBADVERNAK
 	}
-	_, e = checkHeaders(h, c)
+	_, e := checkHeaders(h, c)
 	if e != nil {
 		return e
 	}
