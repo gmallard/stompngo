@@ -68,26 +68,26 @@ func TestDataHeadersBasic(t *testing.T) {
 	v := "valuea"
 	h := Headers{k, v}
 	if nil != h.Validate() {
-		t.Errorf("Unexpected error: [%v]\n", h.Validate())
+		t.Errorf("Header validate error: [%v]\n", h.Validate())
 	}
 	if len(h) != 2 {
-		t.Errorf("Unexpected length: [%v]\n", len(h))
+		t.Errorf("Header Unexpected length error 1, length: [%v]\n", len(h))
 	}
 	h = h.Add("keyb", "valueb").Add("keya", "valuea2")
 	if len(h) != 6 {
-		t.Errorf("Unexpected length: [%v]\n", len(h))
+		t.Errorf("Header Unexpected length error 2, length after add: [%v]\n", len(h))
 	}
 	if _, ok := h.Contains(k); !ok {
-		t.Errorf("Unexpected false for key: [%v]\n", k)
+		t.Errorf("Header Unexpected false for key: [%v]\n", k)
 	}
 	k = "xyz"
 	if _, ok := h.Contains(k); ok {
-		t.Errorf("Unexpected true for key: [%v]\n", k)
+		t.Errorf("Header Unexpected true for key: [%v]\n", k)
 	}
 	//
 	h = Headers{k}
 	if e := h.Validate(); e != EHDRLEN {
-		t.Errorf("Unexpected error for Validate: [%v]\n", e)
+		t.Errorf("Header Unexpected value for Validate: [%v]\n", e)
 	}
 }
 
@@ -104,14 +104,14 @@ func TestDataHeadersUTF8(t *testing.T) {
 	//
 	h = Headers{k, v, `“Iñtërnâtiônàlizætiøn”`, "valueb", "keyc", `“Iñtërnâtiônàlizætiøn”`}
 	if _, e := h.ValidateUTF8(); e != nil {
-		t.Errorf("Unexpected error UTF8 2: [%v]\n", e)
+		t.Errorf("Unexpected UTF8 error 2: [%v]\n", e)
 	}
 	//
 	h = Headers{k, v, `“Iñtërnâtiônàlizætiøn”`, "\x80", "keyc", `“Iñtërnâtiônàlizætiøn”`}
 	if _, e := h.ValidateUTF8(); e == nil {
-		t.Errorf("Unexpected error UTF8 3, got nil, expected an error")
+		t.Errorf("Unexpected UTF8 error  3, got nil, expected an error")
 		if e != EHDRUTF8 {
-			t.Errorf("Unexpected error UTF8 3, got [%v], expected [%v]\n", e, EHDRUTF8)
+			t.Errorf("Unexpected UTF8 error 4, got [%v], expected [%v]\n", e, EHDRUTF8)
 		}
 	}
 }
