@@ -37,10 +37,10 @@ func TestConnBadVer10One(t *testing.T) {
 	}
 	h, p := badVerHostAndPort()
 	n, e := net.Dial("tcp", net.JoinHostPort(h, p))
-	conn_headers := TEST_HEADERS
+	ch := TEST_HEADERS
 	other_headers := Headers{"accept-version", "1.1,2.0,3.14159", "host", h}
-	conn_headers = conn_headers.AddHeaders(other_headers)
-	c, e := Connect(n, conn_headers)
+	ch = ch.AddHeaders(other_headers)
+	c, e := Connect(n, ch)
 	if e != EBADVERSVR {
 		t.Errorf("Expected error [%v], got [%v]\n", EBADVERSVR, e)
 	}
@@ -62,10 +62,10 @@ func TestConnBadVer10Two(t *testing.T) {
 	}
 	h, p := badVerHostAndPort()
 	n, e := net.Dial("tcp", net.JoinHostPort(h, p))
-	conn_headers := TEST_HEADERS
+	ch := TEST_HEADERS
 	other_headers := Headers{"accept-version", "2.0,1.0,3.14159", "host", h}
-	conn_headers = conn_headers.AddHeaders(other_headers)
-	c, e := Connect(n, conn_headers)
+	ch = ch.AddHeaders(other_headers)
+	c, e := Connect(n, ch)
 	if e != nil {
 		t.Errorf("Expected nil error, got [%v]\n", e)
 	}
@@ -90,10 +90,10 @@ func TestConnBadVer10Three(t *testing.T) {
 	}
 	h, p := badVerHostAndPort()
 	n, e := net.Dial("tcp", net.JoinHostPort(h, p))
-	conn_headers := TEST_HEADERS
+	ch := TEST_HEADERS
 	other_headers := Headers{"accept-version", "4.5,3.14159", "host", h}
-	conn_headers = conn_headers.AddHeaders(other_headers)
-	c, e := Connect(n, conn_headers)
+	ch = ch.AddHeaders(other_headers)
+	c, e := Connect(n, ch)
 	if e != EBADVERCLI {
 		t.Errorf("Expected error [%v], got [%v]\n", EBADVERCLI, e)
 	}

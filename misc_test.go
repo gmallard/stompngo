@@ -26,8 +26,8 @@ import (
 func TestBytes0(t *testing.T) {
 	// Write phase
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 	//
 	m := "" // No data
 	d := "/queue/zero.byte.msg"
@@ -42,8 +42,8 @@ func TestBytes0(t *testing.T) {
 
 	// Read phase
 	n, _ = openConn(t)
-	conn_headers = check11(TEST_HEADERS)
-	c, _ = Connect(n, conn_headers)
+	ch = check11(TEST_HEADERS)
+	c, _ = Connect(n, ch)
 	//
 	h = h.Add("id", d)
 	s, e := c.Subscribe(h)
@@ -77,8 +77,8 @@ func TestBytes0(t *testing.T) {
 func TestBytes1(t *testing.T) {
 	// Write phase
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 	//
 	m := "1" // Just one byte
 	d := "/queue/one.byte.msg"
@@ -93,8 +93,8 @@ func TestBytes1(t *testing.T) {
 
 	// Read phase
 	n, _ = openConn(t)
-	conn_headers = check11(TEST_HEADERS)
-	c, _ = Connect(n, conn_headers)
+	ch = check11(TEST_HEADERS)
+	c, _ = Connect(n, ch)
 	//
 	h = h.Add("id", d)
 	s, e := c.Subscribe(h)
@@ -136,8 +136,8 @@ func TestNilHeaders(t *testing.T) {
 		t.Errorf("Expected [%v], got [%v]\n", EHDRNIL, e)
 	}
 	//
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 	//
 	e = nil
 	e = c.Abort(nil)

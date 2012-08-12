@@ -26,8 +26,8 @@ import (
 */
 func TestSubNoSub(t *testing.T) {
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 	//
 	h := empty_headers
 	// Subscribe, no dest
@@ -48,8 +48,8 @@ func TestSubNoSub(t *testing.T) {
 */
 func TestSubNoIdOnce(t *testing.T) {
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 	//
 	d := "/queue/subunsub.genl.01"
 	h := Headers{"destination", d}
@@ -76,8 +76,8 @@ func TestSubNoIdOnce(t *testing.T) {
 */
 func TestSubNoIdTwice(t *testing.T) {
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 	//
 	d := "/queue/subunsub.genl.02"
 	h := Headers{"destination", d}
@@ -129,8 +129,8 @@ func TestSubNoIdTwice(t *testing.T) {
 */
 func TestSubUnsubBasic(t *testing.T) {
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 	//
 	m := "A message"
 	d := "/queue/subunsub.basic.01"
@@ -178,8 +178,8 @@ func TestSubUnsubBasic10(t *testing.T) {
 		return
 	}
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 	//
 	m := "A message"
 	d := "/queue/subunsub.basic.r10.01"

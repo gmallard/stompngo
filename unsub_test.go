@@ -26,8 +26,8 @@ import (
 */
 func TestUnsubNoSub(t *testing.T) {
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 	//
 	h := empty_headers
 	// Unsubscribe, no dest
@@ -52,8 +52,8 @@ func TestUnsubNoId(t *testing.T) {
 		return
 	}
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 	//
 	h := Headers{"destination", "/queue/unsub.noid"}
 	// Unsubscribe, no id
@@ -74,8 +74,8 @@ func TestUnsubNoId(t *testing.T) {
 */
 func TestUnsubBadId(t *testing.T) {
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 	//
 	h := Headers{"destination", "/queue/unsub.badid", "id", "bogus"}
 	// Unsubscribe, bad id

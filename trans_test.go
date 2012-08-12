@@ -26,8 +26,8 @@ import (
 func TestTransErrors(t *testing.T) {
 
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 
 	// Empty transaction id - BEGIN
 	h := Headers{}
@@ -68,8 +68,8 @@ func TestTransErrors(t *testing.T) {
 func TestTransSend(t *testing.T) {
 
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 
 	// begin, send, commit
 	th := Headers{"transaction", TEST_TRANID,
@@ -115,8 +115,8 @@ func TestTransSend(t *testing.T) {
 func TestTransSendEmptyTid(t *testing.T) {
 
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 
 	// begin, send, commit
 	h := Headers{"transaction", ""}
@@ -139,8 +139,8 @@ func TestTransSendEmptyTid(t *testing.T) {
 func TestTransSendRollback(t *testing.T) {
 
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 
 	// begin, send, abort
 	th := Headers{"transaction", TEST_TRANID,
@@ -204,8 +204,8 @@ func TestTransSendRollback(t *testing.T) {
 func TestTransMessageOrder(t *testing.T) {
 
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 
 	th := Headers{"transaction", TEST_TRANID,
 		"destination", TEST_TDESTPREF + "2"}

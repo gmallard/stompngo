@@ -34,8 +34,8 @@ func TestConnDiscNetconn(t *testing.T) {
 */
 func TestConnDiscStompConn(t *testing.T) {
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, e := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, e := Connect(n, ch)
 	if e != nil {
 		t.Errorf("Expected no connect error, got [%v]\n", e)
 	}
@@ -57,8 +57,8 @@ func TestConnDiscStompConn(t *testing.T) {
 */
 func TestConnDiscStompDisc(t *testing.T) {
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 	e := c.Disconnect(Headers{})
 	if e != nil {
 		t.Errorf("Expected no disconnect error, got [%v]\n", e)
@@ -72,8 +72,8 @@ func TestConnDiscStompDisc(t *testing.T) {
 */
 func TestConnDiscStompDiscReceipt(t *testing.T) {
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 	r := "my-receipt-001"
 	e := c.Disconnect(Headers{"receipt", r})
 	if e != nil {
@@ -100,9 +100,9 @@ func TestConnDiscStompDiscReceipt(t *testing.T) {
 */
 func TestConnBodyLen(t *testing.T) {
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
+	ch := check11(TEST_HEADERS)
 
-	c, e := Connect(n, conn_headers)
+	c, e := Connect(n, ch)
 	if e != nil {
 		t.Errorf("Expected no connect error, got [%v]\n", e)
 	}
@@ -118,8 +118,8 @@ func TestConnBodyLen(t *testing.T) {
 */
 func TestConn11(t *testing.T) {
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, e := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, e := Connect(n, ch)
 	if e != nil {
 		t.Errorf("Expected no connect error, got [%v]\n", e)
 	}
@@ -141,8 +141,8 @@ func TestConn11(t *testing.T) {
 */
 func TestConn11Receipt(t *testing.T) {
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	nch := conn_headers.Add("receipt", "abcd1234")
+	ch := check11(TEST_HEADERS)
+	nch := ch.Add("receipt", "abcd1234")
 	_, e := Connect(n, nch)
 	if e == nil {
 		t.Errorf("Expected connect error, got nil\n")

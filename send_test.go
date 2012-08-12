@@ -25,8 +25,8 @@ import (
 */
 func TestSendBasic(t *testing.T) {
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 	//
 	m := "A message"
 	d := "/queue/send.basic.01"
@@ -46,8 +46,8 @@ func TestSendBasic(t *testing.T) {
 */
 func TestSendMultiple(t *testing.T) {
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 	//
 	md := multi_send_data{conn: c,
 		dest:  "/queue/sendmultiple.01.",

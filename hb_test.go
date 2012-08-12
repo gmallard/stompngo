@@ -42,8 +42,8 @@ func TestHB10(t *testing.T) {
 */
 func TestHB11NoHeader(t *testing.T) {
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 	if c.protocol == SPL_10 {
 		_ = closeConn(t, n)
 		return
@@ -60,8 +60,8 @@ func TestHB11NoHeader(t *testing.T) {
 */
 func TestHB11ZeroHeader(t *testing.T) {
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers.Add("heart-beat", "0,0"))
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch.Add("heart-beat", "0,0"))
 	if c.protocol == SPL_10 {
 		_ = closeConn(t, n)
 		return
@@ -78,8 +78,8 @@ func TestHB11ZeroHeader(t *testing.T) {
 */
 func TestHB11InitErrors(t *testing.T) {
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 	// Known state
 	if c.hbd != nil {
 		t.Errorf("Expected no heartbeats for error test start")
@@ -151,9 +151,9 @@ func TestHB11Connect(t *testing.T) {
 	}
 	//
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	conn_headers = conn_headers.Add("heart-beat", "100,10000")
-	c, e := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	ch = ch.Add("heart-beat", "100,10000")
+	c, e := Connect(n, ch)
 	if e != nil {
 		t.Errorf("Heartbeat expected connection, got error: %q\n", e)
 	}
@@ -185,9 +185,9 @@ func TestHB11NoSend(t *testing.T) {
 	}
 	//
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	conn_headers = conn_headers.Add("heart-beat", "0,6000") // No sending
-	c, e := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	ch = ch.Add("heart-beat", "0,6000") // No sending
+	c, e := Connect(n, ch)
 	// Error checks
 	if e != nil {
 		t.Errorf("Heartbeat nosend connect error, unexpected: %q", e)
@@ -231,9 +231,9 @@ func TestHB11NoReceive(t *testing.T) {
 	}
 	//
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	conn_headers = conn_headers.Add("heart-beat", "10000,0") // No Receiving
-	c, e := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	ch = ch.Add("heart-beat", "10000,0") // No Receiving
+	c, e := Connect(n, ch)
 	// Error checks
 	if e != nil {
 		t.Errorf("Heartbeat noreceive connect error, unexpected: %q", e)
@@ -273,9 +273,9 @@ func TestHB11SendReceive(t *testing.T) {
 	}
 	//
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	conn_headers = conn_headers.Add("heart-beat", "10000,6000")
-	c, e := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	ch = ch.Add("heart-beat", "10000,6000")
+	c, e := Connect(n, ch)
 	// Error checks
 	if e != nil {
 		t.Errorf("Heartbeat send-receive connect error, unexpected: %q", e)
@@ -322,9 +322,9 @@ func TestHB11SendReceiveApollo(t *testing.T) {
 	}
 	//
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	conn_headers = conn_headers.Add("heart-beat", "10000,100")
-	c, e := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	ch = ch.Add("heart-beat", "10000,100")
+	c, e := Connect(n, ch)
 	// Error checks
 	if e != nil {
 		t.Errorf("Heartbeat send-receive connect error, unexpected: %q", e)
@@ -371,9 +371,9 @@ func TestHB11SendReceiveApolloRev(t *testing.T) {
 	}
 	//
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	conn_headers = conn_headers.Add("heart-beat", "100,10000")
-	c, e := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	ch = ch.Add("heart-beat", "100,10000")
+	c, e := Connect(n, ch)
 	// Error checks
 	if e != nil {
 		t.Errorf("Heartbeat send-receive connect error, unexpected: %q", e)

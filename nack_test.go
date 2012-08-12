@@ -28,8 +28,8 @@ import (
 func TestNackErrors(t *testing.T) {
 
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 
 	h := Headers{}
 	// No subscription

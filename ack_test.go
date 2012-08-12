@@ -29,8 +29,8 @@ import (
 func TestAckErrors(t *testing.T) {
 
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 
 	h := Headers{}
 	// No subscription
@@ -72,8 +72,8 @@ func TestAckErrors(t *testing.T) {
 func TestAckSameConn(t *testing.T) {
 
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 
 	// Basic headers
 	h := Headers{"destination", TEST_TDESTPREF + "acksc1-" + c.protocol}
@@ -137,8 +137,8 @@ func TestAckSameConn(t *testing.T) {
 func TestAckDiffConn(t *testing.T) {
 
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 
 	// Basic headers
 	h := Headers{"destination", TEST_TDESTPREF + "ackdc1-" + c.protocol}
@@ -156,7 +156,7 @@ func TestAckDiffConn(t *testing.T) {
 
 	// Restart
 	n, _ = openConn(t)
-	c, _ = Connect(n, conn_headers)
+	c, _ = Connect(n, ch)
 
 	// Subscribe Headers
 	sh := h.Add("ack", "client")

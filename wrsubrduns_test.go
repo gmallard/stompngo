@@ -31,8 +31,8 @@ func TestShovel11(t *testing.T) {
 		return
 	}
 	n, _ := openConn(t)
-	conn_headers := check11(TEST_HEADERS)
-	c, _ := Connect(n, conn_headers)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 	//
 	m := "A message"
 	d := "/queue/subunsub.shovel.01"
