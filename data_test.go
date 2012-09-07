@@ -123,7 +123,7 @@ func TestDataHeadersClone(t *testing.T) {
 	h := Headers{"ka", "va"}.Add("kb", "vb").Add("kc", "vc")
 	hc := h.Clone()
 	if !h.Compare(hc) {
-		t.Errorf("Unexpected false for cline: [%v], [%v]\n", h, hc)
+		t.Errorf("Unexpected false for clone: [%v], [%v]\n", h, hc)
 	}
 }
 
