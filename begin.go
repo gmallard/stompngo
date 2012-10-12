@@ -45,8 +45,7 @@ func (c *Connection) Begin(h Headers) error {
 	if h.Value("transaction") == "" {
 		return EREQTIDBEG
 	}
-	ch := h.Clone()
-	e = c.transmitCommon(BEGIN, ch)
+	e = c.transmitCommon(BEGIN, h) // transmitCommon Clones() the headers
 	c.log(BEGIN, "end")
 	return e
 }

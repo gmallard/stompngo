@@ -45,8 +45,7 @@ func (c *Connection) Commit(h Headers) error {
 	if h.Value("transaction") == "" {
 		return EREQTIDCOM
 	}
-	ch := h.Clone()
-	e = c.transmitCommon(COMMIT, ch)
+	e = c.transmitCommon(COMMIT, h) // transmitCommon Clones() the headers
 	c.log(COMMIT, "end")
 	return e
 }

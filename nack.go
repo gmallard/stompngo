@@ -50,8 +50,7 @@ func (c *Connection) Nack(h Headers) error {
 	if _, ok := h.Contains("message-id"); !ok {
 		return EREQMIDNAK
 	}
-	ch := h.Clone()
-	e = c.transmitCommon(NACK, ch)
+	e = c.transmitCommon(NACK, h) // transmitCommon Clones() the headers
 	c.log(NACK, "end")
 	return e
 }

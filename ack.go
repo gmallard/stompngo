@@ -48,8 +48,7 @@ func (c *Connection) Ack(h Headers) error {
 	if _, ok := h.Contains("message-id"); !ok {
 		return EREQMIDACK
 	}
-	ch := h.Clone()
-	e = c.transmitCommon(ACK, ch)
+	e = c.transmitCommon(ACK, h) // transmitCommon Clones() the headers
 	c.log(ACK, "end")
 	return e
 }

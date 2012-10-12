@@ -44,8 +44,7 @@ func (c *Connection) Abort(h Headers) error {
 	if h.Value("transaction") == "" {
 		return EREQTIDABT
 	}
-	ch := h.Clone()
-	e = c.transmitCommon(ABORT, ch)
+	e = c.transmitCommon(ABORT, h) // transmitCommon Clones() the headers
 	c.log(ABORT, "end")
 	return e
 }
