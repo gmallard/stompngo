@@ -83,9 +83,9 @@ func (c *Connection) wireWrite(d wiredata) {
 /*
 	Frame physical write.
 */
-func (f *Frame) writeFrame(w *bufio.Writer, l string) (e error) {
+func (f *Frame) writeFrame(w *bufio.Writer, l string) error {
 	// Write the frame Command
-	if _, e = fmt.Fprintf(w, "%s\n", f.Command); e != nil {
+	if _, e := fmt.Fprintf(w, "%s\n", f.Command); e != nil {
 		return e
 	}
 	// Content length - Always add it if client does not suppress it and
@@ -104,7 +104,7 @@ func (f *Frame) writeFrame(w *bufio.Writer, l string) (e error) {
 			k = encode(k)
 			v = encode(v)
 		}
-		_, e = fmt.Fprintf(w, "%s:%s\n", k, v)
+		_, e := fmt.Fprintf(w, "%s:%s\n", k, v)
 		if e != nil {
 			return e
 		}

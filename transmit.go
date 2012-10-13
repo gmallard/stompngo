@@ -19,11 +19,11 @@ package stompngo
 /*
 	Common transmit data for many stomp API calls.
 */
-func (c *Connection) transmitCommon(v string, h Headers) (e error) {
+func (c *Connection) transmitCommon(v string, h Headers) error {
 	ch := h.Clone()
 	f := Frame{v, ch, NULLBUFF}
 	r := make(chan error)
 	c.output <- wiredata{f, r}
-	e = <-r
+	e := <-r
 	return e
 }

@@ -28,8 +28,8 @@ import (
 /*
 	Encode a string per STOMP 1.1+ specifications.
 */
-func encode(s string) (r string) {
-	r = s
+func encode(s string) string {
+	r := s
 	for _, tr := range codec_values {
 		r = strings.Replace(r, tr.decoded, tr.encoded, -1)
 	}
@@ -39,8 +39,8 @@ func encode(s string) (r string) {
 /*
 	Decode a string per STOMP 1.1+ specifications.
 */
-func decode(s string) (r string) {
-	r = s
+func decode(s string) string {
+	r := s
 	for _, tr := range codec_values {
 		r = strings.Replace(r, tr.encoded, tr.decoded, -1)
 	}
@@ -50,8 +50,8 @@ func decode(s string) (r string) {
 /*
 	A network helper.  Read from the wire until a 0x00 byte is encountered.
 */
-func readUntilNul(r *bufio.Reader) (b []uint8, e error) {
-	b, e = r.ReadBytes(0)
+func readUntilNul(r *bufio.Reader) ([]uint8, error) {
+	b, e := r.ReadBytes(0)
 	if e != nil {
 		return b, e
 	}
@@ -67,8 +67,8 @@ func readUntilNul(r *bufio.Reader) (b []uint8, e error) {
 	A network helper.  Read a full message body with a known length that is
 	> 0.  Then read the trailing 'null' byte expected for STOMP frames.
 */
-func readBody(r *bufio.Reader, l int) (b []uint8, e error) {
-	b = make([]byte, l)
+func readBody(r *bufio.Reader, l int) ([]uint8, error) {
+	b := make([]byte, l)
 	if l == 0 {
 		return b, nil
 	}
@@ -89,9 +89,9 @@ func readBody(r *bufio.Reader, l int) (b []uint8, e error) {
 
 	Called one time per connection at connection start.
 */
-func connectResponse(s string) (f *Frame, e error) {
+func connectResponse(s string) (*Frame, error) {
 	//
-	f = new(Frame)
+	f := new(Frame)
 	// Get f.Command
 	c := strings.SplitN(s, "\n", 2)
 	if len(c) < 2 {
@@ -149,15 +149,15 @@ func Uuid() string {
 /*
 	Common Header Validation.
 */
-func checkHeaders(h Headers, c *Connection) (s string, e error) {
+func checkHeaders(h Headers, c *Connection) (string, error) {
 	if h == nil {
 		return "", EHDRNIL
 	}
-	if e = h.Validate(); e != nil {
+	if e := h.Validate(); e != nil {
 		return "", e
 	}
 	if c.protocol != SPL_10 {
-		s, e = h.ValidateUTF8()
+		s, e := h.ValidateUTF8()
 		if e != nil {
 			return s, e
 		}

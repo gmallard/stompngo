@@ -39,9 +39,9 @@ type multi_send_data struct {
 /*
 	Open a network connection.
 */
-func openConn(t *testing.T) (n net.Conn, err error) {
+func openConn(t *testing.T) (net.Conn, error) {
 	h, p := hostAndPort()
-	n, err = net.Dial("tcp", net.JoinHostPort(h, p))
+	n, err := net.Dial("tcp", net.JoinHostPort(h, p))
 	if err != nil {
 		t.Errorf("Unexpected net.Dial error: %v\n", err)
 	}
@@ -51,8 +51,8 @@ func openConn(t *testing.T) (n net.Conn, err error) {
 /*
 	Close a network connection.
 */
-func closeConn(t *testing.T, n net.Conn) (err error) {
-	err = n.Close()
+func closeConn(t *testing.T, n net.Conn) error {
+	err := n.Close()
 	if err != nil {
 		t.Errorf("Unexpected n.Close() error: %v\n", err)
 	}
@@ -93,12 +93,12 @@ func check11(h Headers) Headers {
 /*
 	Test helper.  Send multiple messages.
 */
-func sendMultiple(md multi_send_data) (e error) {
+func sendMultiple(md multi_send_data) error {
 	h := Headers{"destination", md.dest}
 	for i := 0; i < md.count; i++ {
 		cstr := fmt.Sprintf("%d", i)
 		mts := md.mpref + cstr
-		e = md.conn.Send(h, mts)
+		e := md.conn.Send(h, mts)
 		if e != nil {
 			return e // now
 		}
