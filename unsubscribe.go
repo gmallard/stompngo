@@ -44,11 +44,13 @@ func (c *Connection) Unsubscribe(h Headers) error {
 	if _, ok := h.Contains("destination"); !ok {
 		return EREQDSTUNS
 	}
-	ch := h.Clone()
+	//	ch := h.Clone()
+
 	c.subsLock.Lock()
 	defer c.subsLock.Unlock()
 	//
-	sid, ok := ch.Contains("id")
+	sid, ok := h.Contains("id")
+
 	switch c.protocol {
 	case SPL_10:
 		if ok { // User specified 'id'
@@ -64,7 +66,8 @@ func (c *Connection) Unsubscribe(h Headers) error {
 			return EBADSID
 		}
 	}
-	e = c.transmitCommon(UNSUBSCRIBE, ch)
+
+	e = c.transmitCommon(UNSUBSCRIBE, h) // transmitCommon Clones() the headers
 	if e != nil {
 		return e
 	}
