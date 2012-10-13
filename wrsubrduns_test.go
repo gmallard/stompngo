@@ -64,19 +64,13 @@ func TestShovel11(t *testing.T) {
 	if ri != d {
 		t.Errorf("Expected subscription [%v], got [%v]\n", d, ri)
 	}
-	//
-	if os.Getenv("STOMP_RMQ") != "" { // RMQ
-		if !msg.Headers.ContainsKV("dupkey1", "value0") {
-			t.Errorf("Expected true for [%v], [%v]\n", "dupkey1", "value0")
-		}
-	} else if os.Getenv("STOMP_AMQ11") != "" { // AMQ with 1.1 support
-		if !msg.Headers.ContainsKV("dupkey1", "value2") {
-			t.Errorf("Expected true for [%v], [%v]\n", "dupkey1", "value2")
-		}
-	} else { // Apollo
-		if !msg.Headers.ContainsKV("dupkey1", "value1") {
-			t.Errorf("Expected true for [%v], [%v]\n", "dupkey1", "value0")
-		}
+	// All servers MUST do this
+	// This assumes that AMQ is at least 5.7.0.  AMQ 5.6.0 is broken in this regard.
+	if !msg.Headers.ContainsKV("dupkey1", "value0") {
+		t.Errorf("Expected true for [%v], [%v]\n", "dupkey1", "value0")
+	}
+	// Some servers MAY do this.  Apollo is one that does.
+	if os.Getenv("STOMP_APOLLO") != "" {
 		if !msg.Headers.ContainsKV("dupkey1", "value1") {
 			t.Errorf("Expected true for [%v], [%v]\n", "dupkey1", "value1")
 		}
