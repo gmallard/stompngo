@@ -123,7 +123,7 @@ func TestConn11(t *testing.T) {
 	if e != nil {
 		t.Errorf("Expected no connect error, got [%v]\n", e)
 	}
-	if os.Getenv("STOMP_TEST11") != "" {
+	if os.Getenv("STOMP_TEST11p") != "" {
 		if c.Protocol() != SPL_11 {
 			t.Errorf("Expected protocol 1.1, got [%v]\n", c.Protocol())
 		}

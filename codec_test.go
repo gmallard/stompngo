@@ -69,7 +69,7 @@ func TestCodecDecodeBasic(t *testing.T) {
 	Test STOMP 1.1 Send / Receive - no codec error.
 */
 func TestCodec11SendRecvCodec(t *testing.T) {
-	if os.Getenv("STOMP_TEST11") == "" {
+	if os.Getenv("STOMP_TEST11p") == "" {
 		fmt.Println("Test11SendRecvCodec norun")
 		return
 	}

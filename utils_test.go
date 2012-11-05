@@ -69,7 +69,7 @@ func hostAndPort() (string, string) {
 	}
 	p := os.Getenv("STOMP_PORT")
 	if p == "" {
-		p = "51613"
+		p = "61613"
 	}
 	return h, p
 }
@@ -78,10 +78,14 @@ func hostAndPort() (string, string) {
 	Check if 1.1+ style Headers are needed, and return appropriate Headers.
 */
 func check11(h Headers) Headers {
-	if os.Getenv("STOMP_TEST11") == "" {
+	v := os.Getenv("STOMP_TEST11p")
+	if  v == "" {
 		return h
 	}
-	h = h.Add("accept-version", "1.1")
+	if !supported.Supported(v) {
+		v = SPL_11		// Just use 1.1
+	}
+	h = h.Add("accept-version", v)
 	s := "localhost"                  // STOMP 1.1 vhost (configure for Apollo)
 	if os.Getenv("STOMP_RMQ") != "" { // Rabbitmq default vhost
 		s = "/"
@@ -110,7 +114,7 @@ func sendMultiple(md multi_send_data) error {
 	Test helper.
 */
 func getMessageData(c *Connection, s chan MessageData) (r MessageData) {
-	if os.Getenv("STOMP_TEST11") == "" {
+	if os.Getenv("STOMP_TEST11p") == "" {
 		r = <-c.MessageData
 	} else {
 		r = <-s

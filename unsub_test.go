@@ -47,7 +47,7 @@ func TestUnsubNoSub(t *testing.T) {
 	Test Unsubscribe, no ID.
 */
 func TestUnsubNoId(t *testing.T) {
-	if os.Getenv("STOMP_TEST11") == "" {
+	if os.Getenv("STOMP_TEST11p") == "" {
 		println("TestUnsubNoId norun")
 		return
 	}

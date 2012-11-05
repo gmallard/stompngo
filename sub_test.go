@@ -173,7 +173,7 @@ func TestSubUnsubBasic(t *testing.T) {
 	Test send, subscribe, read, unsubscribe, 1.0 only, no sub id.
 */
 func TestSubUnsubBasic10(t *testing.T) {
-	if os.Getenv("STOMP_TEST11") != "" {
+	if os.Getenv("STOMP_TEST11p") != "" {
 		println("TestSubUnsubBasic10 norun")
 		return
 	}

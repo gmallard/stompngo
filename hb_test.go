@@ -145,7 +145,7 @@ func TestHB11InitErrors(t *testing.T) {
 	HB Test: 1.1 Connect Test.
 */
 func TestHB11Connect(t *testing.T) {
-	if os.Getenv("STOMP_TEST11") == "" {
+	if os.Getenv("STOMP_TEST11p") == "" {
 		fmt.Println("TestHB11Connect norun")
 		return
 	}
@@ -175,7 +175,7 @@ func TestHB11Connect(t *testing.T) {
 	Test Connect to 1.1 - Test HeartBeat - Receive only, No Sends From Client
 */
 func TestHB11NoSend(t *testing.T) {
-	if os.Getenv("STOMP_TEST11") == "" {
+	if os.Getenv("STOMP_TEST11p") == "" {
 		fmt.Println("TestHB11NoSend norun")
 		return
 	}
@@ -221,7 +221,7 @@ func TestHB11NoSend(t *testing.T) {
 	Test Connect to 1.1 - Test HeartBeat - Send only, No Receives by Client
 */
 func TestHB11NoReceive(t *testing.T) {
-	if os.Getenv("STOMP_TEST11") == "" {
+	if os.Getenv("STOMP_TEST11p") == "" {
 		fmt.Println("TestHB11NoReceive norun")
 		return
 	}
@@ -263,7 +263,7 @@ func TestHB11NoReceive(t *testing.T) {
 	Test Connect to 1.1 - Test HeartBeat - Send and Receive
 */
 func TestHB11SendReceive(t *testing.T) {
-	if os.Getenv("STOMP_TEST11") == "" {
+	if os.Getenv("STOMP_TEST11p") == "" {
 		fmt.Println("TestHB11SendReceive norun")
 		return
 	}
@@ -312,7 +312,7 @@ func TestHB11SendReceive(t *testing.T) {
 	Match Apollo defaults.
 */
 func TestHB11SendReceiveApollo(t *testing.T) {
-	if os.Getenv("STOMP_TEST11") == "" {
+	if os.Getenv("STOMP_TEST11p") == "" {
 		fmt.Println("TestHB11SendReceiveApollo norun")
 		return
 	}
@@ -361,7 +361,7 @@ func TestHB11SendReceiveApollo(t *testing.T) {
 	Match reverse of Apollo defaults.
 */
 func TestHB11SendReceiveApolloRev(t *testing.T) {
-	if os.Getenv("STOMP_TEST11") == "" {
+	if os.Getenv("STOMP_TEST11p") == "" {
 		fmt.Println("TestHB11SendReceiveApolloRev norun")
 		return
 	}

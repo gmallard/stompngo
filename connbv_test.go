@@ -31,8 +31,8 @@ func TestConnBadVer10One(t *testing.T) {
 		fmt.Println("TestConnBadVer10One norun STOMP_TESTBV")
 		return
 	}
-	if os.Getenv("STOMP_TEST11") != "" { // Want bad version check? (Know what you are doing...)
-		fmt.Println("TestConnBadVer10One norun STOMP_TEST11")
+	if os.Getenv("STOMP_TEST11p") != "" { // Want bad version check? (Know what you are doing...)
+		fmt.Println("TestConnBadVer10One norun STOMP_TEST11p")
 		return
 	}
 	h, p := badVerHostAndPort()
@@ -56,8 +56,8 @@ func TestConnBadVer10Two(t *testing.T) {
 		fmt.Println("TestConnBadVer10Two norun STOMP_TESTBV")
 		return
 	}
-	if os.Getenv("STOMP_TEST11") != "" { // Want bad version check? (Know what you are doing...)
-		fmt.Println("TestConnBadVer10Two norun STOMP_TEST11")
+	if os.Getenv("STOMP_TEST11p") != "" { // Want bad version check? (Know what you are doing...)
+		fmt.Println("TestConnBadVer10Two norun STOMP_TEST11p")
 		return
 	}
 	h, p := badVerHostAndPort()
@@ -84,8 +84,8 @@ func TestConnBadVer10Three(t *testing.T) {
 		fmt.Println("TestConnBadVer10Three norun STOMP_TESTBV")
 		return
 	}
-	if os.Getenv("STOMP_TEST11") != "" { // Want bad version check? (Know what you are doing...)
-		fmt.Println("TestConnBadVer10Three norun STOMP_TEST11")
+	if os.Getenv("STOMP_TEST11p") != "" { // Want bad version check? (Know what you are doing...)
+		fmt.Println("TestConnBadVer10Three norun STOMP_TEST11p")
 		return
 	}
 	h, p := badVerHostAndPort()
