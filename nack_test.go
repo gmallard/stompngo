@@ -17,10 +17,11 @@
 package stompngo
 
 import (
-	//	"fmt"
-	//	"os"
+	"fmt"
 	"testing"
 )
+
+var _ = fmt.Println
 
 /*
 	Test Nack error cases.
@@ -36,7 +37,7 @@ func TestNackErrors(t *testing.T) {
 	e := c.Nack(h)
 	if c.protocol == SPL_10 {
 		if e == nil {
-			t.Errorf("NACK -1- expected error, got [nil]\n")
+			t.Errorf("NACK -1- expected [%v], got nil\n", EBADVERNAK)
 		}
 		if e != EBADVERNAK {
 			t.Errorf("NACK expected error [%v], got [%v]\n", EBADVERNAK, e)
@@ -46,7 +47,7 @@ func TestNackErrors(t *testing.T) {
 		return
 	}
 	if e == nil {
-		t.Errorf("NACK -2- expected error, got [nil]\n")
+		t.Errorf("NACK -2- expected [%v], got nil\n", EREQSUBNAK)
 	}
 	if e != EREQSUBNAK {
 		t.Errorf("NACK expected error [%v], got [%v]\n", EREQSUBNAK, e)
@@ -55,7 +56,7 @@ func TestNackErrors(t *testing.T) {
 	// No message id
 	e = c.Nack(h)
 	if e == nil {
-		t.Errorf("NACK -3- expected error, got [nil]\n")
+		t.Errorf("NACK -3- expected [%v], got nil\n", EREQMIDNAK)
 	}
 	if e != EREQMIDNAK {
 		t.Errorf("NACK expected error [%v], got [%v]\n", EREQMIDNAK, e)

@@ -17,11 +17,12 @@
 package stompngo
 
 import (
-	//	"fmt"
-	//	"os"
+	"fmt"
 	"testing"
 	"time"
 )
+
+var _ = fmt.Println
 
 /*
 	Test Ack errors.
@@ -37,14 +38,14 @@ func TestAckErrors(t *testing.T) {
 	e := c.Ack(h)
 	if c.protocol >= SPL_11 {
 		if e == nil {
-			t.Errorf("ACK -1- expected [nil], got error: %[v]\n", e)
+			t.Errorf("ACK -1- expected [%v], got nil\n", EREQSUBACK)
 		}
 		if e != EREQSUBACK {
 			t.Errorf("ACK -1- expected error [%v], got [%v]\n", EREQSUBACK, e)
 		}
 	} else {
 		if e == nil {
-			t.Errorf("ACK -2- expected [nil], got error: %[v]\n", e)
+			t.Errorf("ACK -2- expected [%v], got nil\n", EREQMIDACK)
 		}
 		if e != EREQMIDACK {
 			t.Errorf("ACK -2- expected error [%v], got [%v]\n", EREQMIDACK, e)
