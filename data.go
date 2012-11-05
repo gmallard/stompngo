@@ -47,6 +47,7 @@ const (
 	// Supported STOMP protocol definitions.
 	SPL_10 = "1.0"
 	SPL_11 = "1.1"
+	SPL_12 = "1.2"
 )
 
 /*
@@ -57,7 +58,7 @@ type protocols []string
 /*
 	What this package currently supports.
 */
-var supported = protocols{SPL_10, SPL_11}
+var supported = protocols{SPL_10, SPL_11, SPL_12}
 
 /*
 	Headers definition, a slice of string.  
@@ -215,6 +216,7 @@ type codecdata struct {
 var codec_values = []codecdata{
 	codecdata{"\\\\", "\\"},
 	codecdata{"\\" + "n", "\n"},
+	codecdata{"\\" + "r", "\r"},
 	codecdata{"\\c", ":"},
 }
 
