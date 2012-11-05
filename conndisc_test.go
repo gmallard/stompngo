@@ -114,22 +114,30 @@ func TestConnBodyLen(t *testing.T) {
 }
 
 /*
-	Conn11 Test: Test 1.1 Connection.
+	Conn11 Test: Test 1.1+ Connection.
 */
-func TestConn11(t *testing.T) {
+func TestConn11p(t *testing.T) {
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, e := Connect(n, ch)
 	if e != nil {
 		t.Errorf("Expected no connect error, got [%v]\n", e)
 	}
-	if os.Getenv("STOMP_TEST11p") != "" {
-		if c.Protocol() != SPL_11 {
-			t.Errorf("Expected protocol 1.1, got [%v]\n", c.Protocol())
+	v := os.Getenv("STOMP_TEST11p")
+	if v != "" {
+		switch v {
+		case SPL_12:
+			if c.Protocol() != SPL_12 {
+				t.Errorf("Expected protocol %v, got [%v]\n", SPL_12, c.Protocol())
+			}
+		default:
+			if c.Protocol() != SPL_11 {
+				t.Errorf("Expected protocol %v, got [%v]\n", SPL_11, c.Protocol())
+			}
 		}
 	} else {
 		if c.Protocol() != SPL_10 {
-			t.Errorf("Expected protocol 1.0, got [%v]\n", c.Protocol())
+			t.Errorf("Expected protocol %v, got [%v]\n", SPL_10, c.Protocol())
 		}
 	}
 	_ = c.Disconnect(empty_headers)
