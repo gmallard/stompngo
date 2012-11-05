@@ -40,14 +40,25 @@ func (c *Connection) Ack(h Headers) error {
 	if e != nil {
 		return e
 	}
-	if c.protocol >= SPL_11 {
+
+	switch c.protocol {
+	case SPL_12:
+		if _, ok := h.Contains("id"); !ok {
+			return EREQIDACK
+		}
+	case SPL_11:
 		if _, ok := h.Contains("subscription"); !ok {
 			return EREQSUBACK
 		}
+		if _, ok := h.Contains("message-id"); !ok {
+			return EREQMIDACK
+		}
+	default: // SPL_10
+		if _, ok := h.Contains("message-id"); !ok {
+			return EREQMIDACK
+		}
 	}
-	if _, ok := h.Contains("message-id"); !ok {
-		return EREQMIDACK
-	}
+
 	e = c.transmitCommon(ACK, h) // transmitCommon Clones() the headers
 	c.log(ACK, "end")
 	return e

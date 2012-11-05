@@ -16,6 +16,12 @@
 
 package stompngo
 
+import (
+	"fmt"
+)
+
+var _ = fmt.Println
+
 /*
 	Nack a STOMP 1.1+ message. 
 
@@ -44,12 +50,21 @@ func (c *Connection) Nack(h Headers) error {
 	if e != nil {
 		return e
 	}
-	if _, ok := h.Contains("subscription"); !ok {
-		return EREQSUBNAK
+
+	switch c.protocol {
+	case SPL_12:
+		if _, ok := h.Contains("id"); !ok {
+			return EREQIDNAK
+		}
+	default: // SPL_11
+		if _, ok := h.Contains("subscription"); !ok {
+			return EREQSUBNAK
+		}
+		if _, ok := h.Contains("message-id"); !ok {
+			return EREQMIDNAK
+		}
 	}
-	if _, ok := h.Contains("message-id"); !ok {
-		return EREQMIDNAK
-	}
+
 	e = c.transmitCommon(NACK, h) // transmitCommon Clones() the headers
 	c.log(NACK, "end")
 	return e

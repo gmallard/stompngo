@@ -24,6 +24,41 @@ import (
 
 var _ = fmt.Println
 
+func checkAckErrors(t *testing.T, p string, e error, s bool) {
+	switch p {
+	case SPL_12:
+		if e == nil {
+			t.Errorf("ACK -12- expected [%v], got nil\n", EREQIDACK)
+		}
+		if e != EREQIDACK {
+			t.Errorf("ACK -12- expected error [%v], got [%v]\n", EREQIDACK, e)
+		}
+	case SPL_11:
+		if s {
+			if e == nil {
+				t.Errorf("ACK -11- expected [%v], got nil\n", EREQSUBACK)
+			}
+			if e != EREQSUBACK {
+				t.Errorf("ACK -11- expected error [%v], got [%v]\n", EREQSUBACK, e)
+			}
+		} else {
+			if e == nil {
+				t.Errorf("ACK -11- expected [%v], got nil\n", EREQMIDACK)
+			}
+			if e != EREQMIDACK {
+				t.Errorf("ACK -11- expected error [%v], got [%v]\n", EREQMIDACK, e)
+			}
+		}
+	default: // SPL_10
+		if e == nil {
+			t.Errorf("ACK -10- expected [%v], got nil\n", EREQMIDACK)
+		}
+		if e != EREQMIDACK {
+			t.Errorf("ACK -10- expected error [%v], got [%v]\n", EREQMIDACK, e)
+		}
+	}
+}
+
 /*
 	Test Ack errors.
 */
@@ -36,30 +71,12 @@ func TestAckErrors(t *testing.T) {
 	h := Headers{}
 	// No subscription
 	e := c.Ack(h)
-	if c.protocol >= SPL_11 {
-		if e == nil {
-			t.Errorf("ACK -1- expected [%v], got nil\n", EREQSUBACK)
-		}
-		if e != EREQSUBACK {
-			t.Errorf("ACK -1- expected error [%v], got [%v]\n", EREQSUBACK, e)
-		}
-	} else {
-		if e == nil {
-			t.Errorf("ACK -2- expected [%v], got nil\n", EREQMIDACK)
-		}
-		if e != EREQMIDACK {
-			t.Errorf("ACK -2- expected error [%v], got [%v]\n", EREQMIDACK, e)
-		}
-	}
+	checkAckErrors(t, c.protocol, e, true)
+
 	h = Headers{"subscription", "my-sub-id"}
-	// No message id
+	// No message-id, and (1.2) no id
 	e = c.Ack(h)
-	if e == nil {
-		t.Errorf("ACK -3- expected [nil], got error: %[v]\n", e)
-	}
-	if e != EREQMIDACK {
-		t.Errorf("ACK -3- expected error [%v], got [%v]\n", EREQMIDACK, e)
-	}
+	checkAckErrors(t, c.protocol, e, false)
 
 	//
 	_ = c.Disconnect(h)
@@ -105,7 +122,12 @@ func TestAckSameConn(t *testing.T) {
 	}
 
 	// Ack headers
-	a := Headers{"message-id", r.Message.Headers.Value("message-id")}
+	a := Headers{}
+	if c.protocol == SPL_12 {
+		a = a.Add("id", r.Message.Headers.Value("ack"))
+	} else {
+		a = a.Add("message-id", r.Message.Headers.Value("message-id"))
+	}
 	a = a.Add("subscription", si) // Always use subscription
 	// Ack
 	e = c.Ack(a)
@@ -178,8 +200,14 @@ func TestAckDiffConn(t *testing.T) {
 	if m != r.Message.BodyString() {
 		t.Errorf("message error: expected: [%v], got: [%v]\n", m, r.Message.BodyString())
 	}
+
 	// Ack headers
-	a := Headers{"message-id", r.Message.Headers.Value("message-id")}
+	a := Headers{}
+	if c.protocol == SPL_12 {
+		a = a.Add("id", r.Message.Headers.Value("ack"))
+	} else {
+		a = a.Add("message-id", r.Message.Headers.Value("message-id"))
+	}
 	a = a.Add("subscription", si) // Always use subscription
 	// Ack
 	e = c.Ack(a)

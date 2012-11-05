@@ -163,14 +163,16 @@ const (
 	EREQDSTUNS = Error("destination required, UNSUBSCRIBE")
 
 	// Message ID required.
-	EREQMIDACK = Error("message-id required, ACK")
+	EREQMIDACK = Error("message-id required, ACK") // 1.0, 1.1
+	EREQIDACK  = Error("id required, ACK")         // 1.2
 
 	// Subscription required (STOMP 1.1).
 	EREQSUBACK = Error("subscription required, ACK")
 
 	// NACK's.  STOMP 1.1 or greater.
-	EREQMIDNAK = Error("message-id required, NACK")
-	EREQSUBNAK = Error("subscription required, NACK")
+	EREQMIDNAK = Error("message-id required, NACK")   // 1.1
+	EREQSUBNAK = Error("subscription required, NACK") // 1.1
+	EREQIDNAK  = Error("id required, NACK")           // 1.2
 
 	// Transaction ID required.
 	EREQTIDBEG = Error("transaction-id required, BEGIN")

@@ -23,6 +23,41 @@ import (
 
 var _ = fmt.Println
 
+func checkNackErrors(t *testing.T, p string, e error, s bool) {
+	switch p {
+	case SPL_12:
+		if e == nil {
+			t.Errorf("NACK -12- expected [%v], got nil\n", EREQIDNAK)
+		}
+		if e != EREQIDNAK {
+			t.Errorf("NACK -12- expected error [%v], got [%v]\n", EREQIDNAK, e)
+		}
+	case SPL_11:
+		if s {
+			if e == nil {
+				t.Errorf("NACK -11- expected [%v], got nil\n", EREQSUBNAK)
+			}
+			if e != EREQSUBNAK {
+				t.Errorf("NACK -11- expected error [%v], got [%v]\n", EREQSUBNAK, e)
+			}
+		} else {
+			if e == nil {
+				t.Errorf("NACK -11- expected [%v], got nil\n", EREQMIDNAK)
+			}
+			if e != EREQMIDNAK {
+				t.Errorf("NACK -11- expected error [%v], got [%v]\n", EREQMIDNAK, e)
+			}
+		}
+	default: // SPL_10
+		if e == nil {
+			t.Errorf("NACK -10- expected [%v], got nil\n", EBADVERNAK)
+		}
+		if e != EBADVERNAK {
+			t.Errorf("NACK -10- expected error [%v], got [%v]\n", EBADVERNAK, e)
+		}
+	}
+}
+
 /*
 	Test Nack error cases.
 */
@@ -35,32 +70,13 @@ func TestNackErrors(t *testing.T) {
 	h := Headers{}
 	// No subscription
 	e := c.Nack(h)
-	if c.protocol == SPL_10 {
-		if e == nil {
-			t.Errorf("NACK -1- expected [%v], got nil\n", EBADVERNAK)
-		}
-		if e != EBADVERNAK {
-			t.Errorf("NACK expected error [%v], got [%v]\n", EBADVERNAK, e)
-		}
-		_ = c.Disconnect(h)
-		_ = closeConn(t, n)
-		return
-	}
-	if e == nil {
-		t.Errorf("NACK -2- expected [%v], got nil\n", EREQSUBNAK)
-	}
-	if e != EREQSUBNAK {
-		t.Errorf("NACK expected error [%v], got [%v]\n", EREQSUBNAK, e)
-	}
+	checkNackErrors(t, c.protocol, e, true)
+
 	h = Headers{"subscription", "my-sub-id"}
 	// No message id
 	e = c.Nack(h)
-	if e == nil {
-		t.Errorf("NACK -3- expected [%v], got nil\n", EREQMIDNAK)
-	}
-	if e != EREQMIDNAK {
-		t.Errorf("NACK expected error [%v], got [%v]\n", EREQMIDNAK, e)
-	}
+	checkNackErrors(t, c.protocol, e, false)
+
 	//
 	_ = c.Disconnect(h)
 	_ = closeConn(t, n)
