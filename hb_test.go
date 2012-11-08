@@ -357,8 +357,9 @@ func TestHB11SendReceiveApollo(t *testing.T) {
 }
 
 /*
-	Test Connect to 1.1 - Test HeartBeat - Send and Receive - 
+	Test Connect to 1.1+ - Test HeartBeat - Send and Receive - 
 	Match reverse of Apollo defaults.
+	Currently skipped for AMQ.
 */
 func TestHB11SendReceiveApolloRev(t *testing.T) {
 	if os.Getenv("STOMP_TEST11p") == "" {
@@ -367,6 +368,10 @@ func TestHB11SendReceiveApolloRev(t *testing.T) {
 	}
 	if os.Getenv("STOMP_HB11LONG") == "" {
 		fmt.Println("TestHB11SendReceiveApolloRev norun LONG")
+		return
+	}
+	if os.Getenv("STOMP_AMQ11") != "" {
+		fmt.Println("TestHB11SendReceiveApolloRev norun AMQ11")
 		return
 	}
 	//
