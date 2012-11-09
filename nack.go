@@ -25,13 +25,21 @@ var _ = fmt.Println
 /*
 	Nack a STOMP 1.1+ message. 
 
-	Headers MUST contain a "message-id" key and	a "subscription" key.  
+	For Stomp 1.1 Headers must contain a "message-id" key and a "subscription" 
+	header key.
 
-	Disallowed for an established STOMP 1.0 connection.
+
+	For Stomp 1.2 Headers must contain a unique "id" header key.  
+
+
+	See the specifications at http://stomp.github.com/ for details.
+
+
+	Disallowed for an established STOMP 1.0 connection, and EBADVERNAK is returned.
 
 	Example:
 		h := stompngo.Headers{"message-id", "message-id1",
-			"destination", "/queue/mymessages"}
+			"subscription", "d2cbe608b70a54c8e69d951b246999fbc20df694"}
 		e := c.Nack(h)
 		if e != nil {
 			// Do something sane ...

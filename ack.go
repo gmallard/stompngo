@@ -19,12 +19,20 @@ package stompngo
 /*
 	Ack a STOMP MESSAGE. 
 
-	Headers MUST contain a "message-id" key, and for
-	STOMP 1.1+ a "subscription" key.
+	For Stomp 1.0 Headers MUST contain a "message-id" header key.  
+
+
+	For Stomp 1.1	Headers must contain a "message-id" key and a "subscription" 
+	header key.
+
+
+	For Stomp 1.2 Headers must contain a unique "id" header key.
+
+	See the specifications at http://stomp.github.com/ for details.
 
 	Example:
 		h := stompngo.Headers{"message-id", "message-id1",
-			"destination", "/queue/mymessages"}
+			"subscription", "d2cbe608b70a54c8e69d951b246999fbc20df694"}
 		e := c.Ack(h)
 		if e != nil {
 			// Do something sane ...

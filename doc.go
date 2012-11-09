@@ -15,7 +15,7 @@
 //
 
 /*
-	Package stompngo implements a STOMP 1.1 compatible client library.
+	Package stompngo implements a STOMP 1.1+ compatible client library.
 	For more STOMP information, see the specification at:
 	http://stomp.github.com/.
 

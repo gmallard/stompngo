@@ -20,8 +20,10 @@ package stompngo
 	Disconnect from a STOMP broker.  
 
 	Shut down heart beats if necessary.
-	Set 'connected' flag to false to disable further actions with this
+	Set connection status to false to disable further actions with this
 	connection.
+
+
 	Obtain a receipt if the client asks for one.
 
 	Example:
@@ -30,6 +32,7 @@ package stompngo
 		if e != nil {
 			// Do something sane ...
 		}
+		fmt.Printf("%q\n", c.DisconnectReceipt)
 
 */
 func (c *Connection) Disconnect(h Headers) error {

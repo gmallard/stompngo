@@ -47,6 +47,11 @@ func (c *Connection) Protocol() string {
 	SetLogger enables a client defined logger for this connection.
 
 	Set to "nil" to disable logging.
+
+	Example:
+		// Start logging
+		l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
+		c.SetLogger(l)
 */
 func (c *Connection) SetLogger(l *log.Logger) {
 	c.logger = l

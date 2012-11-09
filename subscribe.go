@@ -25,14 +25,14 @@ var _ = fmt.Println
 /*
 	Subscribe to a STOMP subscription.  
 
-	Headers MUST contain a "destintion" header, and for STOMP 1.1+ a "id" 
-	header per the specification.  Use the returned	channel to receive messages 
+	Headers MUST contain a "destination" header key, and for STOMP 1.1+ a "id" 
+	header key per the specification.  Use the returned	channel to receive messages 
 	for the subscription.
 
 	For details about the returned MessageData channel, see: https://github.com/gmallard/stompngo/wiki/subscribe-and-messagedata
 
 	Example:
-		// Possible additional Headers: ack, id.
+		// Possible additional Header keys: ack, id.
 		h := stompngo.Headers{"destination", "/queue/myqueue"}
 		s, e := c.Subscribe(h)
 		if e != nil {

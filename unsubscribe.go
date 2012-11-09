@@ -19,12 +19,12 @@ package stompngo
 /*
 	Unsubscribe from a STOMP subscription. 
 
-	Headers MUST contain a "destintion" header,
-	and an "id" header per the specifications.  The subscription MUST currently
+	Headers MUST contain a "destination" header key, and for Stomp 1.1+, 
+	a "id" header key per the specifications.  The subscription MUST currently
 	exist for this session.
 
 	Example:
-		// Possible additional Headers: id.
+		// Possible additional Header keys: id.
 		h := stompngo.Headers{"destination", "/queue/myqueue"}
 		e := c.Unsubscribe(h)
 		if e != nil {

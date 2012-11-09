@@ -29,8 +29,27 @@ import (
 	by the specification.  Those headers are not magically inferred.
 
 	Example:
+		// Obtain a network connection
+		n, e := net.Dial("tcp", "localhost:61613")
+		if e != nil {
+			// Do something sane ...
+		}
 		h := stompngo.Headers{} // A STOMP 1.0 connection request
-		c, e := stompngo.Connect(h)
+		c, e := stompngo.Connect(n, h)
+		if e != nil {
+			// Do something sane ...
+		}
+		// Use c
+
+	Example:
+		// Obtain a network connection
+		n, e := net.Dial("tcp", "localhost:61613")
+		if e != nil {
+			// Do something sane ...
+		}
+		h := stompngo.Headers{"accept-version", "1.1",
+			"host", "localhost"} // A STOMP 1.1 connection
+		c, e := stompngo.Connect(n, h)
 		if e != nil {
 			// Do something sane ...
 		}

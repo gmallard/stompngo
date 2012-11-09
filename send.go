@@ -19,7 +19,7 @@ package stompngo
 /*
 	Send a STOMP MESSAGE.  
 
-	Headers MUST contain a "destination" header.
+	Headers MUST contain a "destination" header key.
 
 	The message body (payload) is a string, which may be empty.
 
