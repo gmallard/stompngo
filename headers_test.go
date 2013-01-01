@@ -107,4 +107,3 @@ func TestDataHeadersAddDelete(t *testing.T) {
 		t.Errorf("Unexpected length Delete 2, expected: [%v], got: [%v]\n", ol-4, len(hn))
 	}
 }
-

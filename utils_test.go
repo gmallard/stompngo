@@ -1,5 +1,5 @@
 //
-// Copyright © 2011-2012 Guy M. Allard
+// Copyright © 2011-2013 Guy M. Allard
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -79,11 +79,11 @@ func hostAndPort() (string, string) {
 */
 func check11(h Headers) Headers {
 	v := os.Getenv("STOMP_TEST11p")
-	if  v == "" {
+	if v == "" {
 		return h
 	}
 	if !supported.Supported(v) {
-		v = SPL_11		// Just use 1.1
+		v = SPL_11 // Just use 1.1
 	}
 	h = h.Add("accept-version", v)
 	s := "localhost"                  // STOMP 1.1 vhost (configure for Apollo)

@@ -16,10 +16,12 @@
 
 ## Installation ##
 
-Installation requires a working go environment. For current versions of go,
-from a directory in $GOPATH, issue:
+Installation requires a working go environment. For current versions of go
+issue:
 
 * go get github.com/gmallard/stompngo
+
+The GOPATH environment variable must be set properly.
 
 ## Examples ##
 
@@ -61,6 +63,7 @@ For the record, the canonical repository for this project is at:
 ## Issues ##
 
 Please review issues at the canonical repository.  File any new issues there as
-well.
+well:
 
+* [issues](https://github.com/gmallard/stompngo/issues?sort=comments&state=open)
 
