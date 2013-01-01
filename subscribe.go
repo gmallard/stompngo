@@ -25,9 +25,17 @@ var _ = fmt.Println
 /*
 	Subscribe to a STOMP subscription.  
 
-	Headers MUST contain a "destination" header key, and for STOMP 1.1+ a "id" 
-	header key per the specification.  Use the returned	channel to receive messages 
-	for the subscription.
+	Headers MUST contain a "destination" header key.
+
+	All clients are recommended to supply a unique "id" header on Subscribe.
+
+	For STOMP 1.0 clients:  if an "id" header is supplied, attempt to use it.  If the
+	"id" header is not unique, return an error.  If no "id" header is supplied, send the
+	SUBSCRIBE frame without an "id" header.  Some brokers may respond with an ERROR
+	frame in this case if the subscription is seen as a duplicate.
+
+	For STOMP 1.1+ clients: If any client does not supply an "id" header, attempt to generate
+	a unique "id".  In all cases, do not allow duplicate subscription "id"s in this session.
 
 	For details about the returned MessageData channel, see: https://github.com/gmallard/stompngo/wiki/subscribe-and-messagedata
 
@@ -72,11 +80,6 @@ func (c *Connection) Subscribe(h Headers) (chan MessageData, error) {
 
 /*
 	Handle subscribe id.  
-
-	If any client does not supply an ID, try to generate
-	one, which for STOMP 1.1+ clients MUST be used with UNSUBSCRIBE.
-
-	Regardless, do not allow duplicate subscription IDs in this session.
 */
 func (c *Connection) establishSubscription(h Headers) (chan MessageData, error, Headers) {
 	c.subsLock.Lock()
