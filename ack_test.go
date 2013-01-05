@@ -18,6 +18,7 @@ package stompngo
 
 import (
 	"fmt"
+	"os"
 	"testing"
 	"time"
 )
@@ -107,7 +108,12 @@ func TestAckSameConn(t *testing.T) {
 	if e != nil {
 		t.Errorf("SUBSCRIBE expected [nil], got: [%v]\n", e)
 	}
-	hn := h.Add("current-time", time.Now().String())
+	// For RabbitMQ and STOMP 1.0, do not add current-time header, where the
+	// value contains ':' characters.
+	hn := h.Clone()
+	if c.protocol == SPL_10 && os.Getenv("STOMP_RMQ") == "" {
+		hn = hn.Add("current-time", time.Now().String()) // The added header value has ':' characters
+	}
 	e = c.Send(hn, m)
 	if e != nil {
 		t.Errorf("SEND expected [nil], got: [%v]\n", e)
@@ -118,7 +124,7 @@ func TestAckSameConn(t *testing.T) {
 		t.Errorf("read error:  expected [nil], got: [%v]\n", r.Error)
 	}
 	if m != r.Message.BodyString() {
-		t.Errorf("message error: expected: [%v], got: [%v]\n", m, r.Message.BodyString())
+		t.Errorf("message error: expected: [%v], got: [%v] Message: [%q]\n", m, r.Message.BodyString(), r.Message)
 	}
 
 	// Ack headers
@@ -168,7 +174,12 @@ func TestAckDiffConn(t *testing.T) {
 	m := "ackdc1 message 1"
 	si := TEST_TDESTPREF + "ackdc1.protocol-" + c.protocol
 	// Send
-	hn := h.Add("current-time", time.Now().String())
+	hn := h.Clone()
+	// For RabbitMQ and STOMP 1.0, do not add current-time header, where the
+	// value contains ':' characters.
+	if c.protocol == SPL_10 && os.Getenv("STOMP_RMQ") == "" {
+		hn = hn.Add("current-time", time.Now().String()) // The added header value has ':' characters
+	}
 	e := c.Send(hn, m)
 	if e != nil {
 		t.Errorf("SEND expected [nil], got: [%v]\n", e)
