@@ -111,7 +111,12 @@ func TestAckSameConn(t *testing.T) {
 	// For RabbitMQ and STOMP 1.0, do not add current-time header, where the
 	// value contains ':' characters.
 	hn := h.Clone()
-	if c.protocol == SPL_10 && os.Getenv("STOMP_RMQ") == "" {
+	switch c.protocol {
+	case SPL_10:
+		if os.Getenv("STOMP_RMQ") == "" {
+			hn = hn.Add("current-time", time.Now().String()) // The added header value has ':' characters
+		}
+	default:
 		hn = hn.Add("current-time", time.Now().String()) // The added header value has ':' characters
 	}
 	e = c.Send(hn, m)
@@ -177,7 +182,12 @@ func TestAckDiffConn(t *testing.T) {
 	hn := h.Clone()
 	// For RabbitMQ and STOMP 1.0, do not add current-time header, where the
 	// value contains ':' characters.
-	if c.protocol == SPL_10 && os.Getenv("STOMP_RMQ") == "" {
+	switch c.protocol {
+	case SPL_10:
+		if os.Getenv("STOMP_RMQ") == "" {
+			hn = hn.Add("current-time", time.Now().String()) // The added header value has ':' characters
+		}
+	default:
 		hn = hn.Add("current-time", time.Now().String()) // The added header value has ':' characters
 	}
 	e := c.Send(hn, m)
