@@ -129,7 +129,7 @@ func (c *Connection) connectHandler(h Headers) (e error) {
 		return ECONERR
 	}
 	//
-	e = c.checkConnectedVersions(h, c.ConnectResponse.Headers)
+	e = c.setProtocolLevel(h, c.ConnectResponse.Headers)
 	if e != nil {
 		return e
 	}
@@ -167,9 +167,9 @@ func (c *Connection) checkClientVersions(h Headers) (e error) {
 }
 
 /*
-	Check connected versions, one time use during initial connect.
+	Set the protocol level for this new connection.
 */
-func (c *Connection) checkConnectedVersions(ch, sh Headers) (e error) {
+func (c *Connection) setProtocolLevel(ch, sh Headers) (e error) {
 	chw := ch.Value("accept-version")
 	shr := sh.Value("version")
 
