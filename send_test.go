@@ -36,6 +36,14 @@ func TestSendBasic(t *testing.T) {
 		t.Errorf("Expected nil error, got [%v]\n", e)
 	}
 	//
+	h = Headers{}
+	e = c.Send(h, m)
+	if e == nil {
+		t.Errorf("Expected error, got [nil]\n")
+	}
+	if e != EREQDSTSND {
+		t.Errorf("Expected [%v], got [%v]\n", EREQDSTSND, e)
+	}
 	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 
