@@ -70,12 +70,12 @@ func TestNackErrors(t *testing.T) {
 	h := Headers{}
 	// No subscription
 	e := c.Nack(h)
-	checkNackErrors(t, c.protocol, e, true)
+	checkNackErrors(t, c.Protocol(), e, true)
 
 	h = Headers{"subscription", "my-sub-id"}
 	// No message id
 	e = c.Nack(h)
-	checkNackErrors(t, c.protocol, e, false)
+	checkNackErrors(t, c.Protocol(), e, false)
 
 	//
 	_ = c.Disconnect(h)

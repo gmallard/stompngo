@@ -138,7 +138,7 @@ func (c *Connection) connectHandler(h Headers) (e error) {
 		c.session = s
 	}
 
-	if c.protocol >= SPL_11 {
+	if c.Protocol() >= SPL_11 {
 		e = c.initializeHeartBeats(h)
 		if e != nil {
 			return e
@@ -179,7 +179,7 @@ func (c *Connection) setProtocolLevel(ch, sh Headers) (e error) {
 	}
 
 	if chw == "" && shr == "" { // Straight up 1.0
-		return nil // c.protocol defaults to SPL_10
+		return nil // protocol level defaults to SPL_10
 	}
 
 	cv := strings.SplitN(chw, ",", -1) // Client requested versions
@@ -195,7 +195,7 @@ func (c *Connection) setProtocolLevel(ch, sh Headers) (e error) {
 
 	if chw != "" && shr == "" { // Client asked for something, server is pure 1.0
 		if hasValue(cv, SPL_10) {
-			return nil // c.protocol defaults to SPL_10
+			return nil // protocol level defaults to SPL_10
 		}
 	}
 

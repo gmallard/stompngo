@@ -156,7 +156,7 @@ func checkHeaders(h Headers, c *Connection) (string, error) {
 	if e := h.Validate(); e != nil {
 		return "", e
 	}
-	if c.protocol != SPL_10 {
+	if c.Protocol() != SPL_10 {
 		s, e := h.ValidateUTF8()
 		if e != nil {
 			return s, e

@@ -51,7 +51,7 @@ func (c *Connection) Unsubscribe(h Headers) error {
 	//
 	sid, ok := h.Contains("id")
 
-	switch c.protocol {
+	switch c.Protocol() {
 	case SPL_10:
 		if ok { // User specified 'id'
 			if _, p := c.subs[sid]; !p { // subscription does not exist

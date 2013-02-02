@@ -44,7 +44,7 @@ func TestHB11NoHeader(t *testing.T) {
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
-	if c.protocol == SPL_10 {
+	if c.Protocol() == SPL_10 {
 		_ = closeConn(t, n)
 		return
 	}
@@ -62,7 +62,7 @@ func TestHB11ZeroHeader(t *testing.T) {
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch.Add("heart-beat", "0,0"))
-	if c.protocol == SPL_10 {
+	if c.Protocol() == SPL_10 {
 		_ = closeConn(t, n)
 		return
 	}

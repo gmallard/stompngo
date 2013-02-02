@@ -169,7 +169,7 @@ func TestNilHeaders(t *testing.T) {
 		t.Errorf("Disconnect Expected [%v], got [nil]\n", EHDRNIL)
 	}
 	//
-	if c.protocol > SPL_10 {
+	if c.Protocol() > SPL_10 {
 		e = nil
 		e = c.Disconnect(nil)
 		if e == nil {

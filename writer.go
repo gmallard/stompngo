@@ -58,7 +58,7 @@ func (c *Connection) wireWrite(d wiredata) {
 			return
 		}
 	default: // Other frames
-		if e := f.writeFrame(c.wtr, c.protocol); e != nil {
+		if e := f.writeFrame(c.wtr, c.Protocol()); e != nil {
 			d.errchan <- e
 			return
 		}

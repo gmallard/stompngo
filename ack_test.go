@@ -72,12 +72,12 @@ func TestAckErrors(t *testing.T) {
 	h := Headers{}
 	// No subscription
 	e := c.Ack(h)
-	checkAckErrors(t, c.protocol, e, true)
+	checkAckErrors(t, c.Protocol(), e, true)
 
 	h = Headers{"subscription", "my-sub-id"}
 	// No message-id, and (1.2) no id
 	e = c.Ack(h)
-	checkAckErrors(t, c.protocol, e, false)
+	checkAckErrors(t, c.Protocol(), e, false)
 
 	//
 	_ = c.Disconnect(h)
@@ -95,9 +95,9 @@ func TestAckSameConn(t *testing.T) {
 	c, _ := Connect(n, ch)
 
 	// Basic headers
-	h := Headers{"destination", TEST_TDESTPREF + "acksc1-" + c.protocol}
+	h := Headers{"destination", TEST_TDESTPREF + "acksc1-" + c.Protocol()}
 	m := "acksc1 message 1"
-	si := TEST_TDESTPREF + "acksc1.protocol-" + c.protocol
+	si := TEST_TDESTPREF + "acksc1.chkprotocol-" + c.Protocol()
 	// Subscribe Headers
 	sh := h.Add("ack", "client")
 	sh = sh.Add("id", si) // Always use an 'id'
@@ -111,7 +111,7 @@ func TestAckSameConn(t *testing.T) {
 	// For RabbitMQ and STOMP 1.0, do not add current-time header, where the
 	// value contains ':' characters.
 	hn := h.Clone()
-	switch c.protocol {
+	switch c.Protocol() {
 	case SPL_10:
 		if os.Getenv("STOMP_RMQ") == "" {
 			hn = hn.Add("current-time", time.Now().String()) // The added header value has ':' characters
@@ -134,7 +134,7 @@ func TestAckSameConn(t *testing.T) {
 
 	// Ack headers
 	a := Headers{}
-	if c.protocol == SPL_12 {
+	if c.Protocol() == SPL_12 {
 		a = a.Add("id", r.Message.Headers.Value("ack"))
 	} else {
 		a = a.Add("message-id", r.Message.Headers.Value("message-id"))
@@ -175,14 +175,14 @@ func TestAckDiffConn(t *testing.T) {
 	c, _ := Connect(n, ch)
 
 	// Basic headers
-	h := Headers{"destination", TEST_TDESTPREF + "ackdc1-" + c.protocol}
+	h := Headers{"destination", TEST_TDESTPREF + "ackdc1-" + c.Protocol()}
 	m := "ackdc1 message 1"
-	si := TEST_TDESTPREF + "ackdc1.protocol-" + c.protocol
+	si := TEST_TDESTPREF + "ackdc1.chkprotocol-" + c.Protocol()
 	// Send
 	hn := h.Clone()
 	// For RabbitMQ and STOMP 1.0, do not add current-time header, where the
 	// value contains ':' characters.
-	switch c.protocol {
+	switch c.Protocol() {
 	case SPL_10:
 		if os.Getenv("STOMP_RMQ") == "" {
 			hn = hn.Add("current-time", time.Now().String()) // The added header value has ':' characters
@@ -224,7 +224,7 @@ func TestAckDiffConn(t *testing.T) {
 
 	// Ack headers
 	a := Headers{}
-	if c.protocol == SPL_12 {
+	if c.Protocol() == SPL_12 {
 		a = a.Add("id", r.Message.Headers.Value("ack"))
 	} else {
 		a = a.Add("message-id", r.Message.Headers.Value("message-id"))

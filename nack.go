@@ -51,7 +51,7 @@ func (c *Connection) Nack(h Headers) error {
 	if !c.connected {
 		return ECONBAD
 	}
-	if c.protocol == SPL_10 {
+	if c.Protocol() == SPL_10 {
 		return EBADVERNAK
 	}
 	_, e := checkHeaders(h, c)
@@ -59,7 +59,7 @@ func (c *Connection) Nack(h Headers) error {
 		return e
 	}
 
-	switch c.protocol {
+	switch c.Protocol() {
 	case SPL_12:
 		if _, ok := h.Contains("id"); !ok {
 			return EREQIDNAK

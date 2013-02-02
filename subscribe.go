@@ -100,7 +100,7 @@ func (c *Connection) establishSubscription(h Headers) (chan MessageData, error, 
 	}
 	//
 
-	if c.protocol == SPL_10 {
+	if c.Protocol() == SPL_10 {
 		if hid { // If 1.0 client wants one, assign it.
 			c.subs[sid] = make(chan MessageData, 1)
 		} else {

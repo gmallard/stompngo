@@ -49,7 +49,7 @@ func (c *Connection) Ack(h Headers) error {
 		return e
 	}
 
-	switch c.protocol {
+	switch c.Protocol() {
 	case SPL_12:
 		if _, ok := h.Contains("id"); !ok {
 			return EREQIDACK

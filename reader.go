@@ -112,7 +112,7 @@ func (c *Connection) readFrame() (f Frame, e error) {
 		p := strings.SplitN(s, ":", 2)
 		k := p[0]
 		v := p[1]
-		if c.protocol != SPL_10 && f.Command != CONNECTED {
+		if c.Protocol() != SPL_10 && f.Command != CONNECTED {
 			k = decode(k)
 			v = decode(v)
 		}
