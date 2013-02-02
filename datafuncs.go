@@ -34,18 +34,6 @@ func (m *Message) BodyString() string {
 	return string(m.Body)
 }
 
-/*
-	Supported returns true if a given protocol is supported.
-*/
-func (p protocols) Supported(v string) bool {
-	for _, s := range supported {
-		if v == s {
-			return true
-		}
-	}
-	return false
-}
-
 // Headers
 
 /*

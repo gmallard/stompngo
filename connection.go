@@ -58,7 +58,7 @@ func (c *Connection) SetLogger(l *log.Logger) {
 }
 
 /*
-	SendTickerInterval returns any heartbeat send ticker interval in ms.  A return 
+	SendTickerInterval returns any heartbeat send ticker interval in ms.  A return
 	value of zero means	no heartbeats are being sent.
 */
 func (c *Connection) SendTickerInterval() int64 {
@@ -69,7 +69,7 @@ func (c *Connection) SendTickerInterval() int64 {
 }
 
 /*
-	ReceiveTickerInterval returns any heartbeat receive ticker interval in ms.  
+	ReceiveTickerInterval returns any heartbeat receive ticker interval in ms.
 	A return value of zero means no heartbeats are being received.
 */
 func (c *Connection) ReceiveTickerInterval() int64 {
@@ -104,11 +104,11 @@ func (c *Connection) ReceiveTickerCount() int64 {
 // Package exported functions
 
 /*
-	Supported checks if a particular STOMP version is supported in the current 
+	Supported checks if a particular STOMP version is supported in the current
 	implementation.
 */
 func Supported(v string) bool {
-	return supported.Supported(v)
+	return hasValue(supported, v)
 }
 
 // Unexported Connection methods

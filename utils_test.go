@@ -82,7 +82,7 @@ func check11(h Headers) Headers {
 	if v == "" {
 		return h
 	}
-	if !supported.Supported(v) {
+	if !Supported(v) {
 		v = SPL_11 // Just use 1.1
 	}
 	h = h.Add("accept-version", v)

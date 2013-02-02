@@ -23,9 +23,9 @@ import (
 )
 
 /*
-	Primary STOMP Connect.  
+	Primary STOMP Connect.
 
-	For STOMP 1.1+ the Headers parameter MUST contain the headers required 
+	For STOMP 1.1+ the Headers parameter MUST contain the headers required
 	by the specification.  Those headers are not magically inferred.
 
 	Example:
@@ -110,7 +110,7 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 /*
 	Connection handler, one time use during initial connect.
 
-	Handle broker response, react to version incompatabilities, set up session, 
+	Handle broker response, react to version incompatabilities, set up session,
 	and if necessary initialize heart beats.
 */
 func (c *Connection) connectHandler(h Headers) (e error) {
@@ -173,7 +173,7 @@ func (c *Connection) setProtocolLevel(ch, sh Headers) (e error) {
 	chw := ch.Value("accept-version")
 	shr := sh.Value("version")
 
-	if chw == shr && supported.Supported(shr) {
+	if chw == shr && Supported(shr) {
 		c.protocol = shr
 		return nil
 	}
@@ -200,7 +200,7 @@ func (c *Connection) setProtocolLevel(ch, sh Headers) (e error) {
 	}
 
 	//
-	if !supported.Supported(shr) {
+	if !Supported(shr) {
 		return EBADVERSVR // Client and server agree, but we do not support it
 	}
 

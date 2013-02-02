@@ -79,19 +79,19 @@ func TestDataMessageBasic(t *testing.T) {
 */
 func TestDataprotocols(t *testing.T) {
 	l := SPL_10
-	if !supported.Supported(l) {
+	if !Supported(l) {
 		t.Errorf("Expected: [true], got: [false] for protocol level %v\n", l)
 	}
 	l = SPL_11
-	if !supported.Supported(l) {
+	if !Supported(l) {
 		t.Errorf("Expected: [true], got: [false] for protocol level %v\n", l)
 	}
 	l = SPL_12
-	if !supported.Supported(l) {
+	if !Supported(l) {
 		t.Errorf("Expected: [true], got: [false] for protocol level %v\n", l)
 	}
 	l = "9.9"
-	if supported.Supported(l) {
+	if Supported(l) {
 		t.Errorf("Expected: [false], got: [true] for protocol level %v\n", l)
 	}
 	//
