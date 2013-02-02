@@ -107,3 +107,44 @@ func TestDataHeadersAddDelete(t *testing.T) {
 		t.Errorf("Unexpected length Delete 2, expected: [%v], got: [%v]\n", ol-4, len(hn))
 	}
 }
+
+/*
+	Data Test: Headers ContainsKV
+*/
+func TestDataHeadersContainsKV(t *testing.T) {
+	ha := Headers{"ka", "va", "kb", "vb", "kc", "vc"}
+	b := ha.ContainsKV("kb", "vb")
+	if !b {
+		t.Errorf("KV01 Expected true, got false")
+	}
+	b = ha.ContainsKV("kb", "zz")
+	if b {
+		t.Errorf("KV02 Expected false, got true")
+	}
+}
+
+/*
+	Data Test: Headers Compare
+*/
+func TestDataHeadersCompare(t *testing.T) {
+	ha := Headers{"ka", "va", "kb", "vb", "kc", "vc"}
+	hb := Headers{"ka", "va", "kb", "vb", "kc", "vc"}
+	hc := Headers{"ka", "va"}
+	hd := Headers{"k1", "v1", "k2", "v2", "k3", "v3"}
+	b := ha.Compare(hb)
+	if !b {
+		t.Errorf("CMP01 Expected true, got false")
+	}
+	b = ha.Compare(hc)
+	if b {
+		t.Errorf("CMP02 Expected false, got true")
+	}
+	b = ha.Compare(hd)
+	if b {
+		t.Errorf("CMP03 Expected false, got true")
+	}
+	b = hd.Compare(ha)
+	if b {
+		t.Errorf("CMP04 Expected false, got true")
+	}
+}

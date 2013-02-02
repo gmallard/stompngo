@@ -97,6 +97,9 @@ func TestSubNoIdTwice(t *testing.T) {
 	// Second time
 	s, e = c.Subscribe(h)
 	if c.protocol == SPL_10 {
+		if e == EDUPSID {
+			t.Errorf("Expected no subscribe error, got [%v]\n", e)
+		}
 		if e != nil {
 			t.Errorf("Expected no subscribe error, got [%v]\n", e)
 		}

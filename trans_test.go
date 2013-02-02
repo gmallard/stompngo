@@ -29,9 +29,41 @@ func TestTransErrors(t *testing.T) {
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
 
-	// Empty transaction id - BEGIN
-	h := Headers{}
+	//
+
+	// Empty string transaction id - BEGIN
+	h := Headers{"transaction", ""}
 	e := c.Begin(h)
+	if e == nil {
+		t.Errorf("BEGIN expected error, got: [nil]\n")
+	}
+	if e != EREQTIDBEG {
+		t.Errorf("BEGIN expected error [%v], got [%v]\n", EREQTIDBEG, e)
+	}
+
+	// Empty string transaction id - COMMIT
+	e = c.Commit(h)
+	if e == nil {
+		t.Errorf("COMMIT expected error, got: [nil]\n")
+	}
+	if e != EREQTIDCOM {
+		t.Errorf("COMMIT expected error [%v], got [%v]\n", EREQTIDCOM, e)
+	}
+
+	// Empty string transaction id - ABORT
+	e = c.Abort(h)
+	if e == nil {
+		t.Errorf("ABORT expected error, got: [nil]\n")
+	}
+	if e != EREQTIDABT {
+		t.Errorf("ABORT expected error [%v], got [%v]\n", EREQTIDABT, e)
+	}
+
+	//
+
+	// Empty transaction id - BEGIN
+	h = Headers{}
+	e = c.Begin(h)
 	if e == nil {
 		t.Errorf("BEGIN expected error, got: [nil]\n")
 	}
@@ -56,7 +88,6 @@ func TestTransErrors(t *testing.T) {
 	if e != EREQTIDABT {
 		t.Errorf("ABORT expected error [%v], got [%v]\n", EREQTIDABT, e)
 	}
-	//
 	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 

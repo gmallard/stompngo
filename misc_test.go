@@ -186,3 +186,45 @@ func TestNilHeaders(t *testing.T) {
 	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
+
+/*
+Test max function.
+*/
+func TestMax(t *testing.T) {
+	var s int64 = 1
+	var l int64 = 2
+	r := max(s, l)
+	if r != 2 {
+		t.Errorf("Expected [%v], got [%v]\n", l, r)
+	}
+	r = max(l, s)
+	if r != 2 {
+		t.Errorf("Expected [%v], got [%v]\n", l, r)
+	}
+}
+
+/*
+Test hasValue function.
+*/
+func TestHasValue(t *testing.T) {
+	a := []string{"a", "b"}
+	if !hasValue(a, "a") {
+		t.Errorf("Expected [true], got [false] for [%v]\n", "a")
+	}
+	if hasValue(a, "z") {
+		t.Errorf("Expected [false], got [true] for [%v]\n", "z")
+	}
+}
+
+/*
+Test Uuid function.
+*/
+func TestUuid(t *testing.T) {
+	u := Uuid()
+	if u == "" {
+		t.Errorf("Expected a UUID, got empty string\n")
+	}
+	if len(u) != 36 {
+		t.Errorf("Expected a 36 character UUID, got length [%v]\n", len(u))
+	}
+}

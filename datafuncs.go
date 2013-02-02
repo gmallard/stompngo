@@ -76,11 +76,6 @@ func (h Headers) Compare(other Headers) bool {
 			return false
 		}
 	}
-	for i, v := range other {
-		if v != h[i] {
-			return false
-		}
-	}
 	return true
 }
 

@@ -48,7 +48,31 @@ func TestConnDiscStompConn(t *testing.T) {
 	if !c.connected {
 		t.Errorf("Expected connected [true], got [false]\n")
 	}
+	if !c.Connected() {
+		t.Errorf("Expected connected [true], got [false]\n")
+	}
+	//
+	if c.Session() == "" {
+		t.Errorf("Expected connected session, got [default value]\n")
+	}
+	//
+	if c.SendTickerInterval() != 0 {
+		t.Errorf("Expected zero SendTickerInterval, got [%v]\n", c.SendTickerInterval())
+	}
+	if c.ReceiveTickerInterval() != 0 {
+		t.Errorf("Expected zero ReceiveTickerInterval, got [%v]\n", c.SendTickerInterval())
+	}
+	if c.SendTickerCount() != 0 {
+		t.Errorf("Expected zero SendTickerCount, got [%v]\n", c.SendTickerCount())
+	}
+	if c.ReceiveTickerCount() != 0 {
+		t.Errorf("Expected zero ReceiveTickerCount, got [%v]\n", c.SendTickerCount())
+	}
+	//
 	_ = c.Disconnect(empty_headers)
+	if c.Connected() {
+		t.Errorf("Expected connected [false], got [true]\n")
+	}
 	_ = closeConn(t, n)
 }
 
@@ -159,4 +183,52 @@ func TestConn11Receipt(t *testing.T) {
 		t.Errorf("Expected [%v], got [%v]\n", ENORECPT, e)
 	}
 	_ = closeConn(t, n)
+}
+
+/*
+	ConnDisc Test: ECONBAD
+*/
+func TestEconBad(t *testing.T) {
+	n, _ := openConn(t)
+	ch := check11(TEST_HEADERS)
+	c, e := Connect(n, ch)
+	_ = c.Disconnect(empty_headers)
+	_ = closeConn(t, n)
+	//
+	e = c.Abort(empty_headers)
+	if e != ECONBAD {
+		t.Errorf("Abort expected [%v] got [%v]\n", ECONBAD, e)
+	}
+	e = c.Ack(empty_headers)
+	if e != ECONBAD {
+		t.Errorf("Ack expected [%v] got [%v]\n", ECONBAD, e)
+	}
+	e = c.Begin(empty_headers)
+	if e != ECONBAD {
+		t.Errorf("Begin expected [%v] got [%v]\n", ECONBAD, e)
+	}
+	e = c.Commit(empty_headers)
+	if e != ECONBAD {
+		t.Errorf("Commit expected [%v] got [%v]\n", ECONBAD, e)
+	}
+	e = c.Disconnect(empty_headers)
+	if e != ECONBAD {
+		t.Errorf("Disconnect expected [%v] got [%v]\n", ECONBAD, e)
+	}
+	e = c.Nack(empty_headers)
+	if e != ECONBAD {
+		t.Errorf("Nack expected [%v] got [%v]\n", ECONBAD, e)
+	}
+	e = c.Send(empty_headers, "")
+	if e != ECONBAD {
+		t.Errorf("Send expected [%v] got [%v]\n", ECONBAD, e)
+	}
+	_, e = c.Subscribe(empty_headers)
+	if e != ECONBAD {
+		t.Errorf("Subscribe expected [%v] got [%v]\n", ECONBAD, e)
+	}
+	e = c.Unsubscribe(empty_headers)
+	if e != ECONBAD {
+		t.Errorf("Unsubscribe expected [%v] got [%v]\n", ECONBAD, e)
+	}
 }

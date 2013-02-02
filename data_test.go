@@ -20,6 +20,20 @@ import (
 	"testing"
 )
 
+type supdata struct {
+	v string
+	s bool
+}
+
+var suptests = []supdata{
+	{SPL_10, true},
+	{SPL_11, true},
+	{SPL_12, true},
+	{"1.3", false},
+	{"2.0", false},
+	{"2.1", false},
+}
+
 /*
 	Data Test: Frame Basic.
 */
@@ -72,8 +86,19 @@ func TestDataprotocols(t *testing.T) {
 	if !supported.Supported(l) {
 		t.Errorf("Expected: [true], got: [false] for protocol level %v\n", l)
 	}
+	l = SPL_12
+	if !supported.Supported(l) {
+		t.Errorf("Expected: [true], got: [false] for protocol level %v\n", l)
+	}
 	l = "9.9"
 	if supported.Supported(l) {
 		t.Errorf("Expected: [false], got: [true] for protocol level %v\n", l)
+	}
+	//
+	for _, v := range suptests {
+		b := Supported(v.v)
+		if b != v.s {
+			t.Errorf("Expected: [%v] for protocol level [%v]\n", v.s, v.v)
+		}
 	}
 }
