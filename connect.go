@@ -177,31 +177,26 @@ func (c *Connection) setProtocolLevel(ch, sh Headers) (e error) {
 		c.protocol = shr
 		return nil
 	}
-
 	if chw == "" && shr == "" { // Straight up 1.0
 		return nil // protocol level defaults to SPL_10
 	}
-
 	cv := strings.SplitN(chw, ",", -1) // Client requested versions
 
 	if chw != "" && shr != "" {
 		if hasValue(cv, shr) {
+			if !Supported(shr) {
+				return EBADVERSVR // Client and server agree, but we do not support it
+			}
 			c.protocol = shr
 			return nil
 		} else {
 			return EBADVERCLI
 		}
 	}
-
 	if chw != "" && shr == "" { // Client asked for something, server is pure 1.0
 		if hasValue(cv, SPL_10) {
 			return nil // protocol level defaults to SPL_10
 		}
-	}
-
-	//
-	if !Supported(shr) {
-		return EBADVERSVR // Client and server agree, but we do not support it
 	}
 
 	c.protocol = shr // Could be anything we support

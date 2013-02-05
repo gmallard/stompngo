@@ -21,6 +21,21 @@ import (
 	"testing"
 )
 
+type verData struct {
+	ch Headers
+	sh Headers
+	e  error
+}
+
+var verChecks = []verData{
+	{Headers{"accept-version", SPL_11}, Headers{"version", SPL_11}, nil},
+	{Headers{}, Headers{}, nil},
+	{Headers{"accept-version", "1.0,1.1,1.2"}, Headers{"version", SPL_12}, nil},
+	{Headers{"accept-version", "1.3"}, Headers{"version", "1.3"}, EBADVERSVR},
+	{Headers{"accept-version", "1.3"}, Headers{"version", "1.1"}, EBADVERCLI},
+	{Headers{"accept-version", "1.0,1.1,1.2"}, Headers{}, nil},
+}
+
 /*
 	ConnDisc Test: net.Conn.
 */
@@ -231,4 +246,24 @@ func TestEconBad(t *testing.T) {
 	if e != ECONBAD {
 		t.Errorf("Unsubscribe expected [%v] got [%v]\n", ECONBAD, e)
 	}
+}
+
+/*
+	ConnDisc Test: setProtocolLevel
+*/
+func TestSetProtocolLevel(t *testing.T) {
+	n, _ := openConn(t)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
+	//
+	for i, v := range verChecks {
+		c.protocol = SPL_10 // reset
+		e := c.setProtocolLevel(v.ch, v.sh)
+		if e != v.e {
+			t.Errorf("Verdata Item [%d}, expected [%v], got [%v]\n", i, v.e, e)
+		}
+	}
+	//
+	_ = c.Disconnect(empty_headers)
+	_ = closeConn(t, n)
 }

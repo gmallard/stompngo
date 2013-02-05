@@ -146,6 +146,7 @@ const (
 
 	// ERRORs for response to CONNECT.
 	EUNKFRM = Error("unrecognized frame returned, CONNECT")
+	EBADFRM = Error("Malformed frame")
 	EUNKHDR = Error("currupt frame headers")
 	EUNKBDY = Error("corrupt frame body")
 

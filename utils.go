@@ -92,18 +92,42 @@ func readBody(r *bufio.Reader, l int) ([]uint8, error) {
 func connectResponse(s string) (*Frame, error) {
 	//
 	f := new(Frame)
+	f.Headers = Headers{}
+	f.Body = make([]uint8, 0)
+
 	// Get f.Command
 	c := strings.SplitN(s, "\n", 2)
 	if len(c) < 2 {
-		return nil, Error("Malformed frame")
+		return nil, EBADFRM
 	}
 	f.Command = c[0]
 	if f.Command != CONNECTED && f.Command != ERROR {
 		return nil, EUNKFRM
 	}
-	// Get f.Headers
-	f.Headers = Headers{}
+	if c[1] == "\n\x00" {
+		return f, nil
+	}
 	b := strings.SplitN(c[1], "\n\n", 2)
+
+	// Get f.Body
+	if len(b) == 1 { // body is b[0]
+		if !strings.Contains(b[0], "\x00") {
+			return nil, EUNKBDY
+		}
+		f.Body = []uint8(b[0])
+		return f, nil
+	}
+	// body is b[1]
+	if !strings.Contains(b[1], "\x00") {
+		return nil, EUNKBDY
+	}
+	if b[1] == "\x00" {
+		f.Body = make([]uint8, 0)
+	} else {
+		f.Body = []uint8(b[1])
+	}
+
+	// Get f.Headers
 	for _, l := range strings.Split(b[0], "\n") {
 		p := strings.SplitN(l, ":", 2)
 		if len(p) < 2 {
@@ -116,12 +140,6 @@ func connectResponse(s string) (*Frame, error) {
 			v = decode(v)
 		}
 		f.Headers = append(f.Headers, k, v)
-	}
-	// get f.Body
-	if len(b[1]) == 1 {
-		f.Body = make([]uint8, 0)
-	} else {
-		return nil, EUNKBDY
 	}
 	return f, nil
 }

@@ -36,6 +36,23 @@ type multi_send_data struct {
 	count int         // number of messages
 }
 
+type frameData struct {
+	data string
+	resp error
+}
+
+var frames = []frameData{
+	{"CONNECTED\n\n\x00", nil},
+	{"ERROR\nbadcon:badmsg\n\n\x00", nil},
+	{"EBADFRM", EBADFRM},
+	{"EUNKFRM\n\n\x00", EUNKFRM},
+	{"CONNECTED\nbadhdr\n\n\x00", EUNKHDR},
+	{"CONNECTED\n\nconnbody\x00", nil},
+	{"CONNECTED\n\nconnbadbody", EUNKBDY},
+	{"CONNECTED\nokcon:okmsg\n\nconnbody\x00", nil},
+	{"CONNECTED\nokcon:okmsg\n\nconnbodynonul", EUNKBDY},
+}
+
 /*
 	Open a network connection.
 */
@@ -146,4 +163,16 @@ func badVerHostAndPort() (string, string) {
 		p = "61613"
 	}
 	return h, p
+}
+
+/*
+	Test connect response frame data.
+*/
+func TestConnRespData(t *testing.T) {
+	for i, f := range frames {
+		_, e := connectResponse(f.data)
+		if e != f.resp {
+			t.Errorf("Index [%v], expected [%v], got [%v]\n", i, f.resp, e)
+		}
+	}
 }

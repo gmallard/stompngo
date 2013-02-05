@@ -102,3 +102,26 @@ func TestDataprotocols(t *testing.T) {
 		}
 	}
 }
+
+/*
+	Data test: Protocols.
+*/
+func TestDataProtocols(t *testing.T) {
+	s := Protocols()
+	for i, p := range s {
+		if supported[i] != p {
+			t.Errorf("Expected [%v], got [%v]\n", supported[i], p)
+		}
+	}
+}
+
+/*
+	Data test: Error.
+*/
+func TestDataError(t *testing.T) {
+	s := "An error string"
+	e := Error(s)
+	if s != e.Error() {
+		t.Errorf("Expected [%v], got [%v]\n", s, e.Error())
+	}
+}

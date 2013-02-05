@@ -228,3 +228,52 @@ func TestUuid(t *testing.T) {
 		t.Errorf("Expected a 36 character UUID, got length [%v]\n", len(u))
 	}
 }
+
+/*
+	Test Bad Headers
+*/
+func TestBadHeaders(t *testing.T) {
+	//
+	n, _ := openConn(t)
+	neh := Headers{"a", "b", "c"}
+	c, e := Connect(n, neh)
+	if e == nil {
+		t.Errorf("Expected [%v], got [nil]\n", EHDRLEN)
+	}
+	if e != EHDRLEN {
+		t.Errorf("Expected [%v], got [%v]\n", EHDRLEN, e)
+	}
+	//
+	bvh := Headers{"host", "localhost", "accept-version", "3.14159"}
+	c, e = Connect(n, bvh)
+	if e == nil {
+		t.Errorf("Expected [%v], got [nil]\n", EBADVERCLI)
+	}
+	if e != EBADVERCLI {
+		t.Errorf("Expected [%v], got [%v]\n", EBADVERCLI, e)
+	}
+	//
+	ch := check11(TEST_HEADERS)
+	c, e = Connect(n, ch) // Should be a good connect
+	//
+	_, e = c.Subscribe(neh)
+	if e == nil {
+		t.Errorf("Expected [%v], got [nil]\n", EHDRLEN)
+	}
+	if e != EHDRLEN {
+		t.Errorf("Expected [%v], got [%v]\n", EHDRLEN, e)
+	}
+	//
+	e = c.Unsubscribe(neh)
+	if e == nil {
+		t.Errorf("Expected [%v], got [nil]\n", EHDRLEN)
+	}
+	if e != EHDRLEN {
+		t.Errorf("Expected [%v], got [%v]\n", EHDRLEN, e)
+	}
+	//
+	if c != nil && c.Connected() {
+		_ = c.Disconnect(empty_headers)
+	}
+	_ = closeConn(t, n)
+}

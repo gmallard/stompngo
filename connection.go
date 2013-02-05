@@ -111,6 +111,13 @@ func Supported(v string) bool {
 	return hasValue(supported, v)
 }
 
+/*
+	Protocols returns a slice of client supported protocol levels.
+*/
+func Protocols() []string {
+	return supported
+}
+
 // Unexported Connection methods
 
 /*

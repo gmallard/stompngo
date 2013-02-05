@@ -82,6 +82,7 @@ func TestSubNoIdTwice(t *testing.T) {
 	d := "/queue/subunsub.genl.02"
 	h := Headers{"destination", d}
 	// First time
+	c.protocol = SPL_10 // force
 	s, e := c.Subscribe(h)
 	if e != nil {
 		t.Errorf("Expected no subscribe error, got [%v]\n", e)
@@ -96,27 +97,30 @@ func TestSubNoIdTwice(t *testing.T) {
 	}
 	// Second time
 	s, e = c.Subscribe(h)
-	if c.Protocol() == SPL_10 {
-		if e == EDUPSID {
-			t.Errorf("Expected no subscribe error, got [%v]\n", e)
-		}
-		if e != nil {
-			t.Errorf("Expected no subscribe error, got [%v]\n", e)
-		}
-		if s == nil {
-			t.Errorf("Expected subscribe channel, got nil\n")
-		}
-	} else {
-		if e == nil {
-			t.Errorf("Expected subscribe twice  error, got [nil]\n")
-		}
-		if e != EDUPSID {
-			t.Errorf("Subscribe twice error, expected [%v], got [%v]\n", EDUPSID, e)
-		}
-		if s != nil {
-			t.Errorf("Expected nil subscribe channel, got [%v]\n", s)
-		}
+	if e == EDUPSID {
+		t.Errorf("Expected no subscribe error, got [%v]\n", e)
 	}
+	if e != nil {
+		t.Errorf("Expected no subscribe error, got [%v]\n", e)
+	}
+	if s == nil {
+		t.Errorf("Expected subscribe channel, got nil\n")
+	}
+
+	c.protocol = SPL_11
+	s, e = c.Subscribe(h) // This will work
+	s, e = c.Subscribe(h) // This should not
+	// 1.1+ errors
+	if e == nil {
+		t.Errorf("Expected subscribe twice  error, got [nil]\n")
+	}
+	if e != EDUPSID {
+		t.Errorf("Subscribe twice error, expected [%v], got [%v]\n", EDUPSID, e)
+	}
+	if s != nil {
+		t.Errorf("Expected nil subscribe channel, got [%v]\n", s)
+	}
+
 	select {
 	case v := <-c.MessageData:
 		t.Errorf("Unexpected frame received, got [%v]\n", v)
@@ -210,6 +214,29 @@ func TestSubUnsubBasic10(t *testing.T) {
 	e = c.Unsubscribe(h)
 	if e != nil {
 		t.Errorf("Expected no unsubscribe error, got [%v]\n", e)
+	}
+	//
+	_ = c.Disconnect(empty_headers)
+	_ = closeConn(t, n)
+}
+
+/*
+	Test establishSubscription.
+*/
+func TestSubestablishSubscription(t *testing.T) {
+	n, _ := openConn(t)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
+	//
+	d := "/queue/estabsub.01"
+	h := Headers{"destination", d}
+	// First time
+	s, e := c.Subscribe(h)
+	if e != nil {
+		t.Errorf("Expected no subscribe error, got [%v]\n", e)
+	}
+	if s == nil {
+		t.Errorf("Expected subscribe channel, got [nil]\n")
 	}
 	//
 	_ = c.Disconnect(empty_headers)
