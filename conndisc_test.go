@@ -84,6 +84,17 @@ func TestConnDiscStompConn(t *testing.T) {
 		t.Errorf("Expected zero ReceiveTickerCount, got [%v]\n", c.SendTickerCount())
 	}
 	//
+	if c.FramesRead() != 1 {
+		t.Errorf("Expected 1 frame read, got [%d]\n", c.FramesRead())
+	}
+	if c.FramesWritten() != 1 {
+		t.Errorf("Expected 1 frame written, got [%d]\n", c.FramesWritten())
+	}
+	i := c.Running().Nanoseconds()
+	if i == 0 {
+		t.Errorf("Expected non-zero runtime, got [0]\n")
+	}
+	//
 	_ = c.Disconnect(empty_headers)
 	if c.Connected() {
 		t.Errorf("Expected connected [false], got [true]\n")

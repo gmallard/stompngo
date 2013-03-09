@@ -21,6 +21,7 @@ import (
 	"log"
 	"net"
 	"sync"
+	"time"
 )
 
 const (
@@ -125,6 +126,7 @@ type Connection struct {
 	Hbrf              bool // Indicates a heart beat read/receive failure, which is possibly transient.  Valid for 1.1+ only.
 	Hbsf              bool // Indicates a heart beat send failure, which is possibly transient.  Valid for 1.1+ only.
 	logger            *log.Logger
+	mets              *metrics // Client metrics
 }
 
 /*
@@ -242,4 +244,13 @@ type heartbeat_data struct {
 	//
 	ls int64 // last send time, ns
 	lr int64 // last receive time, ns
+}
+
+/*
+	Control structure for basic client metrics.
+*/
+type metrics struct {
+	st  time.Time // Start Time
+	tfr int64     // Total frame reads
+	tfw int64     // Total frame writes
 }

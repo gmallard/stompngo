@@ -20,6 +20,7 @@ import (
 	"bufio"
 	"net"
 	"strings"
+	"time"
 )
 
 /*
@@ -73,6 +74,10 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 		session:   "",
 		protocol:  SPL_10,
 		subs:      make(map[string]chan MessageData)}
+
+	// Bsaic metric data
+	c.mets = &metrics{time.Now(), 0, 0}
+
 	// Assumed for now
 	c.MessageData = c.input
 
@@ -146,6 +151,7 @@ func (c *Connection) connectHandler(h Headers) (e error) {
 	}
 
 	c.connected = true
+	c.mets.tfr += 1
 	return nil
 }
 

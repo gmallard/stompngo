@@ -139,6 +139,7 @@ func (c *Connection) readFrame() (f Frame, e error) {
 	if c.hbd != nil {
 		c.hbd.lr = time.Now().UnixNano() // Latest good read
 	}
+	c.mets.tfr += 1 // Total frames read
 	//
 	return f, e
 }

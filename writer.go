@@ -75,6 +75,7 @@ func (c *Connection) wireWrite(d wiredata) {
 	if c.hbd != nil {
 		c.hbd.ls = time.Now().UnixNano() // Latest good send
 	}
+	c.mets.tfw += 1 // Frame written count
 	//
 	d.errchan <- nil
 	return
