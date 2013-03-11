@@ -140,6 +140,21 @@ func (c *Connection) Running() time.Duration {
 	return time.Since(c.mets.st)
 }
 
+/*
+	Subscribe channel capacity.
+*/
+func (c *Connection) SubChanCap() int {
+	return c.scc
+}
+
+/*
+	Set Subscribe channel capacity.
+*/
+func (c *Connection) SetSubChanCap(nc int) {
+	c.scc = nc
+	return
+}
+
 // Unexported Connection methods
 
 /*

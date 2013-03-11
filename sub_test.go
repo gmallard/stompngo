@@ -242,3 +242,45 @@ func TestSubestablishSubscription(t *testing.T) {
 	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
+
+/*
+	Test ubscrribe, set subscribe channel capacity.
+*/
+func TestSubSetCap(t *testing.T) {
+	if os.Getenv("STOMP_TEST11p") == "" {
+		println("TestSubSetCap norun")
+		return
+	}
+	//
+	n, _ := openConn(t)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
+	//
+	p := 25
+	c.SetSubChanCap(p)
+	r := c.SubChanCap()
+	if r != p {
+		t.Errorf("Expected get capacity [%v], got [%v]\n", p, r)
+	}
+	//
+	d := "/queue/subsetcap.basic.01"
+	h := Headers{"destination", d, "id", d}
+	s, e := c.Subscribe(h)
+	if e != nil {
+		t.Errorf("Expected no subscribe error, got [%v]\n", e)
+	}
+	if s == nil {
+		t.Errorf("Expected subscribe channel, got [nil]\n")
+	}
+	if cap(s) != p {
+		t.Errorf("Expected subchan capacity [%v], got [%v]\n", p, cap(s))
+	}
+	//
+	e = c.Unsubscribe(h)
+	if e != nil {
+		t.Errorf("Expected no unsubscribe error, got [%v]\n", e)
+	}
+	//
+	_ = c.Disconnect(empty_headers)
+	_ = closeConn(t, n)
+}

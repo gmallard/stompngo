@@ -102,17 +102,17 @@ func (c *Connection) establishSubscription(h Headers) (chan MessageData, error, 
 
 	if c.Protocol() == SPL_10 {
 		if hid { // If 1.0 client wants one, assign it.
-			c.subs[sid] = make(chan MessageData, 1)
+			c.subs[sid] = make(chan MessageData, c.scc)
 		} else {
 			return c.input, nil, h // 1.0 clients with no id take their own chances
 		}
 	} else { // 1.1+
 		if hid { // Client specified id
-			c.subs[sid] = make(chan MessageData, 1) // Assign subscription
+			c.subs[sid] = make(chan MessageData, c.scc) // Assign subscription
 		} else {
 			h = h.Add("id", sha1)
-			c.subs[sha1] = make(chan MessageData, 1) // Assign subscription
-			sid = sha1                               // reset
+			c.subs[sha1] = make(chan MessageData, c.scc) // Assign subscription
+			sid = sha1                                   // reset
 		}
 	}
 

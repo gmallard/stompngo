@@ -73,7 +73,8 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 		connected: false,
 		session:   "",
 		protocol:  SPL_10,
-		subs:      make(map[string]chan MessageData)}
+		subs:      make(map[string]chan MessageData),
+		scc:       1}
 
 	// Bsaic metric data
 	c.mets = &metrics{time.Now(), 0, 0}
