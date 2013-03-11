@@ -119,6 +119,27 @@ func Protocols() []string {
 	return supported
 }
 
+/*
+	Frames Read Count.
+*/
+func (c *Connection) FramesRead() int64 {
+	return c.mets.tfr
+}
+
+/*
+	Frames Written Count.
+*/
+func (c *Connection) FramesWritten() int64 {
+	return c.mets.tfw
+}
+
+/*
+	Duration since client start.
+*/
+func (c *Connection) Running() time.Duration {
+	return time.Since(c.mets.st)
+}
+
 // Unexported Connection methods
 
 /*
@@ -166,25 +187,4 @@ func (c *Connection) handleReadError(md MessageData) {
 	c.subsLock.Unlock()
 	// Let further shutdown logic proceed normally.
 	return
-}
-
-/*
-	Frames Read Count.
-*/
-func (c *Connection) FramesRead() int64 {
-	return c.mets.tfr
-}
-
-/*
-	Frames Written Count.
-*/
-func (c *Connection) FramesWritten() int64 {
-	return c.mets.tfw
-}
-
-/*
-	Duration since client start.
-*/
-func (c *Connection) Running() time.Duration {
-	return time.Since(c.mets.st)
 }
