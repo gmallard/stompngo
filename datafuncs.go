@@ -34,6 +34,15 @@ func (m *Message) BodyString() string {
 	return string(m.Body)
 }
 
+/*
+	Size returns the size of Message on the wire, in bytes.
+*/
+func (m *Message) Size(e bool) int64 {
+	var r int64 = 0
+	r += int64(len(m.Command)) + 1 + m.Headers.Size(e) + 1 + int64(len(m.Body)) + 1
+	return r
+}
+
 // Headers
 
 /*
@@ -160,4 +169,19 @@ func (h Headers) Delete(k string) Headers {
 		r = append(r[:i], r[i+2:]...)
 	}
 	return r
+}
+
+/*
+	Size returns the size of Headers on the wire, in bytes.
+*/
+func (h Headers) Size(e bool) int64 {
+	l := 0
+	for i := 0; i < len(h); i += 2 {
+		if e {
+			l += len(encode(h[i])) + 1 + len(encode(h[i+1])) + 1
+		} else {
+			l += len(h[i]) + 1 + len(h[i+1]) + 1
+		}
+	}
+	return int64(l)
 }

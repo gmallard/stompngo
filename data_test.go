@@ -125,3 +125,20 @@ func TestDataError(t *testing.T) {
 		t.Errorf("Expected [%v], got [%v]\n", s, e.Error())
 	}
 }
+
+/*
+	Data Test: Message Size.
+*/
+func TestDataMessageSize(t *testing.T) {
+	f := CONNECT
+	h := Headers{"keya", "valuea"}
+	s := "The Message Body"
+	m := &Message{Command: f, Headers: h, Body: []byte(s)}
+	e := false
+	//
+	var w int64 = int64(len(CONNECT)) + 1 + h.Size(e) + 1 + int64(len(s)) + 1
+	r := m.Size(e)
+	if w != r {
+		t.Errorf("Message size, expected: [%d], got [%d]\n", w, r)
+	}
+}

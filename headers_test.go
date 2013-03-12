@@ -148,3 +148,22 @@ func TestDataHeadersCompare(t *testing.T) {
 		t.Errorf("CMP04 Expected false, got true")
 	}
 }
+
+/*
+	Data Test: Headers Size
+*/
+func TestDataHeadersSize(t *testing.T) {
+	ha := Headers{"k", "v"}
+	s := ha.Size(false)
+	var w int64 = 4
+	if s != w {
+		t.Errorf("SIZ01 Expected size [%d], got [%d]\n", w, s)
+	}
+	//
+	ha = Headers{"kaa", "vaa2", "kba", "vba2", "kca", "vca2"}
+	s = ha.Size(true)
+	w = 3 + 1 + 4 + 1 + 3 + 1 + 4 + 1 + 3 + 1 + 4 + 1
+	if s != w {
+		t.Errorf("SIZ02 Expected size [%d], got [%d]\n", w, s)
+	}
+}
