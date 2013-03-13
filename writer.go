@@ -76,6 +76,12 @@ func (c *Connection) wireWrite(d wiredata) {
 		c.hbd.ls = time.Now().UnixNano() // Latest good send
 	}
 	c.mets.tfw += 1 // Frame written count
+	m := Message(f) // Convert
+	if c.Protocol() > SPL_10 && f.Command != CONNECT {
+		c.mets.tbw += m.Size(true) // Bytes written count
+	} else {
+		c.mets.tbw += m.Size(false) // Bytes written count
+	}
 	//
 	d.errchan <- nil
 	return

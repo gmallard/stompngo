@@ -127,10 +127,24 @@ func (c *Connection) FramesRead() int64 {
 }
 
 /*
+	Bytes Read Count.
+*/
+func (c *Connection) BytesRead() int64 {
+	return c.mets.tbr
+}
+
+/*
 	Frames Written Count.
 */
 func (c *Connection) FramesWritten() int64 {
 	return c.mets.tfw
+}
+
+/*
+	Bytes Written Count.
+*/
+func (c *Connection) BytesWritten() int64 {
+	return c.mets.tbw
 }
 
 /*

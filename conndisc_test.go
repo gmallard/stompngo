@@ -87,8 +87,14 @@ func TestConnDiscStompConn(t *testing.T) {
 	if c.FramesRead() != 1 {
 		t.Errorf("Expected 1 frame read, got [%d]\n", c.FramesRead())
 	}
+	if c.BytesRead() <= 0 {
+		t.Errorf("Expected non-zero bytes read, got [%d]\n", c.BytesRead())
+	}
 	if c.FramesWritten() != 1 {
 		t.Errorf("Expected 1 frame written, got [%d]\n", c.FramesWritten())
+	}
+	if c.BytesWritten() <= 0 {
+		t.Errorf("Expected non-zero bytes written, got [%d]\n", c.BytesWritten())
 	}
 	i := c.Running().Nanoseconds()
 	if i == 0 {

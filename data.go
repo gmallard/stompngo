@@ -253,5 +253,7 @@ type heartbeat_data struct {
 type metrics struct {
 	st  time.Time // Start Time
 	tfr int64     // Total frame reads
+	tbr int64     // Total bytes read
 	tfw int64     // Total frame writes
+	tbw int64     // Total bytes written
 }

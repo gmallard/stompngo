@@ -77,7 +77,7 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 		scc:       1}
 
 	// Bsaic metric data
-	c.mets = &metrics{time.Now(), 0, 0}
+	c.mets = &metrics{st: time.Now()}
 
 	// Assumed for now
 	c.MessageData = c.input
@@ -153,6 +153,7 @@ func (c *Connection) connectHandler(h Headers) (e error) {
 
 	c.connected = true
 	c.mets.tfr += 1
+	c.mets.tbr += c.ConnectResponse.Size(false)
 	return nil
 }
 

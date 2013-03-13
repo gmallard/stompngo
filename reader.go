@@ -49,7 +49,14 @@ func (c *Connection) reader() {
 			break
 		}
 
-		d := MessageData{Message{f.Command, f.Headers, f.Body}, e}
+		m := Message{f.Command, f.Headers, f.Body}
+		c.mets.tfr += 1 // Total frames read
+		if c.Protocol() > SPL_10 && m.Command != CONNECTED {
+			c.mets.tbr += m.Size(true) // Total bytes read
+		} else {
+			c.mets.tbr += m.Size(false) // Total bytes read
+		}
+		d := MessageData{m, e}
 		if sid, ok := f.Headers.Contains("subscription"); ok {
 			c.subsLock.Lock()
 			c.subs[sid] <- d
@@ -139,7 +146,6 @@ func (c *Connection) readFrame() (f Frame, e error) {
 	if c.hbd != nil {
 		c.hbd.lr = time.Now().UnixNano() // Latest good read
 	}
-	c.mets.tfr += 1 // Total frames read
 	//
 	return f, e
 }
