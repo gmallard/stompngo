@@ -244,7 +244,7 @@ func TestSubestablishSubscription(t *testing.T) {
 }
 
 /*
-	Test ubscrribe, set subscribe channel capacity.
+	Test unsubscribe, set subscribe channel capacity.
 */
 func TestSubSetCap(t *testing.T) {
 	if os.Getenv("STOMP_TEST11p") == "" {
