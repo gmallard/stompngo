@@ -89,7 +89,7 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 
 	// OK, put a CONNECT on the wire
 	c.wtr = bufio.NewWriter(n)        // Create the writer
-	c.wsd = make(chan bool)           // Make the writer shutdown channel
+	c.wsd = make(chan bool, 1)        // Make the writer shutdown channel
 	go c.writer()                     // Start it
 	f := Frame{CONNECT, ch, NULLBUFF} // Create actual CONNECT frame
 	r := make(chan error)             // Make the error channel fo a write
@@ -107,7 +107,7 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 		return c, e
 	}
 	// We are connected
-	c.rsd = make(chan bool)
+	c.rsd = make(chan bool, 1) // Reader shutdown channel
 	go c.reader()
 	//
 	return c, e
