@@ -119,7 +119,6 @@ func TestConnDiscStompDisc(t *testing.T) {
 	if e != nil {
 		t.Errorf("Expected no disconnect error, got [%v]\n", e)
 	}
-	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
 
@@ -147,7 +146,6 @@ func TestConnDiscStompDiscReceipt(t *testing.T) {
 	if rr != r {
 		t.Errorf("Expected receipt-id [%q], got [%q]\n", r, rr)
 	}
-	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
 
