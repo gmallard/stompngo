@@ -17,7 +17,7 @@
 package stompngo
 
 /*
-	Disconnect from a STOMP broker.  
+	Disconnect from a STOMP broker.
 
 	Shut down heart beats if necessary.
 	Set connection status to false to disable further actions with this
@@ -45,6 +45,12 @@ func (c *Connection) Disconnect(h Headers) error {
 		return e
 	}
 	ch := h.Clone()
+	// Add a receipt request if caller did not ask for one.  This is in the spirit
+	// of the specification, and allows reasonable resource cleanup in both the
+	// client and the message broker.
+	if _, ok := ch.Contains("receipt"); !ok {
+		ch = ch.Add("receipt", Uuid())
+	}
 	//
 	c.connected = false
 	c.rsd <- true
@@ -59,10 +65,8 @@ func (c *Connection) Disconnect(h Headers) error {
 	}
 	// Drive shutdown logic
 	c.shutdown()
-	// Receipt requested
-	if _, ok := ch.Contains("receipt"); ok {
-		c.DisconnectReceipt = <-c.input
-	}
+	// Receipt
+	c.DisconnectReceipt = <-c.input
 	c.log(DISCONNECT, "end")
 	return nil
 }
