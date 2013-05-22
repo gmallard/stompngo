@@ -43,7 +43,7 @@ func (c *Connection) writer() {
 		}
 
 	}
-
+  c.log("writer shutdown")
 }
 
 /*

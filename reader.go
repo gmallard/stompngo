@@ -71,7 +71,7 @@ func (c *Connection) reader() {
 		}
 
 	}
-
+  c.log("reader shutdown")
 }
 
 /*
