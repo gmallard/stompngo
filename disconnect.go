@@ -24,7 +24,9 @@ package stompngo
 	connection.
 
 
-	Obtain a receipt if the client asks for one.
+	Obtain a receipt.  If the client asks for a receipt, use the supplied receipt
+	id.  Otherwise generate a uniqueue receipt id and add that to the DISCONNECT
+	headers.
 
 	Example:
 		h := stompngo.Headers{"receipt", "receipt-id1"} // Ask for a receipt
