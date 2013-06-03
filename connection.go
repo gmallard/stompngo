@@ -120,49 +120,50 @@ func Protocols() []string {
 }
 
 /*
-	Frames Read Count.
+	FramesRead returns a count of the number of frames read on the connection.
 */
 func (c *Connection) FramesRead() int64 {
 	return c.mets.tfr
 }
 
 /*
-	Bytes Read Count.
+	BytesRead returns a count of the number of bytes read on the connection.
 */
 func (c *Connection) BytesRead() int64 {
 	return c.mets.tbr
 }
 
 /*
-	Frames Written Count.
+	FramesWritten returns a count of the number of frames written on the connection.
 */
 func (c *Connection) FramesWritten() int64 {
 	return c.mets.tfw
 }
 
 /*
-	Bytes Written Count.
+	BytesWritten returns a count of the number of bytes written on the connection.
 */
 func (c *Connection) BytesWritten() int64 {
 	return c.mets.tbw
 }
 
 /*
-	Duration since client start.
+	Running returns a time duration since connection start.
 */
 func (c *Connection) Running() time.Duration {
 	return time.Since(c.mets.st)
 }
 
 /*
-	Subscribe channel capacity.
+	SubChanCap returns the current scribe channel capacity.
 */
 func (c *Connection) SubChanCap() int {
 	return c.scc
 }
 
 /*
-	Set Subscribe channel capacity.
+	SetSubChanCap sets a new subscribe channel capacity, to be used during future
+	SUBSCRIBE operations.
 */
 func (c *Connection) SetSubChanCap(nc int) {
 	c.scc = nc
