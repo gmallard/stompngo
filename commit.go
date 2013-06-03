@@ -17,13 +17,13 @@
 package stompngo
 
 /*
-	Commit a STOMP transaction. 
+	Commit a STOMP transaction.
 
 	Headers MUST contain a "transaction" header key
 	with a value that is not an empty string.
 
 	Example:
-		h := stompngo.Commit{"transaction", "transaction-id1"}
+		h := stompngo.Headers{"transaction", "transaction-id1"}
 		e := c.Begin(h)
 		if e != nil {
 			// Do something sane ...
