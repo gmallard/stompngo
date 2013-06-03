@@ -17,7 +17,7 @@
 package stompngo
 
 /*
-	Begin a STOMP transaction. 
+	Begin a STOMP transaction.
 
 	Headers MUST contain a "transaction" header key
 	with a value that is not an empty string.
@@ -35,7 +35,7 @@ func (c *Connection) Begin(h Headers) error {
 	if !c.connected {
 		return ECONBAD
 	}
-	_, e := checkHeaders(h, c)
+	e := checkHeaders(h, c)
 	if e != nil {
 		return e
 	}

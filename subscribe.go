@@ -23,7 +23,7 @@ import (
 var _ = fmt.Println
 
 /*
-	Subscribe to a STOMP subscription.  
+	Subscribe to a STOMP subscription.
 
 	Headers MUST contain a "destination" header key.
 
@@ -53,7 +53,7 @@ func (c *Connection) Subscribe(h Headers) (chan MessageData, error) {
 	if !c.connected {
 		return nil, ECONBAD
 	}
-	_, e := checkHeaders(h, c)
+	e := checkHeaders(h, c)
 	if e != nil {
 		return nil, e
 	}
@@ -79,7 +79,7 @@ func (c *Connection) Subscribe(h Headers) (chan MessageData, error) {
 }
 
 /*
-	Handle subscribe id.  
+	Handle subscribe id.
 */
 func (c *Connection) establishSubscription(h Headers) (chan MessageData, error, Headers) {
 	c.subsLock.Lock()

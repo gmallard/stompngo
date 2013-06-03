@@ -167,20 +167,20 @@ func Uuid() string {
 /*
 	Common Header Validation.
 */
-func checkHeaders(h Headers, c *Connection) (string, error) {
+func checkHeaders(h Headers, c *Connection) error {
 	if h == nil {
-		return "", EHDRNIL
+		return EHDRNIL
 	}
 	if e := h.Validate(); e != nil {
-		return "", e
+		return e
 	}
 	if c.Protocol() != SPL_10 {
-		s, e := h.ValidateUTF8()
+		_, e := h.ValidateUTF8()
 		if e != nil {
-			return s, e
+			return e
 		}
 	}
-	return "", nil
+	return nil
 }
 
 /*

@@ -17,9 +17,9 @@
 package stompngo
 
 /*
-	Unsubscribe from a STOMP subscription. 
+	Unsubscribe from a STOMP subscription.
 
-	Headers MUST contain a "destination" header key, and for Stomp 1.1+, 
+	Headers MUST contain a "destination" header key, and for Stomp 1.1+,
 	a "id" header key per the specifications.  The subscription MUST currently
 	exist for this session.
 
@@ -37,7 +37,7 @@ func (c *Connection) Unsubscribe(h Headers) error {
 	if !c.connected {
 		return ECONBAD
 	}
-	_, e := checkHeaders(h, c)
+	e := checkHeaders(h, c)
 	if e != nil {
 		return e
 	}

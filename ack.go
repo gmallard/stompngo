@@ -17,12 +17,12 @@
 package stompngo
 
 /*
-	Ack a STOMP MESSAGE. 
+	Ack a STOMP MESSAGE.
 
-	For Stomp 1.0 Headers MUST contain a "message-id" header key.  
+	For Stomp 1.0 Headers MUST contain a "message-id" header key.
 
 
-	For Stomp 1.1	Headers must contain a "message-id" key and a "subscription" 
+	For Stomp 1.1	Headers must contain a "message-id" key and a "subscription"
 	header key.
 
 
@@ -44,7 +44,7 @@ func (c *Connection) Ack(h Headers) error {
 	if !c.connected {
 		return ECONBAD
 	}
-	_, e := checkHeaders(h, c)
+	e := checkHeaders(h, c)
 	if e != nil {
 		return e
 	}

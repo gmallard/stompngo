@@ -17,7 +17,7 @@
 package stompngo
 
 /*
-	Send a STOMP MESSAGE.  
+	Send a STOMP MESSAGE.
 
 	Headers MUST contain a "destination" header key.
 
@@ -37,7 +37,7 @@ func (c *Connection) Send(h Headers, b string) error {
 	if !c.connected {
 		return ECONBAD
 	}
-	_, e := checkHeaders(h, c)
+	e := checkHeaders(h, c)
 	if e != nil {
 		return e
 	}

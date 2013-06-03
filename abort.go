@@ -17,7 +17,7 @@
 package stompngo
 
 /*
-	Abort a STOMP transaction.  
+	Abort a STOMP transaction.
 
 	Headers MUST contain a "transaction" header key
 	with a value that is not an empty string.
@@ -34,7 +34,7 @@ func (c *Connection) Abort(h Headers) error {
 	if !c.connected {
 		return ECONBAD
 	}
-	_, e := checkHeaders(h, c)
+	e := checkHeaders(h, c)
 	if e != nil {
 		return e
 	}

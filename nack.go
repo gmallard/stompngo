@@ -23,13 +23,13 @@ import (
 var _ = fmt.Println
 
 /*
-	Nack a STOMP 1.1+ message. 
+	Nack a STOMP 1.1+ message.
 
-	For Stomp 1.1 Headers must contain a "message-id" key and a "subscription" 
+	For Stomp 1.1 Headers must contain a "message-id" key and a "subscription"
 	header key.
 
 
-	For Stomp 1.2 Headers must contain a unique "id" header key.  
+	For Stomp 1.2 Headers must contain a unique "id" header key.
 
 
 	See the specifications at http://stomp.github.com/ for details.
@@ -54,7 +54,7 @@ func (c *Connection) Nack(h Headers) error {
 	if c.Protocol() == SPL_10 {
 		return EBADVERNAK
 	}
-	_, e := checkHeaders(h, c)
+	e := checkHeaders(h, c)
 	if e != nil {
 		return e
 	}
