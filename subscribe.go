@@ -48,7 +48,7 @@ var _ = fmt.Println
 		}
 
 */
-func (c *Connection) Subscribe(h Headers) (chan MessageData, error) {
+func (c *Connection) Subscribe(h Headers) (<-chan MessageData, error) {
 	c.log(SUBSCRIBE, "start")
 	if !c.connected {
 		return nil, ECONBAD
@@ -81,7 +81,7 @@ func (c *Connection) Subscribe(h Headers) (chan MessageData, error) {
 /*
 	Handle subscribe id.
 */
-func (c *Connection) establishSubscription(h Headers) (chan MessageData, error, Headers) {
+func (c *Connection) establishSubscription(h Headers) (<-chan MessageData, error, Headers) {
 	c.subsLock.Lock()
 	defer c.subsLock.Unlock()
 	//
