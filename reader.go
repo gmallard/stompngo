@@ -47,11 +47,8 @@ func (c *Connection) reader() {
 
 		m := Message{f.Command, f.Headers, f.Body}
 		c.mets.tfr += 1 // Total frames read
-		if c.Protocol() > SPL_10 && m.Command != CONNECTED {
-			c.mets.tbr += m.Size(true) // Total bytes read
-		} else {
-			c.mets.tbr += m.Size(false) // Total bytes read
-		}
+		// Headers already decoded
+		c.mets.tbr += m.Size(false) // Total bytes read
 		d := MessageData{m, e}
 		if sid, ok := f.Headers.Contains("subscription"); ok {
 			c.subsLock.Lock()
@@ -71,7 +68,7 @@ func (c *Connection) reader() {
 		}
 
 	}
-  c.log("reader shutdown")
+	c.log("reader shutdown")
 }
 
 /*
@@ -118,13 +115,11 @@ func (c *Connection) readFrame() (f Frame, e error) {
 		//
 		s = s[0 : len(s)-1]
 		p := strings.SplitN(s, ":", 2)
-		k := p[0]
-		v := p[1]
 		if c.Protocol() != SPL_10 && f.Command != CONNECTED {
-			k = decode(k)
-			v = decode(v)
+			p[0] = decode(p[0])
+			p[1] = decode(p[1])
 		}
-		f.Headers = append(f.Headers, k, v)
+		f.Headers = append(f.Headers, p[0], p[1])
 	}
 	// Read f.Body
 	if v, ok := f.Headers.Contains("content-length"); ok {

@@ -43,7 +43,7 @@ func (c *Connection) writer() {
 		}
 
 	}
-  c.log("writer shutdown")
+	c.log("writer shutdown")
 }
 
 /*
@@ -75,13 +75,9 @@ func (c *Connection) wireWrite(d wiredata) {
 	if c.hbd != nil {
 		c.hbd.ls = time.Now().UnixNano() // Latest good send
 	}
-	c.mets.tfw += 1 // Frame written count
-	m := Message(f) // Convert
-	if c.Protocol() > SPL_10 && f.Command != CONNECT {
-		c.mets.tbw += m.Size(true) // Bytes written count
-	} else {
-		c.mets.tbw += m.Size(false) // Bytes written count
-	}
+	c.mets.tfw += 1             // Frame written count
+	m := Message(f)             // Convert
+	c.mets.tbw += m.Size(false) // Bytes written count
 	//
 	d.errchan <- nil
 	return
@@ -105,13 +101,11 @@ func (f *Frame) writeFrame(w *bufio.Writer, l string) error {
 	}
 	// Write the frame Headers
 	for i := 0; i < len(f.Headers); i += 2 {
-		k := f.Headers[i]
-		v := f.Headers[i+1]
 		if l > SPL_10 && f.Command != CONNECT {
-			k = encode(k)
-			v = encode(v)
+			f.Headers[i] = encode(f.Headers[i])
+			f.Headers[i+1] = encode(f.Headers[i+1])
 		}
-		_, e := fmt.Fprintf(w, "%s:%s\n", k, v)
+		_, e := fmt.Fprintf(w, "%s:%s\n", f.Headers[i], f.Headers[i+1])
 		if e != nil {
 			return e
 		}
