@@ -308,7 +308,7 @@ func TestHB11SendReceive(t *testing.T) {
 }
 
 /*
-	Test Connect to 1.1 - Test HeartBeat - Send and Receive - 
+	Test Connect to 1.1 - Test HeartBeat - Send and Receive -
 	Match Apollo defaults.
 */
 func TestHB11SendReceiveApollo(t *testing.T) {
@@ -357,7 +357,7 @@ func TestHB11SendReceiveApollo(t *testing.T) {
 }
 
 /*
-	Test Connect to 1.1+ - Test HeartBeat - Send and Receive - 
+	Test Connect to 1.1+ - Test HeartBeat - Send and Receive -
 	Match reverse of Apollo defaults.
 	Currently skipped for AMQ.
 */

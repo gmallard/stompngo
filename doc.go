@@ -24,9 +24,9 @@
 
 	Network Connect:
 
-	You are responsible for first establishing a network connection.  
+	You are responsible for first establishing a network connection.
 
-	This network connection will be used when you create a stompngo.Connection to 
+	This network connection will be used when you create a stompngo.Connection to
 	interact with the STOMP broker.
 
 		h := "localhost"
