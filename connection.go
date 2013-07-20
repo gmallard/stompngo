@@ -155,7 +155,7 @@ func (c *Connection) Running() time.Duration {
 }
 
 /*
-	SubChanCap returns the current scribe channel capacity.
+	SubChanCap returns the current subscribe channel capacity.
 */
 func (c *Connection) SubChanCap() int {
 	return c.scc
