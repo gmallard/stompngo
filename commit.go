@@ -31,7 +31,7 @@ package stompngo
 
 */
 func (c *Connection) Commit(h Headers) error {
-	c.log(COMMIT, "start")
+	c.log(COMMIT, "start", h)
 	if !c.connected {
 		return ECONBAD
 	}
@@ -46,6 +46,6 @@ func (c *Connection) Commit(h Headers) error {
 		return EREQTIDCOM
 	}
 	e = c.transmitCommon(COMMIT, h) // transmitCommon Clones() the headers
-	c.log(COMMIT, "end")
+	c.log(COMMIT, "end", h)
 	return e
 }

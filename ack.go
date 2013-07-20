@@ -40,7 +40,7 @@ package stompngo
 
 */
 func (c *Connection) Ack(h Headers) error {
-	c.log(ACK, "start")
+	c.log(ACK, "start", h, c.Protocol())
 	if !c.connected {
 		return ECONBAD
 	}
@@ -68,6 +68,6 @@ func (c *Connection) Ack(h Headers) error {
 	}
 
 	e = c.transmitCommon(ACK, h) // transmitCommon Clones() the headers
-	c.log(ACK, "end")
+	c.log(ACK, "end", h, c.Protocol())
 	return e
 }

@@ -68,7 +68,7 @@ func (c *Connection) reader() {
 		}
 
 	}
-	c.log("reader shutdown")
+	c.log("reader shutdown", time.Now())
 }
 
 /*

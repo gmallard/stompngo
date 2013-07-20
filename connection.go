@@ -176,10 +176,9 @@ func (c *Connection) SetSubChanCap(nc int) {
 	Log data if possible.
 */
 func (c *Connection) log(v ...interface{}) {
-	if c.logger == nil {
-		return
+	if c.logger != nil {
+		c.logger.Print(c.session, v)
 	}
-	c.logger.Print(c.session, v)
 	return
 }
 

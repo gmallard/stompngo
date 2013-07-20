@@ -38,7 +38,7 @@ package stompngo
 
 */
 func (c *Connection) Disconnect(h Headers) error {
-	c.log(DISCONNECT, "start")
+	c.log(DISCONNECT, "start", h)
 	if !c.connected {
 		return ECONBAD
 	}
@@ -69,6 +69,6 @@ func (c *Connection) Disconnect(h Headers) error {
 	c.shutdown()
 	// Receipt
 	c.DisconnectReceipt = <-c.input
-	c.log(DISCONNECT, "end")
+	c.log(DISCONNECT, "end", ch, c.DisconnectReceipt)
 	return nil
 }

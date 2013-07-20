@@ -24,9 +24,9 @@ import (
 )
 
 /*
-	Initialize heart beats if necessary and possible.  
+	Initialize heart beats if necessary and possible.
 
-	Return an error, possibly nil, to mainline if initialization can not 
+	Return an error, possibly nil, to mainline if initialization can not
 	complete.  Establish heartbeat send and receive goroutines as necessary.
 */
 func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
@@ -76,12 +76,12 @@ func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
 
 	// Check for sending needed
 	if w.cx == 0 || w.sy == 0 {
-		w.hbs = false // 
+		w.hbs = false //
 	}
 
 	// Check for receiving needed
 	if w.sx == 0 || w.cy == 0 {
-		w.hbr = false // 
+		w.hbr = false //
 	}
 
 	if !w.hbs && !w.hbr {
@@ -146,6 +146,7 @@ func (c *Connection) sendTicker() {
 			break
 		}
 	}
+	c.log("Heartbeat Send Ends", time.Now())
 	return
 }
 
@@ -176,5 +177,6 @@ func (c *Connection) receiveTicker() {
 			break
 		}
 	}
+	c.log("Heartbeat Receive Ends", time.Now())
 	return
 }

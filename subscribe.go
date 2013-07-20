@@ -49,7 +49,7 @@ var _ = fmt.Println
 
 */
 func (c *Connection) Subscribe(h Headers) (<-chan MessageData, error) {
-	c.log(SUBSCRIBE, "start")
+	c.log(SUBSCRIBE, "start", h, c.Protocol())
 	if !c.connected {
 		return nil, ECONBAD
 	}
@@ -74,7 +74,7 @@ func (c *Connection) Subscribe(h Headers) (<-chan MessageData, error) {
 	r := make(chan error)
 	c.output <- wiredata{f, r}
 	e = <-r
-	c.log(SUBSCRIBE, "end")
+	c.log(SUBSCRIBE, "end", ch, c.Protocol())
 	return s, e
 }
 

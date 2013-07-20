@@ -30,7 +30,7 @@ package stompngo
 		}
 */
 func (c *Connection) Abort(h Headers) error {
-	c.log(ABORT, "start")
+	c.log(ABORT, "start", h)
 	if !c.connected {
 		return ECONBAD
 	}
@@ -45,6 +45,6 @@ func (c *Connection) Abort(h Headers) error {
 		return EREQTIDABT
 	}
 	e = c.transmitCommon(ABORT, h) // transmitCommon Clones() the headers
-	c.log(ABORT, "end")
+	c.log(ABORT, "end", h)
 	return e
 }

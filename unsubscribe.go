@@ -33,7 +33,7 @@ package stompngo
 
 */
 func (c *Connection) Unsubscribe(h Headers) error {
-	c.log(UNSUBSCRIBE, "start")
+	c.log(UNSUBSCRIBE, "start", h)
 	if !c.connected {
 		return ECONBAD
 	}
@@ -75,6 +75,6 @@ func (c *Connection) Unsubscribe(h Headers) error {
 		close(c.subs[sid])
 		delete(c.subs, sid)
 	}
-	c.log(UNSUBSCRIBE, "end")
+	c.log(UNSUBSCRIBE, "end", h)
 	return nil
 }

@@ -47,7 +47,7 @@ var _ = fmt.Println
 
 */
 func (c *Connection) Nack(h Headers) error {
-	c.log(NACK, "start")
+	c.log(NACK, "start", h, c.Protocol())
 	if !c.connected {
 		return ECONBAD
 	}
@@ -74,6 +74,6 @@ func (c *Connection) Nack(h Headers) error {
 	}
 
 	e = c.transmitCommon(NACK, h) // transmitCommon Clones() the headers
-	c.log(NACK, "end")
+	c.log(NACK, "end", h, c.Protocol())
 	return e
 }
