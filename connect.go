@@ -92,7 +92,7 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 	c.wsd = make(chan bool, 1)        // Make the writer shutdown channel
 	go c.writer()                     // Start it
 	f := Frame{CONNECT, ch, NULLBUFF} // Create actual CONNECT frame
-	r := make(chan error)             // Make the error channel fo a write
+	r := make(chan error)             // Make the error channel for a write
 	c.output <- wiredata{f, r}        // Send the CONNECT frame
 	e := <-r                          // Retrieve any error
 	//
