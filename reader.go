@@ -45,7 +45,7 @@ func (c *Connection) reader() {
 			break
 		}
 
-		m := Message{f.Command, f.Headers, f.Body}
+		m := Message(f)
 		c.mets.tfr += 1 // Total frames read
 		// Headers already decoded
 		c.mets.tbr += m.Size(false) // Total bytes read
@@ -57,6 +57,8 @@ func (c *Connection) reader() {
 		} else {
 			c.input <- d
 		}
+
+		c.log("RECEIVE", m.Command, m.Headers)
 
 		select {
 		case q = <-c.rsd:

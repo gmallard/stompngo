@@ -122,9 +122,10 @@ func (c *Connection) sendTicker() {
 		select {
 		case ct := <-ticker.C:
 			ld := ct.UnixNano() - c.hbd.ls
-			c.log("HeartBeat send TIC", ct, c.hbd.ls, ld)
+			c.log("HeartBeat Send TIC", "TickerVal", ct.UnixNano(),
+				"LastSend", c.hbd.ls, "Diff", ld)
 			if ld > (c.hbd.sti - (c.hbd.sti / 5)) { // swag minus to be tolerant
-				c.log("HeartBeat send data")
+				c.log("HeartBeat Send data")
 				// Send a heartbeat
 				f := Frame{"\n", Headers{}, NULLBUFF} // Heartbeat frame
 				r := make(chan error)
@@ -161,7 +162,8 @@ func (c *Connection) receiveTicker() {
 		select {
 		case ct := <-ticker.C:
 			ld := ct.UnixNano() - c.hbd.lr
-			c.log("HeartBeat receive TIC", ct, c.hbd.lr, ld)
+			c.log("HeartBeat Receive TIC", "TickerVal", ct.UnixNano(),
+				"LastReceive", c.hbd.lr, "Diff", ld)
 			if ld > (c.hbd.rti + (c.hbd.rti / 5)) { // swag plus to be tolerant
 				c.log("HeartBeat Receive Read is dirty")
 				c.Hbrf = true // Flag possible dirty connection
