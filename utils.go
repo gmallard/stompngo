@@ -106,45 +106,48 @@ func connectResponse(s string) (*Frame, error) {
 	}
 	f.Command = c[0]
 	if f.Command != CONNECTED && f.Command != ERROR {
-		return nil, EUNKFRM
+		return f, EUNKFRM
 	}
-	if c[1] == "\n\x00" {
-		return f, nil
-	}
-	b := strings.SplitN(c[1], "\n\n", 2)
 
-	// Get f.Body
-	if len(b) == 1 { // body is b[0]
-		if !strings.Contains(b[0], "\x00") {
-			return nil, EUNKBDY
+	switch c[1] {
+	case "\x00", "\n": // No headers, malformed bodies
+		f.Body = []uint8(c[1])
+		return f, EBADFRM
+	case "\n\x00": // No headers, no body is OK
+		return f, nil
+	default: // Otherwise continue
+	}
+
+	b := strings.SplitN(c[1], "\n\n", 2)
+	if len(b) == 1 { // No Headers, b[0] == body
+		w := []uint8(b[0])
+		f.Body = w[0 : len(w)-1]
+		if f.Command == CONNECTED && len(f.Body) > 0 {
+			return f, EBDYDATA
 		}
-		f.Body = []uint8(b[0])
 		return f, nil
 	}
-	// body is b[1]
-	if !strings.Contains(b[1], "\x00") {
-		return nil, EUNKBDY
-	}
-	if b[1] == "\x00" {
-		f.Body = make([]uint8, 0)
-	} else {
-		f.Body = []uint8(b[1])
-	}
+
+	// Here:
+	// b[0] - the headers
+	// b[1] - the body
 
 	// Get f.Headers
 	for _, l := range strings.Split(b[0], "\n") {
 		p := strings.SplitN(l, ":", 2)
 		if len(p) < 2 {
-			return nil, EUNKHDR
+			f.Body = []uint8(p[0]) // Bad feedback
+			return f, EUNKHDR
 		}
-		k := p[0]
-		v := p[1]
-		if f.Command == ERROR {
-			k = decode(k)
-			v = decode(v)
-		}
-		f.Headers = append(f.Headers, k, v)
+		f.Headers = append(f.Headers, p[0], p[1])
 	}
+	// get f.Body
+	w := []uint8(b[1])
+	f.Body = w[0 : len(w)-1]
+	if f.Command == CONNECTED && len(f.Body) > 0 {
+		return f, EBDYDATA
+	}
+
 	return f, nil
 }
 

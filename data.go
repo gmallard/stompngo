@@ -151,7 +151,9 @@ const (
 	EUNKFRM = Error("unrecognized frame returned, CONNECT")
 	EBADFRM = Error("Malformed frame")
 	EUNKHDR = Error("currupt frame headers")
-	EUNKBDY = Error("corrupt frame body")
+
+	// No body allowed error
+	EBDYDATA = Error("body data not allowed")
 
 	// Not connected.
 	ECONBAD = Error("no current connection")
