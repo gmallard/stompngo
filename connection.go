@@ -186,6 +186,7 @@ func (c *Connection) log(v ...interface{}) {
 	Shutdown logic.
 */
 func (c *Connection) shutdown() {
+	c.log("SHUTDOWN", "starts")
 	// Shutdown heartbeats if necessary
 	if c.hbd != nil {
 		if c.hbd.hbs {
@@ -197,8 +198,13 @@ func (c *Connection) shutdown() {
 	}
 	// Stop writer go routine
 	c.wsd <- true
-	// We are not connected
-	c.connected = false
+	// Close all individual subscribe channels
+	c.subsLock.Lock()
+	for key := range c.subs {
+		close(c.subs[key])
+	}
+	c.subsLock.Unlock()
+	c.log("SHUTDOWN", "ends")
 	return
 }
 
