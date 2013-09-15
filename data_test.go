@@ -47,7 +47,7 @@ func TestDataFrameBasic(t *testing.T) {
 		t.Errorf("Command, expected: [%v], got [%v]\n", c, f.Command)
 	}
 	if !h.Compare(f.Headers) {
-		t.Errorf("Headers, expected: [true], got [false]\n", h, f.Headers)
+		t.Errorf("Headers, expected: [true], got [false], for [%v] [%v]\n", h, f.Headers)
 	}
 	if s != string(f.Body) {
 		t.Errorf("Body string, expected: [%v], got [%v]\n", s, string(f.Body))
@@ -67,7 +67,7 @@ func TestDataMessageBasic(t *testing.T) {
 		t.Errorf("Command, expected: [%v], got [%v]\n", f, m.Command)
 	}
 	if !h.Compare(m.Headers) {
-		t.Errorf("Headers, expected: [true], got [false]\n", h, m.Headers)
+		t.Errorf("Headers, expected: [true], got [false], for [%v] [%v]\n", h, m.Headers)
 	}
 	if s != m.BodyString() {
 		t.Errorf("Body string, expected: [%v], got [%v]\n", s, m.BodyString())

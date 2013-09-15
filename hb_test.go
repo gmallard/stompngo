@@ -88,13 +88,13 @@ func TestHB11InitErrors(t *testing.T) {
 	h := empty_headers
 	e := c.initializeHeartBeats(h)
 	if e != nil || c.hbd != nil {
-		t.Errorf("Heartbeat error client no client data: %q %q", e, c.hbd)
+		t.Errorf("Heartbeat error client no client data: %v %v", e, c.hbd)
 	}
 	//
 	h = Headers{"heart-beat", "0,0"}
 	e = c.initializeHeartBeats(h)
 	if e != nil || c.hbd != nil {
-		t.Errorf("Heartbeat error client 0,0: %q %q", e, c.hbd)
+		t.Errorf("Heartbeat error client 0,0: %v %v", e, c.hbd)
 	}
 	//
 	crc := c.ConnectResponse.Headers.Delete("heart-beat")
@@ -103,38 +103,38 @@ func TestHB11InitErrors(t *testing.T) {
 	h = Headers{"heart-beat", "1,2,2"}
 	e = c.initializeHeartBeats(h)
 	if e == nil || c.hbd != nil {
-		t.Errorf("Heartbeat error invalid client heart-beat header expected: %q %q", e, c.hbd)
+		t.Errorf("Heartbeat error invalid client heart-beat header expected: %v %v", e, c.hbd)
 	}
 	//
 	h = Headers{"heart-beat", "a,1"}
 	e = c.initializeHeartBeats(h)
 	if e == nil || c.hbd != nil {
-		t.Errorf("Heartbeat error non-numeric cx heartbeat value expected, got nil: %q %q", e, c.hbd)
+		t.Errorf("Heartbeat error non-numeric cx heartbeat value expected, got nil: %v %v", e, c.hbd)
 	}
 	//
 	h = Headers{"heart-beat", "1,b"}
 	e = c.initializeHeartBeats(h)
 	if e == nil || c.hbd != nil {
-		t.Errorf("Heartbeat error non-numeric cy heartbeat value expected, got nil: %q %q", e, c.hbd)
+		t.Errorf("Heartbeat error non-numeric cy heartbeat value expected, got nil: %v %v", e, c.hbd)
 	}
 	//
 	h = Headers{"heart-beat", "100,100"}
 	c.ConnectResponse.Headers = crc.Add("heart-beat", "10,10,10")
 	e = c.initializeHeartBeats(h)
 	if e == nil || c.hbd != nil {
-		t.Errorf("Heartbeat error invalid server heartbeat value expected, got nil: %q %q", e, c.hbd)
+		t.Errorf("Heartbeat error invalid server heartbeat value expected, got nil: %v %v", e, c.hbd)
 	}
 	//
 	c.ConnectResponse.Headers = crc.Add("heart-beat", "a,3")
 	e = c.initializeHeartBeats(h)
 	if e == nil || c.hbd != nil {
-		t.Errorf("Heartbeat error invalid server sx value expected, got nil: %q %q", e, c.hbd)
+		t.Errorf("Heartbeat error invalid server sx value expected, got nil: %v %v", e, c.hbd)
 	}
 	//
 	c.ConnectResponse.Headers = crc.Add("heart-beat", "3,a")
 	e = c.initializeHeartBeats(h)
 	if e == nil || c.hbd != nil {
-		t.Errorf("Heartbeat error invalid server sy value expected, got nil: %q %q", e, c.hbd)
+		t.Errorf("Heartbeat error invalid server sy value expected, got nil: %v %v", e, c.hbd)
 	}
 	//
 	_ = c.Disconnect(empty_headers)
