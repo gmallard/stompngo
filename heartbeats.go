@@ -115,12 +115,15 @@ func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
 	The heart beat send ticker.
 */
 func (c *Connection) sendTicker() {
-	ticker := time.NewTicker(time.Duration(c.hbd.sti))
 	q := false
 	c.hbd.sc = 0
+	var first, last int64
 	for {
+		ticker := time.NewTicker(time.Duration(c.hbd.sti - (last - first)))
 		select {
 		case ct := <-ticker.C:
+			first = time.Now().UnixNano()
+			ticker.Stop()
 			ld := ct.UnixNano() - c.hbd.ls
 			c.log("HeartBeat Send TIC", "TickerVal", ct.UnixNano(),
 				"LastSend", c.hbd.ls, "Diff", ld)
@@ -139,8 +142,8 @@ func (c *Connection) sendTicker() {
 					c.hbd.sc += 1
 				}
 			}
+			last = time.Now().UnixNano()
 		case q = <-c.hbd.ssd:
-			ticker.Stop()
 			break
 		}
 		if q {
@@ -155,12 +158,15 @@ func (c *Connection) sendTicker() {
 	The heart beat receive ticker.
 */
 func (c *Connection) receiveTicker() {
-	ticker := time.NewTicker(time.Duration(c.hbd.rti))
 	q := false
 	c.hbd.rc = 0
+	var first, last int64
 	for {
+		ticker := time.NewTicker(time.Duration(c.hbd.rti - (last - first)))
 		select {
 		case ct := <-ticker.C:
+			first = time.Now().UnixNano()
+			ticker.Stop()
 			ld := ct.UnixNano() - c.hbd.lr
 			c.log("HeartBeat Receive TIC", "TickerVal", ct.UnixNano(),
 				"LastReceive", c.hbd.lr, "Diff", ld)
@@ -171,8 +177,8 @@ func (c *Connection) receiveTicker() {
 				c.Hbrf = false // Reset
 				c.hbd.rc += 1
 			}
+			last = time.Now().UnixNano()
 		case q = <-c.hbd.rsd:
-			ticker.Stop()
 			break
 		}
 		if q {
