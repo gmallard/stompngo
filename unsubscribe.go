@@ -41,25 +41,25 @@ func (c *Connection) Unsubscribe(h Headers) error {
 	if e != nil {
 		return e
 	}
-	if _, ok := h.Contains("destination"); !ok {
-		return EREQDSTUNS
-	}
-	//	ch := h.Clone()
 
 	c.subsLock.Lock()
 	defer c.subsLock.Unlock()
 	//
-	sid, ok := h.Contains("id")
+	_, okd := h.Contains("destination")
+	sid, oki := h.Contains("id")
+	if !okd && !oki {
+		return EREQDOIUNS
+	}
 
 	switch c.Protocol() {
 	case SPL_10:
-		if ok { // User specified 'id'
+		if oki { // User specified 'id'
 			if _, p := c.subs[sid]; !p { // subscription does not exist
 				return EBADSID
 			}
 		}
 	default:
-		if !ok {
+		if !oki {
 			return EUNOSID
 		}
 		if _, p := c.subs[sid]; !p { // subscription does not exist
@@ -71,7 +71,7 @@ func (c *Connection) Unsubscribe(h Headers) error {
 	if e != nil {
 		return e
 	}
-	if ok {
+	if oki {
 		close(c.subs[sid])
 		delete(c.subs, sid)
 	}

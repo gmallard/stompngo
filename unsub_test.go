@@ -25,26 +25,32 @@ type unsubData struct {
 	e error
 }
 
-var unsubListNoSub = []unsubData{
-	{SPL_10, EREQDSTUNS},
-	{SPL_11, EREQDSTUNS},
+var unsubListNoHdr = []unsubData{
+	{SPL_10, EREQDOIUNS},
+	{SPL_11, EREQDOIUNS},
+	{SPL_12, EREQDOIUNS},
 }
 
 var unsubBadId = []unsubData{
-	{SPL_10, EBADSID},
 	{SPL_11, EBADSID},
+	{SPL_12, EBADSID},
+}
+
+var unsubNoId = []unsubData{
+	{SPL_11, EUNOSID},
+	{SPL_12, EUNOSID},
 }
 
 /*
 	Test Unsubscribe, no destination.
 */
-func TestUnsubNoSub(t *testing.T) {
+func TestUnsubNoHdr(t *testing.T) {
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
 	//
 	h := empty_headers
-	for i, l := range unsubListNoSub {
+	for i, l := range unsubListNoHdr {
 		c.protocol = l.p
 		// Unsubscribe, no dest
 		e := c.Unsubscribe(h)
@@ -67,18 +73,19 @@ func TestUnsubNoId(t *testing.T) {
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
-	c.protocol = SPL_11
 	//
 	h := Headers{"destination", "/queue/unsub.noid"}
-	// Unsubscribe, no id
-	e := c.Unsubscribe(h)
-	if e == nil {
-		t.Errorf("Expected unsubscribe error, got [nil]\n")
+	for i, l := range unsubNoId {
+		c.protocol = l.p
+		// Unsubscribe, no id at all
+		e := c.Unsubscribe(h)
+		if e == nil {
+			t.Errorf("Expected unsubscribe error, entry [%d], got [nil]\n", i)
+		}
+		if e != l.e {
+			t.Errorf("Unsubscribe error, entry [%d], expected [%v], got [%v]\n", i, l.e, e)
+		}
 	}
-	if e != EUNOSID {
-		t.Errorf("Unsubscribe error, expected [%v], got [%v]\n", EUNOSID, e)
-	}
-	//
 	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
