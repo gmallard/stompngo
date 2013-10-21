@@ -161,14 +161,14 @@ const (
 	// Destination required
 	EREQDSTSND = Error("destination required, SEND")
 	EREQDSTSUB = Error("destination required, SUBSCRIBE")
-	EREQDOIUNS = Error("destination or id required, UNSUBSCRIBE")
+	EREQDIMUNS = Error("destination, id or message-id required, UNSUBSCRIBE")
 
 	// Message ID required.
 	EREQMIDACK = Error("message-id required, ACK") // 1.0, 1.1
 	EREQIDACK  = Error("id required, ACK")         // 1.2
 
-	// Subscription required (STOMP 1.1).
-	EREQSUBACK = Error("subscription required, ACK")
+	// Subscription required.
+	EREQSUBACK = Error("subscription required, ACK") // 1.0, 1.1
 
 	// NACK's.  STOMP 1.1 or greater.
 	EREQMIDNAK = Error("message-id required, NACK")   // 1.1
@@ -185,7 +185,8 @@ const (
 	EBADSID = Error("invalid subscription-id")
 
 	// Unscubscribe error.
-	EUNOSID = Error("id required, UNSUBSCRIBE")
+	EUNOID = Error("id required, UNSUBSCRIBE")
+	EUNOSID = Error("subscription required, UNSUBSCRIBE")
 
 	// Unsupported version error.
 	EBADVERCLI = Error("unsupported protocol version, client")

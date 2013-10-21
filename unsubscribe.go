@@ -47,24 +47,37 @@ func (c *Connection) Unsubscribe(h Headers) error {
 	//
 	_, okd := h.Contains("destination")
 	sid, oki := h.Contains("id")
-	if !okd && !oki {
-		return EREQDOIUNS
+	_, okm := h.Contains("message-id")
+	if !okd && !oki && !okm {
+		return EREQDIMUNS
 	}
 
 	switch c.Protocol() {
-	case SPL_10:
-		if oki { // User specified 'id'
-			if _, p := c.subs[sid]; !p { // subscription does not exist
-				return EBADSID
-			}
-		}
-	default:
+	case SPL_12:
 		if !oki {
 			return EUNOSID
 		}
 		if _, p := c.subs[sid]; !p { // subscription does not exist
 			return EBADSID
 		}
+	case SPL_11:
+		if !oki {
+			return EUNOSID
+		}
+		if _, p := c.subs[sid]; !p { // subscription does not exist
+			return EBADSID
+		}
+	case SPL_10:
+		if !okd {
+			return EUNOSID
+		}
+		if oki { // User specified 'id'
+			if _, p := c.subs[sid]; !p { // subscription does not exist
+				return EBADSID
+			}
+		}
+	default:
+		panic("unsubscribe version not supported")
 	}
 
 	e = c.transmitCommon(UNSUBSCRIBE, h) // transmitCommon Clones() the headers
