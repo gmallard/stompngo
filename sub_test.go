@@ -17,8 +17,11 @@
 package stompngo
 
 import (
+	"fmt"
+	//  "log"
 	"os"
 	"testing"
+	"time"
 )
 
 /*
@@ -72,61 +75,123 @@ func TestSubNoIdOnce(t *testing.T) {
 }
 
 /*
-	Test subscribe, no ID, twice to same destination.
+	Test subscribe, no ID, twice to same destination, protocol level 1.0.
 */
-func TestSubNoIdTwice(t *testing.T) {
+func TestSubNoIdTwice10(t *testing.T) {
+	if os.Getenv("STOMP_TEST11p") != "" {
+		fmt.Println("TestSubNoIdTwice10 norun")
+		return
+	}
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
+	//	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
+	//	c.SetLogger(l)
 	//
-	d := "/queue/subunsub.genl.02"
+	if c.Protocol() != SPL_10 {
+		t.Errorf("Protocol error, got [%v], expected [%v]\n", c.Protocol(), SPL_10)
+	}
+	//
+	d := "/queue/subdup.p10.01"
 	h := Headers{"destination", d}
 	// First time
-	c.protocol = SPL_10 // force
-	s, e := c.Subscribe(h)
+	s1, e := c.Subscribe(h)
 	if e != nil {
-		t.Errorf("Expected no subscribe error, got [%v]\n", e)
+		t.Errorf("Expected no subscribe error (T1), got [%v]\n", e)
 	}
-	if s == nil {
-		t.Errorf("Expected subscribe channel, got [nil]\n")
+	if s1 == nil {
+		t.Errorf("Expected subscribe channel (T1), got [nil]\n")
 	}
+	time.Sleep(500 * time.Millisecond) // give a broker a break
 	select {
+	case v := <-s1:
+		t.Logf("Unexpected frame received (T1), got [%v]\n", v)
 	case v := <-c.MessageData:
-		t.Errorf("Unexpected frame received, got [%v]\n", v)
+		t.Logf("Unexpected frame received (T1), got [%v]\n", v)
 	default:
 	}
 	// Second time
-	s, e = c.Subscribe(h)
+	s2, e := c.Subscribe(h)
 	if e == EDUPSID {
-		t.Errorf("Expected no subscribe error, got [%v]\n", e)
+		t.Errorf("Expected no subscribe error (T2), got [%v]\n", e)
 	}
 	if e != nil {
-		t.Errorf("Expected no subscribe error, got [%v]\n", e)
+		t.Errorf("Expected no subscribe error (T2), got [%v]\n", e)
 	}
-	if s == nil {
-		t.Errorf("Expected subscribe channel, got nil\n")
+	if s2 == nil {
+		t.Errorf("Expected subscribe channel (T2), got nil\n")
 	}
+	time.Sleep(500 * time.Millisecond) // give a broker a break
+	// Stomp 1.0 brokers are allowed significant latitude regarding a response
+	// to a duplicate subscription request.  Currently, only do these checks for
+	// brokers other than AMQ.  AMQ does not return an ERROR frame for duplicate
+	// subscriptions.
+	// Apollo and RabbitMQ both return an ERROR frame *and* tear down the
+	// connection.
+	if os.Getenv("STOMP_APOLLO") != "" || os.Getenv("STOMP_RMQ") != "" {
+		// fmt.Println("s2check runs ....", c.Connected())
+		select {
+		case v := <-s2:
+			t.Logf("Server frame received (T2), got [%v] [%v] [%v] [%s]\n",
+				v.Message.Command, v.Error, v.Message.Headers, string(v.Message.Body))
+		case v := <-c.MessageData:
+			t.Logf("Server frame received (T2), got [%v] [%v] [%v] [%s]\n",
+				v.Message.Command, v.Error, v.Message.Headers, string(v.Message.Body))
+		default:
+		}
+	}
+	// RabbitMQ behavior means the client side connection is no longer usable.
+	if os.Getenv("STOMP_RMQ") == "" {
+		_ = c.Disconnect(empty_headers)
+		_ = closeConn(t, n)
+	}
+}
 
-	c.protocol = SPL_11
-	s, e = c.Subscribe(h) // This will work
-	s, e = c.Subscribe(h) // This should not
-	// 1.1+ errors
-	if e == nil {
-		t.Errorf("Expected subscribe twice  error, got [nil]\n")
+/*
+	Test subscribe, no ID, twice to same destination, protocol level 1.1+.
+*/
+func TestSubNoIdTwice11p(t *testing.T) {
+	if os.Getenv("STOMP_TEST11p") == "" {
+		fmt.Println("TestSubNoIdTwice11p norun")
+		return
 	}
-	if e != EDUPSID {
-		t.Errorf("Subscribe twice error, expected [%v], got [%v]\n", EDUPSID, e)
-	}
-	if s != nil {
-		t.Errorf("Expected nil subscribe channel, got [%v]\n", s)
-	}
+	n, _ := openConn(t)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
 
+	d := "/queue/subdup.p11.01"
+	u := "TestSubNoIdTwice11p"
+	h := Headers{"destination", d, "id", u}
+	// First time
+	s1, e := c.Subscribe(h)
+	if e != nil {
+		t.Errorf("Expected no subscribe error (T1), got [%v]\n", e)
+	}
+	if s1 == nil {
+		t.Errorf("Expected subscribe channel (T1), got [nil]\n")
+	}
+	time.Sleep(500 * time.Millisecond) // give a broker a break
 	select {
+	case v := <-s1:
+		t.Logf("Unexpected frame received (T1), got [%v]\n", v)
 	case v := <-c.MessageData:
-		t.Errorf("Unexpected frame received, got [%v]\n", v)
+		t.Logf("Unexpected frame received (T1), got [%v]\n", v)
 	default:
 	}
-	//
+
+	// Second time.  The stompngo package maintains a list of all current
+	// subscription ids.  An attempt to subscribe using an existing id is
+	// immediately rejected by the package (never actually sent to the broker).
+	s2, e := c.Subscribe(h)
+	if e == nil {
+		t.Errorf("Expected subscribe error (T2), got [nil]\n")
+	}
+	if e != EDUPSID {
+		t.Errorf("Expected subscribe error (T2), [%v] got [%v]\n", EDUPSID, e)
+	}
+	if s2 != nil {
+		t.Errorf("Expected nil subscribe channel (T1), got [%v]\n", s2)
+	}
 	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
