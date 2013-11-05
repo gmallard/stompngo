@@ -18,7 +18,7 @@ package stompngo
 
 import (
 	"fmt"
-	//  "log"
+	//"log"
 	"os"
 	"testing"
 	"time"
@@ -85,8 +85,8 @@ func TestSubNoIdTwice10(t *testing.T) {
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
-	//	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
-	//	c.SetLogger(l)
+	//l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
+	//c.SetLogger(l)
 	//
 	if c.Protocol() != SPL_10 {
 		t.Errorf("Protocol error, got [%v], expected [%v]\n", c.Protocol(), SPL_10)
@@ -140,8 +140,9 @@ func TestSubNoIdTwice10(t *testing.T) {
 		default:
 		}
 	}
-	// RabbitMQ behavior means the client side connection is no longer usable.
-	if os.Getenv("STOMP_RMQ") == "" {
+	// For both Apollo and RabbitMQ, the connection teardown by the server can 
+	// mean the client side connection is no longer usable.
+	if os.Getenv("STOMP_APOLLO") == "" && os.Getenv("STOMP_RMQ") == "" {
 		_ = c.Disconnect(empty_headers)
 		_ = closeConn(t, n)
 	}
