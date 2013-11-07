@@ -169,15 +169,3 @@ func badVerHostAndPort() (string, string) {
 	}
 	return h, p
 }
-
-/*
-	Test connect response frame data.
-*/
-func TestConnRespData(t *testing.T) {
-	for i, f := range frames {
-		_, e := connectResponse(f.data)
-		if e != f.resp {
-			t.Errorf("Index [%v], expected [%v], got [%v]\n", i, f.resp, e)
-		}
-	}
-}

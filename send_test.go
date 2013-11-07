@@ -24,6 +24,9 @@ import (
 	Test Send Basic, one message.
 */
 func TestSendBasic(t *testing.T) {
+
+	t.Parallel()
+
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
@@ -53,6 +56,9 @@ func TestSendBasic(t *testing.T) {
 	Test Send Multiple, multiple messages, 5 to be exact.
 */
 func TestSendMultiple(t *testing.T) {
+
+	t.Parallel()
+
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)

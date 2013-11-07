@@ -40,6 +40,7 @@ var verChecks = []verData{
 	ConnDisc Test: net.Conn.
 */
 func TestConnDiscNetconn(t *testing.T) {
+	t.Parallel()
 	n, _ := openConn(t)
 	_ = closeConn(t, n)
 }
@@ -48,6 +49,7 @@ func TestConnDiscNetconn(t *testing.T) {
 	ConnDisc Test: stompngo.Connect.
 */
 func TestConnDiscStompConn(t *testing.T) {
+	t.Parallel()
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, e := Connect(n, ch)
@@ -112,6 +114,7 @@ func TestConnDiscStompConn(t *testing.T) {
 	ConnDisc Test: stompngo.Disconnect.
 */
 func TestConnDiscStompDisc(t *testing.T) {
+	t.Parallel()
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
@@ -126,6 +129,7 @@ func TestConnDiscStompDisc(t *testing.T) {
 	ConnDisc Test: stompngo.Disconnect with receipt requested.
 */
 func TestConnDiscStompDiscReceipt(t *testing.T) {
+	t.Parallel()
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
@@ -153,6 +157,7 @@ func TestConnDiscStompDiscReceipt(t *testing.T) {
 	ConnDisc Test: Body Length of CONNECTED response.
 */
 func TestConnBodyLen(t *testing.T) {
+	t.Parallel()
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 
@@ -171,6 +176,7 @@ func TestConnBodyLen(t *testing.T) {
 	Conn11 Test: Test 1.1+ Connection.
 */
 func TestConn11p(t *testing.T) {
+	t.Parallel()
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, e := Connect(n, ch)
@@ -202,6 +208,7 @@ func TestConn11p(t *testing.T) {
 	Conn11Receipt Test: Test receipt not allowed on connect.
 */
 func TestConn11Receipt(t *testing.T) {
+	t.Parallel()
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	nch := ch.Add("receipt", "abcd1234")
@@ -219,6 +226,7 @@ func TestConn11Receipt(t *testing.T) {
 	ConnDisc Test: ECONBAD
 */
 func TestEconBad(t *testing.T) {
+	t.Parallel()
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, e := Connect(n, ch)
@@ -267,6 +275,7 @@ func TestEconBad(t *testing.T) {
 	ConnDisc Test: setProtocolLevel
 */
 func TestSetProtocolLevel(t *testing.T) {
+	t.Parallel()
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
@@ -281,4 +290,19 @@ func TestSetProtocolLevel(t *testing.T) {
 	//
 	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
+}
+
+/*
+	ConnDisc Test: connRespData
+*/
+func TestConnRespData(t *testing.T) {
+
+	t.Parallel()
+
+	for i, f := range frames {
+		_, e := connectResponse(f.data)
+		if e != f.resp {
+			t.Errorf("Index [%v], expected [%v], got [%v]\n", i, f.resp, e)
+		}
+	}
 }

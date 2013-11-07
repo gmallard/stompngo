@@ -38,6 +38,7 @@ var suptests = []supdata{
 	Data Test: Frame Basic.
 */
 func TestDataFrameBasic(t *testing.T) {
+	t.Parallel()
 	c := CONNECT
 	h := Headers{"keya", "valuea"}
 	s := "The Message Body"
@@ -58,6 +59,7 @@ func TestDataFrameBasic(t *testing.T) {
 	Data Test: Message Basic.
 */
 func TestDataMessageBasic(t *testing.T) {
+	t.Parallel()
 	f := CONNECT
 	h := Headers{"keya", "valuea"}
 	s := "The Message Body"
@@ -78,6 +80,7 @@ func TestDataMessageBasic(t *testing.T) {
 	Data Test: protocols.
 */
 func TestDataprotocols(t *testing.T) {
+	t.Parallel()
 	l := SPL_10
 	if !Supported(l) {
 		t.Errorf("Expected: [true], got: [false] for protocol level %v\n", l)
@@ -107,6 +110,7 @@ func TestDataprotocols(t *testing.T) {
 	Data test: Protocols.
 */
 func TestDataProtocols(t *testing.T) {
+	t.Parallel()
 	s := Protocols()
 	for i, p := range s {
 		if supported[i] != p {
@@ -119,6 +123,7 @@ func TestDataProtocols(t *testing.T) {
 	Data test: Error.
 */
 func TestDataError(t *testing.T) {
+	t.Parallel()
 	s := "An error string"
 	e := Error(s)
 	if s != e.Error() {
@@ -130,6 +135,7 @@ func TestDataError(t *testing.T) {
 	Data Test: Message Size.
 */
 func TestDataMessageSize(t *testing.T) {
+	t.Parallel()
 	f := CONNECT
 	h := Headers{"keya", "valuea"}
 	s := "The Message Body"

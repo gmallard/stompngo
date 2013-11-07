@@ -28,6 +28,9 @@ func TestShovel11(t *testing.T) {
 	if os.Getenv("STOMP_TEST11p") == "" {
 		t.Skip("Test11Shovel norun, need 1.1+")
 	}
+
+	t.Parallel()
+
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)

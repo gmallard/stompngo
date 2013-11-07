@@ -27,6 +27,9 @@ import (
 	Test Subscribe, no destination.
 */
 func TestSubNoSub(t *testing.T) {
+
+	t.Parallel()
+
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
@@ -49,6 +52,9 @@ func TestSubNoSub(t *testing.T) {
 	Test subscribe, no ID.
 */
 func TestSubNoIdOnce(t *testing.T) {
+
+	t.Parallel()
+
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
@@ -80,6 +86,9 @@ func TestSubNoIdTwice10(t *testing.T) {
 	if os.Getenv("STOMP_TEST11p") != "" {
 		t.Skip("TestSubNoIdTwice10 norun, need 1.1+")
 	}
+
+	t.Parallel()
+
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
@@ -153,6 +162,9 @@ func TestSubNoIdTwice11p(t *testing.T) {
 	if os.Getenv("STOMP_TEST11p") == "" {
 		t.Skip("TestSubNoIdTwice11p norun, need 1.1+")
 	}
+
+	t.Parallel()
+
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
@@ -198,6 +210,9 @@ func TestSubNoIdTwice11p(t *testing.T) {
 	Test send, subscribe, read, unsubscribe.
 */
 func TestSubUnsubBasic(t *testing.T) {
+
+	t.Parallel()
+
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
@@ -246,6 +261,9 @@ func TestSubUnsubBasic10(t *testing.T) {
 	if os.Getenv("STOMP_TEST11p") != "" {
 		t.Skip("TestSubUnsubBasic10 norun, need 1.1+")
 	}
+
+	t.Parallel()
+
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
@@ -286,6 +304,9 @@ func TestSubUnsubBasic10(t *testing.T) {
 	Test establishSubscription.
 */
 func TestSubestablishSubscription(t *testing.T) {
+
+	t.Parallel()
+
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
@@ -312,6 +333,9 @@ func TestSubSetCap(t *testing.T) {
 	if os.Getenv("STOMP_TEST11p") == "" {
 		t.Skip("TestSubSetCap norun, need 1.1+")
 	}
+
+	t.Parallel()
+
 	//
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)

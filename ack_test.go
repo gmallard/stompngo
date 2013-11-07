@@ -65,6 +65,8 @@ func checkAckErrors(t *testing.T, p string, e error, s bool) {
 */
 func TestAckErrors(t *testing.T) {
 
+	t.Parallel()
+
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
@@ -93,10 +95,11 @@ func TestAckErrors(t *testing.T) {
 */
 func TestAckSameConn(t *testing.T) {
 
+	t.Parallel()
+
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
-
 	// Basic headers
 	h := Headers{"destination", TEST_TDESTPREF + "acksc1-" + c.Protocol()}
 	m := "acksc1 message 1"
@@ -173,10 +176,11 @@ func TestAckSameConn(t *testing.T) {
 */
 func TestAckDiffConn(t *testing.T) {
 
+	t.Parallel()
+
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
-
 	// Basic headers
 	h := Headers{"destination", TEST_TDESTPREF + "ackdc1-" + c.Protocol()}
 	m := "ackdc1 message 1"

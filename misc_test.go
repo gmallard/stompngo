@@ -24,6 +24,7 @@ import (
 	Test A zero Byte Message, a corner case.
 */
 func TestBytes0(t *testing.T) {
+	t.Parallel()
 	// Write phase
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
@@ -75,6 +76,7 @@ func TestBytes0(t *testing.T) {
 	Test A One Byte Message, a corner case.
 */
 func TestBytes1(t *testing.T) {
+	t.Parallel()
 	// Write phase
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
@@ -126,6 +128,7 @@ func TestBytes1(t *testing.T) {
 	Test nil Headers.
 */
 func TestNilHeaders(t *testing.T) {
+	t.Parallel()
 	n, _ := openConn(t)
 	//
 	_, e := Connect(n, nil)
@@ -191,6 +194,7 @@ func TestNilHeaders(t *testing.T) {
 Test max function.
 */
 func TestMax(t *testing.T) {
+	t.Parallel()
 	var s int64 = 1
 	var l int64 = 2
 	r := max(s, l)
@@ -207,6 +211,7 @@ func TestMax(t *testing.T) {
 Test hasValue function.
 */
 func TestHasValue(t *testing.T) {
+	t.Parallel()
 	a := []string{"a", "b"}
 	if !hasValue(a, "a") {
 		t.Errorf("Expected [true], got [false] for [%v]\n", "a")
@@ -220,6 +225,7 @@ func TestHasValue(t *testing.T) {
 Test Uuid function.
 */
 func TestUuid(t *testing.T) {
+	t.Parallel()
 	u := Uuid()
 	if u == "" {
 		t.Errorf("Expected a UUID, got empty string\n")
@@ -233,6 +239,7 @@ func TestUuid(t *testing.T) {
 	Test Bad Headers
 */
 func TestBadHeaders(t *testing.T) {
+	t.Parallel()
 	//
 	n, _ := openConn(t)
 	neh := Headers{"a", "b", "c"}

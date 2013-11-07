@@ -45,6 +45,9 @@ var unsubNoId = []unsubData{
 	Test Unsubscribe, no destination.
 */
 func TestUnsubNoHdr(t *testing.T) {
+
+	t.Parallel()
+
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
@@ -70,6 +73,9 @@ func TestUnsubNoHdr(t *testing.T) {
 	Test Unsubscribe, no ID.
 */
 func TestUnsubNoId(t *testing.T) {
+
+	t.Parallel()
+
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
@@ -94,6 +100,9 @@ func TestUnsubNoId(t *testing.T) {
 	Test Unsubscribe, bad ID.
 */
 func TestUnsubBadId(t *testing.T) {
+
+	t.Parallel()
+
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)

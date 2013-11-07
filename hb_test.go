@@ -27,6 +27,9 @@ import (
 	HB Test: 1.0.
 */
 func TestHB10(t *testing.T) {
+
+	t.Parallel()
+
 	n, _ := openConn(t)
 	c, _ := Connect(n, TEST_HEADERS)
 	if c.hbd != nil {
@@ -40,6 +43,9 @@ func TestHB10(t *testing.T) {
 	HB Test: 1.1 No HB Header.
 */
 func TestHB11NoHeader(t *testing.T) {
+
+	t.Parallel()
+
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
@@ -58,6 +64,9 @@ func TestHB11NoHeader(t *testing.T) {
 	HB Test: 1.1 Zero HB Header.
 */
 func TestHB11ZeroHeader(t *testing.T) {
+
+	t.Parallel()
+
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch.Add("heart-beat", "0,0"))
@@ -76,6 +85,9 @@ func TestHB11ZeroHeader(t *testing.T) {
 	HB Test: 1.1 Initialization Errors.
 */
 func TestHB11InitErrors(t *testing.T) {
+
+	t.Parallel()
+
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
@@ -147,6 +159,9 @@ func TestHB11Connect(t *testing.T) {
 	if os.Getenv("STOMP_TEST11p") == "" {
 		t.Skip("TestHB11Connect norun, need 1.1+")
 	}
+
+	t.Parallel()
+
 	//
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
