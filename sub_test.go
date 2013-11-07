@@ -17,7 +17,6 @@
 package stompngo
 
 import (
-	"fmt"
 	//"log"
 	"os"
 	"testing"
@@ -79,8 +78,7 @@ func TestSubNoIdOnce(t *testing.T) {
 */
 func TestSubNoIdTwice10(t *testing.T) {
 	if os.Getenv("STOMP_TEST11p") != "" {
-		fmt.Println("TestSubNoIdTwice10 norun")
-		return
+		t.Skip("TestSubNoIdTwice10 norun, need 1.1+")
 	}
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
@@ -140,7 +138,7 @@ func TestSubNoIdTwice10(t *testing.T) {
 		default:
 		}
 	}
-	// For both Apollo and RabbitMQ, the connection teardown by the server can 
+	// For both Apollo and RabbitMQ, the connection teardown by the server can
 	// mean the client side connection is no longer usable.
 	if os.Getenv("STOMP_APOLLO") == "" && os.Getenv("STOMP_RMQ") == "" {
 		_ = c.Disconnect(empty_headers)
@@ -153,8 +151,7 @@ func TestSubNoIdTwice10(t *testing.T) {
 */
 func TestSubNoIdTwice11p(t *testing.T) {
 	if os.Getenv("STOMP_TEST11p") == "" {
-		fmt.Println("TestSubNoIdTwice11p norun")
-		return
+		t.Skip("TestSubNoIdTwice11p norun, need 1.1+")
 	}
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
@@ -247,8 +244,7 @@ func TestSubUnsubBasic(t *testing.T) {
 */
 func TestSubUnsubBasic10(t *testing.T) {
 	if os.Getenv("STOMP_TEST11p") != "" {
-		println("TestSubUnsubBasic10 norun")
-		return
+		t.Skip("TestSubUnsubBasic10 norun, need 1.1+")
 	}
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
@@ -314,8 +310,7 @@ func TestSubestablishSubscription(t *testing.T) {
 */
 func TestSubSetCap(t *testing.T) {
 	if os.Getenv("STOMP_TEST11p") == "" {
-		println("TestSubSetCap norun")
-		return
+		t.Skip("TestSubSetCap norun, need 1.1+")
 	}
 	//
 	n, _ := openConn(t)

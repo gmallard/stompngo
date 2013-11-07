@@ -17,7 +17,6 @@
 package stompngo
 
 import (
-	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -70,8 +69,7 @@ func TestCodecDecodeBasic(t *testing.T) {
 */
 func TestCodec11SendRecvCodec(t *testing.T) {
 	if os.Getenv("STOMP_TEST11p") == "" {
-		fmt.Println("Test11SendRecvCodec norun")
-		return
+		t.Skip("Test11SendRecvCodec norun")
 	}
 	//
 	n, _ := openConn(t)

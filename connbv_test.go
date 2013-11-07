@@ -17,7 +17,6 @@
 package stompngo
 
 import (
-	"fmt"
 	"net"
 	"os"
 	"testing"
@@ -27,13 +26,8 @@ import (
 	ConnBadVer Test: Bad Version One.
 */
 func TestConnBadVer10One(t *testing.T) {
-	if os.Getenv("STOMP_TESTBV") == "" { // Want bad version check? (Know what you are doing...)
-		fmt.Println("TestConnBadVer10One norun STOMP_TESTBV")
-		return
-	}
-	if os.Getenv("STOMP_TEST11p") != "" { // Want bad version check? (Know what you are doing...)
-		fmt.Println("TestConnBadVer10One norun STOMP_TEST11p")
-		return
+	if true {
+		t.Skip("TestConnBadVer10One no 1.0 only servers available")
 	}
 	h, p := badVerHostAndPort()
 	n, e := net.Dial("tcp", net.JoinHostPort(h, p))
@@ -53,12 +47,10 @@ func TestConnBadVer10One(t *testing.T) {
 */
 func TestConnBadVer10Two(t *testing.T) {
 	if os.Getenv("STOMP_TESTBV") == "" { // Want bad version check? (Know what you are doing...)
-		fmt.Println("TestConnBadVer10Two norun STOMP_TESTBV")
-		return
+		t.Skip("TestConnBadVer10Two norun, set STOMP_TESTBV")
 	}
 	if os.Getenv("STOMP_TEST11p") != "" { // Want bad version check? (Know what you are doing...)
-		fmt.Println("TestConnBadVer10Two norun STOMP_TEST11p")
-		return
+		t.Skip("TestConnBadVer10Two norun, set STOMP_TEST11p")
 	}
 	h, p := badVerHostAndPort()
 	n, e := net.Dial("tcp", net.JoinHostPort(h, p))
@@ -81,12 +73,10 @@ func TestConnBadVer10Two(t *testing.T) {
 */
 func TestConnBadVer10Three(t *testing.T) {
 	if os.Getenv("STOMP_TESTBV") == "" { // Want bad version check? (Know what you are doing...)
-		fmt.Println("TestConnBadVer10Three norun STOMP_TESTBV")
-		return
+		t.Skip("TestConnBadVer10Three norun, set STOMP_TESTBV")
 	}
 	if os.Getenv("STOMP_TEST11p") != "" { // Want bad version check? (Know what you are doing...)
-		fmt.Println("TestConnBadVer10Three norun STOMP_TEST11p")
-		return
+		t.Skip("TestConnBadVer10Three norun, set STOMP_TEST11p")
 	}
 	h, p := badVerHostAndPort()
 	n, e := net.Dial("tcp", net.JoinHostPort(h, p))

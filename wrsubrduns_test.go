@@ -17,18 +17,16 @@
 package stompngo
 
 import (
-	"fmt"
 	"os"
 	"testing"
 )
 
 /*
-	Test a Stomp 1.1 shovel.
+	Test a Stomp 1.1+ shovel.
 */
 func TestShovel11(t *testing.T) {
 	if os.Getenv("STOMP_TEST11p") == "" {
-		fmt.Println("Test11Shovel norun")
-		return
+		t.Skip("Test11Shovel norun, need 1.1+")
 	}
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)

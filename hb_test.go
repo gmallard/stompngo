@@ -17,7 +17,6 @@
 package stompngo
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"testing"
@@ -146,8 +145,7 @@ func TestHB11InitErrors(t *testing.T) {
 */
 func TestHB11Connect(t *testing.T) {
 	if os.Getenv("STOMP_TEST11p") == "" {
-		fmt.Println("TestHB11Connect norun")
-		return
+		t.Skip("TestHB11Connect norun, need 1.1+")
 	}
 	//
 	n, _ := openConn(t)
@@ -176,12 +174,10 @@ func TestHB11Connect(t *testing.T) {
 */
 func TestHB11NoSend(t *testing.T) {
 	if os.Getenv("STOMP_TEST11p") == "" {
-		fmt.Println("TestHB11NoSend norun")
-		return
+		t.Skip("TestHB11NoSend norun, need 1.1+")
 	}
 	if os.Getenv("STOMP_HB11LONG") == "" {
-		fmt.Println("TestHB11NoSend norun LONG")
-		return
+		t.Skip("TestHB11NoSend norun, set STOMP_HB11LONG")
 	}
 	//
 	n, _ := openConn(t)
@@ -222,12 +218,10 @@ func TestHB11NoSend(t *testing.T) {
 */
 func TestHB11NoReceive(t *testing.T) {
 	if os.Getenv("STOMP_TEST11p") == "" {
-		fmt.Println("TestHB11NoReceive norun")
-		return
+		t.Skip("TestHB11NoReceive norun, need 1.1+")
 	}
 	if os.Getenv("STOMP_HB11LONG") == "" {
-		fmt.Println("TestHB11NoReceive norun LONG")
-		return
+		t.Skip("TestHB11NoReceive norun, set STOMP_HB11LONG")
 	}
 	//
 	n, _ := openConn(t)
@@ -264,12 +258,10 @@ func TestHB11NoReceive(t *testing.T) {
 */
 func TestHB11SendReceive(t *testing.T) {
 	if os.Getenv("STOMP_TEST11p") == "" {
-		fmt.Println("TestHB11SendReceive norun")
-		return
+		t.Skip("TestHB11SendReceive norun, need 1.1+")
 	}
 	if os.Getenv("STOMP_HB11LONG") == "" {
-		fmt.Println("TestHB11SendReceive norun LONG")
-		return
+		t.Skip("TestHB11SendReceive norun, set STOMP_HB11LONG")
 	}
 	//
 	n, _ := openConn(t)
@@ -313,12 +305,10 @@ func TestHB11SendReceive(t *testing.T) {
 */
 func TestHB11SendReceiveApollo(t *testing.T) {
 	if os.Getenv("STOMP_TEST11p") == "" {
-		fmt.Println("TestHB11SendReceiveApollo norun")
-		return
+		t.Skip("TestHB11SendReceiveApollo norun, need 1.1+")
 	}
 	if os.Getenv("STOMP_HB11LONG") == "" {
-		fmt.Println("TestHB11SendReceiveApollo norun LONG")
-		return
+		t.Skip("TestHB11SendReceiveApollo norun, set STOMP_HB11LONG")
 	}
 	//
 	n, _ := openConn(t)
@@ -363,16 +353,13 @@ func TestHB11SendReceiveApollo(t *testing.T) {
 */
 func TestHB11SendReceiveApolloRev(t *testing.T) {
 	if os.Getenv("STOMP_TEST11p") == "" {
-		fmt.Println("TestHB11SendReceiveApolloRev norun")
-		return
+		t.Skip("TestHB11SendReceiveApolloRev norun, need 1.1+")
 	}
 	if os.Getenv("STOMP_HB11LONG") == "" {
-		fmt.Println("TestHB11SendReceiveApolloRev norun LONG")
-		return
+		t.Skip("TestHB11SendReceiveApolloRev norun, set STOMP_HB11LONG")
 	}
 	if os.Getenv("STOMP_AMQ11") != "" {
-		fmt.Println("TestHB11SendReceiveApolloRev norun AMQ11")
-		return
+		t.Skip("TestHB11SendReceiveApolloRev norun, skip AMQ11+")
 	}
 	//
 	n, _ := openConn(t)
