@@ -85,16 +85,15 @@ func (c *Connection) establishSubscription(h Headers) (<-chan MessageData, error
 	c.subsLock.Lock()
 	defer c.subsLock.Unlock()
 	//
-	sid, hid := h.Contains("id")
-	d := h.Value("destination")
-	sha1 := Sha1(d)
+	id, hid := h.Contains("id")
+	uuid1 := Uuid()
 	// No duplicates
 	if hid {
-		if _, q := c.subs[sid]; q {
+		if _, q := c.subs[id]; q {
 			return nil, EDUPSID, h // Duplicate subscriptions not allowed
 		}
 	} else {
-		if _, q := c.subs[sha1]; q {
+		if _, q := c.subs[uuid1]; q {
 			return nil, EDUPSID, h // Duplicate subscriptions not allowed
 		}
 	}
@@ -102,19 +101,19 @@ func (c *Connection) establishSubscription(h Headers) (<-chan MessageData, error
 
 	if c.Protocol() == SPL_10 {
 		if hid { // If 1.0 client wants one, assign it.
-			c.subs[sid] = make(chan MessageData, c.scc)
+			c.subs[id] = make(chan MessageData, c.scc)
 		} else {
 			return c.input, nil, h // 1.0 clients with no id take their own chances
 		}
 	} else { // 1.1+
 		if hid { // Client specified id
-			c.subs[sid] = make(chan MessageData, c.scc) // Assign subscription
+			c.subs[id] = make(chan MessageData, c.scc) // Assign subscription
 		} else {
-			h = h.Add("id", sha1)
-			c.subs[sha1] = make(chan MessageData, c.scc) // Assign subscription
-			sid = sha1                                   // reset
+			h = h.Add("id", uuid1)
+			c.subs[uuid1] = make(chan MessageData, c.scc) // Assign subscription
+			id = uuid1                                    // reset
 		}
 	}
 
-	return c.subs[sid], nil, h
+	return c.subs[id], nil, h
 }
