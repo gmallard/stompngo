@@ -47,9 +47,8 @@ func (c *Connection) Unsubscribe(h Headers) error {
 	//
 	_, okd := h.Contains("destination")
 	sid, oki := h.Contains("id")
-	_, okm := h.Contains("message-id")
-	if !okd && !oki && !okm {
-		return EREQDIMUNS
+	if !okd && !oki {
+		return EREQDIUNS
 	}
 
 	switch c.Protocol() {

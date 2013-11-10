@@ -26,9 +26,9 @@ type unsubData struct {
 }
 
 var unsubListNoHdr = []unsubData{
-	{SPL_10, EREQDIMUNS},
-	{SPL_11, EREQDIMUNS},
-	{SPL_12, EREQDIMUNS},
+	{SPL_10, EREQDIUNS},
+	{SPL_11, EREQDIUNS},
+	{SPL_12, EREQDIUNS},
 }
 
 var unsubBadId = []unsubData{
