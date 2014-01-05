@@ -41,7 +41,7 @@ func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
 		return nil
 	}
 	// Work area, may or may not become connection heartbeat data
-	w := &heartbeat_data{cx: 0, cy: 0, sx: 0, sy: 0,
+	w := &heartBeatData{cx: 0, cy: 0, sx: 0, sy: 0,
 		hbs: true, hbr: true, // possible reset later
 		sti: 0, rti: 0,
 		ls: 0, lr: 0}

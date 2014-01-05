@@ -120,7 +120,7 @@ type Connection struct {
 	subsLock          sync.Mutex
 	wsd               chan bool // writer shutdown
 	rsd               chan bool // reader shutdown
-	hbd               *heartbeat_data
+	hbd               *heartBeatData
 	wtr               *bufio.Writer
 	rdr               *bufio.Reader
 	Hbrf              bool // Indicates a heart beat read/receive failure, which is possibly transient.  Valid for 1.1+ only.
@@ -161,7 +161,7 @@ const (
 	// Destination required
 	EREQDSTSND = Error("destination required, SEND")
 	EREQDSTSUB = Error("destination required, SUBSCRIBE")
-	EREQDIUNS = Error("destination or id required, UNSUBSCRIBE")
+	EREQDIUNS  = Error("destination or id required, UNSUBSCRIBE")
 
 	// Message ID required.
 	EREQMIDACK = Error("message-id required, ACK") // 1.0, 1.1
@@ -216,7 +216,7 @@ type codecdata struct {
 	STOMP specification defined encoded / decoded values for the Message
 	command and headers.
 */
-var codec_values = []codecdata{
+var codecValues = []codecdata{
 	codecdata{"\\\\", "\\"},
 	codecdata{"\\" + "n", "\n"},
 	codecdata{"\\" + "r", "\r"},
@@ -227,7 +227,7 @@ var codec_values = []codecdata{
 	Control data for initialization of heartbeats with STOMP 1.1+, and the
 	subsequent control of any heartbeat routines.
 */
-type heartbeat_data struct {
+type heartBeatData struct {
 	cx int64 // client send value, ms
 	cy int64 // client receive value, ms
 	sx int64 // server send value, ms
