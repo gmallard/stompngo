@@ -114,9 +114,11 @@ func (c *Connection) readFrame() (f Frame, e error) {
 		if s == "\n" {
 			break
 		}
-		//
 		s = s[0 : len(s)-1]
 		p := strings.SplitN(s, ":", 2)
+		if len(p) != 2 {
+			return f, EUNKHDR
+		}
 		if c.Protocol() != SPL_10 && f.Command != CONNECTED {
 			p[0] = decode(p[0])
 			p[1] = decode(p[1])
