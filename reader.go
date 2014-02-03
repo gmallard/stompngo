@@ -119,7 +119,7 @@ func (c *Connection) readFrame() (f Frame, e error) {
 		if len(p) != 2 {
 			return f, EUNKHDR
 		}
-		if c.Protocol() != SPL_10 && f.Command != CONNECTED {
+		if c.Protocol() != SPL_10 {
 			p[0] = decode(p[0])
 			p[1] = decode(p[1])
 		}
