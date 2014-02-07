@@ -110,8 +110,12 @@ func (f *Frame) writeFrame(w *bufio.Writer, l string) error {
 			return e
 		}
 	}
-	// Write the last Header LF and the frame Body
-	if _, e := fmt.Fprintf(w, "\n%s", f.Body); e != nil {
+	// Write the last Header LF
+	if _, e := fmt.Fprintf(w, "\n"); e != nil {
+		return e
+	}
+	// Write the body
+	if _, e := w.Write(f.Body); e != nil {
 		return e
 	}
 	return nil
