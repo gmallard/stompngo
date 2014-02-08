@@ -42,8 +42,6 @@ func (c *Connection) Unsubscribe(h Headers) error {
 		return e
 	}
 
-	c.subsLock.Lock()
-	defer c.subsLock.Unlock()
 	//
 	_, okd := h.Contains("destination")
 	sid, oki := h.Contains("id")
@@ -51,19 +49,23 @@ func (c *Connection) Unsubscribe(h Headers) error {
 		return EREQDIUNS
 	}
 
+	c.subsLock.Lock()
+	_, p := c.subs[sid]
+	c.subsLock.Unlock()
+
 	switch c.Protocol() {
 	case SPL_12:
 		if !oki {
 			return EUNOSID
 		}
-		if _, p := c.subs[sid]; !p { // subscription does not exist
+		if !p { // subscription does not exist
 			return EBADSID
 		}
 	case SPL_11:
 		if !oki {
 			return EUNOSID
 		}
-		if _, p := c.subs[sid]; !p { // subscription does not exist
+		if !p { // subscription does not exist
 			return EBADSID
 		}
 	case SPL_10:
@@ -71,7 +73,7 @@ func (c *Connection) Unsubscribe(h Headers) error {
 			return EUNOSID
 		}
 		if oki { // User specified 'id'
-			if _, p := c.subs[sid]; !p { // subscription does not exist
+			if !p { // subscription does not exist
 				return EBADSID
 			}
 		}
@@ -83,9 +85,12 @@ func (c *Connection) Unsubscribe(h Headers) error {
 	if e != nil {
 		return e
 	}
+
 	if oki {
+		c.subsLock.Lock()
 		close(c.subs[sid])
 		delete(c.subs, sid)
+		c.subsLock.Unlock()
 	}
 	c.log(UNSUBSCRIBE, "end", h)
 	return nil
