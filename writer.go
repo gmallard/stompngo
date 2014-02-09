@@ -50,7 +50,7 @@ func (c *Connection) writer() {
 	Connection logical write.
 */
 func (c *Connection) wireWrite(d wiredata) {
-	f := d.frame
+	f := &d.frame
 	switch f.Command {
 	case "\n": // HeartBeat frame
 		if _, e := fmt.Fprintf(c.wtr, "%s", f.Command); e != nil {
@@ -76,8 +76,7 @@ func (c *Connection) wireWrite(d wiredata) {
 		c.hbd.ls = time.Now().UnixNano() // Latest good send
 	}
 	c.mets.tfw += 1             // Frame written count
-	m := Message(f)             // Convert
-	c.mets.tbw += m.Size(false) // Bytes written count
+	c.mets.tbw += f.Size(false) // Bytes written count
 	//
 	d.errchan <- nil
 	return

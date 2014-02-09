@@ -43,6 +43,15 @@ func (m *Message) Size(e bool) int64 {
 	return r
 }
 
+/*
+	Size returns the size of Frame on the wire, in bytes.
+*/
+func (f *Frame) Size(e bool) int64 {
+	var r int64 = 0
+	r += int64(len(f.Command)) + 1 + f.Headers.Size(e) + 1 + int64(len(f.Body)) + 1
+	return r
+}
+
 // Headers
 
 /*
