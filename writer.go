@@ -18,7 +18,6 @@ package stompngo
 
 import (
 	"bufio"
-	"fmt"
 	"strconv"
 	"time"
 )
@@ -53,7 +52,7 @@ func (c *Connection) wireWrite(d wiredata) {
 	f := &d.frame
 	switch f.Command {
 	case "\n": // HeartBeat frame
-		if _, e := fmt.Fprintf(c.wtr, "%s", f.Command); e != nil {
+		if _, e := c.wtr.WriteString(f.Command); e != nil {
 			d.errchan <- e
 			return
 		}
@@ -87,7 +86,7 @@ func (c *Connection) wireWrite(d wiredata) {
 */
 func (f *Frame) writeFrame(w *bufio.Writer, l string) error {
 	// Write the frame Command
-	if _, e := fmt.Fprintf(w, "%s\n", f.Command); e != nil {
+	if _, e := w.WriteString(f.Command + "\n"); e != nil {
 		return e
 	}
 	// Content length - Always add it if client does not suppress it and
@@ -104,18 +103,20 @@ func (f *Frame) writeFrame(w *bufio.Writer, l string) error {
 			f.Headers[i] = encode(f.Headers[i])
 			f.Headers[i+1] = encode(f.Headers[i+1])
 		}
-		_, e := fmt.Fprintf(w, "%s:%s\n", f.Headers[i], f.Headers[i+1])
+		_, e := w.WriteString(f.Headers[i] + ":" + f.Headers[i+1] + "\n")
 		if e != nil {
 			return e
 		}
 	}
 	// Write the last Header LF
-	if _, e := fmt.Fprintf(w, "\n"); e != nil {
+	if e := w.WriteByte('\n'); e != nil {
 		return e
 	}
 	// Write the body
-	if _, e := w.Write(f.Body); e != nil {
-		return e
+	if len(f.Body) != 0 { // Foolish to write 0 length data
+		if _, e := w.Write(f.Body); e != nil {
+			return e
+		}
 	}
 	return nil
 }
