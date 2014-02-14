@@ -31,7 +31,7 @@ import (
 func encode(s string) string {
 	r := s
 	for _, tr := range codecValues {
-		if strings.Contains(r, tr.decoded) {
+		if strings.Index(r, tr.decoded) >= 0 {
 			r = strings.Replace(r, tr.decoded, tr.encoded, -1)
 		}
 	}
@@ -44,7 +44,7 @@ func encode(s string) string {
 func decode(s string) string {
 	r := s
 	for _, tr := range codecValues {
-		if strings.Contains(r, tr.encoded) {
+		if strings.Index(r, tr.encoded) >= 0 {
 			r = strings.Replace(r, tr.encoded, tr.decoded, -1)
 		}
 	}

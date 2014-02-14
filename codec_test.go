@@ -28,6 +28,14 @@ type testdata struct {
 }
 
 var tdList = []testdata{
+	{"stringa", "stringa"},
+	{"stringb", "stringb"},
+	{"stringc", "stringc"},
+	{"stringd", "stringd"},
+	{"stringe", "stringe"},
+	{"stringf", "stringf"},
+	{"stringg", "stringg"},
+	{"stringh", "stringh"},
 	{"\\\\", "\\"},
 	{"\\n", "\n"},
 	{"\\c", ":"},
@@ -66,6 +74,22 @@ func TestCodecDecodeBasic(t *testing.T) {
 		}
 	}
 
+}
+
+func BenchmarkCodecEncode(b *testing.B) {
+	for i := 0; i < len(tdList); i++ {
+		for n := 0; n < b.N; n++ {
+			_ = encode(tdList[i].decoded)
+		}
+	}
+}
+
+func BenchmarkCodecDecode(b *testing.B) {
+	for i := 0; i < len(tdList); i++ {
+		for n := 0; n < b.N; n++ {
+			_ = decode(tdList[i].encoded)
+		}
+	}
 }
 
 /*
