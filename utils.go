@@ -73,9 +73,6 @@ func readUntilNul(r *bufio.Reader) ([]uint8, error) {
 */
 func readBody(r *bufio.Reader, l int) ([]uint8, error) {
 	b := make([]byte, l)
-	if l == 0 {
-		return b, nil
-	}
 	n, e := io.ReadFull(r, b)
 	if n < l { // Short read, e is ErrUnexpectedEOF
 		return b[0 : n-1], e
