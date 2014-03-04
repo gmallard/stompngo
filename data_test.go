@@ -148,3 +148,17 @@ func TestDataMessageSize(t *testing.T) {
 		t.Errorf("Message size, expected: [%d], got [%d]\n", w, r)
 	}
 }
+
+func BenchmarkHeaderAdd(b *testing.B) {
+	h := Headers{"k1", "v1"}
+	for n := 0; n < b.N; n++ {
+		_ = h.Add("akey", "avalue")
+	}
+}
+
+func BenchmarkHeaderAppend(b *testing.B) {
+	h := []string{"k1", "v1"}
+	for n := 0; n < b.N; n++ {
+		_ = append(h, "akey", "avalue")
+	}
+}
