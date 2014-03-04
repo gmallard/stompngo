@@ -133,6 +133,22 @@ func sendMultiple(md multi_send_data) error {
 }
 
 /*
+	Test helper.  Send multiple []byte messages.
+*/
+func sendMultipleBytes(md multi_send_data) error {
+	h := Headers{"destination", md.dest}
+	for i := 0; i < md.count; i++ {
+		cstr := fmt.Sprintf("%d", i)
+		mts := md.mpref + cstr
+		e := md.conn.SendBytes(h, []byte(mts))
+		if e != nil {
+			return e // now
+		}
+	}
+	return nil
+}
+
+/*
 	Test helper.
 */
 func getMessageData(c *Connection, s <-chan MessageData) (r MessageData) {
