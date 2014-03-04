@@ -21,6 +21,8 @@ import (
 	"net"
 	"os"
 	"testing"
+	//
+	"github.com/gmallard/stompngo/senv"
 )
 
 var TEST_HEADERS = Headers{"login", "guest", "passcode", "guest"}
@@ -85,15 +87,7 @@ func closeConn(t *testing.T, n net.Conn) error {
 	Host and port for Dial
 */
 func hostAndPort() (string, string) {
-	h := os.Getenv("STOMP_HOST")
-	if h == "" {
-		h = "localhost"
-	}
-	p := os.Getenv("STOMP_PORT")
-	if p == "" {
-		p = "61613"
-	}
-	return h, p
+	return senv.HostAndPort()
 }
 
 /*
