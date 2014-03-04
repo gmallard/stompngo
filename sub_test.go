@@ -84,7 +84,7 @@ func TestSubNoIdOnce(t *testing.T) {
 */
 func TestSubNoIdTwice10(t *testing.T) {
 	if os.Getenv("STOMP_TEST11p") != "" {
-		t.Skip("TestSubNoIdTwice10 norun, need 1.1+")
+		t.Skip("TestSubNoIdTwice10 norun, need 1.0")
 	}
 
 	t.Parallel()
@@ -259,7 +259,7 @@ func TestSubUnsubBasic(t *testing.T) {
 */
 func TestSubUnsubBasic10(t *testing.T) {
 	if os.Getenv("STOMP_TEST11p") != "" {
-		t.Skip("TestSubUnsubBasic10 norun, need 1.1+")
+		t.Skip("TestSubUnsubBasic10 norun, need 1.0")
 	}
 
 	t.Parallel()
