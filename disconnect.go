@@ -51,7 +51,7 @@ func (c *Connection) Disconnect(h Headers) error {
 	// of the specification, and allows reasonable resource cleanup in both the
 	// client and the message broker.
 	if _, ok := ch.Contains("receipt"); !ok {
-		ch = ch.Add("receipt", Uuid())
+		ch = append(ch, "receipt", Uuid())
 	}
 	//
 	c.connected = false

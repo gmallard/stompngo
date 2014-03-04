@@ -62,7 +62,7 @@ func (c *Connection) Subscribe(h Headers) (<-chan MessageData, error) {
 	}
 	ch := h.Clone()
 	if _, ok := ch.Contains("ack"); !ok {
-		ch = ch.Add("ack", "auto")
+		ch = append(ch, "ack", "auto")
 	}
 	s, e, ch := c.establishSubscription(ch)
 	if e != nil {

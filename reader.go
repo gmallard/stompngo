@@ -35,8 +35,8 @@ func (c *Connection) reader() {
 	for {
 		f, e := c.readFrame()
 		if e != nil {
-			h := f.Headers.Add("connection_read_error", e.Error())
-			md := MessageData{Message{f.Command, h, f.Body}, e}
+			f.Headers = append(f.Headers, "connection_read_error", e.Error())
+			md := MessageData{Message(f), e}
 			c.handleReadError(md)
 			break
 		}

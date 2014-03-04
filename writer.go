@@ -93,8 +93,7 @@ func (f *Frame) writeFrame(w *bufio.Writer, l string) error {
 	// does not supply it.
 	if _, ok := f.Headers.Contains("suppress-content-length"); !ok {
 		if _, clok := f.Headers.Contains("content-length"); !clok {
-			l := strconv.Itoa(len(f.Body))
-			f.Headers = f.Headers.Add("content-length", l)
+			f.Headers = append(f.Headers, "content-length", strconv.Itoa(len(f.Body)))
 		}
 	}
 	// Write the frame Headers
