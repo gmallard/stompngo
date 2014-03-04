@@ -112,9 +112,9 @@ func TestSubNoIdTwice10(t *testing.T) {
 	time.Sleep(500 * time.Millisecond) // give a broker a break
 	select {
 	case v := <-s1:
-		t.Logf("Unexpected frame received (T1), got [%v]\n", v)
+		t.Errorf("Unexpected frame received (T1), got [%v]\n", v)
 	case v := <-c.MessageData:
-		t.Logf("Unexpected frame received (T1), got [%v]\n", v)
+		t.Errorf("Unexpected frame received (T1), got [%v]\n", v)
 	default:
 	}
 	// Second time
@@ -132,19 +132,20 @@ func TestSubNoIdTwice10(t *testing.T) {
 	// Stomp 1.0 brokers are allowed significant latitude regarding a response
 	// to a duplicate subscription request.  Currently, only do these checks for
 	// brokers other than AMQ.  AMQ does not return an ERROR frame for duplicate
-	// subscriptions.
+	// subscriptions with 1.0, choosing to ignore it.
 	// Apollo and RabbitMQ both return an ERROR frame *and* tear down the
 	// connection.
 	if os.Getenv("STOMP_APOLLO") != "" || os.Getenv("STOMP_RMQ") != "" {
 		// fmt.Println("s2check runs ....", c.Connected())
 		select {
 		case v := <-s2:
-			t.Logf("Server frame received (T2), got [%v] [%v] [%v] [%s]\n",
+			t.Logf("Server frame expected and received (T2-A), got [%v] [%v] [%v] [%s]\n",
 				v.Message.Command, v.Error, v.Message.Headers, string(v.Message.Body))
 		case v := <-c.MessageData:
-			t.Logf("Server frame received (T2), got [%v] [%v] [%v] [%s]\n",
+			t.Logf("Server frame expected and received (T2-B), got [%v] [%v] [%v] [%s]\n",
 				v.Message.Command, v.Error, v.Message.Headers, string(v.Message.Body))
 		default:
+			t.Errorf("Server frame expected (T2-E), not received.\n")
 		}
 	}
 	// For both Apollo and RabbitMQ, the connection teardown by the server can
