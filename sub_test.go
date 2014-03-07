@@ -304,7 +304,7 @@ func TestSubUnsubBasic10(t *testing.T) {
 /*
 	Test establishSubscription.
 */
-func TestSubestablishSubscription(t *testing.T) {
+func TestSubEstablishSubscription(t *testing.T) {
 
 	t.Parallel()
 
