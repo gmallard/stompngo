@@ -61,6 +61,10 @@ func (c *Connection) wireWrite(d wiredata) {
 			d.errchan <- e
 			return
 		}
+		if e := c.wtr.Flush(); e != nil {
+			d.errchan <- e
+			return
+		}
 		if e := c.wtr.WriteByte('\x00'); e != nil {
 			d.errchan <- e
 			return
