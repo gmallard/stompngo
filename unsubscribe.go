@@ -37,7 +37,7 @@ func (c *Connection) Unsubscribe(h Headers) error {
 	if !c.connected {
 		return ECONBAD
 	}
-	e := checkHeaders(h, c)
+	e := checkHeaders(h, c.Protocol())
 	if e != nil {
 		return e
 	}

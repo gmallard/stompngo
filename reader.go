@@ -125,6 +125,11 @@ func (c *Connection) readFrame() (f Frame, e error) {
 		}
 		f.Headers = append(f.Headers, p[0], p[1])
 	}
+	//
+	e = checkHeaders(f.Headers, c.Protocol())
+	if e != nil {
+		return f, e
+	}
 	// Read f.Body
 	if v, ok := f.Headers.Contains("content-length"); ok {
 		l, e := strconv.Atoi(strings.TrimSpace(v))

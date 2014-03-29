@@ -31,16 +31,20 @@ func TestTransErrors(t *testing.T) {
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
 
-	//
-
 	// Empty string transaction id - BEGIN
 	h := Headers{"transaction", ""}
 	e := c.Begin(h)
 	if e == nil {
 		t.Errorf("BEGIN expected error, got: [nil]\n")
 	}
-	if e != EREQTIDBEG {
-		t.Errorf("BEGIN expected error [%v], got [%v]\n", EREQTIDBEG, e)
+	if c.Protocol() == SPL_10 {
+		if e != EHDRMTV {
+			t.Errorf("BEGIN expected error [%v], got [%v]\n", EHDRMTV, e)
+		}
+	} else {
+		if e != EREQTIDBEG {
+			t.Errorf("BEGIN expected error [%v], got [%v]\n", EREQTIDBEG, e)
+		}
 	}
 
 	// Empty string transaction id - COMMIT
@@ -48,8 +52,14 @@ func TestTransErrors(t *testing.T) {
 	if e == nil {
 		t.Errorf("COMMIT expected error, got: [nil]\n")
 	}
-	if e != EREQTIDCOM {
-		t.Errorf("COMMIT expected error [%v], got [%v]\n", EREQTIDCOM, e)
+	if c.Protocol() == SPL_10 {
+		if e != EHDRMTV {
+			t.Errorf("BEGIN expected error [%v], got [%v]\n", EHDRMTV, e)
+		}
+	} else {
+		if e != EREQTIDCOM {
+			t.Errorf("COMMIT expected error [%v], got [%v]\n", EREQTIDCOM, e)
+		}
 	}
 
 	// Empty string transaction id - ABORT
@@ -57,13 +67,19 @@ func TestTransErrors(t *testing.T) {
 	if e == nil {
 		t.Errorf("ABORT expected error, got: [nil]\n")
 	}
-	if e != EREQTIDABT {
-		t.Errorf("ABORT expected error [%v], got [%v]\n", EREQTIDABT, e)
+	if c.Protocol() == SPL_10 {
+		if e != EHDRMTV {
+			t.Errorf("BEGIN expected error [%v], got [%v]\n", EHDRMTV, e)
+		}
+	} else {
+		if e != EREQTIDABT {
+			t.Errorf("ABORT expected error [%v], got [%v]\n", EREQTIDABT, e)
+		}
 	}
 
 	//
 
-	// Empty transaction id - BEGIN
+	// Missing transaction id - BEGIN
 	h = Headers{}
 	e = c.Begin(h)
 	if e == nil {
@@ -73,7 +89,7 @@ func TestTransErrors(t *testing.T) {
 		t.Errorf("BEGIN expected error [%v], got [%v]\n", EREQTIDBEG, e)
 	}
 
-	// Empty transaction id - COMMIT
+	// Missing transaction id - COMMIT
 	e = c.Commit(h)
 	if e == nil {
 		t.Errorf("COMMIT expected error, got: [nil]\n")
@@ -82,7 +98,7 @@ func TestTransErrors(t *testing.T) {
 		t.Errorf("COMMIT expected error [%v], got [%v]\n", EREQTIDCOM, e)
 	}
 
-	// Empty transaction id - ABORT
+	// Missing transaction id - ABORT
 	e = c.Abort(h)
 	if e == nil {
 		t.Errorf("ABORT expected error, got: [nil]\n")
@@ -138,32 +154,6 @@ func TestTransSend(t *testing.T) {
 		t.Errorf("message error: expected: [%v], got: [%v]\n", m, r.Message.BodyString())
 	}
 
-	//
-	_ = c.Disconnect(empty_headers)
-	_ = closeConn(t, n)
-
-}
-
-/*
-	Test transaction send empty trans id.
-*/
-func TestTransSendEmptyTid(t *testing.T) {
-
-	t.Parallel()
-
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	c, _ := Connect(n, ch)
-
-	// begin, send, commit
-	h := Headers{"transaction", ""}
-	e := c.Begin(h)
-	if e == nil {
-		t.Errorf("BEGIN expected error, got [nil]\n")
-	}
-	if e != EREQTIDBEG {
-		t.Errorf("BEGIN expected error [%v], got [%v]\n", EREQTIDBEG, e)
-	}
 	//
 	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)

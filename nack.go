@@ -54,7 +54,7 @@ func (c *Connection) Nack(h Headers) error {
 	if c.Protocol() == SPL_10 {
 		return EBADVERNAK
 	}
-	e := checkHeaders(h, c)
+	e := checkHeaders(h, c.Protocol())
 	if e != nil {
 		return e
 	}

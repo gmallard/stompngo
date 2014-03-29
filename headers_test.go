@@ -182,3 +182,40 @@ func TestDataHeadersSize(t *testing.T) {
 		t.Errorf("SIZ02 size, got [%d] expected [%v]\n", s, w)
 	}
 }
+
+/*
+	Data Test: Empty Header Key / Value
+*/
+func TestDataHeadersEmtKV(t *testing.T) {
+	t.Parallel()
+	h := Headers{"a", "b", "c", "d"}
+	ek := Headers{"a", "b", "", "d"}
+	ev := Headers{"a", "", "c", "d"}
+	//
+	e := checkHeaders(h, SPL_10)
+	if e != nil {
+		t.Errorf("CHD01 Expected [nil], got [%v]\n", e)
+	}
+	e = checkHeaders(h, SPL_11)
+	if e != nil {
+		t.Errorf("CHD02 Expected [nil], got [%v]\n", e)
+	}
+	//
+	e = checkHeaders(ek, SPL_10)
+	if e != EHDRMTK {
+		t.Errorf("CHD03 Expected [%v], got [%v]\n", EHDRMTK, e)
+	}
+	e = checkHeaders(ek, SPL_11)
+	if e != EHDRMTK {
+		t.Errorf("CHD04 Expected [%v], got [%v]\n", EHDRMTK, e)
+	}
+	//
+	e = checkHeaders(ev, SPL_10)
+	if e != EHDRMTV {
+		t.Errorf("CHD05 Expected [%v], got [%v]\n", EHDRMTV, e)
+	}
+	e = checkHeaders(ev, SPL_11)
+	if e != nil {
+		t.Errorf("CHD06 Expected [nil], got [%v]\n", e)
+	}
+}

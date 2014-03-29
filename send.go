@@ -37,7 +37,7 @@ func (c *Connection) Send(h Headers, b string) error {
 	if !c.connected {
 		return ECONBAD
 	}
-	e := checkHeaders(h, c)
+	e := checkHeaders(h, c.Protocol())
 	if e != nil {
 		return e
 	}

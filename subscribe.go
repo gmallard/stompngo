@@ -53,7 +53,7 @@ func (c *Connection) Subscribe(h Headers) (<-chan MessageData, error) {
 	if !c.connected {
 		return nil, ECONBAD
 	}
-	e := checkHeaders(h, c)
+	e := checkHeaders(h, c.Protocol())
 	if e != nil {
 		return nil, e
 	}

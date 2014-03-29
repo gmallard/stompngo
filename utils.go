@@ -171,14 +171,25 @@ func Uuid() string {
 /*
 	Common Header Validation.
 */
-func checkHeaders(h Headers, c *Connection) error {
+func checkHeaders(h Headers, p string) error {
 	if h == nil {
 		return EHDRNIL
 	}
+	// Length check
 	if e := h.Validate(); e != nil {
 		return e
 	}
-	if c.Protocol() != SPL_10 {
+	// Empty key / value check
+	for i := 0; i < len(h); i += 2 {
+		if h[i] == "" {
+			return EHDRMTK
+		}
+		if p == SPL_10 && h[i+1] == "" {
+			return EHDRMTV
+		}
+	}
+	// UTF8 check
+	if p != SPL_10 {
 		_, e := h.ValidateUTF8()
 		if e != nil {
 			return e
