@@ -58,7 +58,7 @@
 		DISCONNECT	disconnect from a STOMP broker.
 		SEND		Send a message to a named queue or topic.
 		SUBSCRIBE	Prepare to read messages from a named queue or topic.
-		UNSUBSCRIBE	Complete reading messages from a named queue ro topic.
+		UNSUBSCRIBE	Complete reading messages from a named queue or topic.
 		ACK		Acknowledge that a message has been received and processed.
 		NACK		Deny that a message has been received and processed, specification version 1.1+ only.
 		BEGIN		Begin a transaction.
