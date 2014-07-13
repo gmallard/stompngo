@@ -102,6 +102,10 @@ func (c *Connection) readFrame() (f Frame, e error) {
 		}
 		// c.log("read slash n")
 	}
+	// Validate the command
+	if _, ok := validCmds[f.Command]; !ok {
+		return f, EINVBCMD
+	}
 	// Read f.Headers
 	for {
 		s, e := c.rdr.ReadString('\n')

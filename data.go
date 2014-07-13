@@ -199,6 +199,9 @@ const (
 
 	// Receipt not allowed on connect
 	ENORECPT = Error("receipt not allowed on CONNECT")
+
+	// Invalid broker command
+	EINVBCMD = Error("invalid broker command")
 )
 
 /*
@@ -261,3 +264,8 @@ type metrics struct {
 	tfw int64     // Total frame writes
 	tbw int64     // Total bytes written
 }
+
+/*
+  Valid broker commands.
+*/
+var validCmds = map[string]bool{MESSAGE: true, ERROR: true, RECEIPT: true}

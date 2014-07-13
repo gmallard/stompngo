@@ -149,6 +149,24 @@ func TestDataMessageSize(t *testing.T) {
 	}
 }
 
+/*
+  Data Test: Broker Command Validity.
+*/
+func TestBrokerCmdVal(t *testing.T) {
+	t.Parallel()
+	var tData = map[string]bool{MESSAGE: true, ERROR: true, RECEIPT: true,
+		CONNECT: false, DISCONNECT: false, SUBSCRIBE: false, BEGIN: false,
+		STOMP: false, COMMIT: false, ABORT: false, UNSUBSCRIBE: false,
+		SEND: false, ACK: false, NACK: false, CONNECTED: false,
+		"JUNK": false}
+	for k, v := range tData {
+		if v != validCmds[k] {
+			t.Errorf("Command Validity, expected: [%d], got [%d] for key [%s]\n", v,
+				validCmds[k], k)
+		}
+	}
+}
+
 func BenchmarkHeaderAdd(b *testing.B) {
 	h := Headers{"k1", "v1"}
 	for n := 0; n < b.N; n++ {
