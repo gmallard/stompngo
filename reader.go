@@ -55,7 +55,11 @@ func (c *Connection) reader() {
 			c.subs[sid] <- d
 			c.subsLock.Unlock()
 		} else {
-			c.input <- d
+			c.subsLock.Lock()
+			if c.connected {
+				c.input <- d
+			}
+			c.subsLock.Unlock()
 		}
 
 		c.log("RECEIVE", m.Command, m.Headers)
