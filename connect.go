@@ -107,7 +107,8 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 		return c, e
 	}
 	// We are connected
-	c.rsd = make(chan bool, 1) // Reader shutdown channel
+	c.rsd = make(chan bool, 1)  // Reader shutdown channel
+	c.rsdc = make(chan bool, 1) // Reader shutdown complete channel
 	go c.reader()
 	//
 	return c, e

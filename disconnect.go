@@ -69,6 +69,7 @@ func (c *Connection) Disconnect(h Headers) error {
 	c.shutdown()
 	// Receipt
 	c.DisconnectReceipt = <-c.input
+	<-c.rsdc // Read reader completed flag
 	c.log(DISCONNECT, "end", ch, c.DisconnectReceipt)
 	close(c.input) // close message data channel
 	return nil
