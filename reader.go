@@ -70,7 +70,6 @@ func (c *Connection) reader() {
 		}
 
 	}
-	c.rsdc <- true // Reader shutdown is complete
 	c.log("reader shutdown", time.Now())
 }
 

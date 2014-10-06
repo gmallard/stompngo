@@ -120,7 +120,6 @@ type Connection struct {
 	subsLock          sync.Mutex
 	wsd               chan bool // writer shutdown
 	rsd               chan bool // reader shutdown
-	rsdc              chan bool // reader shutdown complete
 	hbd               *heartBeatData
 	wtr               *bufio.Writer
 	rdr               *bufio.Reader
