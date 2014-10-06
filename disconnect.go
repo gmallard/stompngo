@@ -38,6 +38,8 @@ package stompngo
 
 */
 func (c *Connection) Disconnect(h Headers) error {
+	c.subsLock.Lock()
+	defer c.subsLock.Unlock()
 	c.log(DISCONNECT, "start", h)
 	if !c.connected {
 		return ECONBAD
