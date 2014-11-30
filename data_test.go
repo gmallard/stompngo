@@ -161,7 +161,7 @@ func TestBrokerCmdVal(t *testing.T) {
 		"JUNK": false}
 	for k, v := range tData {
 		if v != validCmds[k] {
-			t.Errorf("Command Validity, expected: [%d], got [%d] for key [%s]\n", v,
+			t.Errorf("Command Validity, expected: [%t], got [%t] for key [%s]\n", v,
 				validCmds[k], k)
 		}
 	}
