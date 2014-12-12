@@ -61,14 +61,13 @@ func (c *Connection) Disconnect(h Headers) error {
 	r := make(chan error)
 	c.output <- wiredata{f, r}
 	e = <-r
-	//
-	if e != nil {
-		return e
-	}
 	// Drive shutdown logic
 	c.shutdown()
-	// Receipt
-	c.DisconnectReceipt = <-c.input
-	c.log(DISCONNECT, "end", ch, c.DisconnectReceipt)
-	return nil
+	// Only set DisconnectReceipt if we sucessfully received one.
+	if e == nil {
+		// Receipt
+		c.DisconnectReceipt = <-c.input
+		c.log(DISCONNECT, "end", ch, c.DisconnectReceipt)
+	}
+	return e
 }
