@@ -118,8 +118,13 @@ func (c *Connection) sendTicker() {
 	q := false
 	c.hbd.sc = 0
 	var first, last int64
+	var ticker *time.Ticker
 	for {
-		ticker := time.NewTicker(time.Duration(c.hbd.sti - (last - first)))
+		if c.hbd.sti-(last-first) > 0 {
+			ticker = time.NewTicker(time.Duration(c.hbd.sti - (last - first)))
+		} else {
+			break
+		}
 		select {
 		case ct := <-ticker.C:
 			first = time.Now().UnixNano()
