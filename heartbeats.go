@@ -17,8 +17,10 @@
 package stompngo
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -117,24 +119,42 @@ func (c *Connection) sendTicker() {
 	q := false
 	c.hbd.sc = 0
 	ticker := time.NewTicker(time.Duration(c.hbd.sti))
+	rgr := 0 // running goroutines
+	var rgrLock sync.Mutex
 	for {
 		select {
 		case <-ticker.C:
-			c.log("HeartBeat Send data")
-			// Send a heartbeat
-			f := Frame{"\n", Headers{}, NULLBUFF} // Heartbeat frame
-			r := make(chan error)
-			c.output <- wiredata{f, r}
-			e := <-r
-			c.hbd.sdl.Lock()
-			if e != nil {
-				c.log("Heartbeat Send Failure:", e)
-				c.Hbsf = true
-			} else {
-				c.Hbsf = false
-				c.hbd.sc += 1
+			tf := false
+			rgrLock.Lock()
+			if rgr < 10 {
+				tf = true
 			}
-			c.hbd.sdl.Unlock()
+			rgrLock.Unlock()
+			if tf {
+				go func() {
+					c.log("HeartBeat Send data")
+					// Send a heartbeat
+					f := Frame{"\n", Headers{}, NULLBUFF} // Heartbeat frame
+					r := make(chan error)
+					c.output <- wiredata{f, r}
+					e := <-r
+					c.hbd.sdl.Lock()
+					if e != nil {
+						fmt.Printf("Heartbeat Send Failure: %v\n", e)
+						c.Hbsf = true
+					} else {
+						c.Hbsf = false
+						c.hbd.sc += 1
+					}
+					c.hbd.sdl.Unlock()
+					rgrLock.Lock()
+					rgr--
+					rgrLock.Unlock()
+				}()
+				rgrLock.Lock()
+				rgr++
+				rgrLock.Unlock()
+			}
 		case q = <-c.hbd.ssd:
 			break
 		}
