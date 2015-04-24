@@ -117,32 +117,30 @@ func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
 func (c *Connection) sendTicker() {
 	q := false
 	c.hbd.sc = 0
-	var first, last int64
+	ticker := time.NewTicker(time.Duration(c.hbd.sti))
+	rgr := 0 // running goroutines
 	for {
-		ticker := time.NewTicker(time.Duration(c.hbd.sti - (last - first)))
 		select {
-		case ct := <-ticker.C:
-			first = time.Now().UnixNano()
-			ticker.Stop()
-			ld := ct.UnixNano() - c.hbd.ls
-			c.log("HeartBeat Send TIC", "TickerVal", ct.UnixNano(),
-				"LastSend", c.hbd.ls, "Diff", ld)
-			if ld > (c.hbd.sti - (c.hbd.sti / 5)) { // swag minus to be tolerant
-				c.log("HeartBeat Send data")
-				// Send a heartbeat
-				f := Frame{"\n", Headers{}, NULLBUFF} // Heartbeat frame
-				r := make(chan error)
-				c.output <- wiredata{f, r}
-				e := <-r
-				if e != nil {
-					fmt.Printf("Heartbeat Send Failure: %v\n", e)
-					c.Hbsf = true
-				} else {
-					c.Hbsf = false
-					c.hbd.sc += 1
-				}
+		case <-ticker.C:
+			if rgr < 10 {
+				go func() {
+					c.log("HeartBeat Send data")
+					// Send a heartbeat
+					f := Frame{"\n", Headers{}, NULLBUFF} // Heartbeat frame
+					r := make(chan error)
+					c.output <- wiredata{f, r}
+					e := <-r
+					if e != nil {
+						fmt.Printf("Heartbeat Send Failure: %v\n", e)
+						c.Hbsf = true
+					} else {
+						c.Hbsf = false
+						c.hbd.sc += 1
+					}
+					rgr--
+				}()
+				rgr++
 			}
-			last = time.Now().UnixNano()
 		case q = <-c.hbd.ssd:
 			break
 		}
