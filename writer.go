@@ -76,7 +76,9 @@ func (c *Connection) wireWrite(d wiredata) {
 	}
 	//
 	if c.hbd != nil {
+		c.hbd.sdl.Lock()
 		c.hbd.ls = time.Now().UnixNano() // Latest good send
+		c.hbd.sdl.Unlock()
 	}
 	c.mets.tfw += 1             // Frame written count
 	c.mets.tbw += f.Size(false) // Bytes written count

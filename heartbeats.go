@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -119,10 +120,17 @@ func (c *Connection) sendTicker() {
 	c.hbd.sc = 0
 	ticker := time.NewTicker(time.Duration(c.hbd.sti))
 	rgr := 0 // running goroutines
+	var rgrLock sync.Mutex
 	for {
 		select {
 		case <-ticker.C:
+			tf := false
+			rgrLock.Lock()
 			if rgr < 10 {
+				tf = true
+			}
+			rgrLock.Unlock()
+			if tf {
 				go func() {
 					c.log("HeartBeat Send data")
 					// Send a heartbeat
@@ -130,6 +138,7 @@ func (c *Connection) sendTicker() {
 					r := make(chan error)
 					c.output <- wiredata{f, r}
 					e := <-r
+					c.hbd.sdl.Lock()
 					if e != nil {
 						fmt.Printf("Heartbeat Send Failure: %v\n", e)
 						c.Hbsf = true
@@ -137,9 +146,14 @@ func (c *Connection) sendTicker() {
 						c.Hbsf = false
 						c.hbd.sc += 1
 					}
+					c.hbd.sdl.Unlock()
+					rgrLock.Lock()
 					rgr--
+					rgrLock.Unlock()
 				}()
+				rgrLock.Lock()
 				rgr++
+				rgrLock.Unlock()
 			}
 		case q = <-c.hbd.ssd:
 			break
@@ -165,9 +179,11 @@ func (c *Connection) receiveTicker() {
 		case ct := <-ticker.C:
 			first = time.Now().UnixNano()
 			ticker.Stop()
-			ld := ct.UnixNano() - c.hbd.lr
+			c.hbd.rdl.Lock()
+			flr := c.hbd.lr
+			ld := ct.UnixNano() - flr
 			c.log("HeartBeat Receive TIC", "TickerVal", ct.UnixNano(),
-				"LastReceive", c.hbd.lr, "Diff", ld)
+				"LastReceive", flr, "Diff", ld)
 			if ld > (c.hbd.rti + (c.hbd.rti / 5)) { // swag plus to be tolerant
 				c.log("HeartBeat Receive Read is dirty")
 				c.Hbrf = true // Flag possible dirty connection
@@ -175,6 +191,7 @@ func (c *Connection) receiveTicker() {
 				c.Hbrf = false // Reset
 				c.hbd.rc += 1
 			}
+			c.hbd.rdl.Unlock()
 			last = time.Now().UnixNano()
 		case q = <-c.hbd.rsd:
 			break
