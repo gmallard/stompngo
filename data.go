@@ -233,6 +233,9 @@ var codecValues = []codecdata{
 	subsequent control of any heartbeat routines.
 */
 type heartBeatData struct {
+	sdl sync.Mutex // Send data lock
+	rdl sync.Mutex // Receive data lock
+	//
 	cx int64 // client send value, ms
 	cy int64 // client receive value, ms
 	sx int64 // server send value, ms
@@ -269,3 +272,5 @@ type metrics struct {
   Valid broker commands.
 */
 var validCmds = map[string]bool{MESSAGE: true, ERROR: true, RECEIPT: true}
+
+var logLock sync.Mutex

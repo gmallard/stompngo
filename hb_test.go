@@ -213,15 +213,19 @@ func TestHB11NoSend(t *testing.T) {
 	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 	c.SetLogger(l)
 	//
+	c.log("TestHB11NoSend connect response", c.ConnectResponse.Command,
+		c.ConnectResponse.Headers, string(c.ConnectResponse.Body))
 	c.log("TestHB11NoSend start sleep")
 	c.log(1, "Send", c.SendTickerInterval(), "Receive", c.ReceiveTickerInterval())
 	time.Sleep(120 * time.Second)
 	c.log("TestHB11NoSend end sleep")
 	c.SetLogger(nil)
 	//
+	c.hbd.rdl.Lock()
 	if c.Hbrf {
 		t.Errorf("Error, dirty heart beat read detected")
 	}
+	c.hbd.rdl.Unlock()
 	checkHBRecv(t, c, 1)
 	//
 	_ = c.Disconnect(empty_headers)
@@ -305,9 +309,11 @@ func TestHB11SendReceive(t *testing.T) {
 	time.Sleep(120 * time.Second)
 	c.log("TestHB11SendReceive end sleep")
 	c.SetLogger(nil)
+	c.hbd.rdl.Lock()
 	if c.Hbrf {
 		t.Errorf("Error, dirty heart beat read detected")
 	}
+	c.hbd.rdl.Unlock()
 	checkHBSendRecv(t, c, 3)
 	//
 	_ = c.Disconnect(empty_headers)
@@ -352,9 +358,11 @@ func TestHB11SendReceiveApollo(t *testing.T) {
 	time.Sleep(120 * time.Second)
 	c.log("TestHB11SendReceiveApollo end sleep")
 	c.SetLogger(nil)
+	c.hbd.rdl.Lock()
 	if c.Hbrf {
 		t.Errorf("Error, dirty heart beat read detected")
 	}
+	c.hbd.rdl.Unlock()
 	checkHBSendRecv(t, c, 4)
 	//
 	_ = c.Disconnect(empty_headers)
@@ -403,9 +411,11 @@ func TestHB11SendReceiveApolloRev(t *testing.T) {
 	time.Sleep(120 * time.Second)
 	c.log("TestHB11SendReceiveApolloRev end sleep")
 	c.SetLogger(nil)
+	c.hbd.rdl.Lock()
 	if c.Hbrf {
 		t.Errorf("Error, dirty heart beat read detected")
 	}
+	c.hbd.rdl.Unlock()
 	checkHBSendRecv(t, c, 5)
 	//
 	_ = c.Disconnect(empty_headers)

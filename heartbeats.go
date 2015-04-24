@@ -165,9 +165,11 @@ func (c *Connection) receiveTicker() {
 		case ct := <-ticker.C:
 			first = time.Now().UnixNano()
 			ticker.Stop()
-			ld := ct.UnixNano() - c.hbd.lr
+			c.hbd.rdl.Lock()
+			flr := c.hbd.lr
+			ld := ct.UnixNano() - flr
 			c.log("HeartBeat Receive TIC", "TickerVal", ct.UnixNano(),
-				"LastReceive", c.hbd.lr, "Diff", ld)
+				"LastReceive", flr, "Diff", ld)
 			if ld > (c.hbd.rti + (c.hbd.rti / 5)) { // swag plus to be tolerant
 				c.log("HeartBeat Receive Read is dirty")
 				c.Hbrf = true // Flag possible dirty connection
@@ -175,6 +177,7 @@ func (c *Connection) receiveTicker() {
 				c.Hbrf = false // Reset
 				c.hbd.rc += 1
 			}
+			c.hbd.rdl.Unlock()
 			last = time.Now().UnixNano()
 		case q = <-c.hbd.rsd:
 			break

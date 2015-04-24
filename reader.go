@@ -94,7 +94,7 @@ func (c *Connection) readFrame() (f Frame, e error) {
 			return f, e
 		}
 		if c.hbd != nil {
-			c.hbd.lr = time.Now().UnixNano() // Latest good read
+			c.updateHBReads()
 		}
 		f.Command = s[0 : len(s)-1]
 		if s != "\n" {
@@ -113,7 +113,7 @@ func (c *Connection) readFrame() (f Frame, e error) {
 			return f, e
 		}
 		if c.hbd != nil {
-			c.hbd.lr = time.Now().UnixNano() // Latest good read
+			c.updateHBReads()
 		}
 		if s == "\n" {
 			break
@@ -153,8 +153,14 @@ func (c *Connection) readFrame() (f Frame, e error) {
 		return f, e
 	}
 	if c.hbd != nil {
-		c.hbd.lr = time.Now().UnixNano() // Latest good read
+		c.updateHBReads()
 	}
 	//
 	return f, e
+}
+
+func (c *Connection) updateHBReads() {
+	c.hbd.rdl.Lock()
+	c.hbd.lr = time.Now().UnixNano() // Latest good read
+	c.hbd.rdl.Unlock()
 }
