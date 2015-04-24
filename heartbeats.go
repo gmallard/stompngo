@@ -17,7 +17,6 @@
 package stompngo
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -118,29 +117,24 @@ func (c *Connection) sendTicker() {
 	q := false
 	c.hbd.sc = 0
 	ticker := time.NewTicker(time.Duration(c.hbd.sti))
-	rgr := 0 // running goroutines
 	for {
 		select {
 		case <-ticker.C:
-			if rgr < 10 {
-				go func() {
-					c.log("HeartBeat Send data")
-					// Send a heartbeat
-					f := Frame{"\n", Headers{}, NULLBUFF} // Heartbeat frame
-					r := make(chan error)
-					c.output <- wiredata{f, r}
-					e := <-r
-					if e != nil {
-						fmt.Printf("Heartbeat Send Failure: %v\n", e)
-						c.Hbsf = true
-					} else {
-						c.Hbsf = false
-						c.hbd.sc += 1
-					}
-					rgr--
-				}()
-				rgr++
+			c.log("HeartBeat Send data")
+			// Send a heartbeat
+			f := Frame{"\n", Headers{}, NULLBUFF} // Heartbeat frame
+			r := make(chan error)
+			c.output <- wiredata{f, r}
+			e := <-r
+			c.hbd.sdl.Lock()
+			if e != nil {
+				c.log("Heartbeat Send Failure:", e)
+				c.Hbsf = true
+			} else {
+				c.Hbsf = false
+				c.hbd.sc += 1
 			}
+			c.hbd.sdl.Unlock()
 		case q = <-c.hbd.ssd:
 			break
 		}
