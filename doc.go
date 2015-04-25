@@ -80,5 +80,20 @@
 
 	For details on Subscribe requirements and behavior, see: https://github.com/gmallard/stompngo/wiki/subscribe-and-messagedata
 
+
+	RECEIPTs
+
+	Receipts are never received on a subscription unique MessageData channel.
+
+	They are always queued to the shared connection level
+	stompgo.Connection.MessageData channel.
+
+	The reason for this behavior is because RECEIPT frames do not contain a subscription Header
+	(per the STOMP specifications).  See the:
+
+	https://github.com/gmallard/stompngo_examples
+
+	package for several examples.
+
 */
 package stompngo
