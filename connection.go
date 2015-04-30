@@ -203,6 +203,7 @@ func (c *Connection) shutdown() {
 	// Stop writer go routine
 	c.wsd <- true
 	// Close all individual subscribe channels
+	// This is a write lock
 	c.subsLock.Lock()
 	for key := range c.subs {
 		close(c.subs[key])
@@ -219,11 +220,12 @@ func (c *Connection) handleReadError(md MessageData) {
 	// Notify any general subscriber of error
 	c.input <- md
 	// Notify all individual subscribers of error
-	c.subsLock.Lock()
+	// This is a read lock
+	c.subsLock.RLock()
 	for key := range c.subs {
 		c.subs[key] <- md
 	}
-	c.subsLock.Unlock()
+	c.subsLock.RUnlock()
 	// Let further shutdown logic proceed normally.
 	return
 }

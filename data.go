@@ -117,7 +117,7 @@ type Connection struct {
 	output            chan wiredata
 	netconn           net.Conn
 	subs              map[string]chan MessageData
-	subsLock          sync.Mutex
+	subsLock          sync.RWMutex
 	wsd               chan bool // writer shutdown
 	rsd               chan bool // reader shutdown
 	hbd               *heartBeatData

@@ -50,10 +50,12 @@ func (c *Connection) reader() {
 		// Headers already decoded
 		c.mets.tbr += m.Size(false) // Total bytes read
 		d := MessageData{m, e}
+		// TODO Rethink this logic.
 		if sid, ok := f.Headers.Contains("subscription"); ok {
-			c.subsLock.Lock()
+			// This is a read lock
+			c.subsLock.RLock()
 			c.subs[sid] <- d
-			c.subsLock.Unlock()
+			c.subsLock.RUnlock()
 		} else {
 			c.input <- d
 		}
