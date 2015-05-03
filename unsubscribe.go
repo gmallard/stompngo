@@ -16,6 +16,11 @@
 
 package stompngo
 
+import (
+	//"fmt"
+	"time"
+)
+
 /*
 	Unsubscribe from a STOMP subscription.
 
@@ -88,6 +93,9 @@ func (c *Connection) Unsubscribe(h Headers) error {
 	}
 
 	if oki {
+
+		c.Drain(hid)
+
 		// This is a write lock
 		c.subsLock.Lock()
 		delete(c.subs, hid)
@@ -95,4 +103,33 @@ func (c *Connection) Unsubscribe(h Headers) error {
 	}
 	c.log(UNSUBSCRIBE, "end", h)
 	return nil
+}
+
+func (c *Connection) Drain(id string) {
+	// Drain any latent messages inbound for this subscription.
+	//fmt.Println("starting drain", id)
+	b := false
+	for {
+		select {
+		case m := <-c.subs[id].md: // Drop a MessageData on the floor
+			//fmt.Println("dropping ......")
+			if c.Protocol() == SPL_12 {
+				ai := m.Message.Headers.Value("ack")
+				nh := Headers{"id", ai}
+				e := c.Nack(nh)
+				if e != nil {
+					panic(e)
+				}
+				//fmt.Println("dropped 1")
+			}
+			break
+		case _ = <-time.After(time.Duration(250 * time.Millisecond)): // A guess
+			//fmt.Println("breaking")
+			b = true
+			break
+		}
+		if b {
+			break
+		}
+	}
 }
