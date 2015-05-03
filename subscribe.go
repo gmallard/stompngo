@@ -64,7 +64,7 @@ func (c *Connection) Subscribe(h Headers) (<-chan MessageData, error) {
 	if _, ok := ch.Contains("ack"); !ok {
 		ch = append(ch, "ack", "auto")
 	}
-	s, e, ch := c.establishSubscription(ch)
+	sub, e, ch := c.establishSubscription(ch)
 	if e != nil {
 		return nil, e
 	}
@@ -75,13 +75,13 @@ func (c *Connection) Subscribe(h Headers) (<-chan MessageData, error) {
 	c.output <- wiredata{f, r}
 	e = <-r
 	c.log(SUBSCRIBE, "end", ch, c.Protocol())
-	return s, e
+	return sub.md, e
 }
 
 /*
 	Handle subscribe id.
 */
-func (c *Connection) establishSubscription(h Headers) (<-chan MessageData, error, Headers) {
+func (c *Connection) establishSubscription(h Headers) (*subscription, error, Headers) {
 	// This is a write lock
 	c.subsLock.Lock()
 	defer c.subsLock.Unlock()
@@ -100,21 +100,34 @@ func (c *Connection) establishSubscription(h Headers) (<-chan MessageData, error
 	}
 	//
 
+	sd := new(subscription)
+	lam := "auto" // Default ack mode
+	if ham, q := h.Contains("ack"); q {
+		lam = ham // Reset it
+	}
 	if c.Protocol() == SPL_10 {
 		if hid { // If 1.0 client wants one, assign it.
-			c.subs[id] = make(chan MessageData, c.scc)
+			sd.md = make(chan MessageData, c.scc)
+			sd.id = id
+			sd.am = lam
 		} else {
-			return c.input, nil, h // 1.0 clients with no id take their own chances
+			sd.md = c.input
+			sd.am = lam
+			return sd, nil, h // 1.0 clients with no id take their own chances
 		}
 	} else { // 1.1+
 		if hid { // Client specified id
-			c.subs[id] = make(chan MessageData, c.scc) // Assign subscription
+			sd.md = make(chan MessageData, c.scc) // Assign subscription
+			sd.id = id                            // Set subscription id
+			sd.am = lam                           // Set subscription ack mode
 		} else {
 			h = h.Add("id", uuid1)
-			c.subs[uuid1] = make(chan MessageData, c.scc) // Assign subscription
-			id = uuid1                                    // reset
+			sd.md = make(chan MessageData, c.scc) // Assign subscription
+			sd.id = uuid1                         // Set subscription id
+			sd.am = lam                           // Set subscription ack mode
 		}
 	}
 
-	return c.subs[id], nil, h
+	c.subs[sd.id] = sd // Add subscription to the connection
+	return sd, nil, h
 }
