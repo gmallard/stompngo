@@ -16,6 +16,13 @@
 
 package stompngo
 
+import (
+	"fmt"
+	"log"
+)
+
+var _ = fmt.Println
+
 /*
 	Disconnect from a STOMP broker.
 
@@ -46,6 +53,44 @@ func (c *Connection) Disconnect(h Headers) error {
 	if e != nil {
 		return e
 	}
+
+	// Here, if Connection.subs has any elements at all it implies that:
+	// the client has *not* called Unsubscribe for those subscriptions.
+	// This is *not* recommended client behavior.
+	// It can occur if the client does not call Unsubscribe at all, but
+	// proceeds directly to Disconnect.
+	// What we do here is attempt to force an Unsubscribe to these
+	// subscriptions.
+
+	// Copy the Connection.subs map
+	lus := make(map[string]*subscription)
+	c.subsLock.RLock()
+	for k, v := range c.subs {
+		lus[k] = v
+	}
+	c.subsLock.RUnlock()
+
+	// Now unsubscribe from any of these latent subscriptions
+	for _, v := range lus {
+		h := Headers{}
+		//
+		switch c.Protocol() {
+		case SPL_12:
+			h = h.Add("id", v.id)
+		case SPL_11:
+			h = h.Add("id", v.id)
+		case SPL_10:
+			h = h.Add("destination", v.dst)
+		default:
+			log.Fatalln("unsubscribe invalid protocol level, should not happen")
+		}
+		e := c.Unsubscribe(h)
+		if e != nil {
+			log.Fatalln("unsubscribe failed", e)
+		}
+	}
+
+	// Now, get to the real business of Disconnect
 	ch := h.Clone()
 	// Add a receipt request if caller did not ask for one.  This is in the spirit
 	// of the specification, and allows reasonable resource cleanup in both the

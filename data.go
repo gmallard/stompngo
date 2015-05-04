@@ -131,9 +131,10 @@ type Connection struct {
 }
 
 type subscription struct {
-	md chan MessageData
-	id string
-	am string
+	md  chan MessageData // Subscription unique MessageData channel
+	id  string           // Subscription 'id' header
+	am  string           // Subscription 'ack' keader
+	dst string           // Subscription 'destination' header
 }
 
 /*

@@ -17,9 +17,12 @@
 package stompngo
 
 import (
-	//"fmt"
+	"fmt"
+	"log"
 	"time"
 )
+
+var _ = fmt.Println
 
 /*
 	Unsubscribe from a STOMP subscription.
@@ -107,24 +110,21 @@ func (c *Connection) Unsubscribe(h Headers) error {
 
 func (c *Connection) Drain(id string) {
 	// Drain any latent messages inbound for this subscription.
-	//fmt.Println("starting drain", id)
 	b := false
 	for {
 		select {
 		case m := <-c.subs[id].md: // Drop a MessageData on the floor
-			//fmt.Println("dropping ......")
 			if c.Protocol() == SPL_12 {
+				// Nacks are a 'SHOULD' for 1.2 clients
 				ai := m.Message.Headers.Value("ack")
 				nh := Headers{"id", ai}
 				e := c.Nack(nh)
 				if e != nil {
-					panic(e)
+					log.Fatalln(e)
 				}
-				//fmt.Println("dropped 1")
 			}
 			break
 		case _ = <-time.After(time.Duration(250 * time.Millisecond)): // A guess
-			//fmt.Println("breaking")
 			b = true
 			break
 		}

@@ -110,9 +110,11 @@ func (c *Connection) establishSubscription(h Headers) (*subscription, error, Hea
 			sd.md = make(chan MessageData, c.scc)
 			sd.id = id
 			sd.am = lam
+			sd.dst = h.Value("destination")
 		} else {
 			sd.md = c.input
 			sd.am = lam
+			sd.dst = h.Value("destination")
 			return sd, nil, h // 1.0 clients with no id take their own chances
 		}
 	} else { // 1.1+
@@ -120,11 +122,13 @@ func (c *Connection) establishSubscription(h Headers) (*subscription, error, Hea
 			sd.md = make(chan MessageData, c.scc) // Assign subscription
 			sd.id = id                            // Set subscription id
 			sd.am = lam                           // Set subscription ack mode
+			sd.dst = h.Value("destination")       // Set subscription destination
 		} else {
 			h = h.Add("id", uuid1)
 			sd.md = make(chan MessageData, c.scc) // Assign subscription
 			sd.id = uuid1                         // Set subscription id
 			sd.am = lam                           // Set subscription ack mode
+			sd.dst = h.Value("destination")       // Set subscription destination
 		}
 	}
 
