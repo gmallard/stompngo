@@ -17,6 +17,7 @@
 package stompngo
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -54,6 +55,7 @@ func (c *Connection) reader() {
 		if sid, ok := f.Headers.Contains("subscription"); ok {
 			// This is a read lock
 			c.subsLock.RLock()
+			fmt.Println("reader_lock_for", sid, c.subs[sid])
 			c.subs[sid].md <- d
 			c.subsLock.RUnlock()
 		} else {

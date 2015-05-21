@@ -100,20 +100,36 @@ func (c *Connection) establishSubscription(h Headers) (*subscription, error, Hea
 	}
 	//
 
-	sd := new(subscription)
-	lam := "auto" // Default ack mode
-	if ham, q := h.Contains("ack"); q {
-		lam = ham // Reset it
+	//	sd := new(subscription)
+	sd := &subscription{md: make(chan MessageData, c.scc),
+		id:  id,
+		am:  "auto",
+		dst: h.Value("destination"),
+		df:  false,
+		dfd: false,
+		dfw: "before",
 	}
+
+	if ham, q := h.Contains("ack"); q {
+		sd.am = ham // Reset it, might still be "auto"
+	}
+
+	// stompngo extension:  subscription drain control
+	if v, q := h.Contains("subdrain"); q {
+		sd.df = true
+		if v == "after" {
+			sd.dfw = v
+		}
+	}
+
+	// Rewrite the below.
 	if c.Protocol() == SPL_10 {
 		if hid { // If 1.0 client wants one, assign it.
 			sd.md = make(chan MessageData, c.scc)
 			sd.id = id
-			sd.am = lam
 			sd.dst = h.Value("destination")
 		} else {
 			sd.md = c.input
-			sd.am = lam
 			sd.dst = h.Value("destination")
 			return sd, nil, h // 1.0 clients with no id take their own chances
 		}
@@ -121,13 +137,11 @@ func (c *Connection) establishSubscription(h Headers) (*subscription, error, Hea
 		if hid { // Client specified id
 			sd.md = make(chan MessageData, c.scc) // Assign subscription
 			sd.id = id                            // Set subscription id
-			sd.am = lam                           // Set subscription ack mode
 			sd.dst = h.Value("destination")       // Set subscription destination
 		} else {
 			h = h.Add("id", uuid1)
 			sd.md = make(chan MessageData, c.scc) // Assign subscription
 			sd.id = uuid1                         // Set subscription id
-			sd.am = lam                           // Set subscription ack mode
 			sd.dst = h.Value("destination")       // Set subscription destination
 		}
 	}

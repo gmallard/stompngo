@@ -135,6 +135,12 @@ type subscription struct {
 	id  string           // Subscription 'id' header
 	am  string           // Subscription 'ack' keader
 	dst string           // Subscription 'destination' header
+	// Controlled by the "subdrain" header value for SUBSCRIBE
+	df  bool // Drain control flag, drain or not.  Default is false.
+	dfd bool // Drain already done flag
+	// Also controlled by the "subdrain" header value for SUBSCRIBE.  See
+	// code and comments in subscribe.go for more information.
+	dfw string // Drain when indicator:  "before" or "after" unsubscribe
 }
 
 /*

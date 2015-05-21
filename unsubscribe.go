@@ -59,7 +59,7 @@ func (c *Connection) Unsubscribe(h Headers) error {
 
 	// This is a read lock
 	c.subsLock.RLock()
-	_, p := c.subs[hid]
+	sp, p := c.subs[hid]
 	c.subsLock.RUnlock()
 
 	switch c.Protocol() {
@@ -97,10 +97,16 @@ func (c *Connection) Unsubscribe(h Headers) error {
 
 	if oki {
 
-		c.Drain(hid)
+		// drain *after* the UNSUBSCRIBE is on the wire, and only if
+		// the client requested it when SUBSCRIBE was sent.
+		log.Println("unsubDF", sp.df)
+		if sp.df {
+			c.Drain(hid, false) // Hard coded false may change one day
+		}
 
 		// This is a write lock
 		c.subsLock.Lock()
+		fmt.Println("unsub_delete_for", hid)
 		delete(c.subs, hid)
 		c.subsLock.Unlock()
 	}
@@ -108,23 +114,29 @@ func (c *Connection) Unsubscribe(h Headers) error {
 	return nil
 }
 
-func (c *Connection) Drain(id string) {
+func (c *Connection) Drain(id string, nac12 bool) {
 	// Drain any latent messages inbound for this subscription.
 	b := false
 	for {
 		select {
-		case m := <-c.subs[id].md: // Drop a MessageData on the floor
-			if c.Protocol() == SPL_12 {
-				// Nacks are a 'SHOULD' for 1.2 clients
-				ai := m.Message.Headers.Value("ack")
-				nh := Headers{"id", ai}
+		case md := <-c.subs[id].md: // Drop a MessageData on the floor
+			log.Println("drainsuc", string(md.Message.Body))
+			if c.Protocol() == SPL_12 && nac12 {
+				nh := Headers{"id", md.Message.Headers.Value("ack")}
 				e := c.Nack(nh)
 				if e != nil {
-					log.Fatalln(e)
+					log.Fatalln("nackerror", e)
 				}
 			}
 			break
-		case _ = <-time.After(time.Duration(250 * time.Millisecond)): // A guess
+		case md := <-c.MessageData: // Drop a MessageData on the floor
+			log.Println("drainmd", string(md.Message.Body))
+			if md.Error != nil {
+				log.Fatalln("mderror", md.Message, md.Error)
+			}
+			break
+		case _ = <-time.After(time.Duration(250 * time.Millisecond)):
+			// Duration value above is a guess
 			b = true
 			break
 		}
