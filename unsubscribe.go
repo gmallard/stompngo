@@ -90,31 +90,35 @@ func (c *Connection) Unsubscribe(h Headers) error {
 		panic("unsubscribe version not supported")
 	}
 
+	fmt.Printf("DCTL: %q\n", sp)
+	fmt.Println("Drain", sp.df)
+
+	if sp.df && sp.dfw != "after" {
+		fmt.Println("Drain before")
+		c.drain(hid, sp.nack12)
+	}
+
 	e = c.transmitCommon(UNSUBSCRIBE, h) // transmitCommon Clones() the headers
 	if e != nil {
 		return e
 	}
 
-	if oki {
-
-		// drain *after* the UNSUBSCRIBE is on the wire, and only if
-		// the client requested it when SUBSCRIBE was sent.
-		log.Println("unsubDF", sp.df)
-		if sp.df {
-			c.Drain(hid, false) // Hard coded false may change one day
-		}
-
-		// This is a write lock
-		c.subsLock.Lock()
-		fmt.Println("unsub_delete_for", hid)
-		delete(c.subs, hid)
-		c.subsLock.Unlock()
+	if sp.df && sp.dfw == "after" {
+		fmt.Println("Drain after")
+		c.drain(hid, sp.nack12)
 	}
+
+	// This is a write lock
+	c.subsLock.Lock()
+	fmt.Println("unsub_delete_for", hid)
+	delete(c.subs, hid)
+	c.subsLock.Unlock()
+
 	c.log(UNSUBSCRIBE, "end", h)
 	return nil
 }
 
-func (c *Connection) Drain(id string, nac12 bool) {
+func (c *Connection) drain(id string, nac12 bool) {
 	// Drain any latent messages inbound for this subscription.
 	b := false
 	for {

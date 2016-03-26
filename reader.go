@@ -36,9 +36,12 @@ func (c *Connection) reader() {
 	for {
 		f, e := c.readFrame()
 		if e != nil {
-			f.Headers = append(f.Headers, "connection_read_error", e.Error())
-			md := MessageData{Message(f), e}
-			c.handleReadError(md)
+			if !strings.Contains(e.Error(), "closed") {
+				f.Headers = append(f.Headers, "connection_read_error", e.Error())
+				//fmt.Println("read error1:", e.Error())
+				md := MessageData{Message(f), e}
+				c.handleReadError(md)
+			}
 			break
 		}
 
@@ -46,16 +49,18 @@ func (c *Connection) reader() {
 			break
 		}
 
+		fmt.Println("READ FRAME:", f.Command)
+
 		m := Message(f)
 		c.mets.tfr += 1 // Total frames read
 		// Headers already decoded
 		c.mets.tbr += m.Size(false) // Total bytes read
 		d := MessageData{m, e}
-		// TODO Rethink this logic.
+		//c.dumpSubMap("rdr01")
 		if sid, ok := f.Headers.Contains("subscription"); ok {
 			// This is a read lock
 			c.subsLock.RLock()
-			fmt.Println("reader_lock_for", sid, c.subs[sid])
+			//fmt.Println("reader_lock_for", sid, c.subs[sid])
 			c.subs[sid].md <- d
 			c.subsLock.RUnlock()
 		} else {

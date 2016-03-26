@@ -35,11 +35,11 @@ import (
 
 	Consider the following application design and implementation.
 
-	1) A queue is loaded with y messages, say y == 100.
+	1) A queue is loaded with y messages, say y == 2.
 	2) A consumer subscribes to this queue.  The subscribe ack mode is
 		client.
-	3) The consumer reads x messages, say x == 10.  The consumer then wants to
-		'quit early', and ACKs message 10.  A partial list of possibilities for
+	3) The consumer reads x messages, say x == 1.  The consumer then wants to
+		'quit early', and ACKs message 1.  A partial list of possibilities for
 		subsequent consumer behavior are:
 
 	One
@@ -83,21 +83,29 @@ import (
 
 var (
 	qn = "/queue/QrlyTest"
-	y  = 100
-	x  = 10
+	//	y  = 100
+	//	x  = 10
+	y = 2
+	x = 1
 )
 
 /*
 	Test Quit Early Scenario One
 */
 func TestQrlyOne(t *testing.T) {
-	drainQ(t, "One")
-	primeQ(t, "One")
+	id := "One"
+	drainQ(t, id)
+	fmt.Println("test drain One done")
+	primeQ(t, id)
+	fmt.Println("test prime One done")
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
 	h := Headers{"destination", qn + "One", "ack", "client"}
+	if c.Protocol() >= SPL_11 {
+		h = h.Add("id", id+c.Protocol())
+	}
 	sc, err := c.Subscribe(h)
 	if err != nil {
 		t.Errorf("Expected no subscribe ERROR, got [%v]\n", err)
@@ -105,12 +113,21 @@ func TestQrlyOne(t *testing.T) {
 
 	var m MessageData
 	for i := 1; i <= x; i++ {
-		m = <-sc
+		fmt.Println("Try read:", i)
+		select {
+		case m := <-sc:
+			t.Logf(string(m.Message.Body))
+			break
+		case m := <-c.MessageData:
+			t.Logf(string(m.Message.Body))
+			break
+		}
+
 		t.Logf("one read: %d %s %q\n", i, string(m.Message.Body), m.Message.Headers)
 	}
 	// ACK the last
 	runAck(m, c, t)
-	// Only close
+	// Then close
 	_ = closeConn(t, n)
 
 	// This will log .... basically nothing, since DISCONNECT has not been
@@ -131,7 +148,12 @@ func TestQrlyTwo(t *testing.T) {
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
 
-	h := Headers{"destination", qn + id, "ack", "client", "id", id}
+	h := Headers{"destination", qn + id, "ack", "client",
+		"sngSubdrain", "before", "sngNack12", "true"}
+	if c.Protocol() >= SPL_11 {
+		h = h.Add("id", id+c.Protocol())
+	}
+
 	sc, err := c.Subscribe(h)
 	if err != nil {
 		t.Errorf("Expected no subscribe ERROR, got [%v]\n", err)
@@ -139,7 +161,15 @@ func TestQrlyTwo(t *testing.T) {
 
 	var m MessageData
 	for i := 1; i <= x; i++ {
-		m = <-sc
+		select {
+		case m := <-sc:
+			t.Logf(string(m.Message.Body))
+			break
+		case m := <-c.MessageData:
+			t.Logf(string(m.Message.Body))
+			break
+		}
+
 		t.Logf("one read: %d %s %q\n", i, string(m.Message.Body), m.Message.Headers)
 	}
 	// ACK the last
@@ -169,7 +199,11 @@ func TestQrlyThree(t *testing.T) {
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
 
-	h := Headers{"destination", qn + id, "ack", "client", "id", id}
+	h := Headers{"destination", qn + id, "ack", "client",
+		"sngSubdrain", "before", "sngNack12", "true"}
+	if c.Protocol() >= SPL_11 {
+		h = h.Add("id", id+c.Protocol())
+	}
 	sc, err := c.Subscribe(h)
 	if err != nil {
 		t.Errorf("Expected no subscribe ERROR, got [%v]\n", err)
@@ -177,7 +211,15 @@ func TestQrlyThree(t *testing.T) {
 
 	var m MessageData
 	for i := 1; i <= x; i++ {
-		m = <-sc
+		select {
+		case m := <-sc:
+			t.Logf(string(m.Message.Body))
+			break
+		case m := <-c.MessageData:
+			t.Logf(string(m.Message.Body))
+			break
+		}
+
 		t.Logf("one read: %d %s %q\n", i, string(m.Message.Body), m.Message.Headers)
 	}
 	// ACK the last
@@ -227,6 +269,9 @@ func drainQ(t *testing.T, suff string) {
 		tr := time.NewTicker(5 * time.Second)
 		select {
 		case m := <-sc:
+			t.Logf(string(m.Message.Body))
+			break
+		case m := <-c.MessageData:
 			t.Logf(string(m.Message.Body))
 			break
 		case _ = <-tr.C:

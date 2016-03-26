@@ -18,7 +18,7 @@ package stompngo
 
 import (
 	"fmt"
-	"log"
+	//	"log"
 )
 
 var _ = fmt.Println
@@ -62,33 +62,35 @@ func (c *Connection) Disconnect(h Headers) error {
 	// What we do here is attempt to force an Unsubscribe to these
 	// subscriptions.
 
-	// Copy the Connection.subs map
-	lus := make(map[string]*subscription)
-	c.subsLock.RLock()
-	for k, v := range c.subs {
-		lus[k] = v
-	}
-	c.subsLock.RUnlock()
+	/*
+		// Copy the Connection.subs map
+		lus := make(map[string]*subscription)
+		c.subsLock.RLock()
+		for k, v := range c.subs {
+			lus[k] = v
+		}
+		c.subsLock.RUnlock()
 
-	// Now unsubscribe from any of these latent subscriptions
-	for _, v := range lus {
-		h := Headers{}
-		//
-		switch c.Protocol() {
-		case SPL_12:
-			h = h.Add("id", v.id)
-		case SPL_11:
-			h = h.Add("id", v.id)
-		case SPL_10:
-			h = h.Add("destination", v.dst)
-		default:
-			log.Fatalln("unsubscribe invalid protocol level, should not happen")
+		// Now unsubscribe from any of these latent subscriptions
+		for _, v := range lus {
+			h := Headers{}
+			//
+			switch c.Protocol() {
+			case SPL_12:
+				h = h.Add("id", v.id)
+			case SPL_11:
+				h = h.Add("id", v.id)
+			case SPL_10:
+				h = h.Add("destination", v.dst)
+			default:
+				log.Fatalln("unsubscribe invalid protocol level, should not happen")
+			}
+			e := c.Unsubscribe(h)
+			if e != nil {
+				log.Fatalln("unsubscribe failed", e)
+			}
 		}
-		e := c.Unsubscribe(h)
-		if e != nil {
-			log.Fatalln("unsubscribe failed", e)
-		}
-	}
+	*/
 
 	// Now, get to the real business of Disconnect
 	ch := h.Clone()

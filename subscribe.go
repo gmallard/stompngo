@@ -93,59 +93,57 @@ func (c *Connection) establishSubscription(h Headers) (*subscription, error, Hea
 		if _, q := c.subs[id]; q {
 			return nil, EDUPSID, h // Duplicate subscriptions not allowed
 		}
-	} else {
-		if _, q := c.subs[uuid1]; q {
-			return nil, EDUPSID, h // Duplicate subscriptions not allowed
-		}
 	}
 	//
-
-	//	sd := new(subscription)
-	sd := &subscription{md: make(chan MessageData, c.scc),
-		id:  id,
-		am:  "auto",
-		dst: h.Value("destination"),
-		df:  false,
-		dfd: false,
-		dfw: "before",
+	if !hid {
+		id = uuid1
 	}
+	//	New Subscription Data
+	sd := &subscription{md: make(chan MessageData, c.scc),
+		id:     id,                     // Subscription "id"
+		am:     "auto",                 // ACK Mode
+		dst:    h.Value("destination"), // STOMP destination
+		df:     false,                  // Drain: true/false
+		dfdn:   false,                  // Drain completed?
+		dfw:    "before",               // When to drain: before/after UNSUBSCRIBE is in the wire
+		nack12: false,
+	}
+
+	//fmt.Printf("sub01: %q\n", sd)
 
 	if ham, q := h.Contains("ack"); q {
 		sd.am = ham // Reset it, might still be "auto"
 	}
 
 	// stompngo extension:  subscription drain control
-	if v, q := h.Contains("subdrain"); q {
-		sd.df = true
+	if v, q := h.Contains("sngSubdrain"); q {
+		sd.df = true // drain requested
 		if v == "after" {
 			sd.dfw = v
 		}
 	}
+	if _, q := h.Contains("sngNack12"); q {
+		sd.nack12 = true
+	}
+	//fmt.Printf("sub02: %q\n", h)
+	// ?
 
-	// Rewrite the below.
 	if c.Protocol() == SPL_10 {
-		if hid { // If 1.0 client wants one, assign it.
-			sd.md = make(chan MessageData, c.scc)
-			sd.id = id
-			sd.dst = h.Value("destination")
-		} else {
+		if !hid { // If 1.0 client wants one, assign it.
+			//fmt.Println("sub03, L10")
 			sd.md = c.input
-			sd.dst = h.Value("destination")
+			c.subs[sd.id] = sd // Add subscription to the connection
+			//c.dumpSubMap("10sub")
 			return sd, nil, h // 1.0 clients with no id take their own chances
 		}
-	} else { // 1.1+
-		if hid { // Client specified id
-			sd.md = make(chan MessageData, c.scc) // Assign subscription
-			sd.id = id                            // Set subscription id
-			sd.dst = h.Value("destination")       // Set subscription destination
-		} else {
-			h = h.Add("id", uuid1)
-			sd.md = make(chan MessageData, c.scc) // Assign subscription
-			sd.id = uuid1                         // Set subscription id
-			sd.dst = h.Value("destination")       // Set subscription destination
+	} else { // Other protocol levels
+		if !hid {
+			h = h.Add("id", id)
 		}
 	}
 
+	//fmt.Printf("sub04: %q\n", sd)
 	c.subs[sd.id] = sd // Add subscription to the connection
+	//c.dumpSubMap("11psub")
 	return sd, nil, h
 }

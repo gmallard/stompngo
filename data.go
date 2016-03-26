@@ -130,17 +130,25 @@ type Connection struct {
 	scc               int      // Subscribe channel capacity
 }
 
+/*
+	Subscription control and tracking information.
+*/
 type subscription struct {
 	md  chan MessageData // Subscription unique MessageData channel
 	id  string           // Subscription 'id' header
 	am  string           // Subscription 'ack' keader
 	dst string           // Subscription 'destination' header
-	// Controlled by the "subdrain" header value for SUBSCRIBE
-	df  bool // Drain control flag, drain or not.  Default is false.
-	dfd bool // Drain already done flag
-	// Also controlled by the "subdrain" header value for SUBSCRIBE.  See
+
+	// Controlled by the "sngSubdrain" header value for SUBSCRIBE
+	df   bool // Drain control flag, drain or not.  Default is false.
+	dfdn bool // Drain already done flag
+
+	// Also controlled by the "sngSubdrain" header value for SUBSCRIBE.  See
 	// code and comments in subscribe.go for more information.
 	dfw string // Drain when indicator:  "before" or "after" unsubscribe
+
+	// Controlled by the sngNack12 header
+	nack12 bool // Issue NACKs for 1.2 dropped messages: true/false
 }
 
 /*

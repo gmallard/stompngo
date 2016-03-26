@@ -229,3 +229,21 @@ func (c *Connection) handleReadError(md MessageData) {
 	// Let further shutdown logic proceed normally.
 	return
 }
+
+/*
+	Debug helper, dump subscription map.
+*/
+func (c *Connection) dumpSubMap(t string) {
+	log.Printf("Tag: %s\n", t)
+	for i := range c.subs {
+		log.Printf("Entry: %s\n", i)
+		log.Printf("\tMD: %v\n", c.subs[i].md)
+		log.Printf("\tID: %s\n", c.subs[i].id)
+		log.Printf("\tAM: %s\n", c.subs[i].am)
+		log.Printf("\tDST: %s\n", c.subs[i].dst)
+		log.Printf("\tDF: %t\n", c.subs[i].df)
+		log.Printf("\tDFDN: %t\n", c.subs[i].dfdn)
+		log.Printf("\tDFW: %s\n", c.subs[i].dfw)
+		log.Printf("\tNACK12: %t\n", c.subs[i].nack12)
+	}
+}

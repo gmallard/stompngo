@@ -18,6 +18,7 @@ package stompngo
 
 import (
 	"bufio"
+	"fmt"
 	"strconv"
 	"time"
 )
@@ -50,6 +51,7 @@ func (c *Connection) writer() {
 */
 func (c *Connection) wireWrite(d wiredata) {
 	f := &d.frame
+	fmt.Println("writing", f.Command)
 	switch f.Command {
 	case "\n": // HeartBeat frame
 		if _, e := c.wtr.WriteString(f.Command); e != nil {
