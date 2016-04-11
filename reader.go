@@ -70,6 +70,7 @@ func (c *Connection) reader() {
 		}
 
 	}
+	close(c.input)
 	c.log("reader shutdown", time.Now())
 }
 
