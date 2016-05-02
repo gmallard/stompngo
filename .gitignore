@@ -24,4 +24,5 @@ _*
 *~
 *.bak
 temp*
-
+# Ignore local vscode artifacts
+.vscode/
