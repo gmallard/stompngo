@@ -29,7 +29,6 @@ func TestShovel11(t *testing.T) {
 		t.Skip("Test11Shovel norun, need 1.1+")
 	}
 
-	t.Parallel()
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)

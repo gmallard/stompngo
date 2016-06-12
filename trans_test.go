@@ -25,7 +25,6 @@ import (
 */
 func TestTransErrors(t *testing.T) {
 
-	t.Parallel()
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
@@ -116,7 +115,6 @@ func TestTransErrors(t *testing.T) {
 */
 func TestTransSend(t *testing.T) {
 
-	t.Parallel()
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
@@ -165,7 +163,6 @@ func TestTransSend(t *testing.T) {
 */
 func TestTransSendRollback(t *testing.T) {
 
-	t.Parallel()
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
@@ -232,7 +229,6 @@ func TestTransSendRollback(t *testing.T) {
 */
 func TestTransMessageOrder(t *testing.T) {
 
-	t.Parallel()
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)

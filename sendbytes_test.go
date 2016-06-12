@@ -25,7 +25,6 @@ import (
 */
 func TestSendBytesBasic(t *testing.T) {
 
-	t.Parallel()
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
@@ -57,7 +56,6 @@ func TestSendBytesBasic(t *testing.T) {
 */
 func TestSendBytesMultiple(t *testing.T) {
 
-	t.Parallel()
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)

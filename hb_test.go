@@ -28,7 +28,6 @@ import (
 */
 func TestHB10(t *testing.T) {
 
-	t.Parallel()
 
 	n, _ := openConn(t)
 	c, _ := Connect(n, TEST_HEADERS)
@@ -44,7 +43,6 @@ func TestHB10(t *testing.T) {
 */
 func TestHB11NoHeader(t *testing.T) {
 
-	t.Parallel()
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
@@ -65,7 +63,6 @@ func TestHB11NoHeader(t *testing.T) {
 */
 func TestHB11ZeroHeader(t *testing.T) {
 
-	t.Parallel()
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
@@ -86,7 +83,6 @@ func TestHB11ZeroHeader(t *testing.T) {
 */
 func TestHB11InitErrors(t *testing.T) {
 
-	t.Parallel()
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
@@ -160,7 +156,6 @@ func TestHB11Connect(t *testing.T) {
 		t.Skip("TestHB11Connect norun, need 1.1+")
 	}
 
-	t.Parallel()
 
 	//
 	n, _ := openConn(t)

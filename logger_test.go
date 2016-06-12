@@ -26,7 +26,6 @@ import (
 	Test Logger Basic, confirm by observation.
 */
 func TestLoggerBasic(t *testing.T) {
-	t.Parallel()
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)

@@ -25,7 +25,6 @@ import (
 */
 func TestSendBasic(t *testing.T) {
 
-	t.Parallel()
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
@@ -57,7 +56,6 @@ func TestSendBasic(t *testing.T) {
 */
 func TestSendMultiple(t *testing.T) {
 
-	t.Parallel()
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)

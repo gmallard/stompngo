@@ -63,7 +63,6 @@ func checkNackErrors(t *testing.T, p string, e error, s bool) {
 */
 func TestNackErrors(t *testing.T) {
 
-	t.Parallel()
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)

@@ -24,7 +24,6 @@ import (
 	Data Test: Headers Basic.
 */
 func TestDataHeadersBasic(t *testing.T) {
-	t.Parallel()
 	k := "keya"
 	v := "valuea"
 	h := Headers{k, v}
@@ -56,7 +55,6 @@ func TestDataHeadersBasic(t *testing.T) {
 	Data Test: Headers UTF8.
 */
 func TestDataHeadersUTF8(t *testing.T) {
-	t.Parallel()
 	k := "keya"
 	v := "valuea"
 	h := Headers{k, v}
@@ -90,7 +88,6 @@ func TestDataHeadersUTF8(t *testing.T) {
 Data Test: Headers Clone
 */
 func TestDataHeadersClone(t *testing.T) {
-	t.Parallel()
 	h := Headers{"ka", "va"}.Add("kb", "vb").Add("kc", "vc")
 	hc := h.Clone()
 	if !h.Compare(hc) {
@@ -102,7 +99,6 @@ func TestDataHeadersClone(t *testing.T) {
 	Data Test: Headers Add / Delete.
 */
 func TestDataHeadersAddDelete(t *testing.T) {
-	t.Parallel()
 	ha := Headers{"ka", "va", "kb", "vb", "kc", "vc"}
 	hb := Headers{"kaa", "va", "kbb", "vb", "kcc", "vc"}
 	hn := ha.AddHeaders(hb)
@@ -124,7 +120,6 @@ func TestDataHeadersAddDelete(t *testing.T) {
 	Data Test: Headers ContainsKV
 */
 func TestDataHeadersContainsKV(t *testing.T) {
-	t.Parallel()
 	ha := Headers{"ka", "va", "kb", "vb", "kc", "vc"}
 	b := ha.ContainsKV("kb", "vb")
 	if !b {
@@ -140,7 +135,6 @@ func TestDataHeadersContainsKV(t *testing.T) {
 	Data Test: Headers Compare
 */
 func TestDataHeadersCompare(t *testing.T) {
-	t.Parallel()
 	ha := Headers{"ka", "va", "kb", "vb", "kc", "vc"}
 	hb := Headers{"ka", "va", "kb", "vb", "kc", "vc"}
 	hc := Headers{"ka", "va"}
@@ -167,7 +161,6 @@ func TestDataHeadersCompare(t *testing.T) {
 	Data Test: Headers Size
 */
 func TestDataHeadersSize(t *testing.T) {
-	t.Parallel()
 	ha := Headers{"k", "v"}
 	s := ha.Size(false)
 	var w int64 = 4
@@ -187,7 +180,6 @@ func TestDataHeadersSize(t *testing.T) {
 	Data Test: Empty Header Key / Value
 */
 func TestDataHeadersEmtKV(t *testing.T) {
-	t.Parallel()
 	h := Headers{"a", "b", "c", "d"}
 	ek := Headers{"a", "b", "", "d"}
 	ev := Headers{"a", "", "c", "d"}

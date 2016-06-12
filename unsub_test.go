@@ -46,7 +46,6 @@ var unsubNoId = []unsubData{
 */
 func TestUnsubNoHdr(t *testing.T) {
 
-	t.Parallel()
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
@@ -74,7 +73,6 @@ func TestUnsubNoHdr(t *testing.T) {
 */
 func TestUnsubNoId(t *testing.T) {
 
-	t.Parallel()
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
@@ -101,7 +99,6 @@ func TestUnsubNoId(t *testing.T) {
 */
 func TestUnsubBadId(t *testing.T) {
 
-	t.Parallel()
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
