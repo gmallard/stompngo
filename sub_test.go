@@ -154,6 +154,7 @@ func TestSubNoIdTwice10(t *testing.T) {
 		_ = c.Disconnect(empty_headers)
 		_ = closeConn(t, n)
 	}
+	t.Log("TestSubNoIdTwice10", "ends")
 }
 
 /*
