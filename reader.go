@@ -65,11 +65,12 @@ func (c *Connection) reader() {
 		default:
 		}
 
-		if q {
+		if q || !(c.connected) {
 			break
 		}
 
 	}
+	close(c.input)
 	c.log("reader shutdown", time.Now())
 }
 

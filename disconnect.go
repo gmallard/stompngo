@@ -55,7 +55,6 @@ func (c *Connection) Disconnect(h Headers) error {
 	}
 	//
 	c.connected = false
-	c.rsd <- true
 	f := Frame{DISCONNECT, ch, NULLBUFF}
 	//
 	r := make(chan error)
@@ -69,5 +68,6 @@ func (c *Connection) Disconnect(h Headers) error {
 		c.DisconnectReceipt = <-c.input
 		c.log(DISCONNECT, "end", ch, c.DisconnectReceipt)
 	}
+	c.rsd <- true
 	return e
 }
