@@ -1,5 +1,5 @@
 //
-// Copyright © 2011-2015 Guy M. Allard
+// Copyright © 2011-2016 Guy M. Allard
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@ package stompngo
 	connection.
 
 
-	Obtain a receipt.  If the client asks for a receipt, use the supplied receipt
-	id.  Otherwise generate a uniqueue receipt id and add that to the DISCONNECT
-	headers.
+	Obtain a receipt unless the client specifically indicates a receipt request
+	should be excluded.  If the client  actually asks for a receipt, use the
+	supplied receipt id.  Otherwise generate a uniqueue receipt id and add that
+	to the DISCONNECT headers.
 
 	Example:
 		h := stompngo.Headers{"receipt", "receipt-id1"} // Ask for a receipt
@@ -35,9 +36,22 @@ package stompngo
 			// Do something sane ...
 		}
 		fmt.Printf("%q\n", c.DisconnectReceipt)
+		// Or:
+		h := stompngo.Headers{"noreceipt", "true"} // Ask for a receipt
+		e := c.Disconnect(h)
+		if e != nil {
+			// Do something sane ...
+		}
+		fmt.Printf("%q\n", c.DisconnectReceipt)
 
 */
 func (c *Connection) Disconnect(h Headers) error {
+	c.discLock.Lock()
+	defer c.discLock.Unlock()
+	//
+	if !c.connected {
+		return EDISCPC
+	}
 	c.log(DISCONNECT, "start", h)
 	if !c.connected {
 		return ECONBAD
@@ -47,15 +61,17 @@ func (c *Connection) Disconnect(h Headers) error {
 		return e
 	}
 	ch := h.Clone()
-	// Add a receipt request if caller did not ask for one.  This is in the spirit
-	// of the specification, and allows reasonable resource cleanup in both the
-	// client and the message broker.
-	if _, ok := ch.Contains("receipt"); !ok {
-		ch = append(ch, "receipt", Uuid())
+	// If the caller dous not want a receipt do not ask for one.  Otherwise,
+	// add a receipt request if caller did not specifically ask for one.  This is
+	// in the spiritof the specification, and allows reasonable resource cleanup
+	// in both the client and the message broker.
+	_, cwr := ch.Contains("noreceipt")
+	if !cwr {
+		if _, ok := ch.Contains("receipt"); !ok {
+			ch = append(ch, "receipt", Uuid())
+		}
 	}
 	//
-	c.connected = false
-	c.rsd <- true
 	f := Frame{DISCONNECT, ch, NULLBUFF}
 	//
 	r := make(chan error)
@@ -64,10 +80,11 @@ func (c *Connection) Disconnect(h Headers) error {
 	// Drive shutdown logic
 	c.shutdown()
 	// Only set DisconnectReceipt if we sucessfully received one.
-	if e == nil {
+	if !cwr && e == nil {
 		// Receipt
 		c.DisconnectReceipt = <-c.input
 		c.log(DISCONNECT, "end", ch, c.DisconnectReceipt)
 	}
+	c.rsd <- true
 	return e
 }

@@ -1,5 +1,5 @@
 //
-// Copyright © 2011-2015 Guy M. Allard
+// Copyright © 2011-2016 Guy M. Allard
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import (
 */
 func TestSubNoSub(t *testing.T) {
 
-	t.Parallel()
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
@@ -53,7 +52,6 @@ func TestSubNoSub(t *testing.T) {
 */
 func TestSubNoIdOnce(t *testing.T) {
 
-	t.Parallel()
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
@@ -87,7 +85,6 @@ func TestSubNoIdTwice10(t *testing.T) {
 		t.Skip("TestSubNoIdTwice10 norun, need 1.0")
 	}
 
-	t.Parallel()
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
@@ -154,6 +151,7 @@ func TestSubNoIdTwice10(t *testing.T) {
 		_ = c.Disconnect(empty_headers)
 		_ = closeConn(t, n)
 	}
+	t.Log("TestSubNoIdTwice10", "ends")
 }
 
 /*
@@ -164,7 +162,6 @@ func TestSubNoIdTwice11p(t *testing.T) {
 		t.Skip("TestSubNoIdTwice11p norun, need 1.1+")
 	}
 
-	t.Parallel()
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
@@ -212,7 +209,6 @@ func TestSubNoIdTwice11p(t *testing.T) {
 */
 func TestSubUnsubBasic(t *testing.T) {
 
-	t.Parallel()
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
@@ -263,7 +259,6 @@ func TestSubUnsubBasic10(t *testing.T) {
 		t.Skip("TestSubUnsubBasic10 norun, need 1.0")
 	}
 
-	t.Parallel()
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
@@ -306,7 +301,6 @@ func TestSubUnsubBasic10(t *testing.T) {
 */
 func TestSubEstablishSubscription(t *testing.T) {
 
-	t.Parallel()
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
@@ -335,7 +329,6 @@ func TestSubSetCap(t *testing.T) {
 		t.Skip("TestSubSetCap norun, need 1.1+")
 	}
 
-	t.Parallel()
 
 	//
 	n, _ := openConn(t)

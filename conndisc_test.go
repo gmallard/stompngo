@@ -1,5 +1,5 @@
 //
-// Copyright © 2011-2015 Guy M. Allard
+// Copyright © 2011-2016 Guy M. Allard
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,7 +40,6 @@ var verChecks = []verData{
 	ConnDisc Test: net.Conn.
 */
 func TestConnDiscNetconn(t *testing.T) {
-	t.Parallel()
 	n, _ := openConn(t)
 	_ = closeConn(t, n)
 }
@@ -49,7 +48,6 @@ func TestConnDiscNetconn(t *testing.T) {
 	ConnDisc Test: stompngo.Connect.
 */
 func TestConnDiscStompConn(t *testing.T) {
-	t.Parallel()
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, e := Connect(n, ch)
@@ -114,7 +112,6 @@ func TestConnDiscStompConn(t *testing.T) {
 	ConnDisc Test: stompngo.Disconnect.
 */
 func TestConnDiscStompDisc(t *testing.T) {
-	t.Parallel()
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
@@ -126,10 +123,27 @@ func TestConnDiscStompDisc(t *testing.T) {
 }
 
 /*
+	ConnDisc Test: stompngo.Disconnect with client bypassing a receipt.
+*/
+func TestConnDiscNoDiscReceipt(t *testing.T) {
+	n, _ := openConn(t)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
+	e := c.Disconnect(Headers{"noreceipt", "true"})
+	if e != nil {
+		t.Errorf("Expected no disconnect error, got [%v]\n", e)
+	}
+	if c.DisconnectReceipt.Message.Command != "" {
+		t.Errorf("Expected no disconnect receipt command, got [%v]\n",
+			c.DisconnectReceipt.Message.Command)
+	}
+	_ = closeConn(t, n)
+}
+
+/*
 	ConnDisc Test: stompngo.Disconnect with receipt requested.
 */
 func TestConnDiscStompDiscReceipt(t *testing.T) {
-	t.Parallel()
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
@@ -157,7 +171,6 @@ func TestConnDiscStompDiscReceipt(t *testing.T) {
 	ConnDisc Test: Body Length of CONNECTED response.
 */
 func TestConnBodyLen(t *testing.T) {
-	t.Parallel()
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 
@@ -176,7 +189,6 @@ func TestConnBodyLen(t *testing.T) {
 	Conn11 Test: Test 1.1+ Connection.
 */
 func TestConn11p(t *testing.T) {
-	t.Parallel()
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, e := Connect(n, ch)
@@ -208,7 +220,6 @@ func TestConn11p(t *testing.T) {
 	Conn11Receipt Test: Test receipt not allowed on connect.
 */
 func TestConn11Receipt(t *testing.T) {
-	t.Parallel()
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	nch := ch.Add("receipt", "abcd1234")
@@ -226,7 +237,6 @@ func TestConn11Receipt(t *testing.T) {
 	ConnDisc Test: ECONBAD
 */
 func TestEconBad(t *testing.T) {
-	t.Parallel()
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, e := Connect(n, ch)
@@ -249,10 +259,6 @@ func TestEconBad(t *testing.T) {
 	if e != ECONBAD {
 		t.Errorf("Commit expected [%v] got [%v]\n", ECONBAD, e)
 	}
-	e = c.Disconnect(empty_headers)
-	if e != ECONBAD {
-		t.Errorf("Disconnect expected [%v] got [%v]\n", ECONBAD, e)
-	}
 	e = c.Nack(empty_headers)
 	if e != ECONBAD {
 		t.Errorf("Nack expected [%v] got [%v]\n", ECONBAD, e)
@@ -272,10 +278,25 @@ func TestEconBad(t *testing.T) {
 }
 
 /*
+	ConnDisc Test: EDISCPC
+*/
+func TestEconDiscDone(t *testing.T) {
+	n, _ := openConn(t)
+	ch := check11(TEST_HEADERS)
+	c, e := Connect(n, ch)
+	_ = c.Disconnect(empty_headers)
+	_ = closeConn(t, n)
+	//
+	e = c.Disconnect(empty_headers)
+	if e != EDISCPC {
+		t.Errorf("Previous disconnect expected [%v] got [%v]\n", EDISCPC, e)
+	}
+}
+
+/*
 	ConnDisc Test: setProtocolLevel
 */
 func TestSetProtocolLevel(t *testing.T) {
-	t.Parallel()
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	c, _ := Connect(n, ch)
@@ -296,8 +317,6 @@ func TestSetProtocolLevel(t *testing.T) {
 	ConnDisc Test: connRespData
 */
 func TestConnRespData(t *testing.T) {
-
-	t.Parallel()
 
 	for i, f := range frames {
 		_, e := connectResponse(f.data)

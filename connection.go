@@ -1,5 +1,5 @@
 //
-// Copyright © 2011-2015 Guy M. Allard
+// Copyright © 2011-2016 Guy M. Allard
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -207,6 +207,7 @@ func (c *Connection) shutdown() {
 	for key := range c.subs {
 		close(c.subs[key])
 	}
+	c.connected = false
 	c.subsLock.Unlock()
 	c.log("SHUTDOWN", "ends")
 	return
@@ -220,8 +221,10 @@ func (c *Connection) handleReadError(md MessageData) {
 	c.input <- md
 	// Notify all individual subscribers of error
 	c.subsLock.Lock()
-	for key := range c.subs {
-		c.subs[key] <- md
+	if c.connected {
+		for key := range c.subs {
+			c.subs[key] <- md
+		}
 	}
 	c.subsLock.Unlock()
 	// Let further shutdown logic proceed normally.

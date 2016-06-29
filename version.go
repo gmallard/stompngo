@@ -1,5 +1,5 @@
 //
-// Copyright © 2011-2016 Guy M. Allard
+// Copyright © 2016 Guy M. Allard
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,13 +17,24 @@
 package stompngo
 
 /*
-	Common transmit data for many stomp API calls.
+	Provide package version information.  A nod to the concept of semver.
+
+	Example:
+		fmt.Println("current stompngo version", stompngo.Version())
+
 */
-func (c *Connection) transmitCommon(v string, h Headers) error {
-	ch := h.Clone()
-	f := Frame{v, ch, NULLBUFF}
-	r := make(chan error)
-	c.output <- wiredata{f, r}
-	e := <-r
-	return e
+
+import (
+	"fmt"
+)
+
+var (
+	pref  = "v" // Prefix
+	major = "1" // Major
+	minor = "0" // Minor
+	patch = "1" // Patch
+)
+
+func Version() string {
+	return fmt.Sprintf("%s%s.%s.%s", pref, major, minor, patch)
 }
