@@ -38,6 +38,12 @@ package stompngo
 
 */
 func (c *Connection) Disconnect(h Headers) error {
+	c.discLock.Lock()
+	defer c.discLock.Unlock()
+	//
+	if !c.connected {
+		return EDISCPC
+	}
 	c.log(DISCONNECT, "start", h)
 	if !c.connected {
 		return ECONBAD

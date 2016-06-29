@@ -126,8 +126,9 @@ type Connection struct {
 	Hbrf              bool // Indicates a heart beat read/receive failure, which is possibly transient.  Valid for 1.1+ only.
 	Hbsf              bool // Indicates a heart beat send failure, which is possibly transient.  Valid for 1.1+ only.
 	logger            *log.Logger
-	mets              *metrics // Client metrics
-	scc               int      // Subscribe channel capacity
+	mets              *metrics   // Client metrics
+	scc               int        // Subscribe channel capacity
+	discLock          sync.Mutex // DISCONNECT lock
 }
 
 /*
@@ -202,6 +203,9 @@ const (
 
 	// Invalid broker command
 	EINVBCMD = Error("invalid broker command")
+
+	// DISCONNET Already completed
+	EDISCPC = Error("disconnect previously completed")
 )
 
 /*

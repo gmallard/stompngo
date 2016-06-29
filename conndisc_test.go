@@ -241,10 +241,6 @@ func TestEconBad(t *testing.T) {
 	if e != ECONBAD {
 		t.Errorf("Commit expected [%v] got [%v]\n", ECONBAD, e)
 	}
-	e = c.Disconnect(empty_headers)
-	if e != ECONBAD {
-		t.Errorf("Disconnect expected [%v] got [%v]\n", ECONBAD, e)
-	}
 	e = c.Nack(empty_headers)
 	if e != ECONBAD {
 		t.Errorf("Nack expected [%v] got [%v]\n", ECONBAD, e)
@@ -260,6 +256,22 @@ func TestEconBad(t *testing.T) {
 	e = c.Unsubscribe(empty_headers)
 	if e != ECONBAD {
 		t.Errorf("Unsubscribe expected [%v] got [%v]\n", ECONBAD, e)
+	}
+}
+
+/*
+	ConnDisc Test: EDISCPC
+*/
+func TestEconDiscDone(t *testing.T) {
+	n, _ := openConn(t)
+	ch := check11(TEST_HEADERS)
+	c, e := Connect(n, ch)
+	_ = c.Disconnect(empty_headers)
+	_ = closeConn(t, n)
+	//
+	e = c.Disconnect(empty_headers)
+	if e != EDISCPC {
+		t.Errorf("Previous disconnect expected [%v] got [%v]\n", EDISCPC, e)
 	}
 }
 
@@ -287,7 +299,6 @@ func TestSetProtocolLevel(t *testing.T) {
 	ConnDisc Test: connRespData
 */
 func TestConnRespData(t *testing.T) {
-
 
 	for i, f := range frames {
 		_, e := connectResponse(f.data)
