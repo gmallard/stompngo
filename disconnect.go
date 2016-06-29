@@ -60,7 +60,6 @@ func (c *Connection) Disconnect(h Headers) error {
 		ch = append(ch, "receipt", Uuid())
 	}
 	//
-	c.connected = false
 	f := Frame{DISCONNECT, ch, NULLBUFF}
 	//
 	r := make(chan error)

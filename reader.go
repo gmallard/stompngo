@@ -65,7 +65,7 @@ func (c *Connection) reader() {
 		default:
 		}
 
-		if q || !(c.connected) {
+		if q {
 			break
 		}
 
