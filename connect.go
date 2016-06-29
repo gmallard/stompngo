@@ -68,13 +68,14 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 	}
 	ch := h.Clone()
 	c := &Connection{netconn: n,
-		input:     make(chan MessageData, 1),
-		output:    make(chan wiredata),
-		connected: false,
-		session:   "",
-		protocol:  SPL_10,
-		subs:      make(map[string]chan MessageData),
-		scc:       1}
+		input:             make(chan MessageData, 1),
+		output:            make(chan wiredata),
+		connected:         false,
+		session:           "",
+		protocol:          SPL_10,
+		subs:              make(map[string]chan MessageData),
+		DisconnectReceipt: MessageData{},
+		scc:               1}
 
 	// Bsaic metric data
 	c.mets = &metrics{st: time.Now()}

@@ -123,6 +123,24 @@ func TestConnDiscStompDisc(t *testing.T) {
 }
 
 /*
+	ConnDisc Test: stompngo.Disconnect with client bypassing a receipt.
+*/
+func TestConnDiscNoDiscReceipt(t *testing.T) {
+	n, _ := openConn(t)
+	ch := check11(TEST_HEADERS)
+	c, _ := Connect(n, ch)
+	e := c.Disconnect(Headers{"noreceipt", "true"})
+	if e != nil {
+		t.Errorf("Expected no disconnect error, got [%v]\n", e)
+	}
+	if c.DisconnectReceipt.Message.Command != "" {
+		t.Errorf("Expected no disconnect receipt command, got [%v]\n",
+			c.DisconnectReceipt.Message.Command)
+	}
+	_ = closeConn(t, n)
+}
+
+/*
 	ConnDisc Test: stompngo.Disconnect with receipt requested.
 */
 func TestConnDiscStompDiscReceipt(t *testing.T) {
