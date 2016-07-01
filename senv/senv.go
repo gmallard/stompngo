@@ -37,62 +37,23 @@ var (
 	heartbeats = "0,0"       // default (no) heartbeats
 )
 
-/*
-  Package initialization.
-*/
-func init() {
+// Host returns a default connection hostname.
+func Host() string {
 	// Host
 	he := os.Getenv("STOMP_HOST")
 	if he != "" {
 		host = he
 	}
-	// Port
-	pt := os.Getenv("STOMP_PORT")
-	if pt != "" {
-		port = pt
-	}
-	// Protocol
-	pr := os.Getenv("STOMP_PROTOCOL")
-	if pr != "" {
-		protocol = pr
-	}
-	// Login
-	l := os.Getenv("STOMP_LOGIN")
-	if l != "" {
-		login = l
-	}
-	if l == "NONE" {
-		login = ""
-	}
-	// Passcode
-	pc := os.Getenv("STOMP_PASSCODE")
-	if pc != "" {
-		passcode = pc
-	}
-	if pc == "NONE" {
-		passcode = ""
-	}
-	// Vhost
-	vh := os.Getenv("STOMP_VHOST")
-	if vh != "" {
-		vhost = vh
-	} else {
-		vhost = Host()
-	}
-	// Heartbeats
-	hb := os.Getenv("STOMP_HEARTBEATS")
-	if hb != "" {
-		heartbeats = hb
-	}
-}
-
-// Host returns a default connection hostname.
-func Host() string {
 	return host
 }
 
 // Port returns a default connection port.
 func Port() string {
+	// Port
+	pt := os.Getenv("STOMP_PORT")
+	if pt != "" {
+		port = pt
+	}
 	return port
 }
 
@@ -103,25 +64,58 @@ func HostAndPort() (string, string) {
 
 // Protocol returns a default level.
 func Protocol() string {
+	// Protocol
+	pr := os.Getenv("STOMP_PROTOCOL")
+	if pr != "" {
+		protocol = pr
+	}
 	return protocol
 }
 
 // Login returns a default login ID.
 func Login() string {
+	// Login
+	l := os.Getenv("STOMP_LOGIN")
+	if l != "" {
+		login = l
+	}
+	if l == "NONE" {
+		login = ""
+	}
 	return login
 }
 
 // Passcode returns a default passcode.
 func Passcode() string {
+	// Passcode
+	pc := os.Getenv("STOMP_PASSCODE")
+	if pc != "" {
+		passcode = pc
+	}
+	if pc == "NONE" {
+		passcode = ""
+	}
 	return passcode
 }
 
 // Vhost returns a default vhost name.
 func Vhost() string {
+	// Vhost
+	vh := os.Getenv("STOMP_VHOST")
+	if vh != "" {
+		vhost = vh
+	} else {
+		vhost = Host()
+	}
 	return vhost
 }
 
 // Heartbeats returns client requested heart beat values.
 func Heartbeats() string {
+	// Heartbeats
+	hb := os.Getenv("STOMP_HEARTBEATS")
+	if hb != "" {
+		heartbeats = hb
+	}
 	return heartbeats
 }
