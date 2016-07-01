@@ -28,29 +28,71 @@ import (
 )
 
 var (
-	host     = "localhost" // default host
-	port     = "61613"     // default port
-	protocol = "1.2"       // Default protocol level
-	login    = "guest"     // default login
-	passcode = "guest"     // default passcode
-	vhost    = "localhost" // default vhost
+	host       = "localhost" // default host
+	port       = "61613"     // default port
+	protocol   = "1.2"       // Default protocol level
+	login      = "guest"     // default login
+	passcode   = "guest"     // default passcode
+	vhost      = "localhost" // default vhost
+	heartbeats = "0,0"       // default (no) heartbeats
 )
 
-// Host returns a default connection hostname.
-func Host() string {
+/*
+  Package initialization.
+*/
+func init() {
+	// Host
 	he := os.Getenv("STOMP_HOST")
 	if he != "" {
 		host = he
 	}
+	// Port
+	pt := os.Getenv("STOMP_PORT")
+	if pt != "" {
+		port = pt
+	}
+	// Protocol
+	pr := os.Getenv("STOMP_PROTOCOL")
+	if pr != "" {
+		protocol = pr
+	}
+	// Login
+	l := os.Getenv("STOMP_LOGIN")
+	if l != "" {
+		login = l
+	}
+	if l == "NONE" {
+		login = ""
+	}
+	// Passcode
+	pc := os.Getenv("STOMP_PASSCODE")
+	if pc != "" {
+		passcode = pc
+	}
+	if pc == "NONE" {
+		passcode = ""
+	}
+	// Vhost
+	vh := os.Getenv("STOMP_VHOST")
+	if vh != "" {
+		vhost = vh
+	} else {
+		vhost = Host()
+	}
+	// Heartbeats
+	hb := os.Getenv("STOMP_HEARTBEATS")
+	if hb != "" {
+		heartbeats = hb
+	}
+}
+
+// Host returns a default connection hostname.
+func Host() string {
 	return host
 }
 
 // Port returns a default connection port.
 func Port() string {
-	pe := os.Getenv("STOMP_PORT")
-	if pe != "" {
-		port = pe
-	}
 	return port
 }
 
@@ -61,42 +103,25 @@ func HostAndPort() (string, string) {
 
 // Protocol returns a default level.
 func Protocol() string {
-	p := os.Getenv("STOMP_PROTOCOL")
-	if p != "" {
-		protocol = p
-	}
 	return protocol
 }
 
 // Login returns a default login ID.
 func Login() string {
-	l := os.Getenv("STOMP_LOGIN")
-	if l != "" {
-		login = l
-	}
-	if l == "NONE" {
-		login = ""
-	}
 	return login
 }
 
 // Passcode returns a default passcode.
 func Passcode() string {
-	p := os.Getenv("STOMP_PASSCODE")
-	if p != "" {
-		passcode = p
-	}
-	if p == "NONE" {
-		passcode = ""
-	}
 	return passcode
 }
 
 // Vhost returns a default vhost name.
 func Vhost() string {
-	ve := os.Getenv("STOMP_VHOST")
-	if ve != "" {
-		vhost = ve
-	}
 	return vhost
+}
+
+// Heartbeats returns client requested heart beat values.
+func Heartbeats() string {
+	return heartbeats
 }

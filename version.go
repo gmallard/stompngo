@@ -29,10 +29,10 @@ import (
 )
 
 var (
-	pref  = "v"         // Prefix
-	major = "1"         // Major
-	minor = "0"         // Minor
-	patch = "1plus-001" // Patch
+	pref  = "v"       // Prefix
+	major = "1"       // Major
+	minor = "0"       // Minor
+	patch = "1.p.002" // Patch
 )
 
 func Version() string {
