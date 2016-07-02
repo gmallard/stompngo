@@ -53,4 +53,10 @@ func TestSenvDefaults(t *testing.T) {
 	if v != "localhost" {
 		t.Errorf("Senv Vhost, expected [%s], got [%s]\n", "localhost", v)
 	}
+	//
+	d := Dest()
+	if d != "/queue/sample.stomp.destination" {
+		t.Errorf("Senv Dest, expected [%s], got [%s]\n",
+			"/queue/sample.stomp.destination", d)
+	}
 }

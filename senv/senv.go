@@ -28,13 +28,14 @@ import (
 )
 
 var (
-	host       = "localhost" // default host
-	port       = "61613"     // default port
-	protocol   = "1.2"       // Default protocol level
-	login      = "guest"     // default login
-	passcode   = "guest"     // default passcode
-	vhost      = "localhost" // default vhost
-	heartbeats = "0,0"       // default (no) heartbeats
+	host       = "localhost"                       // default host
+	port       = "61613"                           // default port
+	protocol   = "1.2"                             // Default protocol level
+	login      = "guest"                           // default login
+	passcode   = "guest"                           // default passcode
+	vhost      = "localhost"                       // default vhost
+	heartbeats = "0,0"                             // default (no) heartbeats
+	dest       = "/queue/sample.stomp.destination" // default destination
 )
 
 // Host returns a default connection hostname.
@@ -118,4 +119,14 @@ func Heartbeats() string {
 		heartbeats = hb
 	}
 	return heartbeats
+}
+
+// Destination
+func Dest() string {
+	// Destination
+	de := os.Getenv("STOMP_DEST")
+	if de != "" {
+		dest = de
+	}
+	return dest
 }
