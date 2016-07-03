@@ -24,7 +24,9 @@
 package senv
 
 import (
+	"fmt"
 	"os"
+	"strconv"
 )
 
 var (
@@ -36,6 +38,7 @@ var (
 	vhost      = "localhost"                       // default vhost
 	heartbeats = "0,0"                             // default (no) heartbeats
 	dest       = "/queue/sample.stomp.destination" // default destination
+	nmsgs      = 1                                 // default number of messages (useful at times)
 )
 
 // Host returns a default connection hostname.
@@ -129,4 +132,20 @@ func Dest() string {
 		dest = de
 	}
 	return dest
+}
+
+// Number of messages
+func Nmsgs() int {
+	// Number of messages
+	ns := os.Getenv("STOMP_MSGS")
+	if ns == "" {
+		return nmsgs
+	}
+	n, e := strconv.ParseInt(ns, 10, 0)
+	if e != nil {
+		fmt.Printf("NMSGS Conversion error: %v\n", e)
+		return nmsgs
+	}
+	nmsgs = int(n)
+	return nmsgs
 }

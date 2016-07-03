@@ -59,4 +59,10 @@ func TestSenvDefaults(t *testing.T) {
 		t.Errorf("Senv Dest, expected [%s], got [%s]\n",
 			"/queue/sample.stomp.destination", d)
 	}
+	//
+	n := Nmsgs()
+	if n != 1 {
+		t.Errorf("Senv Nmsgs, expected [%d], got [%d]\n",
+			1, n)
+	}
 }
