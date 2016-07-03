@@ -137,7 +137,7 @@ func Dest() string {
 // Number of messages
 func Nmsgs() int {
 	// Number of messages
-	ns := os.Getenv("STOMP_MSGS")
+	ns := os.Getenv("STOMP_NMSGS")
 	if ns == "" {
 		return nmsgs
 	}
