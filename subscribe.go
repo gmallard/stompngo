@@ -82,6 +82,7 @@ func (c *Connection) Subscribe(h Headers) (<-chan MessageData, error) {
 	Handle subscribe id.
 */
 func (c *Connection) establishSubscription(h Headers) (<-chan MessageData, error, Headers) {
+	// This is a write lock
 	c.subsLock.Lock()
 	defer c.subsLock.Unlock()
 	//
