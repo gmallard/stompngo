@@ -116,7 +116,7 @@ type Connection struct {
 	input             chan MessageData
 	output            chan wiredata
 	netconn           net.Conn
-	subs              map[string]chan MessageData
+	subs              map[string]*subscription
 	subsLock          sync.RWMutex
 	wsd               chan bool // writer shutdown
 	rsd               chan bool // reader shutdown
@@ -129,6 +129,12 @@ type Connection struct {
 	mets              *metrics   // Client metrics
 	scc               int        // Subscribe channel capacity
 	discLock          sync.Mutex // DISCONNECT lock
+}
+
+type subscription struct {
+	md chan MessageData // Subscription specific MessageData channel
+	id string           // Subscription id (unique, self reference)
+	am string           // ACK mode for this subscription
 }
 
 /*

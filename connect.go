@@ -73,7 +73,7 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 		connected:         false,
 		session:           "",
 		protocol:          SPL_10,
-		subs:              make(map[string]chan MessageData),
+		subs:              make(map[string]*subscription),
 		DisconnectReceipt: MessageData{},
 		scc:               1}
 

@@ -54,7 +54,7 @@ func (c *Connection) reader() {
 		if sid, ok := f.Headers.Contains("subscription"); ok {
 			// This is a read lock
 			c.subsLock.RLock()
-			c.subs[sid] <- d
+			c.subs[sid].md <- d
 			c.subsLock.RUnlock()
 		} else {
 			c.input <- d

@@ -206,7 +206,7 @@ func (c *Connection) shutdown() {
 	// This is a write lock
 	c.subsLock.Lock()
 	for key := range c.subs {
-		close(c.subs[key])
+		close(c.subs[key].md)
 	}
 	c.connected = false
 	c.subsLock.Unlock()
@@ -225,7 +225,7 @@ func (c *Connection) handleReadError(md MessageData) {
 	c.subsLock.RLock()
 	if c.connected {
 		for key := range c.subs {
-			c.subs[key] <- md
+			c.subs[key].md <- md
 		}
 	}
 	c.subsLock.RUnlock()
