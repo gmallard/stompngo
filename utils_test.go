@@ -146,11 +146,12 @@ func sendMultipleBytes(md multi_send_data) error {
 	Test helper.
 */
 func getMessageData(c *Connection, s <-chan MessageData) (r MessageData) {
-	if os.Getenv("STOMP_TEST11p") == "" {
-		r = <-c.MessageData
-	} else {
-		r = <-s
-	}
+	//
+	// With other parts of this change, we should not see any data from the
+	// c.MessageData channel here.  Attempting to read from that source will hang
+	// with a 1.0 client.
+	//
+	r = <-s
 	return r
 }
 

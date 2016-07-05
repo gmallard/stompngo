@@ -106,27 +106,25 @@ func (c *Connection) establishSubscription(h Headers) (*subscription, error, Hea
 		lam = ham // Reset (possible) used ack mode
 	}
 
+	sd.md = make(chan MessageData, c.scc) // Make subscription MD channel
+	sd.am = lam                           // Set subscription ack mode
+
 	if c.Protocol() == SPL_10 {
 		if hid { // If 1.0 client wants one, assign it.
-			sd.md = make(chan MessageData, c.scc)
-			sd.id = id  // Set subscription ID
-			sd.am = lam // Set subscription ack mode
+			sd.id = id // Set subscription ID
 		} else {
-			sd.md = c.input   // The connection singleton channel
-			sd.id = ""        // No real subscription ID fot this case
-			sd.am = lam       // Set subscription ack mode
-			return sd, nil, h // 1.0 clients with no id take their own chances
+			// Try to help 1.0 clients that subscribe without using an 'id' header
+			ds, _ := h.Contains("destination") // Destination exists or we would not be here
+			nsid := Sha1(ds)                   // This will be unique for a given estination
+			sd.id = nsid                       // for 1.0 with no ID, allow 1 subscribe per destination
+			h = h.Add("id", nsid)              // Add unique id to the headers
 		}
 	} else { // 1.1+
 		if hid { // Client specified id
-			sd.md = make(chan MessageData, c.scc) // Assign subscription
-			sd.id = id                            // Set subscription ID
-			sd.am = lam                           // Set subscription ack mode
+			sd.id = id // Set subscription ID
 		} else {
-			h = h.Add("id", uuid1)
-			sd.md = make(chan MessageData, c.scc) // Assign subscription
-			sd.id = uuid1                         // Set subscription ID
-			sd.am = lam                           // Set subscription ack mode
+			h = h.Add("id", uuid1) // Add unique id to the headers
+			sd.id = uuid1          // Set subscription ID to that
 		}
 	}
 	c.subs[sd.id] = sd // Add subscription to the connection subscription map
