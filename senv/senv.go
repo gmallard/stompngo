@@ -1,5 +1,5 @@
 //
-// Copyright © 2014-2015 Guy M. Allard
+// Copyright © 2014-2016 Guy M. Allard
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,20 +24,26 @@
 package senv
 
 import (
+	"fmt"
 	"os"
+	"strconv"
 )
 
 var (
-	host     = "localhost" // default host
-	port     = "61613"     // default port
-	protocol = "1.2"       // Default protocol level
-	login    = "guest"     // default login
-	passcode = "guest"     // default passcode
-	vhost    = "localhost" // default vhost
+	host       = "localhost"                       // default host
+	port       = "61613"                           // default port
+	protocol   = "1.2"                             // Default protocol level
+	login      = "guest"                           // default login
+	passcode   = "guest"                           // default passcode
+	vhost      = "localhost"                       // default vhost
+	heartbeats = "0,0"                             // default (no) heartbeats
+	dest       = "/queue/sample.stomp.destination" // default destination
+	nmsgs      = 1                                 // default number of messages (useful at times)
 )
 
 // Host returns a default connection hostname.
 func Host() string {
+	// Host
 	he := os.Getenv("STOMP_HOST")
 	if he != "" {
 		host = he
@@ -47,9 +53,10 @@ func Host() string {
 
 // Port returns a default connection port.
 func Port() string {
-	pe := os.Getenv("STOMP_PORT")
-	if pe != "" {
-		port = pe
+	// Port
+	pt := os.Getenv("STOMP_PORT")
+	if pt != "" {
+		port = pt
 	}
 	return port
 }
@@ -61,15 +68,17 @@ func HostAndPort() (string, string) {
 
 // Protocol returns a default level.
 func Protocol() string {
-	p := os.Getenv("STOMP_PROTOCOL")
-	if p != "" {
-		protocol = p
+	// Protocol
+	pr := os.Getenv("STOMP_PROTOCOL")
+	if pr != "" {
+		protocol = pr
 	}
 	return protocol
 }
 
 // Login returns a default login ID.
 func Login() string {
+	// Login
 	l := os.Getenv("STOMP_LOGIN")
 	if l != "" {
 		login = l
@@ -82,11 +91,12 @@ func Login() string {
 
 // Passcode returns a default passcode.
 func Passcode() string {
-	p := os.Getenv("STOMP_PASSCODE")
-	if p != "" {
-		passcode = p
+	// Passcode
+	pc := os.Getenv("STOMP_PASSCODE")
+	if pc != "" {
+		passcode = pc
 	}
-	if p == "NONE" {
+	if pc == "NONE" {
 		passcode = ""
 	}
 	return passcode
@@ -94,9 +104,48 @@ func Passcode() string {
 
 // Vhost returns a default vhost name.
 func Vhost() string {
-	ve := os.Getenv("STOMP_VHOST")
-	if ve != "" {
-		vhost = ve
+	// Vhost
+	vh := os.Getenv("STOMP_VHOST")
+	if vh != "" {
+		vhost = vh
+	} else {
+		vhost = Host()
 	}
 	return vhost
+}
+
+// Heartbeats returns client requested heart beat values.
+func Heartbeats() string {
+	// Heartbeats
+	hb := os.Getenv("STOMP_HEARTBEATS")
+	if hb != "" {
+		heartbeats = hb
+	}
+	return heartbeats
+}
+
+// Destination
+func Dest() string {
+	// Destination
+	de := os.Getenv("STOMP_DEST")
+	if de != "" {
+		dest = de
+	}
+	return dest
+}
+
+// Number of messages
+func Nmsgs() int {
+	// Number of messages
+	ns := os.Getenv("STOMP_NMSGS")
+	if ns == "" {
+		return nmsgs
+	}
+	n, e := strconv.ParseInt(ns, 10, 0)
+	if e != nil {
+		fmt.Printf("NMSGS Conversion error: %v\n", e)
+		return nmsgs
+	}
+	nmsgs = int(n)
+	return nmsgs
 }

@@ -64,7 +64,7 @@ func (c *Connection) Subscribe(h Headers) (<-chan MessageData, error) {
 	if _, ok := ch.Contains("ack"); !ok {
 		ch = append(ch, "ack", "auto")
 	}
-	s, e, ch := c.establishSubscription(ch)
+	sub, e, ch := c.establishSubscription(ch)
 	if e != nil {
 		return nil, e
 	}
@@ -75,13 +75,14 @@ func (c *Connection) Subscribe(h Headers) (<-chan MessageData, error) {
 	c.output <- wiredata{f, r}
 	e = <-r
 	c.log(SUBSCRIBE, "end", ch, c.Protocol())
-	return s, e
+	return sub.md, e
 }
 
 /*
 	Handle subscribe id.
 */
-func (c *Connection) establishSubscription(h Headers) (<-chan MessageData, error, Headers) {
+func (c *Connection) establishSubscription(h Headers) (*subscription, error, Headers) {
+	// This is a write lock
 	c.subsLock.Lock()
 	defer c.subsLock.Unlock()
 	//
@@ -99,21 +100,33 @@ func (c *Connection) establishSubscription(h Headers) (<-chan MessageData, error
 	}
 	//
 
+	sd := new(subscription) // New subscription data
+	lam := "auto"           // Default/used ACK mode
+	if ham, ok := h.Contains("ack"); ok {
+		lam = ham // Reset (possible) used ack mode
+	}
+
+	sd.md = make(chan MessageData, c.scc) // Make subscription MD channel
+	sd.am = lam                           // Set subscription ack mode
+
 	if c.Protocol() == SPL_10 {
 		if hid { // If 1.0 client wants one, assign it.
-			c.subs[id] = make(chan MessageData, c.scc)
+			sd.id = id // Set subscription ID
 		} else {
-			return c.input, nil, h // 1.0 clients with no id take their own chances
+			// Try to help 1.0 clients that subscribe without using an 'id' header
+			ds, _ := h.Contains("destination") // Destination exists or we would not be here
+			nsid := Sha1(ds)                   // This will be unique for a given estination
+			sd.id = nsid                       // for 1.0 with no ID, allow 1 subscribe per destination
+			h = h.Add("id", nsid)              // Add unique id to the headers
 		}
 	} else { // 1.1+
 		if hid { // Client specified id
-			c.subs[id] = make(chan MessageData, c.scc) // Assign subscription
+			sd.id = id // Set subscription ID
 		} else {
-			h = h.Add("id", uuid1)
-			c.subs[uuid1] = make(chan MessageData, c.scc) // Assign subscription
-			id = uuid1                                    // reset
+			h = h.Add("id", uuid1) // Add unique id to the headers
+			sd.id = uuid1          // Set subscription ID to that
 		}
 	}
-
-	return c.subs[id], nil, h
+	c.subs[sd.id] = sd // Add subscription to the connection subscription map
+	return sd, nil, h  // Return the subscription pointer
 }

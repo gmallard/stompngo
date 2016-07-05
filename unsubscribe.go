@@ -44,14 +44,15 @@ func (c *Connection) Unsubscribe(h Headers) error {
 
 	//
 	_, okd := h.Contains("destination")
-	sid, oki := h.Contains("id")
+	hid, oki := h.Contains("id")
 	if !okd && !oki {
 		return EREQDIUNS
 	}
 
-	c.subsLock.Lock()
-	_, p := c.subs[sid]
-	c.subsLock.Unlock()
+	// This is a read lock
+	c.subsLock.RLock()
+	_, p := c.subs[hid]
+	c.subsLock.RUnlock()
 
 	switch c.Protocol() {
 	case SPL_12:
@@ -87,9 +88,9 @@ func (c *Connection) Unsubscribe(h Headers) error {
 	}
 
 	if oki {
+		// This is a write lock
 		c.subsLock.Lock()
-		close(c.subs[sid])
-		delete(c.subs, sid)
+		delete(c.subs, hid)
 		c.subsLock.Unlock()
 	}
 	c.log(UNSUBSCRIBE, "end", h)

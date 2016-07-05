@@ -1,5 +1,5 @@
 //
-// Copyright © 2014-2015 Guy M. Allard
+// Copyright © 2014-2016 Guy M. Allard
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -52,5 +52,17 @@ func TestSenvDefaults(t *testing.T) {
 	v := Vhost()
 	if v != "localhost" {
 		t.Errorf("Senv Vhost, expected [%s], got [%s]\n", "localhost", v)
+	}
+	//
+	d := Dest()
+	if d != "/queue/sample.stomp.destination" {
+		t.Errorf("Senv Dest, expected [%s], got [%s]\n",
+			"/queue/sample.stomp.destination", d)
+	}
+	//
+	n := Nmsgs()
+	if n != 1 {
+		t.Errorf("Senv Nmsgs, expected [%d], got [%d]\n",
+			1, n)
 	}
 }
