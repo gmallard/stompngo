@@ -24,7 +24,7 @@
 package senv
 
 import (
-	"fmt"
+	"log"
 	"os"
 	"strconv"
 )
@@ -38,8 +38,21 @@ var (
 	vhost      = "localhost"                       // default vhost
 	heartbeats = "0,0"                             // default (no) heartbeats
 	dest       = "/queue/sample.stomp.destination" // default destination
+	scc        = 1                                 // Subchannel capacity
 	nmsgs      = 1                                 // default number of messages (useful at times)
 )
+
+func SubChanCap() int {
+	if s := os.Getenv("STOMP_SUBCHANCAP"); s != "" {
+		i, e := strconv.ParseInt(s, 10, 32)
+		if nil != e {
+			log.Println("SUBCHANCAP conversion error", e)
+		} else {
+			scc = int(i)
+		}
+	}
+	return scc
+}
 
 // Host returns a default connection hostname.
 func Host() string {
@@ -143,7 +156,7 @@ func Nmsgs() int {
 	}
 	n, e := strconv.ParseInt(ns, 10, 0)
 	if e != nil {
-		fmt.Printf("NMSGS Conversion error: %v\n", e)
+		log.Printf("NMSGS Conversion error: %v\n", e)
 		return nmsgs
 	}
 	nmsgs = int(n)

@@ -65,4 +65,10 @@ func TestSenvDefaults(t *testing.T) {
 		t.Errorf("Senv Nmsgs, expected [%d], got [%d]\n",
 			1, n)
 	}
+	//
+	nsc := SubChanCap()
+	if nsc != 1 {
+		t.Errorf("Senv SunChanCap, expected [%d], got [%d]\n",
+			1, nsc)
+	}
 }
