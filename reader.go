@@ -17,6 +17,7 @@
 package stompngo
 
 import (
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -49,15 +50,20 @@ func (c *Connection) reader() {
 		c.mets.tfr += 1 // Total frames read
 		// Headers already decoded
 		c.mets.tbr += m.Size(false) // Total bytes read
-		d := MessageData{m, e}
+		md := MessageData{m, e}
 		// TODO ? Maybe ? Rethink this logic.
 		if sid, ok := f.Headers.Contains("subscription"); ok {
 			// This is a read lock
 			c.subsLock.RLock()
-			c.subs[sid].md <- d
+			// This sub can be already gone under some timing circumstances
+			if wsub, sok := c.subs[sid]; sok {
+				wsub.md <- md
+			} else {
+				log.Println("RDR_NOSUB", sid, md)
+			}
 			c.subsLock.RUnlock()
 		} else {
-			c.input <- d
+			c.input <- md
 		}
 
 		c.log("RECEIVE", m.Command, m.Headers)
