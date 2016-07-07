@@ -30,16 +30,16 @@ import (
 )
 
 var (
-	host       = "localhost"                       // default host
-	port       = "61613"                           // default port
-	protocol   = "1.2"                             // Default protocol level
-	login      = "guest"                           // default login
-	passcode   = "guest"                           // default passcode
-	vhost      = "localhost"                       // default vhost
-	heartbeats = "0,0"                             // default (no) heartbeats
-	dest       = "/queue/sample.stomp.destination" // default destination
-	scc        = 1                                 // Subchannel capacity
-	nmsgs      = 1                                 // default number of messages (useful at times)
+	host       = "localhost"                           // default host
+	port       = "61613"                               // default port
+	protocol   = "1.2"                                 // Default protocol level
+	login      = "guest"                               // default login
+	passcode   = "guest"                               // default passcode
+	vhost      = "localhost"                           // default vhost
+	heartbeats = "0,0"                                 // default (no) heartbeats
+	dest       = "/queue/sng.sample.stomp.destination" // default destination
+	scc        = 1                                     // Subchannel capacity
+	nmsgs      = 1                                     // default number of messages (useful at times)
 )
 
 func SubChanCap() int {
