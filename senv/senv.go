@@ -162,3 +162,13 @@ func Nmsgs() int {
 	nmsgs = int(n)
 	return nmsgs
 }
+
+// True if persistent messages are desired.
+func Persistent() bool {
+	f := os.Getenv("STOMP_PERSISTENT")
+	if f == "" {
+		return false
+	}
+	return true
+}
+

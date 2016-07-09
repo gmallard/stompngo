@@ -55,9 +55,9 @@ func TestSenvDefaults(t *testing.T) {
 	}
 	//
 	d := Dest()
-	if d != "/queue/sample.stomp.destination" {
+	if d != "/queue/sng.sample.stomp.destination" {
 		t.Errorf("Senv Dest, expected [%s], got [%s]\n",
-			"/queue/sample.stomp.destination", d)
+			"/queue/sng.sample.stomp.destination", d)
 	}
 	//
 	n := Nmsgs()
@@ -70,5 +70,11 @@ func TestSenvDefaults(t *testing.T) {
 	if nsc != 1 {
 		t.Errorf("Senv SunChanCap, expected [%d], got [%d]\n",
 			1, nsc)
+	}
+	//
+	b := Persistent()
+	if b {
+		t.Errorf("Senv Persistent, expected [%t], got [%t]\n",
+			false, b)
 	}
 }
