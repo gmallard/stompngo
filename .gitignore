@@ -26,3 +26,8 @@ _*
 temp*
 # Ignore local vscode artifacts
 .vscode/
+# Ignore web page artifacts.  To facilaiate local testing of
+# markdown artifacts in local development.
+*.html
+*.htm
+
