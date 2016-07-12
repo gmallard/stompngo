@@ -177,7 +177,7 @@ const (
 	EREQIDACK  = Error("id required, ACK")         // 1.2
 
 	// Subscription required.
-	EREQSUBACK = Error("subscription required, ACK") // 1.0, 1.1
+	EREQSUBACK = Error("subscription required, ACK") // 1.1
 
 	// NACK's.  STOMP 1.1 or greater.
 	EREQMIDNAK = Error("message-id required, NACK")   // 1.1
