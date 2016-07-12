@@ -42,16 +42,24 @@ var (
 	nmsgs      = 1                                     // default number of messages (useful at times)
 )
 
-func SubChanCap() int {
-	if s := os.Getenv("STOMP_SUBCHANCAP"); s != "" {
-		i, e := strconv.ParseInt(s, 10, 32)
-		if nil != e {
-			log.Println("SUBCHANCAP conversion error", e)
-		} else {
-			scc = int(i)
-		}
+// Destination
+func Dest() string {
+	// Destination
+	de := os.Getenv("STOMP_DEST")
+	if de != "" {
+		dest = de
 	}
-	return scc
+	return dest
+}
+
+// Heartbeats returns client requested heart beat values.
+func Heartbeats() string {
+	// Heartbeats
+	hb := os.Getenv("STOMP_HEARTBEATS")
+	if hb != "" {
+		heartbeats = hb
+	}
+	return heartbeats
 }
 
 // Host returns a default connection hostname.
@@ -64,29 +72,9 @@ func Host() string {
 	return host
 }
 
-// Port returns a default connection port.
-func Port() string {
-	// Port
-	pt := os.Getenv("STOMP_PORT")
-	if pt != "" {
-		port = pt
-	}
-	return port
-}
-
 // HostAndPort returns a default host and port (useful for Dial).
 func HostAndPort() (string, string) {
 	return Host(), Port()
-}
-
-// Protocol returns a default level.
-func Protocol() string {
-	// Protocol
-	pr := os.Getenv("STOMP_PROTOCOL")
-	if pr != "" {
-		protocol = pr
-	}
-	return protocol
 }
 
 // Login returns a default login ID.
@@ -100,51 +88,6 @@ func Login() string {
 		login = ""
 	}
 	return login
-}
-
-// Passcode returns a default passcode.
-func Passcode() string {
-	// Passcode
-	pc := os.Getenv("STOMP_PASSCODE")
-	if pc != "" {
-		passcode = pc
-	}
-	if pc == "NONE" {
-		passcode = ""
-	}
-	return passcode
-}
-
-// Vhost returns a default vhost name.
-func Vhost() string {
-	// Vhost
-	vh := os.Getenv("STOMP_VHOST")
-	if vh != "" {
-		vhost = vh
-	} else {
-		vhost = Host()
-	}
-	return vhost
-}
-
-// Heartbeats returns client requested heart beat values.
-func Heartbeats() string {
-	// Heartbeats
-	hb := os.Getenv("STOMP_HEARTBEATS")
-	if hb != "" {
-		heartbeats = hb
-	}
-	return heartbeats
-}
-
-// Destination
-func Dest() string {
-	// Destination
-	de := os.Getenv("STOMP_DEST")
-	if de != "" {
-		dest = de
-	}
-	return dest
 }
 
 // Number of messages
@@ -163,6 +106,19 @@ func Nmsgs() int {
 	return nmsgs
 }
 
+// Passcode returns a default passcode.
+func Passcode() string {
+	// Passcode
+	pc := os.Getenv("STOMP_PASSCODE")
+	if pc != "" {
+		passcode = pc
+	}
+	if pc == "NONE" {
+		passcode = ""
+	}
+	return passcode
+}
+
 // True if persistent messages are desired.
 func Persistent() bool {
 	f := os.Getenv("STOMP_PERSISTENT")
@@ -172,3 +128,46 @@ func Persistent() bool {
 	return true
 }
 
+// Port returns a default connection port.
+func Port() string {
+	// Port
+	pt := os.Getenv("STOMP_PORT")
+	if pt != "" {
+		port = pt
+	}
+	return port
+}
+
+// Protocol returns a default level.
+func Protocol() string {
+	// Protocol
+	pr := os.Getenv("STOMP_PROTOCOL")
+	if pr != "" {
+		protocol = pr
+	}
+	return protocol
+}
+
+func SubChanCap() int {
+	if s := os.Getenv("STOMP_SUBCHANCAP"); s != "" {
+		i, e := strconv.ParseInt(s, 10, 32)
+		if nil != e {
+			log.Println("SUBCHANCAP conversion error", e)
+		} else {
+			scc = int(i)
+		}
+	}
+	return scc
+}
+
+// Vhost returns a default vhost name.
+func Vhost() string {
+	// Vhost
+	vh := os.Getenv("STOMP_VHOST")
+	if vh != "" {
+		vhost = vh
+	} else {
+		vhost = Host()
+	}
+	return vhost
+}
