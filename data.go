@@ -220,6 +220,11 @@ const (
 var NULLBUFF = make([]uint8, 0)
 
 /*
+   A no disconnect receipt Headers value for convenience.
+*/
+var NoDiscReceipt = Headers{"noreceipt", "true"}
+
+/*
 	Codec data structure definition.
 */
 type codecdata struct {
