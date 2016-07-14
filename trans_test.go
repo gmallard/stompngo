@@ -25,18 +25,17 @@ import (
 */
 func TestTransErrors(t *testing.T) {
 
-
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	c, _ := Connect(n, ch)
+	conn, _ := Connect(n, ch)
 
 	// Empty string transaction id - BEGIN
 	h := Headers{"transaction", ""}
-	e := c.Begin(h)
+	e := conn.Begin(h)
 	if e == nil {
 		t.Errorf("BEGIN expected error, got: [nil]\n")
 	}
-	if c.Protocol() == SPL_10 {
+	if conn.Protocol() == SPL_10 {
 		if e != EHDRMTV {
 			t.Errorf("BEGIN expected error [%v], got [%v]\n", EHDRMTV, e)
 		}
@@ -47,11 +46,11 @@ func TestTransErrors(t *testing.T) {
 	}
 
 	// Empty string transaction id - COMMIT
-	e = c.Commit(h)
+	e = conn.Commit(h)
 	if e == nil {
 		t.Errorf("COMMIT expected error, got: [nil]\n")
 	}
-	if c.Protocol() == SPL_10 {
+	if conn.Protocol() == SPL_10 {
 		if e != EHDRMTV {
 			t.Errorf("BEGIN expected error [%v], got [%v]\n", EHDRMTV, e)
 		}
@@ -62,11 +61,11 @@ func TestTransErrors(t *testing.T) {
 	}
 
 	// Empty string transaction id - ABORT
-	e = c.Abort(h)
+	e = conn.Abort(h)
 	if e == nil {
 		t.Errorf("ABORT expected error, got: [nil]\n")
 	}
-	if c.Protocol() == SPL_10 {
+	if conn.Protocol() == SPL_10 {
 		if e != EHDRMTV {
 			t.Errorf("BEGIN expected error [%v], got [%v]\n", EHDRMTV, e)
 		}
@@ -80,7 +79,7 @@ func TestTransErrors(t *testing.T) {
 
 	// Missing transaction id - BEGIN
 	h = Headers{}
-	e = c.Begin(h)
+	e = conn.Begin(h)
 	if e == nil {
 		t.Errorf("BEGIN expected error, got: [nil]\n")
 	}
@@ -89,7 +88,7 @@ func TestTransErrors(t *testing.T) {
 	}
 
 	// Missing transaction id - COMMIT
-	e = c.Commit(h)
+	e = conn.Commit(h)
 	if e == nil {
 		t.Errorf("COMMIT expected error, got: [nil]\n")
 	}
@@ -98,14 +97,14 @@ func TestTransErrors(t *testing.T) {
 	}
 
 	// Missing transaction id - ABORT
-	e = c.Abort(h)
+	e = conn.Abort(h)
 	if e == nil {
 		t.Errorf("ABORT expected error, got: [nil]\n")
 	}
 	if e != EREQTIDABT {
 		t.Errorf("ABORT expected error [%v], got [%v]\n", EREQTIDABT, e)
 	}
-	_ = c.Disconnect(empty_headers)
+	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 
 }
@@ -115,35 +114,34 @@ func TestTransErrors(t *testing.T) {
 */
 func TestTransSend(t *testing.T) {
 
-
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	c, _ := Connect(n, ch)
+	conn, _ := Connect(n, ch)
 
 	// begin, send, commit
 	th := Headers{"transaction", TEST_TRANID,
 		"destination", TEST_TDESTPREF + "1"}
 	m := "transaction message 1"
-	e := c.Begin(th)
+	e := conn.Begin(th)
 	if e != nil {
 		t.Errorf("BEGIN expected [nil], got: [%v]\n", e)
 	}
-	e = c.Send(th, m)
+	e = conn.Send(th, m)
 	if e != nil {
 		t.Errorf("SEND expected [nil], got: [%v]\n", e)
 	}
-	e = c.Commit(th)
+	e = conn.Commit(th)
 	if e != nil {
 		t.Errorf("COMMIT expected [nil], got: [%v]\n", e)
 	}
 	// Then subscribe and test server message
 	h := Headers{"destination", TEST_TDESTPREF + "1"}
-	s, e := c.Subscribe(h)
+	s, e := conn.Subscribe(h)
 	if e != nil {
 		t.Errorf("SUBSCRIBE expected [nil], got: [%v]\n", e)
 	}
 
-	r := getMessageData(c, s)
+	r := getMessageData(s, conn, t)
 
 	if r.Error != nil {
 		t.Errorf("read error:  expected [nil], got: [%v]\n", r.Error)
@@ -153,7 +151,7 @@ func TestTransSend(t *testing.T) {
 	}
 
 	//
-	_ = c.Disconnect(empty_headers)
+	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 
 }
@@ -163,63 +161,62 @@ func TestTransSend(t *testing.T) {
 */
 func TestTransSendRollback(t *testing.T) {
 
-
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	c, _ := Connect(n, ch)
+	conn, _ := Connect(n, ch)
 
 	// begin, send, abort
 	th := Headers{"transaction", TEST_TRANID,
 		"destination", TEST_TDESTPREF + "2"}
-	h := Headers{"destination", TEST_TDESTPREF + "2"}
-	m := "transaction message 1"
+	ms := "transaction message 1"
 
-	e := c.Begin(th)
+	e := conn.Begin(th)
 	if e != nil {
 		t.Errorf("BEGIN error, expected [nil], got: [%v]\n", e)
 	}
-	e = c.Send(th, m)
+	e = conn.Send(th, ms)
 	if e != nil {
 		t.Errorf("SEND error, expected [nil], got: [%v]\n", e)
 	}
-	e = c.Abort(th)
+	e = conn.Abort(th)
 	if e != nil {
 		t.Errorf("ABORT error, expected [nil], got: [%v]\n", e)
 	}
 
 	// begin, send, commit
-	m = "transaction message 2"
+	ms = "transaction message 2"
 
-	e = c.Begin(th)
+	e = conn.Begin(th)
 	if e != nil {
 		t.Errorf("BEGIN error, expected [nil], got: [%v]\n", e)
 	}
-	e = c.Send(th, m)
+	e = conn.Send(th, ms)
 	if e != nil {
 		t.Errorf("SEND error, expected [nil], got: [%v]\n", e)
 	}
-	e = c.Commit(th)
+	e = conn.Commit(th)
 	if e != nil {
 		t.Errorf("COMMIT error, expected [nil], got: [%v]\n", e)
 	}
 
+	sbh := Headers{"destination", TEST_TDESTPREF + "2"}
 	// Then subscribe and test server message
-	s, e := c.Subscribe(h)
+	sc, e := conn.Subscribe(sbh)
 	if e != nil {
 		t.Errorf("SUBSCRIBE error, expected [nil], got: [%v]\n", e)
 	}
 
-	r := getMessageData(c, s)
+	md := getMessageData(sc, conn, t)
 
-	if r.Error != nil {
-		t.Errorf("Read error, expected [nil], got: [%v]\n", r.Error)
+	if md.Error != nil {
+		t.Errorf("Read error, expected [nil], got: [%v]\n", md.Error)
 	}
-	if m != r.Message.BodyString() {
-		t.Errorf("Message error: expected: [%v] got: [%v]\n", m, r.Message.BodyString())
+	if ms != md.Message.BodyString() {
+		t.Errorf("Message error: expected: [%v] got: [%v]\n", ms, md.Message.BodyString())
 	}
 
 	//
-	_ = c.Disconnect(empty_headers)
+	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 
 }
@@ -229,66 +226,66 @@ func TestTransSendRollback(t *testing.T) {
 */
 func TestTransMessageOrder(t *testing.T) {
 
-
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	c, _ := Connect(n, ch)
+	conn, _ := Connect(n, ch)
 
 	th := Headers{"transaction", TEST_TRANID,
 		"destination", TEST_TDESTPREF + "2"}
-	h := Headers{"destination", TEST_TDESTPREF + "2"}
-	mt := "Message in transaction"
+	sbh := Headers{"destination", TEST_TDESTPREF + "2"}
+	sh := sbh
+	mst := "Message in transaction"
 
 	// Subscribe
-	s, e := c.Subscribe(h)
+	sc, e := conn.Subscribe(sbh)
 	if e != nil {
 		t.Errorf("SUBSCRIBE expected [nil], got: [%v]\n", e)
 	}
 
 	// Then begin
-	e = c.Begin(th)
+	e = conn.Begin(th)
 	if e != nil {
 		t.Errorf("BEGIN expected [nil], got: [%v]\n", e)
 	}
 	// Then send in transaction
-	e = c.Send(th, mt) // in transaction
+	e = conn.Send(th, mst) // in transaction
 	if e != nil {
 		t.Errorf("SEND expected [nil], got: [%v]\n", e)
 	}
 	//
-	mn := "Message NOT in transaction"
+	msn := "Message NOT in transaction"
 	// Then send NOT in transaction
-	e = c.Send(h, mn) // NOT in transaction
+	e = conn.Send(sh, msn) // NOT in transaction
 	if e != nil {
 		t.Errorf("SEND expected [nil], got: [%v]\n", e)
 	}
 	// First receive - should be second message
-	r := getMessageData(c, s)
+	md := getMessageData(sc, conn, t)
 
-	if r.Error != nil {
-		t.Errorf("Read error: expected [nil], got: [%v]\n", r.Error)
+	if md.Error != nil {
+		t.Errorf("Read error: expected [nil], got: [%v]\n", md.Error)
 	}
-	if mn != r.Message.BodyString() {
-		t.Errorf("Message error TMO1: expected: [%v] got: [%v]", mn, r.Message.BodyString())
+	if msn != md.Message.BodyString() {
+		t.Errorf("Message error TMO1: expected: [%v] got: [%v]", msn, md.Message.BodyString())
 	}
 
 	// Now commit
-	e = c.Commit(th)
+	e = conn.Commit(th)
 	if e != nil {
 		t.Errorf("COMMIT expected [nil], got: [%v]\n", e)
 	}
 
 	// Second receive - should be first message
-	r = getMessageData(c, s)
+	md = getMessageData(sc, conn, t)
 
-	if r.Error != nil {
-		t.Errorf("Read error:  expected [nil], got: [%v]\n", r.Error)
+	if md.Error != nil {
+		t.Errorf("Read error:  expected [nil], got: [%v]\n", md.Error)
 	}
-	if mt != r.Message.BodyString() {
-		t.Errorf("Message error TMO2: expected: [%v] got: [%v]", mt, r.Message.BodyString())
+	if mst != md.Message.BodyString() {
+		t.Errorf("Message error TMO2: expected: [%v] got: [%v]", mst, md.Message.BodyString())
 	}
 	//
-	_ = c.Disconnect(empty_headers)
+	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 
 }

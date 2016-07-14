@@ -21,8 +21,8 @@ import (
 )
 
 type supdata struct {
-	v string
-	s bool
+	v string // version
+	s bool   // is supported
 }
 
 var suptests = []supdata{
@@ -38,19 +38,20 @@ var suptests = []supdata{
 	Data Test: Frame Basic.
 */
 func TestDataFrameBasic(t *testing.T) {
-	c := CONNECT
-	h := Headers{"keya", "valuea"}
-	s := "The Message Body"
-	f := &Frame{Command: c, Headers: h, Body: []byte(s)}
+	cm := CONNECT
+	wh := Headers{"keya", "valuea"}
+	ms := "The Message Body"
+	f := &Frame{Command: cm, Headers: wh, Body: []byte(ms)}
 	//
-	if c != f.Command {
-		t.Errorf("Command, expected: [%v], got [%v]\n", c, f.Command)
+	if cm != f.Command {
+		t.Errorf("Command, expected: [%v], got [%v]\n", cm, f.Command)
 	}
-	if !h.Compare(f.Headers) {
-		t.Errorf("Headers, expected: [true], got [false], for [%v] [%v]\n", h, f.Headers)
+	if !wh.Compare(f.Headers) {
+		t.Errorf("Headers, expected: [true], got [false], for [%v] [%v]\n",
+			wh, f.Headers)
 	}
-	if s != string(f.Body) {
-		t.Errorf("Body string, expected: [%v], got [%v]\n", s, string(f.Body))
+	if ms != string(f.Body) {
+		t.Errorf("Body string, expected: [%v], got [%v]\n", ms, string(f.Body))
 	}
 }
 
@@ -58,19 +59,20 @@ func TestDataFrameBasic(t *testing.T) {
 	Data Test: Message Basic.
 */
 func TestDataMessageBasic(t *testing.T) {
-	f := CONNECT
-	h := Headers{"keya", "valuea"}
-	s := "The Message Body"
-	m := &Message{Command: f, Headers: h, Body: []byte(s)}
+	fc := CONNECT
+	wh := Headers{"keya", "valuea"}
+	ms := "The Message Body"
+	m := &Message{Command: fc, Headers: wh, Body: []byte(ms)}
 	//
-	if f != m.Command {
-		t.Errorf("Command, expected: [%v], got [%v]\n", f, m.Command)
+	if fc != m.Command {
+		t.Errorf("Command, expected: [%v], got [%v]\n", fc, m.Command)
 	}
-	if !h.Compare(m.Headers) {
-		t.Errorf("Headers, expected: [true], got [false], for [%v] [%v]\n", h, m.Headers)
+	if !wh.Compare(m.Headers) {
+		t.Errorf("Headers, expected: [true], got [false], for [%v] [%v]\n",
+			wh, m.Headers)
 	}
-	if s != m.BodyString() {
-		t.Errorf("Body string, expected: [%v], got [%v]\n", s, m.BodyString())
+	if ms != m.BodyString() {
+		t.Errorf("Body string, expected: [%v], got [%v]\n", ms, m.BodyString())
 	}
 }
 
@@ -78,21 +80,21 @@ func TestDataMessageBasic(t *testing.T) {
 	Data Test: protocols.
 */
 func TestDataprotocols(t *testing.T) {
-	l := SPL_10
-	if !Supported(l) {
-		t.Errorf("Expected: [true], got: [false] for protocol level %v\n", l)
+	if !Supported(SPL_10) {
+		t.Errorf("Expected: [true], got: [false] for protocol level %v\n",
+			SPL_10)
 	}
-	l = SPL_11
-	if !Supported(l) {
-		t.Errorf("Expected: [true], got: [false] for protocol level %v\n", l)
+	if !Supported(SPL_11) {
+		t.Errorf("Expected: [true], got: [false] for protocol level %v\n",
+			SPL_11)
 	}
-	l = SPL_12
-	if !Supported(l) {
-		t.Errorf("Expected: [true], got: [false] for protocol level %v\n", l)
+	if !Supported(SPL_12) {
+		t.Errorf("Expected: [true], got: [false] for protocol level %v\n",
+			SPL_12)
 	}
-	l = "9.9"
-	if Supported(l) {
-		t.Errorf("Expected: [false], got: [true] for protocol level %v\n", l)
+	if Supported("9.9") {
+		t.Errorf("Expected: [false], got: [true] for protocol level %v\n",
+			"9.9")
 	}
 	//
 	for _, v := range suptests {
@@ -107,8 +109,7 @@ func TestDataprotocols(t *testing.T) {
 	Data test: Protocols.
 */
 func TestDataProtocols(t *testing.T) {
-	s := Protocols()
-	for i, p := range s {
+	for i, p := range Protocols() {
 		if supported[i] != p {
 			t.Errorf("Expected [%v], got [%v]\n", supported[i], p)
 		}
@@ -119,10 +120,10 @@ func TestDataProtocols(t *testing.T) {
 	Data test: Error.
 */
 func TestDataError(t *testing.T) {
-	s := "An error string"
-	e := Error(s)
-	if s != e.Error() {
-		t.Errorf("Expected [%v], got [%v]\n", s, e.Error())
+	es := "An error string"
+	e := Error(es)
+	if es != e.Error() {
+		t.Errorf("Expected [%v], got [%v]\n", es, e.Error())
 	}
 }
 
@@ -131,13 +132,13 @@ func TestDataError(t *testing.T) {
 */
 func TestDataMessageSize(t *testing.T) {
 	f := CONNECT
-	h := Headers{"keya", "valuea"}
-	s := "The Message Body"
-	m := &Message{Command: f, Headers: h, Body: []byte(s)}
-	e := false
+	wh := Headers{"keya", "valuea"}
+	ms := "The Message Body"
+	m := &Message{Command: f, Headers: wh, Body: []byte(ms)}
+	b := false
 	//
-	var w int64 = int64(len(CONNECT)) + 1 + h.Size(e) + 1 + int64(len(s)) + 1
-	r := m.Size(e)
+	var w int64 = int64(len(CONNECT)) + 1 + wh.Size(b) + 1 + int64(len(ms)) + 1
+	r := m.Size(b)
 	if w != r {
 		t.Errorf("Message size, expected: [%d], got [%d]\n", w, r)
 	}
@@ -146,7 +147,7 @@ func TestDataMessageSize(t *testing.T) {
 /*
   Data Test: Broker Command Validity.
 */
-func TestBrokerCmdVal(t *testing.T) {
+func TestDataBrokerCmdVal(t *testing.T) {
 	var tData = map[string]bool{MESSAGE: true, ERROR: true, RECEIPT: true,
 		CONNECT: false, DISCONNECT: false, SUBSCRIBE: false, BEGIN: false,
 		STOMP: false, COMMIT: false, ABORT: false, UNSUBSCRIBE: false,
@@ -154,7 +155,8 @@ func TestBrokerCmdVal(t *testing.T) {
 		"JUNK": false}
 	for k, v := range tData {
 		if v != validCmds[k] {
-			t.Errorf("Command Validity, expected: [%t], got [%t] for key [%s]\n", v,
+			t.Errorf("Command Validity, expected: [%t], got [%t] for key [%s]\n",
+				v,
 				validCmds[k], k)
 		}
 	}

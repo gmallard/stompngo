@@ -23,7 +23,7 @@ import (
 /*
 	Data Test: Headers Basic.
 */
-func TestDataHeadersBasic(t *testing.T) {
+func TestHeadersBasic(t *testing.T) {
 	k := "keya"
 	v := "valuea"
 	h := Headers{k, v}
@@ -54,51 +54,51 @@ func TestDataHeadersBasic(t *testing.T) {
 /*
 	Data Test: Headers UTF8.
 */
-func TestDataHeadersUTF8(t *testing.T) {
+func TestHeadersUTF8(t *testing.T) {
 	k := "keya"
 	v := "valuea"
-	h := Headers{k, v}
-	var e error
-	var s string
-	if s, e = h.ValidateUTF8(); e != nil {
+	wh := Headers{k, v}
+	var e error   // An error
+	var rs string // Result string
+	if rs, e = wh.ValidateUTF8(); e != nil {
 		t.Errorf("Unexpected UTF8 error 1: [%v]\n", e)
 	}
-	if s != "" {
-		t.Errorf("Unexpected UTF8 error 1B, got [%v], expected [%v]\n", s, "")
+	if rs != "" {
+		t.Errorf("Unexpected UTF8 error 1B, got [%v], expected [%v]\n", rs, "")
 	}
 	//
-	h = Headers{k, v, `“Iñtërnâtiônàlizætiøn”`, "valueb", "keyc", `“Iñtërnâtiônàlizætiøn”`}
-	if _, e = h.ValidateUTF8(); e != nil {
+	wh = Headers{k, v, `“Iñtërnâtiônàlizætiøn”`, "valueb", "keyc", `“Iñtërnâtiônàlizætiøn”`}
+	if _, e = wh.ValidateUTF8(); e != nil {
 		t.Errorf("Unexpected UTF8 error 2: [%v]\n", e)
 	}
 	//
-	h = Headers{k, v, `“Iñtërnâtiônàlizætiøn”`, "\x80", "keyc", `“Iñtërnâtiônàlizætiøn”`}
-	if s, e = h.ValidateUTF8(); e == nil {
+	wh = Headers{k, v, `“Iñtërnâtiônàlizætiøn”`, "\x80", "keyc", `“Iñtërnâtiônàlizætiøn”`}
+	if rs, e = wh.ValidateUTF8(); e == nil {
 		t.Errorf("Unexpected UTF8 error  3, got nil, expected an error")
 	}
 	if e != EHDRUTF8 {
 		t.Errorf("Unexpected UTF8 error 4, got [%v], expected [%v]\n", e, EHDRUTF8)
 	}
-	if s != "\x80" {
-		t.Errorf("Unexpected UTF8 error 5, got [%v], expected [%v]\n", s, "\x80")
+	if rs != "\x80" {
+		t.Errorf("Unexpected UTF8 error 5, got [%v], expected [%v]\n", rs, "\x80")
 	}
 }
 
 /*.
 Data Test: Headers Clone
 */
-func TestDataHeadersClone(t *testing.T) {
-	h := Headers{"ka", "va"}.Add("kb", "vb").Add("kc", "vc")
-	hc := h.Clone()
-	if !h.Compare(hc) {
-		t.Errorf("Unexpected false for clone: [%v], [%v]\n", h, hc)
+func TestHeadersClone(t *testing.T) {
+	wh := Headers{"ka", "va"}.Add("kb", "vb").Add("kc", "vc")
+	hc := wh.Clone()
+	if !wh.Compare(hc) {
+		t.Errorf("Unexpected false for clone: [%v], [%v]\n", wh, hc)
 	}
 }
 
 /*
 	Data Test: Headers Add / Delete.
 */
-func TestDataHeadersAddDelete(t *testing.T) {
+func TestHeadersAddDelete(t *testing.T) {
 	ha := Headers{"ka", "va", "kb", "vb", "kc", "vc"}
 	hb := Headers{"kaa", "va", "kbb", "vb", "kcc", "vc"}
 	hn := ha.AddHeaders(hb)
@@ -119,7 +119,7 @@ func TestDataHeadersAddDelete(t *testing.T) {
 /*
 	Data Test: Headers ContainsKV
 */
-func TestDataHeadersContainsKV(t *testing.T) {
+func TestHeadersContainsKV(t *testing.T) {
 	ha := Headers{"ka", "va", "kb", "vb", "kc", "vc"}
 	b := ha.ContainsKV("kb", "vb")
 	if !b {
@@ -134,7 +134,7 @@ func TestDataHeadersContainsKV(t *testing.T) {
 /*
 	Data Test: Headers Compare
 */
-func TestDataHeadersCompare(t *testing.T) {
+func TestHeadersCompare(t *testing.T) {
 	ha := Headers{"ka", "va", "kb", "vb", "kc", "vc"}
 	hb := Headers{"ka", "va", "kb", "vb", "kc", "vc"}
 	hc := Headers{"ka", "va"}
@@ -160,7 +160,7 @@ func TestDataHeadersCompare(t *testing.T) {
 /*
 	Data Test: Headers Size
 */
-func TestDataHeadersSize(t *testing.T) {
+func TestHeadersSize(t *testing.T) {
 	ha := Headers{"k", "v"}
 	s := ha.Size(false)
 	var w int64 = 4
@@ -179,16 +179,16 @@ func TestDataHeadersSize(t *testing.T) {
 /*
 	Data Test: Empty Header Key / Value
 */
-func TestDataHeadersEmtKV(t *testing.T) {
-	h := Headers{"a", "b", "c", "d"}
-	ek := Headers{"a", "b", "", "d"}
-	ev := Headers{"a", "", "c", "d"}
+func TestHeadersEmtKV(t *testing.T) {
+	wh := Headers{"a", "b", "c", "d"} // work headers
+	ek := Headers{"a", "b", "", "d"}  // empty key
+	ev := Headers{"a", "", "c", "d"}  // empty value
 	//
-	e := checkHeaders(h, SPL_10)
+	e := checkHeaders(wh, SPL_10)
 	if e != nil {
 		t.Errorf("CHD01 Expected [nil], got [%v]\n", e)
 	}
-	e = checkHeaders(h, SPL_11)
+	e = checkHeaders(wh, SPL_11)
 	if e != nil {
 		t.Errorf("CHD02 Expected [nil], got [%v]\n", e)
 	}

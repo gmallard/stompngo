@@ -1,7 +1,7 @@
 //
 // Copyright © 2011-2016 Guy M. Allard
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
+// Licensed under the Apache License, Veridon 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
@@ -10,7 +10,7 @@
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
+// See the License for the specific language governing permisidons and
 // limitations under the License.
 //
 
@@ -65,26 +65,25 @@ func checkAckErrors(t *testing.T, p string, e error, s bool) {
 */
 func TestAckErrors(t *testing.T) {
 
-
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	c, _ := Connect(n, ch)
+	conn, _ := Connect(n, ch)
 
-	for _, p := range Protocols() {
-		c.protocol = p // Cheat to test all paths
+	for _, sp := range Protocols() {
+		conn.protocol = sp // Cheat to test all paths
 		//
-		h := Headers{}
+		ah := Headers{}
 		// No subscription
-		e := c.Ack(h)
-		checkAckErrors(t, c.Protocol(), e, true)
+		e := conn.Ack(ah)
+		checkAckErrors(t, conn.Protocol(), e, true)
 
-		h = Headers{"subscription", "my-sub-id"}
+		ah = Headers{"subscription", "my-sub-id"}
 		// No message-id, and (1.2) no id
-		e = c.Ack(h)
-		checkAckErrors(t, c.Protocol(), e, false)
+		e = conn.Ack(ah)
+		checkAckErrors(t, conn.Protocol(), e, false)
 	}
 	//
-	_ = c.Disconnect(Headers{})
+	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 
 }
@@ -94,77 +93,91 @@ func TestAckErrors(t *testing.T) {
 */
 func TestAckSameConn(t *testing.T) {
 
-
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	c, _ := Connect(n, ch)
+	conn, _ := Connect(n, ch)
+
 	// Basic headers
-	h := Headers{"destination", TEST_TDESTPREF + "acksc1-" + c.Protocol()}
-	m := "acksc1 message 1"
-	si := TEST_TDESTPREF + "acksc1.chkprotocol-" + c.Protocol()
+	wh := Headers{"destination", TEST_TDESTPREF + "acksc1-" + conn.Protocol()}
 	// Subscribe Headers
-	sh := h.Add("ack", "client")
-	sh = sh.Add("id", si) // Always use an 'id'
+	sbh := wh.Add("ack", "client")
+	id := TEST_TDESTPREF + "acksc1.chkprotocol-" + conn.Protocol()
+	sbh = sbh.Add("id", id) // Always use an 'id'
 	// Unsubscribe headers
-	uh := h.Add("id", si)
+	uh := wh.Add("id", id)
+
+	ms := "acksc1 message 1"
+
 	// Subscribe
-	s, e := c.Subscribe(sh)
+	sc, e := conn.Subscribe(sbh)
 	if e != nil {
 		t.Errorf("SUBSCRIBE expected [nil], got: [%v]\n", e)
 	}
 	// For RabbitMQ and STOMP 1.0, do not add current-time header, where the
 	// value contains ':' characters.
-	hn := h.Clone()
-	switch c.Protocol() {
+	sh := wh.Clone()
+	switch conn.Protocol() {
 	case SPL_10:
 		if os.Getenv("STOMP_RMQ") == "" {
-			hn = hn.Add("current-time", time.Now().String()) // The added header value has ':' characters
+			sh = sh.Add("current-time", time.Now().String()) // The added header value has ':' characters
 		}
 	default:
-		hn = hn.Add("current-time", time.Now().String()) // The added header value has ':' characters
+		sh = sh.Add("current-time", time.Now().String()) // The added header value has ':' characters
 	}
-	e = c.Send(hn, m)
+	e = conn.Send(sh, ms)
 	if e != nil {
 		t.Errorf("SEND expected [nil], got: [%v]\n", e)
 	}
-	// Receive
-	r := <-s
-	if r.Error != nil {
-		t.Errorf("read error:  expected [nil], got: [%v]\n", r.Error)
+	// Read MessageData
+	var md MessageData
+	select {
+	case md = <-sc:
+	case md = <-conn.MessageData:
+		t.Errorf("read channel error:  expected [nil], got: [%v]\n",
+			md.Message.Command)
 	}
-	if m != r.Message.BodyString() {
-		t.Errorf("message error: expected: [%v], got: [%v] Message: [%q]\n", m, r.Message.BodyString(), r.Message)
+
+	if md.Error != nil {
+		t.Errorf("read error:  expected [nil], got: [%v]\n", md.Error)
+	}
+	if ms != md.Message.BodyString() {
+		t.Errorf("message error: expected: [%v], got: [%v] Message: [%q]\n", ms, md.Message.BodyString(), md.Message)
 	}
 
 	// Ack headers
-	a := Headers{}
-	if c.Protocol() == SPL_12 {
-		a = a.Add("id", r.Message.Headers.Value("ack"))
+	ah := Headers{}
+	if conn.Protocol() == SPL_12 {
+		ah = ah.Add("id", md.Message.Headers.Value("ack"))
 	} else {
-		a = a.Add("message-id", r.Message.Headers.Value("message-id"))
+		ah = ah.Add("message-id", md.Message.Headers.Value("message-id"))
 	}
-	a = a.Add("subscription", si) // Always use subscription
+
+	//
+	if conn.Protocol() == SPL_11 {
+		ah = ah.Add("subscription", id) // Always use subscription for 1.2
+	}
+
 	// Ack
-	e = c.Ack(a)
+	e = conn.Ack(ah)
 	if e != nil {
 		t.Errorf("ACK expected [nil], got: [%v]\n", e)
 	}
 
 	// Make sure Apollo Jira issue APLO-88 stays fixed.
 	select {
-	case r = <-s:
-		t.Errorf("RECEIVE not expected, got: [%v]\n", r)
+	case md = <-sc:
+		t.Errorf("RECEIVE not expected, got: [%v]\n", md)
 	default:
 	}
 
 	// Unsubscribe
-	e = c.Unsubscribe(uh)
+	e = conn.Unsubscribe(uh)
 	if e != nil {
 		t.Errorf("UNSUBSCRIBE expected [nil], got: [%v]\n", e)
 	}
 	//
-	checkReceived(t, c, "tasc1")
-	_ = c.Disconnect(h)
+	checkReceived(t, conn)
+	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 
 }
@@ -174,85 +187,96 @@ func TestAckSameConn(t *testing.T) {
 */
 func TestAckDiffConn(t *testing.T) {
 
-
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	c, _ := Connect(n, ch)
+	conn, _ := Connect(n, ch)
+
 	// Basic headers
-	h := Headers{"destination", TEST_TDESTPREF + "ackdc1-" + c.Protocol()}
-	m := "ackdc1 message 1"
-	si := TEST_TDESTPREF + "ackdc1.chkprotocol-" + c.Protocol()
+	wh := Headers{"destination", TEST_TDESTPREF + "ackdc1-" + conn.Protocol()}
+	id := TEST_TDESTPREF + "ackdc1.chkprotocol-" + conn.Protocol()
 	// Send
-	hn := h.Clone()
+	sh := wh.Clone()
 	// For RabbitMQ and STOMP 1.0, do not add current-time header, where the
 	// value contains ':' characters.
-	switch c.Protocol() {
+	switch conn.Protocol() {
 	case SPL_10:
 		if os.Getenv("STOMP_RMQ") == "" {
-			hn = hn.Add("current-time", time.Now().String()) // The added header value has ':' characters
+			sh = sh.Add("current-time", time.Now().String()) // The added header value has ':' characters
 		}
 	default:
-		hn = hn.Add("current-time", time.Now().String()) // The added header value has ':' characters
+		sh = sh.Add("current-time", time.Now().String()) // The added header value has ':' characters
 	}
-	e := c.Send(hn, m)
+	ms := "ackdc1 message 1"
+	e := conn.Send(sh, ms)
 	if e != nil {
 		t.Errorf("SEND expected [nil], got: [%v]\n", e)
 	}
 	// Disconnect
-	_ = c.Disconnect(h)
+	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 
 	// Restart
 	n, _ = openConn(t)
-	c, _ = Connect(n, ch)
+	conn, _ = Connect(n, ch)
 
 	// Subscribe Headers
-	sh := h.Add("ack", "client")
-	sh = sh.Add("id", si) // Always use an 'id'
+	sbh := wh.Add("ack", "client")
+	sbh = sbh.Add("id", id) // Always use an 'id'
 	// Unsubscribe headers
-	uh := h.Add("id", si)
+	uh := wh.Add("id", id)
 
 	// Subscribe
-	s, e := c.Subscribe(sh)
+	sc, e := conn.Subscribe(sbh)
 	if e != nil {
 		t.Errorf("SUBSCRIBE expected [nil], got: [%v]\n", e)
 	}
-	// Receive
-	r := <-s
-	if r.Error != nil {
-		t.Errorf("read error:  expected [nil], got: [%v]\n", r.Error)
+	// Read MessageData
+	var md MessageData
+	select {
+	case md = <-sc:
+	case md = <-conn.MessageData:
+		t.Errorf("read channel error:  expected [nil], got: [%v]\n",
+			md.Message.Command)
 	}
-	if m != r.Message.BodyString() {
-		t.Errorf("message error: expected: [%v], got: [%v]\n", m, r.Message.BodyString())
+
+	if md.Error != nil {
+		t.Errorf("read error:  expected [nil], got: [%v]\n", md.Error)
+	}
+	if ms != md.Message.BodyString() {
+		t.Errorf("message error: expected: [%v], got: [%v]\n", ms, md.Message.BodyString())
 	}
 
 	// Ack headers
-	a := Headers{}
-	if c.Protocol() == SPL_12 {
-		a = a.Add("id", r.Message.Headers.Value("ack"))
-	} else {
-		a = a.Add("message-id", r.Message.Headers.Value("message-id"))
+	ah := Headers{}
+	switch conn.Protocol() {
+	case SPL_12:
+		ah = ah.Add("id", md.Message.Headers.Value("ack"))
+	case SPL_11:
+		ah = ah.Add("message-id", md.Message.Headers.Value("message-id"))
+		ah = ah.Add("subscription", id) // Always use subscription for 1.1
+	default:
+		ah = ah.Add("message-id", md.Message.Headers.Value("message-id"))
 	}
-	a = a.Add("subscription", si) // Always use subscription
+
 	// Ack
-	e = c.Ack(a)
+	e = conn.Ack(ah)
 	if e != nil {
 		t.Errorf("ACK expected [nil], got: [%v]\n", e)
 	}
 
 	// Make sure Apollo Jira issue APLO-88 stays fixed.
 	select {
-	case r = <-s:
-		t.Errorf("RECEIVE not expected, got: [%v]\n", r)
+	case md = <-sc:
+		t.Errorf("Receive not expected, got: [%v]\n", md)
 	default:
 	}
 
 	// Unsubscribe
-	e = c.Unsubscribe(uh)
+	e = conn.Unsubscribe(uh)
 	if e != nil {
 		t.Errorf("UNSUBSCRIBE expected [nil], got: [%v]\n", e)
 	}
 	//
-	_ = c.Disconnect(h)
+	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }

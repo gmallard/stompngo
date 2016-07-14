@@ -22,9 +22,9 @@ import (
 )
 
 type verData struct {
-	ch Headers
-	sh Headers
-	e  error
+	ch Headers // Client headers
+	sh Headers // Server headers
+	e  error   // Expected error
 }
 
 var verChecks = []verData{
@@ -50,59 +50,64 @@ func TestConnDiscNetconn(t *testing.T) {
 func TestConnDiscStompConn(t *testing.T) {
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	c, e := Connect(n, ch)
+	conn, e := Connect(n, ch)
 	if e != nil {
 		t.Errorf("Expected no connect error, got [%v]\n", e)
 	}
-	if c == nil {
+	if conn == nil {
 		t.Errorf("Expected a connection, got [nil]\n")
 	}
-	if c.ConnectResponse.Command != CONNECTED {
-		t.Errorf("Expected command [%v], got [%v]\n", CONNECTED, c.ConnectResponse.Command)
+	if conn.ConnectResponse.Command != CONNECTED {
+		t.Errorf("Expected command [%v], got [%v]\n", CONNECTED,
+			conn.ConnectResponse.Command)
 	}
-	if !c.connected {
+	if !conn.connected {
 		t.Errorf("Expected connected [true], got [false]\n")
 	}
-	if !c.Connected() {
+	if !conn.Connected() {
 		t.Errorf("Expected connected [true], got [false]\n")
 	}
 	//
-	if c.Session() == "" {
+	if conn.Session() == "" {
 		t.Errorf("Expected connected session, got [default value]\n")
 	}
 	//
-	if c.SendTickerInterval() != 0 {
-		t.Errorf("Expected zero SendTickerInterval, got [%v]\n", c.SendTickerInterval())
+	if conn.SendTickerInterval() != 0 {
+		t.Errorf("Expected zero SendTickerInterval, got [%v]\n",
+			conn.SendTickerInterval())
 	}
-	if c.ReceiveTickerInterval() != 0 {
-		t.Errorf("Expected zero ReceiveTickerInterval, got [%v]\n", c.SendTickerInterval())
+	if conn.ReceiveTickerInterval() != 0 {
+		t.Errorf("Expected zero ReceiveTickerInterval, got [%v]\n",
+			conn.SendTickerInterval())
 	}
-	if c.SendTickerCount() != 0 {
-		t.Errorf("Expected zero SendTickerCount, got [%v]\n", c.SendTickerCount())
+	if conn.SendTickerCount() != 0 {
+		t.Errorf("Expected zero SendTickerCount, got [%v]\n",
+			conn.SendTickerCount())
 	}
-	if c.ReceiveTickerCount() != 0 {
-		t.Errorf("Expected zero ReceiveTickerCount, got [%v]\n", c.SendTickerCount())
+	if conn.ReceiveTickerCount() != 0 {
+		t.Errorf("Expected zero ReceiveTickerCount, got [%v]\n",
+			conn.SendTickerCount())
 	}
 	//
-	if c.FramesRead() != 1 {
-		t.Errorf("Expected 1 frame read, got [%d]\n", c.FramesRead())
+	if conn.FramesRead() != 1 {
+		t.Errorf("Expected 1 frame read, got [%d]\n", conn.FramesRead())
 	}
-	if c.BytesRead() <= 0 {
-		t.Errorf("Expected non-zero bytes read, got [%d]\n", c.BytesRead())
+	if conn.BytesRead() <= 0 {
+		t.Errorf("Expected non-zero bytes read, got [%d]\n", conn.BytesRead())
 	}
-	if c.FramesWritten() != 1 {
-		t.Errorf("Expected 1 frame written, got [%d]\n", c.FramesWritten())
+	if conn.FramesWritten() != 1 {
+		t.Errorf("Expected 1 frame written, got [%d]\n", conn.FramesWritten())
 	}
-	if c.BytesWritten() <= 0 {
-		t.Errorf("Expected non-zero bytes written, got [%d]\n", c.BytesWritten())
+	if conn.BytesWritten() <= 0 {
+		t.Errorf("Expected non-zero bytes written, got [%d]\n",
+			conn.BytesWritten())
 	}
-	i := c.Running().Nanoseconds()
-	if i == 0 {
+	if conn.Running().Nanoseconds() == 0 {
 		t.Errorf("Expected non-zero runtime, got [0]\n")
 	}
 	//
-	_ = c.Disconnect(empty_headers)
-	if c.Connected() {
+	_ = conn.Disconnect(empty_headers)
+	if conn.Connected() {
 		t.Errorf("Expected connected [false], got [true]\n")
 	}
 	_ = closeConn(t, n)
@@ -114,8 +119,8 @@ func TestConnDiscStompConn(t *testing.T) {
 func TestConnDiscStompDisc(t *testing.T) {
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	c, _ := Connect(n, ch)
-	e := c.Disconnect(Headers{})
+	conn, _ := Connect(n, ch)
+	e := conn.Disconnect(empty_headers)
 	if e != nil {
 		t.Errorf("Expected no disconnect error, got [%v]\n", e)
 	}
@@ -128,14 +133,14 @@ func TestConnDiscStompDisc(t *testing.T) {
 func TestConnDiscNoDiscReceipt(t *testing.T) {
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	c, _ := Connect(n, ch)
-	e := c.Disconnect(Headers{"noreceipt", "true"})
+	conn, _ := Connect(n, ch)
+	e := conn.Disconnect(NoDiscReceipt)
 	if e != nil {
 		t.Errorf("Expected no disconnect error, got [%v]\n", e)
 	}
-	if c.DisconnectReceipt.Message.Command != "" {
+	if conn.DisconnectReceipt.Message.Command != "" {
 		t.Errorf("Expected no disconnect receipt command, got [%v]\n",
-			c.DisconnectReceipt.Message.Command)
+			conn.DisconnectReceipt.Message.Command)
 	}
 	_ = closeConn(t, n)
 }
@@ -146,23 +151,24 @@ func TestConnDiscNoDiscReceipt(t *testing.T) {
 func TestConnDiscStompDiscReceipt(t *testing.T) {
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	c, _ := Connect(n, ch)
-	r := "my-receipt-001"
-	e := c.Disconnect(Headers{"receipt", r})
+	conn, _ := Connect(n, ch)
+	rid := "my-receipt-001"
+	e := conn.Disconnect(Headers{"receipt", rid})
 	if e != nil {
 
 		t.Errorf("Expected no disconnect error, got [%v]\n", e)
 	}
-	if c.DisconnectReceipt.Error != nil {
-		t.Errorf("Expected no receipt error, got [%v]\n", c.DisconnectReceipt.Error)
+	if conn.DisconnectReceipt.Error != nil {
+		t.Errorf("Expected no receipt error, got [%v]\n",
+			conn.DisconnectReceipt.Error)
 	}
-	m := c.DisconnectReceipt.Message
-	rr, ok := m.Headers.Contains("receipt-id")
+	md := conn.DisconnectReceipt.Message
+	irid, ok := md.Headers.Contains("receipt-id")
 	if !ok {
 		t.Errorf("Expected receipt-id, not received\n")
 	}
-	if rr != r {
-		t.Errorf("Expected receipt-id [%q], got [%q]\n", r, rr)
+	if rid != irid {
+		t.Errorf("Expected receipt-id [%q], got [%q]\n", rid, irid)
 	}
 	_ = closeConn(t, n)
 }
@@ -174,14 +180,15 @@ func TestConnBodyLen(t *testing.T) {
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 
-	c, e := Connect(n, ch)
+	conn, e := Connect(n, ch)
 	if e != nil {
 		t.Errorf("Expected no connect error, got [%v]\n", e)
 	}
-	if len(c.ConnectResponse.Body) != 0 {
-		t.Errorf("Expected body length 0, got [%v]\n", len(c.ConnectResponse.Body))
+	if len(conn.ConnectResponse.Body) != 0 {
+		t.Errorf("Expected body length 0, got [%v]\n",
+			len(conn.ConnectResponse.Body))
 	}
-	_ = c.Disconnect(empty_headers)
+	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
 
@@ -191,7 +198,7 @@ func TestConnBodyLen(t *testing.T) {
 func TestConn11p(t *testing.T) {
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	c, e := Connect(n, ch)
+	conn, e := Connect(n, ch)
 	if e != nil {
 		t.Errorf("Expected no connect error, got [%v]\n", e)
 	}
@@ -199,20 +206,20 @@ func TestConn11p(t *testing.T) {
 	if v != "" {
 		switch v {
 		case SPL_12:
-			if c.Protocol() != SPL_12 {
-				t.Errorf("Expected protocol %v, got [%v]\n", SPL_12, c.Protocol())
+			if conn.Protocol() != SPL_12 {
+				t.Errorf("Expected protocol %v, got [%v]\n", SPL_12, conn.Protocol())
 			}
 		default:
-			if c.Protocol() != SPL_11 {
-				t.Errorf("Expected protocol %v, got [%v]\n", SPL_11, c.Protocol())
+			if conn.Protocol() != SPL_11 {
+				t.Errorf("Expected protocol %v, got [%v]\n", SPL_11, conn.Protocol())
 			}
 		}
 	} else {
-		if c.Protocol() != SPL_10 {
-			t.Errorf("Expected protocol %v, got [%v]\n", SPL_10, c.Protocol())
+		if conn.Protocol() != SPL_10 {
+			t.Errorf("Expected protocol %v, got [%v]\n", SPL_10, conn.Protocol())
 		}
 	}
-	_ = c.Disconnect(empty_headers)
+	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
 
@@ -222,8 +229,8 @@ func TestConn11p(t *testing.T) {
 func TestConn11Receipt(t *testing.T) {
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	nch := ch.Add("receipt", "abcd1234")
-	_, e := Connect(n, nch)
+	ch = ch.Add("receipt", "abcd1234")
+	_, e := Connect(n, ch)
 	if e == nil {
 		t.Errorf("Expected connect error, got nil\n")
 	}
@@ -236,42 +243,42 @@ func TestConn11Receipt(t *testing.T) {
 /*
 	ConnDisc Test: ECONBAD
 */
-func TestEconBad(t *testing.T) {
+func TestConnEconBad(t *testing.T) {
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	c, e := Connect(n, ch)
-	_ = c.Disconnect(empty_headers)
+	conn, e := Connect(n, ch)
+	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 	//
-	e = c.Abort(empty_headers)
+	e = conn.Abort(empty_headers)
 	if e != ECONBAD {
 		t.Errorf("Abort expected [%v] got [%v]\n", ECONBAD, e)
 	}
-	e = c.Ack(empty_headers)
+	e = conn.Ack(empty_headers)
 	if e != ECONBAD {
 		t.Errorf("Ack expected [%v] got [%v]\n", ECONBAD, e)
 	}
-	e = c.Begin(empty_headers)
+	e = conn.Begin(empty_headers)
 	if e != ECONBAD {
 		t.Errorf("Begin expected [%v] got [%v]\n", ECONBAD, e)
 	}
-	e = c.Commit(empty_headers)
+	e = conn.Commit(empty_headers)
 	if e != ECONBAD {
 		t.Errorf("Commit expected [%v] got [%v]\n", ECONBAD, e)
 	}
-	e = c.Nack(empty_headers)
+	e = conn.Nack(empty_headers)
 	if e != ECONBAD {
 		t.Errorf("Nack expected [%v] got [%v]\n", ECONBAD, e)
 	}
-	e = c.Send(empty_headers, "")
+	e = conn.Send(empty_headers, "")
 	if e != ECONBAD {
 		t.Errorf("Send expected [%v] got [%v]\n", ECONBAD, e)
 	}
-	_, e = c.Subscribe(empty_headers)
+	_, e = conn.Subscribe(empty_headers)
 	if e != ECONBAD {
 		t.Errorf("Subscribe expected [%v] got [%v]\n", ECONBAD, e)
 	}
-	e = c.Unsubscribe(empty_headers)
+	e = conn.Unsubscribe(empty_headers)
 	if e != ECONBAD {
 		t.Errorf("Unsubscribe expected [%v] got [%v]\n", ECONBAD, e)
 	}
@@ -280,14 +287,14 @@ func TestEconBad(t *testing.T) {
 /*
 	ConnDisc Test: EDISCPC
 */
-func TestEconDiscDone(t *testing.T) {
+func TestConnEconDiscDone(t *testing.T) {
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	c, e := Connect(n, ch)
-	_ = c.Disconnect(empty_headers)
+	conn, e := Connect(n, ch)
+	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 	//
-	e = c.Disconnect(empty_headers)
+	e = conn.Disconnect(empty_headers)
 	if e != EDISCPC {
 		t.Errorf("Previous disconnect expected [%v] got [%v]\n", EDISCPC, e)
 	}
@@ -296,20 +303,20 @@ func TestEconDiscDone(t *testing.T) {
 /*
 	ConnDisc Test: setProtocolLevel
 */
-func TestSetProtocolLevel(t *testing.T) {
+func TestConnSetProtocolLevel(t *testing.T) {
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	c, _ := Connect(n, ch)
+	conn, _ := Connect(n, ch)
 	//
 	for i, v := range verChecks {
-		c.protocol = SPL_10 // reset
-		e := c.setProtocolLevel(v.ch, v.sh)
+		conn.protocol = SPL_10 // reset
+		e := conn.setProtocolLevel(v.ch, v.sh)
 		if e != v.e {
-			t.Errorf("Verdata Item [%d}, expected [%v], got [%v]\n", i, v.e, e)
+			t.Errorf("Verdata Item [%d], expected [%v], got [%v]\n", i, v.e, e)
 		}
 	}
 	//
-	_ = c.Disconnect(empty_headers)
+	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
 

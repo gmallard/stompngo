@@ -63,24 +63,22 @@ func checkNackErrors(t *testing.T, p string, e error, s bool) {
 */
 func TestNackErrors(t *testing.T) {
 
-
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	c, _ := Connect(n, ch)
+	conn, _ := Connect(n, ch)
 
 	for _, p := range Protocols() {
-		c.protocol = p // Cheat to test all paths
-		h := Headers{}
+		conn.protocol = p // Cheat to test all paths
 		// No subscription
-		e := c.Nack(h)
-		checkNackErrors(t, c.Protocol(), e, true)
+		e := conn.Nack(empty_headers)
+		checkNackErrors(t, conn.Protocol(), e, true)
 
-		h = Headers{"subscription", "my-sub-id"}
+		nh := Headers{"subscription", "my-sub-id"}
 		// No message id
-		e = c.Nack(h)
-		checkNackErrors(t, c.Protocol(), e, false)
+		e = conn.Nack(nh)
+		checkNackErrors(t, conn.Protocol(), e, false)
 	}
 	//
-	_ = c.Disconnect(Headers{})
+	_ = conn.Disconnect(Headers{})
 	_ = closeConn(t, n)
 }

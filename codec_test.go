@@ -48,30 +48,24 @@ var tdList = []testdata{
 
 // Test STOMP 1.1 Header Codec - Basic Encode.
 func TestCodecEncodeBasic(t *testing.T) {
-
-
-	for _, v := range tdList {
-		en := encode(v.decoded)
-		if v.encoded != en {
-			t.Errorf("ENCODE ERROR: expected: [%v] got: [%v]", v.encoded, en)
+	for _, ede := range tdList {
+		ev := encode(ede.decoded)
+		if ede.encoded != ev {
+			t.Errorf("ENCODE ERROR: expected: [%v] got: [%v]", ede.encoded, ev)
 		}
 	}
-
 }
 
 /*
 	Test STOMP 1.1 Header Codec - Basic Decode.
 */
 func TestCodecDecodeBasic(t *testing.T) {
-
-
-	for _, v := range tdList {
-		de := decode(v.encoded)
-		if v.decoded != de {
-			t.Errorf("DECODE ERROR: expected: [%v] got: [%v]", v.decoded, de)
+	for _, ede := range tdList {
+		dv := decode(ede.encoded)
+		if ede.decoded != dv {
+			t.Errorf("DECODE ERROR: expected: [%v] got: [%v]", ede.decoded, dv)
 		}
 	}
-
 }
 
 func BenchmarkCodecEncode(b *testing.B) {
@@ -100,12 +94,13 @@ func TestCodec11SendRecvCodec(t *testing.T) {
 	//
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	c, _ := Connect(n, ch)
+	conn, _ := Connect(n, ch)
 	//
-	q := "/queue/gostomp.11sendrecv.2"
-	m := "11sendrecv.2 - message 1"
-	dh := Headers{"destination", q}
-	sh := dh.Clone()
+	d := "/queue/gostomp.11sendrecv.2"
+	ms := "11sendrecv.2 - message 1"
+	wh := Headers{"destination", d}
+
+	sh := wh.Clone()
 	// Excercise the 1.1 Header Codec
 	k1 := "key:one"
 	v1 := "value\\one"
@@ -118,7 +113,7 @@ func TestCodec11SendRecvCodec(t *testing.T) {
 	sh = sh.Add(k3, v3)
 
 	// Send
-	e := c.Send(sh, m)
+	e := conn.Send(sh, ms)
 	if e != nil {
 		t.Errorf("11Send failed: %v", e)
 	}
@@ -127,46 +122,54 @@ func TestCodec11SendRecvCodec(t *testing.T) {
 	time.Sleep(1e9) // Wait one
 	// Poll for adhoc ERROR from server
 	select {
-	case v := <-c.MessageData:
+	case v := <-conn.MessageData:
 		t.Errorf("11Adhoc Error: [%v]", v)
 	default:
 		//
 	}
 	// Subscribe
-	dh = dh.Add("id", q)
-	sc, e := c.Subscribe(dh)
+	sbh := wh.Add("id", d)
+	sc, e := conn.Subscribe(sbh)
 	if e != nil {
 		t.Errorf("11Subscribe failed: %v", e)
 	}
 	if sc == nil {
 		t.Errorf("11Subscribe sub chan is nil")
 	}
-	// Receive data
-	nsd := <-sc
-	if nsd.Error != nil {
-		t.Errorf("11Receive error: [%v]\n", nsd.Error)
+
+	// Read MessageData
+	var md MessageData
+	select {
+	case md = <-sc:
+	case md = <-conn.MessageData:
+		t.Errorf("read channel error:  expected [nil], got: [%v]\n",
+			md.Message.Command)
+	}
+
+	if md.Error != nil {
+		t.Errorf("11Receive error: [%v]\n", md.Error)
 	}
 	// Check data and header values
-	b := nsd.Message.BodyString()
-	if b != m {
-		t.Errorf("11Receive expected: [%v] got: [%v]\n", m, b)
+	b := md.Message.BodyString()
+	if b != ms {
+		t.Errorf("11Receive expected: [%v] got: [%v]\n", ms, b)
 	}
-	if nsd.Message.Headers.Value(k1) != v1 {
-		t.Errorf("11Receive header expected: [%v] got: [%v]\n", v1, nsd.Message.Headers.Value(k1))
+	if md.Message.Headers.Value(k1) != v1 {
+		t.Errorf("11Receive header expected: [%v] got: [%v]\n", v1, md.Message.Headers.Value(k1))
 	}
-	if nsd.Message.Headers.Value(k2) != v2 {
-		t.Errorf("11Receive header expected: [%v] got: [%v]\n", v2, nsd.Message.Headers.Value(k2))
+	if md.Message.Headers.Value(k2) != v2 {
+		t.Errorf("11Receive header expected: [%v] got: [%v]\n", v2, md.Message.Headers.Value(k2))
 	}
-	if nsd.Message.Headers.Value(k3) != v3 {
-		t.Errorf("11Receive header expected: [%v] got: [%v]\n", v3, nsd.Message.Headers.Value(k3))
+	if md.Message.Headers.Value(k3) != v3 {
+		t.Errorf("11Receive header expected: [%v] got: [%v]\n", v3, md.Message.Headers.Value(k3))
 	}
 	// Unsubscribe
-	e = c.Unsubscribe(dh)
+	e = conn.Unsubscribe(sbh)
 	if e != nil {
 		t.Errorf("11Unsubscribe failed: %v", e)
 	}
 	//
-	_ = c.Disconnect(empty_headers)
+	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 
 }

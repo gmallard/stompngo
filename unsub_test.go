@@ -21,8 +21,8 @@ import (
 )
 
 type unsubData struct {
-	p string
-	e error
+	p string // protocol
+	e error  // error
 }
 
 var unsubListNoHdr = []unsubData{
@@ -46,16 +46,14 @@ var unsubNoId = []unsubData{
 */
 func TestUnsubNoHdr(t *testing.T) {
 
-
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	c, _ := Connect(n, ch)
+	conn, _ := Connect(n, ch)
 	//
-	h := empty_headers
 	for i, l := range unsubListNoHdr {
-		c.protocol = l.p
+		conn.protocol = l.p
 		// Unsubscribe, no dest
-		e := c.Unsubscribe(h)
+		e := conn.Unsubscribe(empty_headers)
 		if e == nil {
 			t.Errorf("Expected unsubscribe error, entry [%d], got [nil]\n", i)
 		}
@@ -64,7 +62,7 @@ func TestUnsubNoHdr(t *testing.T) {
 		}
 	}
 	//
-	_ = c.Disconnect(empty_headers)
+	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
 
@@ -73,16 +71,15 @@ func TestUnsubNoHdr(t *testing.T) {
 */
 func TestUnsubNoId(t *testing.T) {
 
-
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	c, _ := Connect(n, ch)
+	conn, _ := Connect(n, ch)
 	//
-	h := Headers{"destination", "/queue/unsub.noid"}
+	uh := Headers{"destination", "/queue/unsub.noid"}
 	for i, l := range unsubNoId {
-		c.protocol = l.p
+		conn.protocol = l.p
 		// Unsubscribe, no id at all
-		e := c.Unsubscribe(h)
+		e := conn.Unsubscribe(uh)
 		if e == nil {
 			t.Errorf("Expected unsubscribe error, entry [%d], got [nil]\n", i)
 		}
@@ -90,7 +87,7 @@ func TestUnsubNoId(t *testing.T) {
 			t.Errorf("Unsubscribe error, entry [%d], expected [%v], got [%v]\n", i, l.e, e)
 		}
 	}
-	_ = c.Disconnect(empty_headers)
+	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
 
@@ -99,16 +96,15 @@ func TestUnsubNoId(t *testing.T) {
 */
 func TestUnsubBadId(t *testing.T) {
 
-
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	c, _ := Connect(n, ch)
+	conn, _ := Connect(n, ch)
 	//
-	h := Headers{"destination", "/queue/unsub.badid", "id", "bogus"}
+	uh := Headers{"destination", "/queue/unsub.badid", "id", "bogus"}
 	for i, l := range unsubBadId {
-		c.protocol = l.p
+		conn.protocol = l.p
 		// Unsubscribe, bad id
-		e := c.Unsubscribe(h)
+		e := conn.Unsubscribe(uh)
 		if e == nil {
 			t.Errorf("Expected unsubscribe error, entry [%d], got [nil]\n", i)
 		}
@@ -117,6 +113,6 @@ func TestUnsubBadId(t *testing.T) {
 		}
 	}
 	//
-	_ = c.Disconnect(empty_headers)
+	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }

@@ -61,33 +61,18 @@ var frames = []frameData{ // Many are possible but very unlikely
 }
 
 /*
-	Open a network connection.
+	Host and port for Dial.
 */
-func openConn(t *testing.T) (net.Conn, error) {
-	h, p := hostAndPort()
-	n, err := net.Dial("tcp", net.JoinHostPort(h, p))
-	if err != nil {
-		t.Errorf("Unexpected net.Dial error: %v\n", err)
+func badVerHostAndPort() (string, string) {
+	h := os.Getenv("STOMP_HOSTBV") // export only if you understand these tests
+	if h == "" {
+		h = "localhost"
 	}
-	return n, err
-}
-
-/*
-	Close a network connection.
-*/
-func closeConn(t *testing.T, n net.Conn) error {
-	err := n.Close()
-	if err != nil {
-		t.Errorf("Unexpected n.Close() error: %v\n", err)
+	p := os.Getenv("STOMP_PORTBV") // export only if you understand these tests
+	if p == "" {
+		p = "61613"
 	}
-	return err
-}
-
-/*
-	Host and port for Dial
-*/
-func hostAndPort() (string, string) {
-	return senv.HostAndPort()
+	return h, p
 }
 
 /*
@@ -108,6 +93,57 @@ func check11(h Headers) Headers {
 	}
 	h = h.Add("host", s)
 	return h
+}
+
+/*
+	Test helper.
+*/
+func checkReceived(t *testing.T, conn *Connection) {
+	var md MessageData
+	select {
+	case md = <-conn.MessageData:
+		t.Errorf("Unexpected frame received, got [%v]\n", md)
+	default:
+	}
+}
+
+/*
+	Close a network connection.
+*/
+func closeConn(t *testing.T, n net.Conn) error {
+	err := n.Close()
+	if err != nil {
+		t.Errorf("Unexpected n.Close() error: %v\n", err)
+	}
+	return err
+}
+
+/*
+	Test helper.
+*/
+func getMessageData(sc <-chan MessageData, conn *Connection, t *testing.T) (md MessageData) {
+	// When this is called, there should not be any MessageData instance
+	// available on the connection level MessageData channel.
+	select {
+	case md = <-sc:
+	case md = <-conn.MessageData:
+		t.Errorf("read channel error:  expected [nil], got: [%v]\n",
+			md.Message.Command)
+	}
+	return md
+}
+
+/*
+	Open a network connection.
+*/
+func openConn(t *testing.T) (net.Conn, error) {
+	h, p := senv.HostAndPort()
+	hap := net.JoinHostPort(h, p)
+	n, err := net.Dial("tcp", hap)
+	if err != nil {
+		t.Errorf("Unexpected net.Dial error: %v\n", err)
+	}
+	return n, err
 }
 
 /*
@@ -140,43 +176,4 @@ func sendMultipleBytes(md multi_send_data) error {
 		}
 	}
 	return nil
-}
-
-/*
-	Test helper.
-*/
-func getMessageData(c *Connection, s <-chan MessageData) (r MessageData) {
-	//
-	// With other parts of this change, we should not see any data from the
-	// c.MessageData channel here.  Attempting to read from that source will hang
-	// with a 1.0 client.
-	//
-	r = <-s
-	return r
-}
-
-/*
-	Test helper.
-*/
-func checkReceived(t *testing.T, c *Connection, id string) {
-	select {
-	case v := <-c.MessageData:
-		t.Errorf("Unexpected frame received, id [%s], got [%v]\n", id, v)
-	default:
-	}
-}
-
-/*
-	Host and port for Dial.
-*/
-func badVerHostAndPort() (string, string) {
-	h := os.Getenv("STOMP_HOSTBV") // export only if you understand these tests
-	if h == "" {
-		h = "localhost"
-	}
-	p := os.Getenv("STOMP_PORTBV") // export only if you understand these tests
-	if p == "" {
-		p = "61613"
-	}
-	return h, p
 }

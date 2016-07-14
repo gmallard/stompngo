@@ -21,32 +21,30 @@ import (
 )
 
 /*
-	Test Send Basic, one message.
+	Test Send Basiconn, one message.
 */
 func TestSendBytesBasic(t *testing.T) {
 
-
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	c, _ := Connect(n, ch)
+	conn, _ := Connect(n, ch)
 	//
-	m := []byte("A message")
-	d := "/queue/send.basic.01"
-	h := Headers{"destination", d}
-	e := c.SendBytes(h, m)
+	mb := []byte("A message")
+	d := "/queue/send.basiconn.01"
+	sh := Headers{"destination", d}
+	e := conn.SendBytes(sh, mb)
 	if e != nil {
 		t.Errorf("Expected nil error, got [%v]\n", e)
 	}
 	//
-	h = Headers{}
-	e = c.SendBytes(h, m)
+	e = conn.SendBytes(empty_headers, mb)
 	if e == nil {
 		t.Errorf("Expected error, got [nil]\n")
 	}
 	if e != EREQDSTSND {
 		t.Errorf("Expected [%v], got [%v]\n", EREQDSTSND, e)
 	}
-	_ = c.Disconnect(empty_headers)
+	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 
 }
@@ -56,21 +54,20 @@ func TestSendBytesBasic(t *testing.T) {
 */
 func TestSendBytesMultiple(t *testing.T) {
 
-
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	c, _ := Connect(n, ch)
+	conn, _ := Connect(n, ch)
 	//
-	md := multi_send_data{conn: c,
+	mdb := multi_send_data{conn: conn,
 		dest:  "/queue/sendmultiple.01.",
 		mpref: "sendmultiple.01.message.prefix ",
 		count: 5}
-	e := sendMultipleBytes(md)
+	e := sendMultipleBytes(mdb)
 	if e != nil {
 		t.Errorf("Expected nil error, got [%v]\n", e)
 	}
 	//
-	_ = c.Disconnect(empty_headers)
+	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 
 }

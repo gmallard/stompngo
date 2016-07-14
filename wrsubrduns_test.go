@@ -25,66 +25,75 @@ import (
 	Test a Stomp 1.1+ shovel.
 */
 func TestShovel11(t *testing.T) {
-	if os.Getenv("STOMP_TEST11p") == "" {
+	if os.Getenv("STOMP_TEST11p") == "" || os.Getenv("STOMP_TEST11p") == "1.0 " {
 		t.Skip("Test11Shovel norun, need 1.1+")
 	}
 
-
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	c, _ := Connect(n, ch)
+	conn, _ := Connect(n, ch)
 	//
-	m := "A message"
+	ms := "A message"
 	d := "/queue/subunsub.shovel.01"
-	h := Headers{"destination", d,
+	sh := Headers{"destination", d,
 		"dupkey1", "value0",
 		"dupkey1", "value1",
 		"dupkey1", "value2"}
-	_ = c.Send(h, m)
+	_ = conn.Send(sh, ms)
 	//
-	h = Headers{"destination", d, "id", d}
-	s, e := c.Subscribe(h)
+	sbh := Headers{"destination", d, "id", d}
+	sc, e := conn.Subscribe(sbh)
 	if e != nil {
 		t.Errorf("Expected no subscribe error, got [%v]\n", e)
 	}
-	if s == nil {
+	if sc == nil {
 		t.Errorf("Expected subscribe channel, got [nil]\n")
 	}
-	md := <-s // Read message data
+
+	// Read MessageData
+	var md MessageData
+	select {
+	case md = <-sc:
+	case md = <-conn.MessageData:
+		t.Errorf("read channel error:  expected [nil], got: [%v]\n",
+			md.Message.Command)
+	}
+
 	//
 	if md.Error != nil {
 		t.Errorf("Expected no message data error, got [%v]\n", md.Error)
 	}
-	msg := md.Message
-	rd := msg.Headers.Value("destination")
+	rm := md.Message
+	rd := rm.Headers.Value("destination")
 	if rd != d {
 		t.Errorf("Expected destination [%v], got [%v]\n", d, rd)
 	}
-	ri := msg.Headers.Value("subscription")
-	if ri != d {
-		t.Errorf("Expected subscription [%v], got [%v]\n", d, ri)
+	rs := rm.Headers.Value("subscription")
+	if rs != d {
+		t.Errorf("Expected subscription [%v], got [%v]\n", d, rs)
 	}
 	// All servers MUST do this
-	// This assumes that AMQ is at least 5.7.0.  AMQ 5.6.0 is broken in this regard.
-	if !msg.Headers.ContainsKV("dupkey1", "value0") {
+	// This assumes that AMQ is at least 5.7.0.
+	// AMQ 5.6.0 is broken in this regard.
+	if !rm.Headers.ContainsKV("dupkey1", "value0") {
 		t.Errorf("Expected true for [%v], [%v]\n", "dupkey1", "value0")
 	}
 	// Some servers MAY do this.  Apollo is one that does.
 	if os.Getenv("STOMP_APOLLO") != "" {
-		if !msg.Headers.ContainsKV("dupkey1", "value1") {
+		if !rm.Headers.ContainsKV("dupkey1", "value1") {
 			t.Errorf("Expected true for [%v], [%v]\n", "dupkey1", "value1")
 		}
-		if !msg.Headers.ContainsKV("dupkey1", "value2") {
+		if !rm.Headers.ContainsKV("dupkey1", "value2") {
 			t.Errorf("Expected true for [%v], [%v]\n", "dupkey1", "value2")
 		}
 	}
 	//
-	uh := Headers{"id", ri, "destination", d}
-	e = c.Unsubscribe(uh)
+	uh := Headers{"id", rs, "destination", d}
+	e = conn.Unsubscribe(uh)
 	if e != nil {
 		t.Errorf("Expected no unsubscribe error, got [%v]\n", e)
 	}
 	//
-	_ = c.Disconnect(empty_headers)
+	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 }
