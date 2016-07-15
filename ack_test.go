@@ -98,7 +98,8 @@ func TestAckSameConn(t *testing.T) {
 	conn, _ := Connect(n, ch)
 
 	// Basic headers
-	wh := Headers{"destination", TEST_TDESTPREF + "acksc1-" + conn.Protocol()}
+	wh := Headers{"destination",
+		tdest(TEST_TDESTPREF + "acksc1-" + conn.Protocol())}
 	// Subscribe Headers
 	sbh := wh.Add("ack", "client")
 	id := TEST_TDESTPREF + "acksc1.chkprotocol-" + conn.Protocol()
@@ -192,7 +193,8 @@ func TestAckDiffConn(t *testing.T) {
 	conn, _ := Connect(n, ch)
 
 	// Basic headers
-	wh := Headers{"destination", TEST_TDESTPREF + "ackdc1-" + conn.Protocol()}
+	wh := Headers{"destination",
+		tdest(TEST_TDESTPREF + "ackdc1-" + conn.Protocol())}
 	id := TEST_TDESTPREF + "ackdc1.chkprotocol-" + conn.Protocol()
 	// Send
 	sh := wh.Clone()

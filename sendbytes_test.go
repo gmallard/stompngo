@@ -30,7 +30,7 @@ func TestSendBytesBasic(t *testing.T) {
 	conn, _ := Connect(n, ch)
 	//
 	mb := []byte("A message")
-	d := "/queue/send.basiconn.01"
+	d := tdest("/queue/send.basiconn.01")
 	sh := Headers{"destination", d}
 	e := conn.SendBytes(sh, mb)
 	if e != nil {
@@ -59,7 +59,7 @@ func TestSendBytesMultiple(t *testing.T) {
 	conn, _ := Connect(n, ch)
 	//
 	mdb := multi_send_data{conn: conn,
-		dest:  "/queue/sendmultiple.01.",
+		dest:  tdest("/queue/sendmultiple.01."),
 		mpref: "sendmultiple.01.message.prefix ",
 		count: 5}
 	e := sendMultipleBytes(mdb)

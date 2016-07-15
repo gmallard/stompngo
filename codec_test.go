@@ -96,7 +96,7 @@ func TestCodec11SendRecvCodec(t *testing.T) {
 	ch := check11(TEST_HEADERS)
 	conn, _ := Connect(n, ch)
 	//
-	d := "/queue/gostomp.11sendrecv.2"
+	d := tdest("/queue/gostomp.11sendrecv.2")
 	ms := "11sendrecv.2 - message 1"
 	wh := Headers{"destination", d}
 

@@ -34,7 +34,7 @@ func TestShovel11(t *testing.T) {
 	conn, _ := Connect(n, ch)
 	//
 	ms := "A message"
-	d := "/queue/subunsub.shovel.01"
+	d := tdest("/queue/subunsub.shovel.01")
 	sh := Headers{"destination", d,
 		"dupkey1", "value0",
 		"dupkey1", "value1",
@@ -72,19 +72,31 @@ func TestShovel11(t *testing.T) {
 	if rs != d {
 		t.Errorf("Expected subscription [%v], got [%v]\n", d, rs)
 	}
-	// All servers MUST do this
-	// This assumes that AMQ is at least 5.7.0.
-	// AMQ 5.6.0 is broken in this regard.
-	if !rm.Headers.ContainsKV("dupkey1", "value0") {
-		t.Errorf("Expected true for [%v], [%v]\n", "dupkey1", "value0")
+
+	// Broker behavior can differ WRT repeated header entries
+	// they receive.  Here we try to adjust to observed broker behavior
+	// with the brokers used in local testing.
+	// Also note that the wording of the 1.1 and 1.2 specs is slightly
+	// different WRT repeated header entries.
+	// In any case: YMMV.
+
+	if os.Getenv("STOMP_ARTEMIS") != "" && conn.Protocol() == SPL_11 {
+		if !rm.Headers.ContainsKV("dupkey1", "value2") {
+			t.Errorf("ART11 Expected true for [%v], [%v]\n", "dupkey1", "value2")
+		}
+	} else {
+		if !rm.Headers.ContainsKV("dupkey1", "value0") {
+			t.Errorf("OTHERs Expected true for [%v], [%v]\n", "dupkey1", "value0")
+		}
 	}
+
 	// Some servers MAY do this.  Apollo is one that does.
 	if os.Getenv("STOMP_APOLLO") != "" {
 		if !rm.Headers.ContainsKV("dupkey1", "value1") {
-			t.Errorf("Expected true for [%v], [%v]\n", "dupkey1", "value1")
+			t.Errorf("APO1 Expected true for [%v], [%v]\n", "dupkey1", "value1")
 		}
 		if !rm.Headers.ContainsKV("dupkey1", "value2") {
-			t.Errorf("Expected true for [%v], [%v]\n", "dupkey1", "value2")
+			t.Errorf("APO2 Expected true for [%v], [%v]\n", "dupkey1", "value2")
 		}
 	}
 	//

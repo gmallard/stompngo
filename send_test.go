@@ -30,7 +30,7 @@ func TestSendBasic(t *testing.T) {
 	conn, _ := Connect(n, ch)
 	//
 	ms := "A message"
-	d := "/queue/send.basiconn.01"
+	d := tdest("/queue/send.basiconn.01")
 	sh := Headers{"destination", d}
 	e := conn.Send(sh, ms)
 	if e != nil {
@@ -59,7 +59,7 @@ func TestSendMultiple(t *testing.T) {
 	conn, _ := Connect(n, ch)
 	//
 	smd := multi_send_data{conn: conn,
-		dest:  "/queue/sendmultiple.01.",
+		dest:  tdest("/queue/sendmultiple.01."),
 		mpref: "sendmultiple.01.message.prefix ",
 		count: 5}
 	e := sendMultiple(smd)

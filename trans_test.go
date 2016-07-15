@@ -119,8 +119,9 @@ func TestTransSend(t *testing.T) {
 	conn, _ := Connect(n, ch)
 
 	// begin, send, commit
+	d := tdest(TEST_TDESTPREF + "1")
 	th := Headers{"transaction", TEST_TRANID,
-		"destination", TEST_TDESTPREF + "1"}
+		"destination", d}
 	m := "transaction message 1"
 	e := conn.Begin(th)
 	if e != nil {
@@ -135,7 +136,7 @@ func TestTransSend(t *testing.T) {
 		t.Errorf("COMMIT expected [nil], got: [%v]\n", e)
 	}
 	// Then subscribe and test server message
-	h := Headers{"destination", TEST_TDESTPREF + "1"}
+	h := Headers{"destination", d}
 	s, e := conn.Subscribe(h)
 	if e != nil {
 		t.Errorf("SUBSCRIBE expected [nil], got: [%v]\n", e)
@@ -166,8 +167,9 @@ func TestTransSendRollback(t *testing.T) {
 	conn, _ := Connect(n, ch)
 
 	// begin, send, abort
+	d := tdest(TEST_TDESTPREF + "2")
 	th := Headers{"transaction", TEST_TRANID,
-		"destination", TEST_TDESTPREF + "2"}
+		"destination", d}
 	ms := "transaction message 1"
 
 	e := conn.Begin(th)
@@ -199,7 +201,7 @@ func TestTransSendRollback(t *testing.T) {
 		t.Errorf("COMMIT error, expected [nil], got: [%v]\n", e)
 	}
 
-	sbh := Headers{"destination", TEST_TDESTPREF + "2"}
+	sbh := Headers{"destination", d}
 	// Then subscribe and test server message
 	sc, e := conn.Subscribe(sbh)
 	if e != nil {
@@ -230,9 +232,10 @@ func TestTransMessageOrder(t *testing.T) {
 	ch := check11(TEST_HEADERS)
 	conn, _ := Connect(n, ch)
 
+	d := tdest(TEST_TDESTPREF + "3")
 	th := Headers{"transaction", TEST_TRANID,
-		"destination", TEST_TDESTPREF + "2"}
-	sbh := Headers{"destination", TEST_TDESTPREF + "2"}
+		"destination", d}
+	sbh := Headers{"destination", d}
 	sh := sbh
 	mst := "Message in transaction"
 

@@ -53,7 +53,7 @@ func TestSubNoIdOnce(t *testing.T) {
 	ch := check11(TEST_HEADERS)
 	conn, _ := Connect(n, ch)
 	//
-	d := "/queue/subunsub.genl.01"
+	d := tdest("/queue/subunsub.genl.01")
 	sbh := Headers{"destination", d}
 	//
 	s, e := conn.Subscribe(sbh)
@@ -91,7 +91,7 @@ func TestSubNoIdTwice10(t *testing.T) {
 		t.Errorf("Protocol error, got [%v], expected [%v]\n", conn.Protocol(), SPL_10)
 	}
 	//
-	d := "/queue/subdup.p10.01"
+	d := tdest("/queue/subdup.p10.01")
 	sbh := Headers{"destination", d}
 	// First time
 	sc, e := conn.Subscribe(sbh)
@@ -161,7 +161,7 @@ func TestSubNoIdTwice11p(t *testing.T) {
 	ch := check11(TEST_HEADERS)
 	conn, _ := Connect(n, ch)
 
-	d := "/queue/subdup.p11.01"
+	d := tdest("/queue/subdup.p11.01")
 	id := "TestSubNoIdTwice11p"
 	sbh := Headers{"destination", d, "id", id}
 	// First time
@@ -208,7 +208,7 @@ func TestSubUnsubBasic(t *testing.T) {
 	conn, _ := Connect(n, ch)
 	//
 	m := "A message"
-	d := "/queue/subunsub.basiconn.01"
+	d := tdest("/queue/subunsub.basiconn.01")
 	h := Headers{"destination", d}
 	_ = conn.Send(h, m)
 	//
@@ -266,7 +266,7 @@ func TestSubUnsubBasic10(t *testing.T) {
 	conn, _ := Connect(n, ch)
 	//
 	ms := "A message"
-	d := "/queue/subunsub.basiconn.r10.01"
+	d := tdest("/queue/subunsub.basiconn.r10.01")
 	sh := Headers{"destination", d}
 	_ = conn.Send(sh, ms)
 	//
@@ -316,7 +316,7 @@ func TestSubEstablishSubscription(t *testing.T) {
 	ch := check11(TEST_HEADERS)
 	conn, _ := Connect(n, ch)
 	//
-	d := "/queue/estabsub.01"
+	d := tdest("/queue/estabsub.01")
 	sbh := Headers{"destination", d}
 	// First time
 	s, e := conn.Subscribe(sbh)
@@ -351,7 +351,7 @@ func TestSubSetCap(t *testing.T) {
 		t.Errorf("Expected get capacity [%v], got [%v]\n", p, r)
 	}
 	//
-	d := "/queue/subsetcap.basiconn.01"
+	d := tdest("/queue/subsetcap.basiconn.01")
 	h := Headers{"destination", d, "id", d}
 	s, e := conn.Subscribe(h)
 	if e != nil {
