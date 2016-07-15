@@ -207,6 +207,7 @@ func (c *Connection) shutdown() {
 	c.subsLock.Lock()
 	for key := range c.subs {
 		close(c.subs[key].md)
+		c.subs[key].cs = true
 	}
 	c.connected = false
 	c.subsLock.Unlock()

@@ -101,6 +101,7 @@ func (c *Connection) establishSubscription(h Headers) (*subscription, error, Hea
 	//
 
 	sd := new(subscription) // New subscription data
+	sd.cs = false           // No shutdown yet
 	lam := "auto"           // Default/used ACK mode
 	if ham, ok := h.Contains("ack"); ok {
 		lam = ham // Reset (possible) used ack mode

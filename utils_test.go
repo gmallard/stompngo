@@ -192,7 +192,7 @@ func tdest(d string) string {
 /*
    Test debug helper.  Get properly formatted destination.
 */
-func dumpmd(md MessageData) {
+func tdumpmd(md MessageData) {
 	fmt.Printf("Command: %s\n", md.Message.Command)
 	fmt.Println("Headers:")
 	for i := 0; i < len(md.Message.Headers); i += 2 {

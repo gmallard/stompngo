@@ -135,6 +135,7 @@ type subscription struct {
 	md chan MessageData // Subscription specific MessageData channel
 	id string           // Subscription id (unique, self reference)
 	am string           // ACK mode for this subscription
+	cs bool             // Closed during shutdown
 }
 
 /*

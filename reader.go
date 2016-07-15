@@ -56,8 +56,13 @@ func (c *Connection) reader() {
 			// This is a read lock
 			c.subsLock.RLock()
 			// This sub can be already gone under some timing circumstances
-			if wsub, sok := c.subs[sid]; sok {
-				wsub.md <- md
+			if _, sok := c.subs[sid]; sok {
+				// And it can also be closed under some timing circumstances
+				if c.subs[sid].cs {
+					log.Println("RDR_CLSUB", sid, md)
+				} else {
+					c.subs[sid].md <- md
+				}
 			} else {
 				log.Println("RDR_NOSUB", sid, md)
 			}
