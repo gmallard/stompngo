@@ -23,6 +23,10 @@ import (
 	"time"
 )
 
+const (
+	hbs = 30
+)
+
 /*
 	HB Test: 1.0.
 */
@@ -212,7 +216,7 @@ func TestHB11NoSend(t *testing.T) {
 		conn.ConnectResponse.Headers, string(conn.ConnectResponse.Body))
 	conn.log("TestHB11NoSend start sleep")
 	conn.log(1, "Send", conn.SendTickerInterval(), "Receive", conn.ReceiveTickerInterval())
-	time.Sleep(120 * time.Second)
+	time.Sleep(hbs * time.Second)
 	conn.log("TestHB11NoSend end sleep")
 	conn.SetLogger(nil)
 	//
@@ -263,7 +267,7 @@ func TestHB11NoReceive(t *testing.T) {
 		string(conn.ConnectResponse.Body))
 	conn.log(2, "Send", conn.SendTickerInterval(), "Receive",
 		conn.ReceiveTickerInterval())
-	time.Sleep(120 * time.Second)
+	time.Sleep(hbs * time.Second)
 	conn.log("TestHB11NoReceive end sleep")
 	conn.SetLogger(nil)
 	//
@@ -307,7 +311,7 @@ func TestHB11SendReceive(t *testing.T) {
 	conn.log("TestHB11SendReceive start sleep")
 	conn.log(3, "Send", conn.SendTickerInterval(), "Receive",
 		conn.ReceiveTickerInterval())
-	time.Sleep(120 * time.Second)
+	time.Sleep(hbs * time.Second)
 	conn.log("TestHB11SendReceive end sleep")
 	conn.SetLogger(nil)
 	conn.hbd.rdl.Lock()
@@ -357,7 +361,7 @@ func TestHB11SendReceiveApollo(t *testing.T) {
 	conn.log("TestHB11SendReceiveApollo start sleep")
 	conn.log(4, "Send", conn.SendTickerInterval(), "Receive",
 		conn.ReceiveTickerInterval())
-	time.Sleep(120 * time.Second)
+	time.Sleep(hbs * time.Second)
 	conn.log("TestHB11SendReceiveApollo end sleep")
 	conn.SetLogger(nil)
 	conn.hbd.rdl.Lock()
@@ -411,7 +415,7 @@ func TestHB11SendReceiveApolloRev(t *testing.T) {
 	conn.log("TestHB11SendReceiveApolloRev start sleep")
 	conn.log(5, "Send", conn.SendTickerInterval(), "Receive",
 		conn.ReceiveTickerInterval())
-	time.Sleep(120 * time.Second)
+	time.Sleep(hbs * time.Second)
 	conn.log("TestHB11SendReceiveApolloRev end sleep")
 	conn.SetLogger(nil)
 	conn.hbd.rdl.Lock()
