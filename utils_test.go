@@ -186,7 +186,11 @@ func tdest(d string) string {
 	if os.Getenv("STOMP_ARTEMIS") == "" {
 		return d
 	}
-	return "jms.queue" + strings.Replace(d, "/", ".", -1)
+	pref := "jms.queue"
+	if strings.Index(d, "topic") >= 0 {
+		pref = "jms.topic"
+	}
+	return pref + strings.Replace(d, "/", ".", -1)
 }
 
 /*
