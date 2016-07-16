@@ -61,9 +61,9 @@ func (c *Connection) Disconnect(h Headers) error {
 		return e
 	}
 	ch := h.Clone()
-	// If the caller dous not want a receipt do not ask for one.  Otherwise,
+	// If the caller does not want a receipt do not ask for one.  Otherwise,
 	// add a receipt request if caller did not specifically ask for one.  This is
-	// in the spiritof the specification, and allows reasonable resource cleanup
+	// in the spirit of the specification, and allows reasonable resource cleanup
 	// in both the client and the message broker.
 	_, cwr := ch.Contains("noreceipt")
 	if !cwr {
