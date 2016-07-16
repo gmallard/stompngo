@@ -17,7 +17,6 @@
 package stompngo
 
 import (
-	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -35,6 +34,7 @@ func (c *Connection) reader() {
 
 	for {
 		f, e := c.readFrame()
+		c.log("RDR_READFRAME", f, "RDR_RF_ERR", e)
 		if e != nil {
 			f.Headers = append(f.Headers, "connection_read_error", e.Error())
 			md := MessageData{Message(f), e}
@@ -59,32 +59,31 @@ func (c *Connection) reader() {
 			if _, sok := c.subs[sid]; sok {
 				// And it can also be closed under some timing circumstances
 				if c.subs[sid].cs {
-					log.Println("RDR_CLSUB", sid, md)
+					c.log("RDR_CLSUB", sid, md)
 				} else {
 					c.subs[sid].md <- md
 				}
 			} else {
-				log.Println("RDR_NOSUB", sid, md)
+				c.log("RDR_NOSUB", sid, md)
 			}
 			c.subsLock.RUnlock()
 		} else {
 			c.input <- md
 		}
 
-		c.log("RECEIVE", m.Command, m.Headers)
+		c.log("RDR_RECEIVE", m.Command, m.Headers)
 
 		select {
 		case q = <-c.rsd:
 		default:
 		}
-
 		if q {
 			break
 		}
 
 	}
 	close(c.input)
-	c.log("reader shutdown", time.Now())
+	c.log("RDR_SHUTDOWN", time.Now())
 }
 
 /*

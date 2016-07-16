@@ -33,6 +33,7 @@ func (c *Connection) writer() {
 		select {
 		case d := <-c.output:
 			c.wireWrite(d)
+			c.log("WTR_WIREWRITE", d)
 		case q = <-c.wsd:
 			break
 		}
@@ -42,7 +43,7 @@ func (c *Connection) writer() {
 		}
 
 	}
-	c.log("writer shutdown", time.Now())
+	c.log("WTR_SHUTDOWN", time.Now())
 }
 
 /*

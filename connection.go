@@ -219,6 +219,7 @@ func (c *Connection) shutdown() {
 	Read error handler.
 */
 func (c *Connection) handleReadError(md MessageData) {
+	c.log("HDRERR", "starts", md)
 	// Notify any general subscriber of error
 	c.input <- md
 	// Notify all individual subscribers of error
@@ -230,6 +231,7 @@ func (c *Connection) handleReadError(md MessageData) {
 		}
 	}
 	c.subsLock.RUnlock()
+	c.log("HDRERR", "ends")
 	// Let further shutdown logic proceed normally.
 	return
 }
