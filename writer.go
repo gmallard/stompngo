@@ -103,6 +103,13 @@ func (f *Frame) writeFrame(w *bufio.Writer, l string) error {
 			f.Headers = append(f.Headers, "content-length", strconv.Itoa(len(f.Body)))
 		}
 	}
+
+	// Content type.  Add it if the client does not ask for it.
+	if _, ok := f.Headers.Contains("content-type"); !ok {
+		f.Headers = append(f.Headers, "content-type",
+			"text/plain; charset=UTF-8")
+	}
+
 	// Write the frame Headers
 	for i := 0; i < len(f.Headers); i += 2 {
 		if l > SPL_10 && f.Command != CONNECT {
