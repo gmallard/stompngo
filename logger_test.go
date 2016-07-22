@@ -52,7 +52,7 @@ func TestLoggerMiscBytes0(t *testing.T) {
 	conn.SetLogger(ll)
 	//
 	ms := "" // No data
-	d := tdest("/queue/zero.byte.msg")
+	d := tdest("/queue/logger.zero.byte.msg")
 	sh := Headers{"destination", d}
 	e := conn.Send(sh, ms)
 	if e != nil {

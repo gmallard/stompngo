@@ -30,7 +30,7 @@ func TestMiscBytes0(t *testing.T) {
 	conn, _ := Connect(n, ch)
 	//
 	ms := "" // No data
-	d := tdest("/queue/zero.byte.msg")
+	d := tdest("/queue/misc.zero.byte.msg")
 	sh := Headers{"destination", d}
 	e := conn.Send(sh, ms)
 	if e != nil {
