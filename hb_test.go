@@ -194,9 +194,11 @@ func TestHB11NoSend(t *testing.T) {
 		t.Skip("TestHB11NoSend norun, set STOMP_HB11LONG")
 	}
 	//
+	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	ch = ch.Add("heart-beat", "0,6000") // No sending
+	l.Printf("ConnHeaders: %v\n", ch)
 	conn, e := Connect(n, ch)
 	// Error checks
 	if e != nil {
@@ -209,7 +211,6 @@ func TestHB11NoSend(t *testing.T) {
 		t.Errorf("Receive Ticker is zero.")
 	}
 	//
-	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 	conn.SetLogger(l)
 	//
 	conn.log("TestHB11NoSend connect response", conn.ConnectResponse.Command,
@@ -242,9 +243,11 @@ func TestHB11NoReceive(t *testing.T) {
 		t.Skip("TestHB11NoReceive norun, set STOMP_HB11LONG")
 	}
 	//
+	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	ch = ch.Add("heart-beat", "10000,0") // No Receiving
+	l.Printf("ConnHeaders: %v\n", ch)
 	conn, e := Connect(n, ch)
 	// Error checks
 	if e != nil {
@@ -257,7 +260,6 @@ func TestHB11NoReceive(t *testing.T) {
 		t.Errorf("Send Ticker is zero.")
 	}
 	//
-	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 	conn.SetLogger(l)
 	//
 	conn.log("TestHB11NoReceive start sleep")
@@ -287,9 +289,11 @@ func TestHB11SendReceive(t *testing.T) {
 		t.Skip("TestHB11SendReceive norun, set STOMP_HB11LONG")
 	}
 	//
+	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	ch = ch.Add("heart-beat", "10000,6000")
+	l.Printf("ConnHeaders: %v\n", ch)
 	conn, e := Connect(n, ch)
 	// Error checks
 	if e != nil {
@@ -305,7 +309,6 @@ func TestHB11SendReceive(t *testing.T) {
 		t.Errorf("Send Ticker is zero.")
 	}
 	//
-	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 	conn.SetLogger(l)
 	//
 	conn.log("TestHB11SendReceive start sleep")
@@ -337,9 +340,11 @@ func TestHB11SendReceiveApollo(t *testing.T) {
 		t.Skip("TestHB11SendReceiveApollo norun, set STOMP_HB11LONG")
 	}
 	//
+	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	ch = ch.Add("heart-beat", "10000,100")
+	l.Printf("ConnHeaders: %v\n", ch)
 	conn, e := Connect(n, ch)
 	// Error checks
 	if e != nil {
@@ -355,7 +360,6 @@ func TestHB11SendReceiveApollo(t *testing.T) {
 		t.Errorf("Send Ticker is zero.")
 	}
 	//
-	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 	conn.SetLogger(l)
 	//
 	conn.log("TestHB11SendReceiveApollo start sleep")
@@ -391,9 +395,11 @@ func TestHB11SendReceiveApolloRev(t *testing.T) {
 		t.Skip("TestHB11SendReceiveApolloRev norun, skip AMQ11+")
 	}
 	//
+	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	ch = ch.Add("heart-beat", "100,10000")
+	l.Printf("ConnHeaders: %v\n", ch)
 	conn, e := Connect(n, ch)
 	// Error checks
 	if e != nil {
@@ -409,7 +415,6 @@ func TestHB11SendReceiveApolloRev(t *testing.T) {
 		t.Errorf("Send Ticker is zero.")
 	}
 	//
-	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 	conn.SetLogger(l)
 	//
 	conn.log("TestHB11SendReceiveApolloRev start sleep")
