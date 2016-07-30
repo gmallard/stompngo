@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 
-package stompngo
+package main
 
 /*
 	Provide package version information.  A nod to the concept of semver.
@@ -26,20 +26,11 @@ package stompngo
 
 import (
 	"fmt"
+	//
+	"github.com/gmallard/stompngo"
 )
 
-var (
-	pref = "v" // Prefix
-
-	major = "1" // Major
-
-	minor = "0" // Minor
-
-	//patch = "3" // Patch
-
-	patch = "3.plvl.002" // Patch
-)
-
-func Version() string {
-	return fmt.Sprintf("%s%s.%s.%s", pref, major, minor, patch)
+func main() {
+	fmt.Println(stompngo.Version())
+	return
 }
