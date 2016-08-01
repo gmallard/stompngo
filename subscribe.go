@@ -82,19 +82,25 @@ func (c *Connection) Subscribe(h Headers) (<-chan MessageData, error) {
 	Handle subscribe id.
 */
 func (c *Connection) establishSubscription(h Headers) (*subscription, error, Headers) {
+	// c.log(SUBSCRIBE, "start establishSubscription")
 	//
 	id, hid := h.Contains("id")
 	uuid1 := Uuid()
+	//
+	c.subsLock.RLock() // Acquire Read lock
 	// No duplicates
 	if hid {
 		if _, q := c.subs[id]; q {
+			c.subsLock.RUnlock()   // Release Read lock
 			return nil, EDUPSID, h // Duplicate subscriptions not allowed
 		}
 	} else {
 		if _, q := c.subs[uuid1]; q {
+			c.subsLock.RUnlock()   // Release Read lock
 			return nil, EDUPSID, h // Duplicate subscriptions not allowed
 		}
 	}
+	c.subsLock.RUnlock() // Release Read lock
 	//
 
 	sd := new(subscription) // New subscription data
@@ -129,5 +135,6 @@ func (c *Connection) establishSubscription(h Headers) (*subscription, error, Hea
 	c.subsLock.Lock()
 	c.subs[sd.id] = sd // Add subscription to the connection subscription map
 	c.subsLock.Unlock()
+	//c.log(SUBSCRIBE, "end establishSubscription")
 	return sd, nil, h // Return the subscription pointer
 }
