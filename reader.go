@@ -34,7 +34,7 @@ func (c *Connection) reader() {
 
 	for {
 		f, e := c.readFrame()
-		c.log("RDR_READFRAME", f, "RDR_RF_ERR", e)
+		c.log("RDR_RECEIVE_FRAME", f, "RDR_RECEIVE_ERR", e)
 		if e != nil {
 			f.Headers = append(f.Headers, "connection_read_error", e.Error())
 			md := MessageData{Message(f), e}
@@ -70,8 +70,6 @@ func (c *Connection) reader() {
 		} else {
 			c.input <- md
 		}
-
-		c.log("RDR_RECEIVE", m.Command, m.Headers)
 
 		select {
 		case q = <-c.rsd:
