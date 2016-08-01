@@ -82,9 +82,6 @@ func (c *Connection) Subscribe(h Headers) (<-chan MessageData, error) {
 	Handle subscribe id.
 */
 func (c *Connection) establishSubscription(h Headers) (*subscription, error, Headers) {
-	// This is a write lock
-	c.subsLock.Lock()
-	defer c.subsLock.Unlock()
 	//
 	id, hid := h.Contains("id")
 	uuid1 := Uuid()
@@ -128,6 +125,9 @@ func (c *Connection) establishSubscription(h Headers) (*subscription, error, Hea
 			sd.id = uuid1          // Set subscription ID to that
 		}
 	}
+	// This is a write lock
+	c.subsLock.Lock()
 	c.subs[sd.id] = sd // Add subscription to the connection subscription map
-	return sd, nil, h  // Return the subscription pointer
+	c.subsLock.Unlock()
+	return sd, nil, h // Return the subscription pointer
 }
