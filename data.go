@@ -287,3 +287,7 @@ type metrics struct {
 var validCmds = map[string]bool{MESSAGE: true, ERROR: true, RECEIPT: true}
 
 var logLock sync.Mutex
+
+const (
+	NetProtoTCP = "tcp" // Protocol Name
+)

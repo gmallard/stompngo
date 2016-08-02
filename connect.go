@@ -31,7 +31,7 @@ import (
 
 	Example:
 		// Obtain a network connection
-		n, e := net.Dial("tcp", "localhost:61613")
+		n, e := net.Dial(NetProtoTCP, "localhost:61613")
 		if e != nil {
 			// Do something sane ...
 		}
@@ -44,7 +44,7 @@ import (
 
 	Example:
 		// Obtain a network connection
-		n, e := net.Dial("tcp", "localhost:61613")
+		n, e := net.Dial(NetProtoTCP, "localhost:61613")
 		if e != nil {
 			// Do something sane ...
 		}
