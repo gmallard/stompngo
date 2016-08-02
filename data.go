@@ -166,7 +166,7 @@ const (
 	EBDYDATA = Error("body data not allowed")
 
 	// Not connected.
-	ECONBAD = Error("no current connection")
+	ECONBAD = Error("no current connection or DISCONNECT previously completed")
 
 	// Destination required
 	EREQDSTSND = Error("destination required, SEND")
@@ -210,9 +210,6 @@ const (
 
 	// Invalid broker command
 	EINVBCMD = Error("invalid broker command")
-
-	// DISCONNET Already completed
-	EDISCPC = Error("disconnect previously completed")
 )
 
 /*

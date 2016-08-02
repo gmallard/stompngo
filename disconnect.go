@@ -50,12 +50,9 @@ func (c *Connection) Disconnect(h Headers) error {
 	defer c.discLock.Unlock()
 	//
 	if !c.connected {
-		return EDISCPC
-	}
-	c.log(DISCONNECT, "start", h)
-	if !c.connected {
 		return ECONBAD
 	}
+	c.log(DISCONNECT, "start", h)
 	e := checkHeaders(h, c.Protocol())
 	if e != nil {
 		return e

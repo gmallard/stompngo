@@ -285,7 +285,7 @@ func TestConnEconBad(t *testing.T) {
 }
 
 /*
-	ConnDisc Test: EDISCPC
+	ConnDisc Test: ECONBAD
 */
 func TestConnEconDiscDone(t *testing.T) {
 	n, _ := openConn(t)
@@ -295,8 +295,8 @@ func TestConnEconDiscDone(t *testing.T) {
 	_ = closeConn(t, n)
 	//
 	e = conn.Disconnect(empty_headers)
-	if e != EDISCPC {
-		t.Errorf("Previous disconnect expected [%v] got [%v]\n", EDISCPC, e)
+	if e != ECONBAD {
+		t.Errorf("Previous disconnect expected [%v] got [%v]\n", ECONBAD, e)
 	}
 }
 
