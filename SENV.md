@@ -48,16 +48,6 @@ Default: /queue/sng.sample.stomp.destination
 
 <tr>
 <td style="border: 1px solid black;padding-left: 10px;" >
-STOMP_LOGIN
-</td>
-<td style="border: 1px solid black;padding-left: 10px;" >
-The login to be used by the client in the CONNECT frame.<br />
-Default: guest
-</td>
-</tr>
-
-<tr>
-<td style="border: 1px solid black;padding-left: 10px;" >
 STOMP_HEARTBEATS
 </td>
 <td style="border: 1px solid black;padding-left: 10px;" >
@@ -73,6 +63,16 @@ STOMP_HOST
 <td style="border: 1px solid black;padding-left: 10px;" >
 The broker host to connect to.<br />
 Default: localhost
+</td>
+</tr>
+
+<tr>
+<td style="border: 1px solid black;padding-left: 10px;" >
+STOMP_LOGIN
+</td>
+<td style="border: 1px solid black;padding-left: 10px;" >
+The login to be used by the client in the CONNECT frame.<br />
+Default: guest
 </td>
 </tr>
 
