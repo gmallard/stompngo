@@ -18,6 +18,8 @@ package stompngo
 
 import (
 	"fmt"
+	"log"
+	"strconv"
 )
 
 var _ = fmt.Println
@@ -105,6 +107,9 @@ func (c *Connection) establishSubscription(h Headers) (*subscription, error, Hea
 
 	sd := new(subscription) // New subscription data
 	sd.cs = false           // No shutdown yet
+	sd.drav = false         // Drain after value validity
+	sd.dra = 0              // Never drain MESSAGE frames
+	sd.drmc = 0             // Current drain count
 	lam := "auto"           // Default/used ACK mode
 	if ham, ok := h.Contains("ack"); ok {
 		lam = ham // Reset (possible) used ack mode
@@ -131,6 +136,18 @@ func (c *Connection) establishSubscription(h Headers) (*subscription, error, Hea
 			sd.id = uuid1          // Set subscription ID to that
 		}
 	}
+
+	// STOMP Protocol Enhancement
+	if dc, okda := h.Contains(StompPlusDrainAfter); okda {
+		n, e := strconv.ParseInt(dc, 10, 0)
+		if e != nil {
+			log.Printf("sng_drafter conversion error: %v\n", e)
+		} else {
+			sd.drav = true   // Drain after value is OK
+			sd.dra = uint(n) // Drain after count
+		}
+	}
+
 	// This is a write lock
 	c.subsLock.Lock()
 	c.subs[sd.id] = sd // Add subscription to the connection subscription map

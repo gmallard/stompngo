@@ -80,8 +80,9 @@ func (c *Connection) Disconnect(h Headers) error {
 	if !cwr && e == nil {
 		// Receipt
 		c.DisconnectReceipt = <-c.input
-		c.log(DISCONNECT, "end", ch, c.DisconnectReceipt)
+		c.log(DISCONNECT, "dr", ch, c.DisconnectReceipt)
 	}
+	c.log(DISCONNECT, "ends", ch)
 	c.rsd <- true
 	return e
 }

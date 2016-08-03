@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	hbs = 30
+	hbs = 45
 )
 
 /*
