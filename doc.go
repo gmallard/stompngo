@@ -31,7 +31,7 @@
 
 		h := "localhost"
 		p := "61613"
-		n, err := net.Dial("tcp", net.JoinHostPort(h, p))
+		n, err := net.Dial(stompngo.NetProtoTCP, net.JoinHostPort(h, p))
 		if err != nil {
 			// Do something sane ...
 		}

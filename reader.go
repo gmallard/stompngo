@@ -34,7 +34,7 @@ func (c *Connection) reader() {
 
 	for {
 		f, e := c.readFrame()
-		c.log("RDR_READFRAME", f, "RDR_RF_ERR", e)
+		c.log("RDR_RECEIVE_FRAME", f, "RDR_RECEIVE_ERR", e)
 		if e != nil {
 			f.Headers = append(f.Headers, "connection_read_error", e.Error())
 			md := MessageData{Message(f), e}
@@ -51,7 +51,9 @@ func (c *Connection) reader() {
 		// Headers already decoded
 		c.mets.tbr += m.Size(false) // Total bytes read
 		md := MessageData{m, e}
-		// TODO ? Maybe ? Rethink this logic.
+
+		// TODO START - can this be simplified ?  Look cleaner ?
+
 		if sid, ok := f.Headers.Contains("subscription"); ok {
 			// This is a read lock
 			c.subsLock.RLock()
@@ -61,17 +63,29 @@ func (c *Connection) reader() {
 				if c.subs[sid].cs {
 					c.log("RDR_CLSUB", sid, md)
 				} else {
-					c.subs[sid].md <- md
+					if c.subs[sid].drav {
+						c.subs[sid].drmc++
+						if c.subs[sid].drmc > c.subs[sid].dra {
+							c.log("RDR_DROPM", c.subs[sid].drmc, sid, md)
+						} else {
+							c.subs[sid].md <- md
+						}
+					} else {
+						c.subs[sid].md <- md
+					}
 				}
 			} else {
 				c.log("RDR_NOSUB", sid, md)
 			}
 			c.subsLock.RUnlock()
 		} else {
+			// RECEIPTs and ERRORs are never drained.  They actually cannot
+			// be drained in any logical manner because they do not have a
+			// 'subscription' header.
 			c.input <- md
 		}
 
-		c.log("RDR_RECEIVE", m.Command, m.Headers)
+		// TODO END
 
 		select {
 		case q = <-c.rsd:

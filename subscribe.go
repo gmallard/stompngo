@@ -18,6 +18,8 @@ package stompngo
 
 import (
 	"fmt"
+	"log"
+	"strconv"
 )
 
 var _ = fmt.Println
@@ -82,26 +84,32 @@ func (c *Connection) Subscribe(h Headers) (<-chan MessageData, error) {
 	Handle subscribe id.
 */
 func (c *Connection) establishSubscription(h Headers) (*subscription, error, Headers) {
-	// This is a write lock
-	c.subsLock.Lock()
-	defer c.subsLock.Unlock()
+	// c.log(SUBSCRIBE, "start establishSubscription")
 	//
 	id, hid := h.Contains("id")
 	uuid1 := Uuid()
+	//
+	c.subsLock.RLock() // Acquire Read lock
 	// No duplicates
 	if hid {
 		if _, q := c.subs[id]; q {
+			c.subsLock.RUnlock()   // Release Read lock
 			return nil, EDUPSID, h // Duplicate subscriptions not allowed
 		}
 	} else {
 		if _, q := c.subs[uuid1]; q {
+			c.subsLock.RUnlock()   // Release Read lock
 			return nil, EDUPSID, h // Duplicate subscriptions not allowed
 		}
 	}
+	c.subsLock.RUnlock() // Release Read lock
 	//
 
 	sd := new(subscription) // New subscription data
 	sd.cs = false           // No shutdown yet
+	sd.drav = false         // Drain after value validity
+	sd.dra = 0              // Never drain MESSAGE frames
+	sd.drmc = 0             // Current drain count
 	lam := "auto"           // Default/used ACK mode
 	if ham, ok := h.Contains("ack"); ok {
 		lam = ham // Reset (possible) used ack mode
@@ -128,6 +136,22 @@ func (c *Connection) establishSubscription(h Headers) (*subscription, error, Hea
 			sd.id = uuid1          // Set subscription ID to that
 		}
 	}
+
+	// STOMP Protocol Enhancement
+	if dc, okda := h.Contains(StompPlusDrainAfter); okda {
+		n, e := strconv.ParseInt(dc, 10, 0)
+		if e != nil {
+			log.Printf("sng_drafter conversion error: %v\n", e)
+		} else {
+			sd.drav = true   // Drain after value is OK
+			sd.dra = uint(n) // Drain after count
+		}
+	}
+
+	// This is a write lock
+	c.subsLock.Lock()
 	c.subs[sd.id] = sd // Add subscription to the connection subscription map
-	return sd, nil, h  // Return the subscription pointer
+	c.subsLock.Unlock()
+	//c.log(SUBSCRIBE, "end establishSubscription")
+	return sd, nil, h // Return the subscription pointer
 }

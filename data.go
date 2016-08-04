@@ -132,10 +132,13 @@ type Connection struct {
 }
 
 type subscription struct {
-	md chan MessageData // Subscription specific MessageData channel
-	id string           // Subscription id (unique, self reference)
-	am string           // ACK mode for this subscription
-	cs bool             // Closed during shutdown
+	md   chan MessageData // Subscription specific MessageData channel
+	id   string           // Subscription id (unique, self reference)
+	am   string           // ACK mode for this subscription
+	cs   bool             // Closed during shutdown
+	drav bool             // Drain After value validity
+	dra  uint             // Start draining after # messages (MESSAGE frames)
+	drmc uint             // Current drain count if draining
 }
 
 /*
@@ -166,7 +169,7 @@ const (
 	EBDYDATA = Error("body data not allowed")
 
 	// Not connected.
-	ECONBAD = Error("no current connection")
+	ECONBAD = Error("no current connection or DISCONNECT previously completed")
 
 	// Destination required
 	EREQDSTSND = Error("destination required, SEND")
@@ -210,9 +213,6 @@ const (
 
 	// Invalid broker command
 	EINVBCMD = Error("invalid broker command")
-
-	// DISCONNET Already completed
-	EDISCPC = Error("disconnect previously completed")
 )
 
 /*
@@ -290,3 +290,47 @@ type metrics struct {
 var validCmds = map[string]bool{MESSAGE: true, ERROR: true, RECEIPT: true}
 
 var logLock sync.Mutex
+
+const (
+	NetProtoTCP = "tcp" // Protocol Name
+)
+
+/*
+	Commom Header keys
+*/
+const (
+	HK_ACCEPT_VERSION = "accept-version"
+	HK_ACK            = "ack"
+	HK_CONTENT_TYPE   = "content-type"
+	HK_CONTENT_LENGTH = "content-length"
+	HK_DEST           = "destination"
+	HK_HEART_BEAT     = "heart-beat"
+	HK_HOST           = "host"
+	HK_ID             = "id"
+	HK_LOGIN          = "logon"
+	HK_MESSAGE        = "message"
+	HK_MESSAGE_ID     = "message-id"
+	HK_PASSCODE       = "passcode"
+	HK_RECEIPT        = "receipt"
+	HK_RECEIPT_ID     = "receipt-id"
+	HK_SESSION        = "session"
+	HK_SERVER         = "server"
+	HK_TRANSACTION    = "transaction"
+	HK_VERSION        = "version"
+)
+
+/*
+	ACK Modes
+*/
+const (
+	AckModeAuto             = "auto"
+	AckModeClient           = "client"
+	AckModeClientIndividual = "client-individual"
+)
+
+/*
+	Extensions to STOMP protocol.
+*/
+const (
+	StompPlusDrainAfter = "sng_drafter" // SUBSCRIBE Header
+)

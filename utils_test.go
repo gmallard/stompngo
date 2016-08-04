@@ -140,7 +140,7 @@ func getMessageData(sc <-chan MessageData, conn *Connection, t *testing.T) (md M
 func openConn(t *testing.T) (net.Conn, error) {
 	h, p := senv.HostAndPort()
 	hap := net.JoinHostPort(h, p)
-	n, err := net.Dial("tcp", hap)
+	n, err := net.Dial(NetProtoTCP, hap)
 	if err != nil {
 		t.Errorf("Unexpected net.Dial error: %v\n", err)
 	}

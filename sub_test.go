@@ -17,7 +17,7 @@
 package stompngo
 
 import (
-	//"log"
+	"log"
 	"os"
 	"testing"
 	"time"
@@ -81,6 +81,7 @@ func TestSubNoIdTwice10(t *testing.T) {
 		t.Skip("TestSubNoIdTwice10 norun, need 1.0")
 	}
 
+	t.Log("TestSubNoIdTwice10", "starts")
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	conn, _ := Connect(n, ch)
@@ -157,45 +158,55 @@ func TestSubNoIdTwice11p(t *testing.T) {
 		t.Skip("TestSubNoIdTwice11p norun, need 1.1+")
 	}
 
+	t.Log("TestSubNoIdTwice11p", "starts")
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
 	conn, _ := Connect(n, ch)
+	l := log.New(os.Stdout, "TSNI211P ", log.Ldate|log.Lmicroseconds)
+	conn.SetLogger(l)
 
 	d := tdest("/queue/subdup.p11.01")
 	id := "TestSubNoIdTwice11p"
 	sbh := Headers{"destination", d, "id", id}
 	// First time
+	t.Logf("%s\n", "INFO TestSubNoIdTwice11p - start 1st SUBSCRIBE")
 	sc, e := conn.Subscribe(sbh)
+	t.Logf("%s\n", "INFO TestSubNoIdTwice11p - end 1st SUBSCRIBE")
 	if e != nil {
-		t.Errorf("Expected no subscribe error (T1), got [%v]\n", e)
+		t.Errorf("ERROR Expected no subscribe error (T1), got [%v]\n", e)
 	}
 	if sc == nil {
-		t.Errorf("Expected subscribe channel (T1), got [nil]\n")
+		t.Errorf("ERROR Expected subscribe channel (T2), got [nil]\n")
 	}
 	time.Sleep(500 * time.Millisecond) // give a broker a break
 	select {
 	case v := <-sc:
-		t.Logf("Unexpected frame received (T1), got [%v]\n", v)
+		t.Errorf("ERROR Unexpected frame received (T3), got [%v]\n", v)
 	case v := <-conn.MessageData:
-		t.Logf("Unexpected frame received (T1), got [%v]\n", v)
+		t.Errorf("ERROR Unexpected frame received (T4), got [%v]\n", v)
 	default:
 	}
 
 	// Second time.  The stompngo package maintains a list of all current
 	// subscription ids.  An attempt to subscribe using an existing id is
 	// immediately rejected by the package (never actually sent to the broker).
+	t.Logf("%s\n", "INFO TestSubNoIdTwice11p - start 2nd SUBSCRIBE")
 	sc, e = conn.Subscribe(sbh)
+	t.Logf("%s\n", "INFO TestSubNoIdTwice11p - end 2nd SUBSCRIBE")
 	if e == nil {
-		t.Errorf("Expected subscribe error (T2), got [nil]\n")
+		t.Errorf("ERROR Expected subscribe error (T5), got [nil]\n")
 	}
 	if e != EDUPSID {
-		t.Errorf("Expected subscribe error (T2), [%v] got [%v]\n", EDUPSID, e)
+		t.Errorf("ERROR Expected subscribe error (T6), [%v] got [%v]\n", EDUPSID, e)
+	} else {
+		t.Logf("INFO wanted/got actual (T7), [%v]\n", e)
 	}
 	if sc != nil {
-		t.Errorf("Expected nil subscribe channel (T1), got [%v]\n", sc)
+		t.Errorf("ERROR Expected nil subscribe channel (T8), got [%v]\n", sc)
 	}
 	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
+	t.Log("TestSubNoIdTwice11p", "ends")
 }
 
 /*

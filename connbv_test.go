@@ -30,7 +30,7 @@ func TestConnBadVer10One(t *testing.T) {
 		t.Skip("TestConnBadVer10One no 1.0 only servers available")
 	}
 	h, p := badVerHostAndPort()
-	n, e := net.Dial("tcp", net.JoinHostPort(h, p))
+	n, e := net.Dial(NetProtoTCP, net.JoinHostPort(h, p))
 	ch := TEST_HEADERS
 	other_headers := Headers{"accept-version", "1.1,2.0,3.14159", "host", h}
 	ch = ch.AddHeaders(other_headers)
@@ -53,7 +53,7 @@ func TestConnBadVer10Two(t *testing.T) {
 		t.Skip("TestConnBadVer10Two norun, set STOMP_TEST11p")
 	}
 	h, p := badVerHostAndPort()
-	n, e := net.Dial("tcp", net.JoinHostPort(h, p))
+	n, e := net.Dial(NetProtoTCP, net.JoinHostPort(h, p))
 	ch := TEST_HEADERS
 	other_headers := Headers{"accept-version", "2.0,1.0,3.14159", "host", h}
 	ch = ch.AddHeaders(other_headers)
@@ -79,7 +79,7 @@ func TestConnBadVer10Three(t *testing.T) {
 		t.Skip("TestConnBadVer10Three norun, set STOMP_TEST11p")
 	}
 	h, p := badVerHostAndPort()
-	n, e := net.Dial("tcp", net.JoinHostPort(h, p))
+	n, e := net.Dial(NetProtoTCP, net.JoinHostPort(h, p))
 	ch := TEST_HEADERS
 	other_headers := Headers{"accept-version", "4.5,3.14159", "host", h}
 	ch = ch.AddHeaders(other_headers)
