@@ -19,11 +19,11 @@ package stompngo
 /*
 	Commit a STOMP transaction.
 
-	Headers MUST contain a "transaction" header key
+	Headers MUST contain a HK_TRANSACTION header key
 	with a value that is not an empty string.
 
 	Example:
-		h := stompngo.Headers{"transaction", "transaction-id1"}
+		h := stompngo.Headers{HK_TRANSACTION, "transaction-id1"}
 		e := c.Begin(h)
 		if e != nil {
 			// Do something sane ...
@@ -39,10 +39,10 @@ func (c *Connection) Commit(h Headers) error {
 	if e != nil {
 		return e
 	}
-	if _, ok := h.Contains("transaction"); !ok {
+	if _, ok := h.Contains(HK_TRANSACTION); !ok {
 		return EREQTIDCOM
 	}
-	if h.Value("transaction") == "" {
+	if h.Value(HK_TRANSACTION) == "" {
 		return EREQTIDCOM
 	}
 	e = c.transmitCommon(COMMIT, h) // transmitCommon Clones() the headers

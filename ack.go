@@ -19,19 +19,19 @@ package stompngo
 /*
 	Ack a STOMP MESSAGE.
 
-	For Stomp 1.0 Headers MUST contain a "message-id" header key.
+	For Stomp 1.0 Headers MUST contain a HK_MESSAGE_ID header key.
 
 
-	For Stomp 1.1	Headers must contain a "message-id" key and a "subscription"
+	For Stomp 1.1	Headers must contain a HK_MESSAGE_ID key and a "subscription"
 	header key.
 
 
-	For Stomp 1.2 Headers must contain a unique "id" header key.
+	For Stomp 1.2 Headers must contain a unique HK_ID header key.
 
 	See the specifications at http://stomp.github.com/ for details.
 
 	Example:
-		h := stompngo.Headers{"message-id", "message-id1",
+		h := stompngo.Headers{HK_MESSAGE_ID, "message-id1",
 			"subscription", "d2cbe608b70a54c8e69d951b246999fbc20df694"}
 		e := c.Ack(h)
 		if e != nil {
@@ -51,18 +51,18 @@ func (c *Connection) Ack(h Headers) error {
 
 	switch c.Protocol() {
 	case SPL_12:
-		if _, ok := h.Contains("id"); !ok {
+		if _, ok := h.Contains(HK_ID); !ok {
 			return EREQIDACK
 		}
 	case SPL_11:
 		if _, ok := h.Contains("subscription"); !ok {
 			return EREQSUBACK
 		}
-		if _, ok := h.Contains("message-id"); !ok {
+		if _, ok := h.Contains(HK_MESSAGE_ID); !ok {
 			return EREQMIDACK
 		}
 	default: // SPL_10
-		if _, ok := h.Contains("message-id"); !ok {
+		if _, ok := h.Contains(HK_MESSAGE_ID); !ok {
 			return EREQMIDACK
 		}
 	}

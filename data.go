@@ -303,7 +303,7 @@ const (
 	HK_ACK            = "ack"
 	HK_CONTENT_TYPE   = "content-type"
 	HK_CONTENT_LENGTH = "content-length"
-	HK_DEST           = "destination"
+	HK_DESTINATION    = "destination"
 	HK_HEART_BEAT     = "heart-beat"
 	HK_HOST           = "host"
 	HK_ID             = "id"

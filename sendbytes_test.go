@@ -31,7 +31,7 @@ func TestSendBytesBasic(t *testing.T) {
 	//
 	mb := []byte("A message")
 	d := tdest("/queue/send.basiconn.01")
-	sh := Headers{"destination", d}
+	sh := Headers{HK_DESTINATION, d}
 	e := conn.SendBytes(sh, mb)
 	if e != nil {
 		t.Errorf("Expected nil error, got [%v]\n", e)

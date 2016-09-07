@@ -99,14 +99,14 @@ func (f *Frame) writeFrame(w *bufio.Writer, l string) error {
 	// Content length - Always add it if client does not suppress it and
 	// does not supply it.
 	if _, ok := f.Headers.Contains("suppress-content-length"); !ok {
-		if _, clok := f.Headers.Contains("content-length"); !clok {
-			f.Headers = append(f.Headers, "content-length", strconv.Itoa(len(f.Body)))
+		if _, clok := f.Headers.Contains(HK_CONTENT_LENGTH); !clok {
+			f.Headers = append(f.Headers, HK_CONTENT_LENGTH, strconv.Itoa(len(f.Body)))
 		}
 	}
 
 	// Content type.  Add it if the client does not ask for it.
-	if _, ok := f.Headers.Contains("content-type"); !ok {
-		f.Headers = append(f.Headers, "content-type",
+	if _, ok := f.Headers.Contains(HK_CONTENT_TYPE); !ok {
+		f.Headers = append(f.Headers, HK_CONTENT_TYPE,
 			"text/plain; charset=UTF-8")
 	}
 

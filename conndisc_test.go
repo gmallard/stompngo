@@ -28,12 +28,12 @@ type verData struct {
 }
 
 var verChecks = []verData{
-	{Headers{"accept-version", SPL_11}, Headers{"version", SPL_11}, nil},
+	{Headers{HK_ACCEPT_VERSION, SPL_11}, Headers{HK_VERSION, SPL_11}, nil},
 	{Headers{}, Headers{}, nil},
-	{Headers{"accept-version", "1.0,1.1,1.2"}, Headers{"version", SPL_12}, nil},
-	{Headers{"accept-version", "1.3"}, Headers{"version", "1.3"}, EBADVERSVR},
-	{Headers{"accept-version", "1.3"}, Headers{"version", "1.1"}, EBADVERCLI},
-	{Headers{"accept-version", "1.0,1.1,1.2"}, Headers{}, nil},
+	{Headers{HK_ACCEPT_VERSION, "1.0,1.1,1.2"}, Headers{HK_VERSION, SPL_12}, nil},
+	{Headers{HK_ACCEPT_VERSION, "1.3"}, Headers{HK_VERSION, "1.3"}, EBADVERSVR},
+	{Headers{HK_ACCEPT_VERSION, "1.3"}, Headers{HK_VERSION, "1.1"}, EBADVERCLI},
+	{Headers{HK_ACCEPT_VERSION, "1.0,1.1,1.2"}, Headers{}, nil},
 }
 
 /*
@@ -153,7 +153,7 @@ func TestConnDiscStompDiscReceipt(t *testing.T) {
 	ch := check11(TEST_HEADERS)
 	conn, _ := Connect(n, ch)
 	rid := "my-receipt-001"
-	e := conn.Disconnect(Headers{"receipt", rid})
+	e := conn.Disconnect(Headers{HK_RECEIPT, rid})
 	if e != nil {
 
 		t.Errorf("Expected no disconnect error, got [%v]\n", e)
@@ -163,7 +163,7 @@ func TestConnDiscStompDiscReceipt(t *testing.T) {
 			conn.DisconnectReceipt.Error)
 	}
 	md := conn.DisconnectReceipt.Message
-	irid, ok := md.Headers.Contains("receipt-id")
+	irid, ok := md.Headers.Contains(HK_RECEIPT_ID)
 	if !ok {
 		t.Errorf("Expected receipt-id, not received\n")
 	}
@@ -229,7 +229,7 @@ func TestConn11p(t *testing.T) {
 func TestConn11Receipt(t *testing.T) {
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	ch = ch.Add("receipt", "abcd1234")
+	ch = ch.Add(HK_RECEIPT, "abcd1234")
 	_, e := Connect(n, ch)
 	if e == nil {
 		t.Errorf("Expected connect error, got nil\n")

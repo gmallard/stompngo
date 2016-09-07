@@ -98,7 +98,7 @@ func TestCodec11SendRecvCodec(t *testing.T) {
 	//
 	d := tdest("/queue/gostomp.11sendrecv.2")
 	ms := "11sendrecv.2 - message 1"
-	wh := Headers{"destination", d}
+	wh := Headers{HK_DESTINATION, d}
 
 	sh := wh.Clone()
 	// Excercise the 1.1 Header Codec
@@ -128,7 +128,7 @@ func TestCodec11SendRecvCodec(t *testing.T) {
 		//
 	}
 	// Subscribe
-	sbh := wh.Add("id", d)
+	sbh := wh.Add(HK_ID, d)
 	sc, e := conn.Subscribe(sbh)
 	if e != nil {
 		t.Errorf("11Subscribe failed: %v", e)

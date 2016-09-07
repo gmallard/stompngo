@@ -31,7 +31,7 @@ func TestMiscBytes0(t *testing.T) {
 	//
 	ms := "" // No data
 	d := tdest("/queue/misc.zero.byte.msg")
-	sh := Headers{"destination", d}
+	sh := Headers{HK_DESTINATION, d}
 	e := conn.Send(sh, ms)
 	if e != nil {
 		t.Errorf("Expected nil error, got [%v]\n", e)
@@ -45,7 +45,7 @@ func TestMiscBytes0(t *testing.T) {
 	ch = check11(TEST_HEADERS)
 	conn, _ = Connect(n, ch)
 	//
-	sbh := sh.Add("id", d)
+	sbh := sh.Add(HK_ID, d)
 	sc, e := conn.Subscribe(sbh)
 	if e != nil {
 		t.Errorf("Expected no subscribe error, got [%v]\n", e)
@@ -91,7 +91,7 @@ func TestMiscBytes1(t *testing.T) {
 	//
 	ms := "1" // Just one byte
 	d := tdest("/queue/one.byte.msg")
-	sh := Headers{"destination", d}
+	sh := Headers{HK_DESTINATION, d}
 	e := conn.Send(sh, ms)
 	if e != nil {
 		t.Errorf("Expected nil error, got [%v]\n", e)
@@ -105,7 +105,7 @@ func TestMiscBytes1(t *testing.T) {
 	ch = check11(TEST_HEADERS)
 	conn, _ = Connect(n, ch)
 	//
-	sbh := sh.Add("id", d)
+	sbh := sh.Add(HK_ID, d)
 	sc, e := conn.Subscribe(sbh)
 	if e != nil {
 		t.Errorf("Expected no subscribe error, got [%v]\n", e)
@@ -262,7 +262,7 @@ func TestMiscBadHeaders(t *testing.T) {
 		t.Errorf("Expected [%v], got [%v]\n", EHDRLEN, e)
 	}
 	//
-	bvh := Headers{"host", "localhost", "accept-version", "3.14159"}
+	bvh := Headers{HK_HOST, "localhost", HK_ACCEPT_VERSION, "3.14159"}
 	conn, e = Connect(n, bvh)
 	if e == nil {
 		t.Errorf("Expected [%v], got [nil]\n", EBADVERCLI)

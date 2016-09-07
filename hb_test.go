@@ -67,7 +67,7 @@ func TestHB11ZeroHeader(t *testing.T) {
 
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch.Add("heart-beat", "0,0"))
+	conn, _ := Connect(n, ch.Add(HK_HEART_BEAT, "0,0"))
 	if conn.Protocol() == SPL_10 {
 		_ = closeConn(t, n)
 		return
@@ -97,52 +97,52 @@ func TestHB11InitErrors(t *testing.T) {
 		t.Errorf("Heartbeat error client no client data: %v %v", e, conn.hbd)
 	}
 	//
-	h := Headers{"heart-beat", "0,0"}
+	h := Headers{HK_HEART_BEAT, "0,0"}
 	e = conn.initializeHeartBeats(h)
 	if e != nil || conn.hbd != nil {
 		t.Errorf("Heartbeat error client 0,0: %v %v", e, conn.hbd)
 	}
 	//
-	crc := conn.ConnectResponse.Headers.Delete("heart-beat")
-	conn.ConnectResponse.Headers = crc.Add("heart-beat", "10,10")
+	crc := conn.ConnectResponse.Headers.Delete(HK_HEART_BEAT)
+	conn.ConnectResponse.Headers = crc.Add(HK_HEART_BEAT, "10,10")
 	//
-	h = Headers{"heart-beat", "1,2,2"}
+	h = Headers{HK_HEART_BEAT, "1,2,2"}
 	e = conn.initializeHeartBeats(h)
 	if e == nil || conn.hbd != nil {
 		t.Errorf("Heartbeat error invalid client heart-beat header expected: %v %v",
 			e, conn.hbd)
 	}
 	//
-	h = Headers{"heart-beat", "a,1"}
+	h = Headers{HK_HEART_BEAT, "a,1"}
 	e = conn.initializeHeartBeats(h)
 	if e == nil || conn.hbd != nil {
 		t.Errorf("Heartbeat error non-numeric cx heartbeat value expected, got nil: %v %v",
 			e, conn.hbd)
 	}
 	//
-	h = Headers{"heart-beat", "1,b"}
+	h = Headers{HK_HEART_BEAT, "1,b"}
 	e = conn.initializeHeartBeats(h)
 	if e == nil || conn.hbd != nil {
 		t.Errorf("Heartbeat error non-numeric cy heartbeat value expected, got nil: %v %v",
 			e, conn.hbd)
 	}
 	//
-	h = Headers{"heart-beat", "100,100"}
-	conn.ConnectResponse.Headers = crc.Add("heart-beat", "10,10,10")
+	h = Headers{HK_HEART_BEAT, "100,100"}
+	conn.ConnectResponse.Headers = crc.Add(HK_HEART_BEAT, "10,10,10")
 	e = conn.initializeHeartBeats(h)
 	if e == nil || conn.hbd != nil {
 		t.Errorf("Heartbeat error invalid server heartbeat value expected, got nil: %v %v",
 			e, conn.hbd)
 	}
 	//
-	conn.ConnectResponse.Headers = crc.Add("heart-beat", "a,3")
+	conn.ConnectResponse.Headers = crc.Add(HK_HEART_BEAT, "a,3")
 	e = conn.initializeHeartBeats(h)
 	if e == nil || conn.hbd != nil {
 		t.Errorf("Heartbeat error invalid server sx value expected, got nil: %v %v",
 			e, conn.hbd)
 	}
 	//
-	conn.ConnectResponse.Headers = crc.Add("heart-beat", "3,a")
+	conn.ConnectResponse.Headers = crc.Add(HK_HEART_BEAT, "3,a")
 	e = conn.initializeHeartBeats(h)
 	if e == nil || conn.hbd != nil {
 		t.Errorf("Heartbeat error invalid server sy value expected, got nil: %v %v",
@@ -164,7 +164,7 @@ func TestHB11Connect(t *testing.T) {
 	//
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	ch = ch.Add("heart-beat", "100,10000")
+	ch = ch.Add(HK_HEART_BEAT, "100,10000")
 	conn, e := Connect(n, ch)
 	if e != nil {
 		t.Errorf("Heartbeat expected connection, got error: %q\n", e)
@@ -197,7 +197,7 @@ func TestHB11NoSend(t *testing.T) {
 	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	ch = ch.Add("heart-beat", "0,6000") // No sending
+	ch = ch.Add(HK_HEART_BEAT, "0,6000") // No sending
 	l.Printf("ConnHeaders: %v\n", ch)
 	conn, e := Connect(n, ch)
 	// Error checks
@@ -246,7 +246,7 @@ func TestHB11NoReceive(t *testing.T) {
 	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	ch = ch.Add("heart-beat", "10000,0") // No Receiving
+	ch = ch.Add(HK_HEART_BEAT, "10000,0") // No Receiving
 	l.Printf("ConnHeaders: %v\n", ch)
 	conn, e := Connect(n, ch)
 	// Error checks
@@ -292,7 +292,7 @@ func TestHB11SendReceive(t *testing.T) {
 	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	ch = ch.Add("heart-beat", "10000,6000")
+	ch = ch.Add(HK_HEART_BEAT, "10000,6000")
 	l.Printf("ConnHeaders: %v\n", ch)
 	conn, e := Connect(n, ch)
 	// Error checks
@@ -343,7 +343,7 @@ func TestHB11SendReceiveApollo(t *testing.T) {
 	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	ch = ch.Add("heart-beat", "10000,100")
+	ch = ch.Add(HK_HEART_BEAT, "10000,100")
 	l.Printf("ConnHeaders: %v\n", ch)
 	conn, e := Connect(n, ch)
 	// Error checks
@@ -398,7 +398,7 @@ func TestHB11SendReceiveApolloRev(t *testing.T) {
 	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 	n, _ := openConn(t)
 	ch := check11(TEST_HEADERS)
-	ch = ch.Add("heart-beat", "100,10000")
+	ch = ch.Add(HK_HEART_BEAT, "100,10000")
 	l.Printf("ConnHeaders: %v\n", ch)
 	conn, e := Connect(n, ch)
 	// Error checks

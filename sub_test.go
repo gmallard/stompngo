@@ -54,7 +54,7 @@ func TestSubNoIdOnce(t *testing.T) {
 	conn, _ := Connect(n, ch)
 	//
 	d := tdest("/queue/subunsub.genl.01")
-	sbh := Headers{"destination", d}
+	sbh := Headers{HK_DESTINATION, d}
 	//
 	s, e := conn.Subscribe(sbh)
 	if e != nil {
@@ -93,7 +93,7 @@ func TestSubNoIdTwice10(t *testing.T) {
 	}
 	//
 	d := tdest("/queue/subdup.p10.01")
-	sbh := Headers{"destination", d}
+	sbh := Headers{HK_DESTINATION, d}
 	// First time
 	sc, e := conn.Subscribe(sbh)
 	if e != nil {
@@ -167,7 +167,7 @@ func TestSubNoIdTwice11p(t *testing.T) {
 
 	d := tdest("/queue/subdup.p11.01")
 	id := "TestSubNoIdTwice11p"
-	sbh := Headers{"destination", d, "id", id}
+	sbh := Headers{HK_DESTINATION, d, HK_ID, id}
 	// First time
 	t.Logf("%s\n", "INFO TestSubNoIdTwice11p - start 1st SUBSCRIBE")
 	sc, e := conn.Subscribe(sbh)
@@ -220,10 +220,10 @@ func TestSubUnsubBasic(t *testing.T) {
 	//
 	m := "A message"
 	d := tdest("/queue/subunsub.basiconn.01")
-	h := Headers{"destination", d}
+	h := Headers{HK_DESTINATION, d}
 	_ = conn.Send(h, m)
 	//
-	h = h.Add("id", d)
+	h = h.Add(HK_ID, d)
 	sc, e := conn.Subscribe(h)
 	if e != nil {
 		t.Errorf("Expected no subscribe error, got [%v]\n", e)
@@ -246,7 +246,7 @@ func TestSubUnsubBasic(t *testing.T) {
 		t.Errorf("Expected no message data error, got [%v]\n", md.Error)
 	}
 	mdm := md.Message
-	rd := mdm.Headers.Value("destination")
+	rd := mdm.Headers.Value(HK_DESTINATION)
 	if rd != d {
 		t.Errorf("Expected destination [%v], got [%v]\n", d, rd)
 	}
@@ -278,7 +278,7 @@ func TestSubUnsubBasic10(t *testing.T) {
 	//
 	ms := "A message"
 	d := tdest("/queue/subunsub.basiconn.r10.01")
-	sh := Headers{"destination", d}
+	sh := Headers{HK_DESTINATION, d}
 	_ = conn.Send(sh, ms)
 	//
 	sbh := sh
@@ -304,7 +304,7 @@ func TestSubUnsubBasic10(t *testing.T) {
 		t.Errorf("Expected no message data error, got [%v]\n", md.Error)
 	}
 	mdm := md.Message
-	rd := mdm.Headers.Value("destination")
+	rd := mdm.Headers.Value(HK_DESTINATION)
 	if rd != d {
 		t.Errorf("Expected destination [%v], got [%v]\n", d, rd)
 	}
@@ -328,7 +328,7 @@ func TestSubEstablishSubscription(t *testing.T) {
 	conn, _ := Connect(n, ch)
 	//
 	d := tdest("/queue/estabsub.01")
-	sbh := Headers{"destination", d}
+	sbh := Headers{HK_DESTINATION, d}
 	// First time
 	s, e := conn.Subscribe(sbh)
 	if e != nil {
@@ -363,7 +363,7 @@ func TestSubSetCap(t *testing.T) {
 	}
 	//
 	d := tdest("/queue/subsetcap.basiconn.01")
-	h := Headers{"destination", d, "id", d}
+	h := Headers{HK_DESTINATION, d, HK_ID, d}
 	s, e := conn.Subscribe(h)
 	if e != nil {
 		t.Errorf("Expected no subscribe error, got [%v]\n", e)

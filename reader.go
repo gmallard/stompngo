@@ -162,7 +162,7 @@ func (c *Connection) readFrame() (f Frame, e error) {
 		return f, e
 	}
 	// Read f.Body
-	if v, ok := f.Headers.Contains("content-length"); ok {
+	if v, ok := f.Headers.Contains(HK_CONTENT_LENGTH); ok {
 		l, e := strconv.Atoi(strings.TrimSpace(v))
 		if e != nil {
 			return f, e

@@ -35,13 +35,13 @@ func TestShovel11(t *testing.T) {
 	//
 	ms := "A message"
 	d := tdest("/queue/subunsub.shovel.01")
-	sh := Headers{"destination", d,
+	sh := Headers{HK_DESTINATION, d,
 		"dupkey1", "value0",
 		"dupkey1", "value1",
 		"dupkey1", "value2"}
 	_ = conn.Send(sh, ms)
 	//
-	sbh := Headers{"destination", d, "id", d}
+	sbh := Headers{HK_DESTINATION, d, HK_ID, d}
 	sc, e := conn.Subscribe(sbh)
 	if e != nil {
 		t.Errorf("Expected no subscribe error, got [%v]\n", e)
@@ -64,7 +64,7 @@ func TestShovel11(t *testing.T) {
 		t.Errorf("Expected no message data error, got [%v]\n", md.Error)
 	}
 	rm := md.Message
-	rd := rm.Headers.Value("destination")
+	rd := rm.Headers.Value(HK_DESTINATION)
 	if rd != d {
 		t.Errorf("Expected destination [%v], got [%v]\n", d, rd)
 	}
@@ -100,7 +100,7 @@ func TestShovel11(t *testing.T) {
 		}
 	}
 	//
-	uh := Headers{"id", rs, "destination", d}
+	uh := Headers{HK_ID, rs, HK_DESTINATION, d}
 	e = conn.Unsubscribe(uh)
 	if e != nil {
 		t.Errorf("Expected no unsubscribe error, got [%v]\n", e)

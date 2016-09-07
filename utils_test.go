@@ -26,7 +26,7 @@ import (
 	"github.com/gmallard/stompngo/senv"
 )
 
-var TEST_HEADERS = Headers{"login", "guest", "passcode", "guest"}
+var TEST_HEADERS = Headers{"login", "guest", HK_PASSCODE, "guest"}
 var TEST_TDESTPREF = "/queue/test.pref."
 var TEST_TRANID = "TransactionA"
 
@@ -87,12 +87,12 @@ func check11(h Headers) Headers {
 	if !Supported(v) {
 		v = SPL_11 // Just use 1.1
 	}
-	h = h.Add("accept-version", v)
+	h = h.Add(HK_ACCEPT_VERSION, v)
 	s := "localhost"                  // STOMP 1.1 vhost (configure for Apollo)
 	if os.Getenv("STOMP_RMQ") != "" { // Rabbitmq default vhost
 		s = "/"
 	}
-	h = h.Add("host", s)
+	h = h.Add(HK_HOST, s)
 	return h
 }
 
@@ -151,7 +151,7 @@ func openConn(t *testing.T) (net.Conn, error) {
 	Test helper.  Send multiple messages.
 */
 func sendMultiple(md multi_send_data) error {
-	h := Headers{"destination", md.dest}
+	h := Headers{HK_DESTINATION, md.dest}
 	for i := 0; i < md.count; i++ {
 		cstr := fmt.Sprintf("%d", i)
 		mts := md.mpref + cstr
@@ -167,7 +167,7 @@ func sendMultiple(md multi_send_data) error {
 	Test helper.  Send multiple []byte messages.
 */
 func sendMultipleBytes(md multi_send_data) error {
-	h := Headers{"destination", md.dest}
+	h := Headers{HK_DESTINATION, md.dest}
 	for i := 0; i < md.count; i++ {
 		cstr := fmt.Sprintf("%d", i)
 		mts := md.mpref + cstr

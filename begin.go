@@ -19,12 +19,12 @@ package stompngo
 /*
 	Begin a STOMP transaction.
 
-	Headers MUST contain a "transaction" header key
+	Headers MUST contain a HK_TRANSACTION header key
 	with a value that is not an empty string.
 
 	Example:
-		h := stompngo.Headers{"transaction", "transaction-id1",
-			"destination", "/queue/mymessages"}
+		h := stompngo.Headers{HK_TRANSACTION, "transaction-id1",
+			HK_DESTINATION, "/queue/mymessages"}
 		e := c.Begin(h)
 		if e != nil {
 			// Do something sane ...
@@ -39,10 +39,10 @@ func (c *Connection) Begin(h Headers) error {
 	if e != nil {
 		return e
 	}
-	if _, ok := h.Contains("transaction"); !ok {
+	if _, ok := h.Contains(HK_TRANSACTION); !ok {
 		return EREQTIDBEG
 	}
-	if h.Value("transaction") == "" {
+	if h.Value(HK_TRANSACTION) == "" {
 		return EREQTIDBEG
 	}
 	e = c.transmitCommon(BEGIN, h) // transmitCommon Clones() the headers

@@ -30,7 +30,7 @@ package stompngo
 	to the DISCONNECT headers.
 
 	Example:
-		h := stompngo.Headers{"receipt", "receipt-id1"} // Ask for a receipt
+		h := stompngo.Headers{HK_RECEIPT, "receipt-id1"} // Ask for a receipt
 		e := c.Disconnect(h)
 		if e != nil {
 			// Do something sane ...
@@ -64,8 +64,8 @@ func (c *Connection) Disconnect(h Headers) error {
 	// in both the client and the message broker.
 	_, cwr := ch.Contains("noreceipt")
 	if !cwr {
-		if _, ok := ch.Contains("receipt"); !ok {
-			ch = append(ch, "receipt", Uuid())
+		if _, ok := ch.Contains(HK_RECEIPT); !ok {
+			ch = append(ch, HK_RECEIPT, Uuid())
 		}
 	}
 	//

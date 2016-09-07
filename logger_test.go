@@ -53,7 +53,7 @@ func TestLoggerMiscBytes0(t *testing.T) {
 	//
 	ms := "" // No data
 	d := tdest("/queue/logger.zero.byte.msg")
-	sh := Headers{"destination", d}
+	sh := Headers{HK_DESTINATION, d}
 	e := conn.Send(sh, ms)
 	if e != nil {
 		t.Errorf("Expected nil error, got [%v]\n", e)
@@ -69,7 +69,7 @@ func TestLoggerMiscBytes0(t *testing.T) {
 	ll = log.New(os.Stdout, "TLM02 ", log.Ldate|log.Lmicroseconds|log.Lshortfile)
 	conn.SetLogger(ll)
 	//
-	sbh := sh.Add("id", d)
+	sbh := sh.Add(HK_ID, d)
 	sc, e := conn.Subscribe(sbh)
 	if e != nil {
 		t.Errorf("Expected no subscribe error, got [%v]\n", e)

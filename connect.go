@@ -48,8 +48,8 @@ import (
 		if e != nil {
 			// Do something sane ...
 		}
-		h := stompngo.Headers{"accept-version", "1.1",
-			"host", "localhost"} // A STOMP 1.1 connection
+		h := stompngo.Headers{HK_ACCEPT_VERSION, "1.1",
+			HK_HOST, "localhost"} // A STOMP 1.1 connection
 		c, e := stompngo.Connect(n, h)
 		if e != nil {
 			// Do something sane ...
@@ -63,7 +63,7 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 	if e := h.Validate(); e != nil {
 		return nil, e
 	}
-	if _, ok := h.Contains("receipt"); ok {
+	if _, ok := h.Contains(HK_RECEIPT); ok {
 		return nil, ENORECPT
 	}
 	ch := h.Clone()
@@ -141,7 +141,7 @@ func (c *Connection) connectHandler(h Headers) (e error) {
 		return e
 	}
 	//
-	if s, ok := c.ConnectResponse.Headers.Contains("session"); ok {
+	if s, ok := c.ConnectResponse.Headers.Contains(HK_SESSION); ok {
 		c.session = s
 	}
 
@@ -162,7 +162,7 @@ func (c *Connection) connectHandler(h Headers) (e error) {
 	Check client version, one time use during initial connect.
 */
 func (c *Connection) checkClientVersions(h Headers) (e error) {
-	w := h.Value("accept-version")
+	w := h.Value(HK_ACCEPT_VERSION)
 	if w == "" { // Not present, client wants 1.0
 		return nil
 	}
@@ -179,8 +179,8 @@ func (c *Connection) checkClientVersions(h Headers) (e error) {
 	Set the protocol level for this new connection.
 */
 func (c *Connection) setProtocolLevel(ch, sh Headers) (e error) {
-	chw := ch.Value("accept-version")
-	shr := sh.Value("version")
+	chw := ch.Value(HK_ACCEPT_VERSION)
+	shr := sh.Value(HK_VERSION)
 
 	if chw == shr && Supported(shr) {
 		c.protocol = shr

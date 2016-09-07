@@ -98,14 +98,14 @@ func TestAckSameConn(t *testing.T) {
 	conn, _ := Connect(n, ch)
 
 	// Basic headers
-	wh := Headers{"destination",
+	wh := Headers{HK_DESTINATION,
 		tdest(TEST_TDESTPREF + "acksc1-" + conn.Protocol())}
 	// Subscribe Headers
-	sbh := wh.Add("ack", "client")
+	sbh := wh.Add(HK_ACK, "client")
 	id := TEST_TDESTPREF + "acksc1.chkprotocol-" + conn.Protocol()
-	sbh = sbh.Add("id", id) // Always use an 'id'
+	sbh = sbh.Add(HK_ID, id) // Always use an 'id'
 	// Unsubscribe headers
-	uh := wh.Add("id", id)
+	uh := wh.Add(HK_ID, id)
 
 	ms := "acksc1 message 1"
 
@@ -148,9 +148,9 @@ func TestAckSameConn(t *testing.T) {
 	// Ack headers
 	ah := Headers{}
 	if conn.Protocol() == SPL_12 {
-		ah = ah.Add("id", md.Message.Headers.Value("ack"))
+		ah = ah.Add(HK_ID, md.Message.Headers.Value(HK_ACK))
 	} else {
-		ah = ah.Add("message-id", md.Message.Headers.Value("message-id"))
+		ah = ah.Add(HK_MESSAGE_ID, md.Message.Headers.Value("message-id"))
 	}
 
 	//
@@ -193,7 +193,7 @@ func TestAckDiffConn(t *testing.T) {
 	conn, _ := Connect(n, ch)
 
 	// Basic headers
-	wh := Headers{"destination",
+	wh := Headers{HK_DESTINATION,
 		tdest(TEST_TDESTPREF + "ackdc1-" + conn.Protocol())}
 	id := TEST_TDESTPREF + "ackdc1.chkprotocol-" + conn.Protocol()
 	// Send
@@ -222,10 +222,10 @@ func TestAckDiffConn(t *testing.T) {
 	conn, _ = Connect(n, ch)
 
 	// Subscribe Headers
-	sbh := wh.Add("ack", "client")
-	sbh = sbh.Add("id", id) // Always use an 'id'
+	sbh := wh.Add(HK_ACK, "client")
+	sbh = sbh.Add(HK_ID, id) // Always use an 'id'
 	// Unsubscribe headers
-	uh := wh.Add("id", id)
+	uh := wh.Add(HK_ID, id)
 
 	// Subscribe
 	sc, e := conn.Subscribe(sbh)
@@ -252,12 +252,12 @@ func TestAckDiffConn(t *testing.T) {
 	ah := Headers{}
 	switch conn.Protocol() {
 	case SPL_12:
-		ah = ah.Add("id", md.Message.Headers.Value("ack"))
+		ah = ah.Add(HK_ID, md.Message.Headers.Value(HK_ACK))
 	case SPL_11:
-		ah = ah.Add("message-id", md.Message.Headers.Value("message-id"))
+		ah = ah.Add(HK_MESSAGE_ID, md.Message.Headers.Value("message-id"))
 		ah = ah.Add("subscription", id) // Always use subscription for 1.1
 	default:
-		ah = ah.Add("message-id", md.Message.Headers.Value("message-id"))
+		ah = ah.Add(HK_MESSAGE_ID, md.Message.Headers.Value("message-id"))
 	}
 
 	// Ack

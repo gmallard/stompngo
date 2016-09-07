@@ -32,12 +32,12 @@ import (
 */
 func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
 	// Client wants Heartbeats ?
-	vc, ok := ch.Contains("heart-beat")
+	vc, ok := ch.Contains(HK_HEART_BEAT)
 	if !ok || vc == "0,0" {
 		return nil
 	}
 	// Server wants Heartbeats ?
-	vs, ok := c.ConnectResponse.Headers.Contains("heart-beat")
+	vs, ok := c.ConnectResponse.Headers.Contains(HK_HEART_BEAT)
 	if !ok || vs == "0,0" {
 		return nil
 	}

@@ -75,7 +75,7 @@ func TestUnsubNoId(t *testing.T) {
 	ch := check11(TEST_HEADERS)
 	conn, _ := Connect(n, ch)
 	//
-	uh := Headers{"destination", "/queue/unsub.noid"}
+	uh := Headers{HK_DESTINATION, "/queue/unsub.noid"}
 	for i, l := range unsubNoId {
 		conn.protocol = l.p
 		// Unsubscribe, no id at all
@@ -100,7 +100,7 @@ func TestUnsubBadId(t *testing.T) {
 	ch := check11(TEST_HEADERS)
 	conn, _ := Connect(n, ch)
 	//
-	uh := Headers{"destination", "/queue/unsub.badid", "id", "bogus"}
+	uh := Headers{HK_DESTINATION, "/queue/unsub.badid", HK_ID, "bogus"}
 	for i, l := range unsubBadId {
 		conn.protocol = l.p
 		// Unsubscribe, bad id

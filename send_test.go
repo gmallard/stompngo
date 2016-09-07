@@ -31,7 +31,7 @@ func TestSendBasic(t *testing.T) {
 	//
 	ms := "A message"
 	d := tdest("/queue/send.basiconn.01")
-	sh := Headers{"destination", d}
+	sh := Headers{HK_DESTINATION, d}
 	e := conn.Send(sh, ms)
 	if e != nil {
 		t.Errorf("Expected nil error, got [%v]\n", e)
