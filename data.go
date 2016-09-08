@@ -307,7 +307,7 @@ const (
 	HK_HEART_BEAT     = "heart-beat"
 	HK_HOST           = "host"
 	HK_ID             = "id"
-	HK_LOGIN          = "logon"
+	HK_LOGIN          = "login"
 	HK_MESSAGE        = "message"
 	HK_MESSAGE_ID     = "message-id"
 	HK_PASSCODE       = "passcode"
@@ -315,6 +315,7 @@ const (
 	HK_RECEIPT_ID     = "receipt-id"
 	HK_SESSION        = "session"
 	HK_SERVER         = "server"
+	HK_SUBSCRIPTION   = "subscription"
 	HK_TRANSACTION    = "transaction"
 	HK_VERSION        = "version"
 )

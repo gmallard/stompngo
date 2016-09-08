@@ -250,7 +250,7 @@ func TestSubUnsubBasic(t *testing.T) {
 	if rd != d {
 		t.Errorf("Expected destination [%v], got [%v]\n", d, rd)
 	}
-	ri := mdm.Headers.Value("subscription")
+	ri := mdm.Headers.Value(HK_SUBSCRIPTION)
 	if ri != d {
 		t.Errorf("Expected subscription [%v], got [%v]\n", d, ri)
 	}

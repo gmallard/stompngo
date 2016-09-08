@@ -77,7 +77,7 @@ func TestAckErrors(t *testing.T) {
 		e := conn.Ack(ah)
 		checkAckErrors(t, conn.Protocol(), e, true)
 
-		ah = Headers{"subscription", "my-sub-id"}
+		ah = Headers{HK_SUBSCRIPTION, "my-sub-id"}
 		// No message-id, and (1.2) no id
 		e = conn.Ack(ah)
 		checkAckErrors(t, conn.Protocol(), e, false)
@@ -101,7 +101,7 @@ func TestAckSameConn(t *testing.T) {
 	wh := Headers{HK_DESTINATION,
 		tdest(TEST_TDESTPREF + "acksc1-" + conn.Protocol())}
 	// Subscribe Headers
-	sbh := wh.Add(HK_ACK, "client")
+	sbh := wh.Add(HK_ACK, AckModeClient)
 	id := TEST_TDESTPREF + "acksc1.chkprotocol-" + conn.Protocol()
 	sbh = sbh.Add(HK_ID, id) // Always use an 'id'
 	// Unsubscribe headers
@@ -155,7 +155,7 @@ func TestAckSameConn(t *testing.T) {
 
 	//
 	if conn.Protocol() == SPL_11 {
-		ah = ah.Add("subscription", id) // Always use subscription for 1.2
+		ah = ah.Add(HK_SUBSCRIPTION, id) // Always use subscription for 1.2
 	}
 
 	// Ack
@@ -222,7 +222,7 @@ func TestAckDiffConn(t *testing.T) {
 	conn, _ = Connect(n, ch)
 
 	// Subscribe Headers
-	sbh := wh.Add(HK_ACK, "client")
+	sbh := wh.Add(HK_ACK, AckModeClient)
 	sbh = sbh.Add(HK_ID, id) // Always use an 'id'
 	// Unsubscribe headers
 	uh := wh.Add(HK_ID, id)

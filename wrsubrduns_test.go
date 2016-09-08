@@ -68,7 +68,7 @@ func TestShovel11(t *testing.T) {
 	if rd != d {
 		t.Errorf("Expected destination [%v], got [%v]\n", d, rd)
 	}
-	rs := rm.Headers.Value("subscription")
+	rs := rm.Headers.Value(HK_SUBSCRIPTION)
 	if rs != d {
 		t.Errorf("Expected subscription [%v], got [%v]\n", d, rs)
 	}

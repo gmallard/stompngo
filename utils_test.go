@@ -26,7 +26,7 @@ import (
 	"github.com/gmallard/stompngo/senv"
 )
 
-var TEST_HEADERS = Headers{"login", "guest", HK_PASSCODE, "guest"}
+var TEST_HEADERS = Headers{HK_LOGIN, "guest", HK_PASSCODE, "guest"}
 var TEST_TDESTPREF = "/queue/test.pref."
 var TEST_TRANID = "TransactionA"
 

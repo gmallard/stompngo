@@ -19,11 +19,11 @@ package stompngo
 /*
 	Abort a STOMP transaction.
 
-	Headers MUST contain a HK_TRANSACTION header key
+	Headers MUST contain a "transaction" header key
 	with a value that is not an empty string.
 
 	Example:
-		h := stompngo.Headers{HK_TRANSACTION, "transaction-id1"}
+		h := stompngo.Headers{stompngo.HK_TRANSACTION, "transaction-id1"}
 		e := c.Abort(h)
 		if e != nil {
 			// Do something sane ...

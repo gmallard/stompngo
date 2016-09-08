@@ -54,7 +54,7 @@ func (c *Connection) reader() {
 
 		// TODO START - can this be simplified ?  Look cleaner ?
 
-		if sid, ok := f.Headers.Contains("subscription"); ok {
+		if sid, ok := f.Headers.Contains(HK_SUBSCRIPTION); ok {
 			// This is a read lock
 			c.subsLock.RLock()
 			// This sub can be already gone under some timing circumstances

@@ -25,11 +25,11 @@ var _ = fmt.Println
 /*
 	Nack a STOMP 1.1+ message.
 
-	For Stomp 1.1 Headers must contain a HK_MESSAGE_ID key and a "subscription"
+	For Stomp 1.1 Headers must contain a "message-id" key and a "subscription"
 	header key.
 
 
-	For Stomp 1.2 Headers must contain a unique HK_ID header key.
+	For Stomp 1.2 Headers must contain a unique "id" header key.
 
 
 	See the specifications at http://stomp.github.com/ for details.
@@ -38,8 +38,8 @@ var _ = fmt.Println
 	Disallowed for an established STOMP 1.0 connection, and EBADVERNAK is returned.
 
 	Example:
-		h := stompngo.Headers{HK_MESSAGE_ID, "message-id1",
-			"subscription", "d2cbe608b70a54c8e69d951b246999fbc20df694"}
+		h := stompngo.Headers{stompngo.HK_MESSAGE_ID, "message-id1",
+			stompngo.HK_SUBSCRIPTION, "d2cbe608b70a54c8e69d951b246999fbc20df694"}
 		e := c.Nack(h)
 		if e != nil {
 			// Do something sane ...
@@ -65,7 +65,7 @@ func (c *Connection) Nack(h Headers) error {
 			return EREQIDNAK
 		}
 	default: // SPL_11
-		if _, ok := h.Contains("subscription"); !ok {
+		if _, ok := h.Contains(HK_SUBSCRIPTION); !ok {
 			return EREQSUBNAK
 		}
 		if _, ok := h.Contains(HK_MESSAGE_ID); !ok {

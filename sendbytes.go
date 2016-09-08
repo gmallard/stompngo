@@ -19,12 +19,12 @@ package stompngo
 /*
 	Send a STOMP MESSAGE.
 
-	Headers MUST contain a HK_DESTINATION header key.
+	Headers MUST contain a "destination" header key.
 
 	The message body (payload) is a slice of bytes, which may be empty.
 
 	Example:
-		h := stompngo.Headers{HK_DESTINATION, "/queue/mymessages"}
+		h := stompngo.Headers{stompngo.HK_DESTINATION, "/queue/mymessages"}
 		m := []byte("My message")
 		e := c.Send(h, m)
 		if e != nil {

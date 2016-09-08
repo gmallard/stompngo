@@ -73,7 +73,7 @@ func TestNackErrors(t *testing.T) {
 		e := conn.Nack(empty_headers)
 		checkNackErrors(t, conn.Protocol(), e, true)
 
-		nh := Headers{"subscription", "my-sub-id"}
+		nh := Headers{HK_SUBSCRIPTION, "my-sub-id"}
 		// No message id
 		e = conn.Nack(nh)
 		checkNackErrors(t, conn.Protocol(), e, false)
