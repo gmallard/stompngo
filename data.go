@@ -310,6 +310,7 @@ const (
 	HK_LOGIN          = "login"
 	HK_MESSAGE        = "message"
 	HK_MESSAGE_ID     = "message-id"
+	HK_SUPPRESS_CL    = "suppress-content-length" // Not in any spec, but used
 	HK_PASSCODE       = "passcode"
 	HK_RECEIPT        = "receipt"
 	HK_RECEIPT_ID     = "receipt-id"
