@@ -18,6 +18,7 @@ package stompngo
 
 import (
 	"bufio"
+	"bytes"
 	"strconv"
 	"time"
 )
@@ -51,6 +52,7 @@ func (c *Connection) writer() {
 */
 func (c *Connection) wireWrite(d wiredata) {
 	f := &d.frame
+	// fmt.Printf("WWD01 f:[%v]\n", f)
 	switch f.Command {
 	case "\n": // HeartBeat frame
 		if _, e := c.wtr.WriteString(f.Command); e != nil {
@@ -96,18 +98,23 @@ func (f *Frame) writeFrame(w *bufio.Writer, l string) error {
 	if _, e := w.WriteString(f.Command + "\n"); e != nil {
 		return e
 	}
+
+	var ctok bool
+	// Content type.  Add it if the client does not ask for it.
+	_, ctok = f.Headers.Contains(HK_CONTENT_TYPE)
+	if !ctok {
+		f.Headers = append(f.Headers, HK_CONTENT_TYPE,
+			"text/plain; charset=UTF-8")
+	}
+
+	var sclok bool
 	// Content length - Always add it if client does not suppress it and
 	// does not supply it.
-	if _, ok := f.Headers.Contains(HK_SUPPRESS_CL); !ok {
+	_, sclok = f.Headers.Contains(HK_SUPPRESS_CL)
+	if !sclok {
 		if _, clok := f.Headers.Contains(HK_CONTENT_LENGTH); !clok {
 			f.Headers = append(f.Headers, HK_CONTENT_LENGTH, strconv.Itoa(len(f.Body)))
 		}
-	}
-
-	// Content type.  Add it if the client does not ask for it.
-	if _, ok := f.Headers.Contains(HK_CONTENT_TYPE); !ok {
-		f.Headers = append(f.Headers, HK_CONTENT_TYPE,
-			"text/plain; charset=UTF-8")
 	}
 
 	// Write the frame Headers
@@ -125,8 +132,21 @@ func (f *Frame) writeFrame(w *bufio.Writer, l string) error {
 	if e := w.WriteByte('\n'); e != nil {
 		return e
 	}
+	// fmt.Printf("WDBG40 ok:%v\n", sclok)
+	if sclok {
+		nz := bytes.IndexByte(f.Body, 0)
+		// fmt.Printf("WDBG41 ok:%v\n", nz)
+		if nz == 0 {
+			f.Body = []byte{}
+			// fmt.Printf("WDBG42 body:%v bodystring: %v\n", f.Body, string(f.Body))
+		} else if nz > 0 {
+			f.Body = f.Body[0:nz]
+			// fmt.Printf("WDBG43 body:%v bodystring: %v\n", f.Body, string(f.Body))
+		}
+	}
 	// Write the body
 	if len(f.Body) != 0 { // Foolish to write 0 length data
+		// fmt.Printf("WDBG99 body:%v bodystring: %v\n", f.Body, string(f.Body))
 		if _, e := w.Write(f.Body); e != nil {
 			return e
 		}
