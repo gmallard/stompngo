@@ -16,12 +16,32 @@
 
 package stompngo
 
-import "testing"
+import (
+	"testing"
+)
 
 var (
-	tsclabc  = []uint8("abc")
-	tscldef  = []uint8("def")
-	tsclnull = []uint8{0x00}
+	tsclData = []struct {
+		ba     []uint8
+		wanted string
+	}{
+		{
+			[]uint8{0x61, 0x62, 0x63, 0x64, 0x65, 0x66},
+			"abcdef",
+		},
+		{
+			[]uint8{0x61, 0x62, 0x63, 0x00, 0x64, 0x65, 0x66},
+			"abc",
+		},
+		{
+			[]uint8{0x64, 0x65, 0x66, 0x00},
+			"def",
+		},
+		{
+			[]uint8{0x00, 0x64, 0x65, 0x66, 0x00},
+			"",
+		},
+	}
 )
 
 /*
@@ -43,67 +63,24 @@ func TestSuppressContentLength(t *testing.T) {
 		t.Errorf("Expected subscribe channel, got [nil]\n")
 	}
 
-	// Send a body without a null byte in the string
-	body := make([]uint8, 0, 6)
-	body = append(body, tsclabc...)
-	body = append(body, tscldef...)
-	sh := Headers{HK_DESTINATION, d, HK_SUPPRESS_CL, "yes"}
-	e = conn.Send(sh, string(body))
-	if e != nil {
-		t.Errorf("Expected no send error, got [%v]\n", e)
-	}
-	// Receive it
+	// Do the work here
 	var v MessageData
-	select {
-	case v = <-sc:
-	case v = <-conn.MessageData:
-		t.Errorf("Expected no RECEIPT/ERROR error, got [%v]\n", v)
-	}
-	if string(body) != string(v.Message.Body) {
-		t.Errorf("Expected same data, wanted[%v], got [%v], full[%v]\n",
-			string(body), string(v.Message.Body), v)
-	}
-
-	// Send a body *with* a null byte in the string
-	body = make([]uint8, 0, 7)
-	body = append(body, tsclabc...)
-	body = append(body, tsclnull...) // The null byte
-	body = append(body, tscldef...)
-	e = conn.Send(sh, string(body))
-	if e != nil {
-		t.Errorf("Expected no send error, got [%v]\n", e)
-	}
-	// Receive it
-	select {
-	case v = <-sc:
-	case v = <-conn.MessageData:
-		t.Errorf("Expected no RECEIPT/ERROR error, got [%v]\n", v)
-	}
-	// We expect what is received to be truncated/chopped before the null byte
-	if string(tsclabc) != string(v.Message.Body) {
-		t.Errorf("Expected same data, wanted[%v], got [%v], full[%v]\n",
-			string(tsclabc), string(v.Message.Body), v)
-	}
-
-	// Send a body *with* a null byte at the beginning of the string
-	body = make([]uint8, 0, 7)
-	body = append(body, tsclnull...) // The null byte
-	body = append(body, tsclabc...)
-	body = append(body, tscldef...)
-	e = conn.Send(sh, string(body))
-	if e != nil {
-		t.Errorf("Expected no send error, got [%v]\n", e)
-	}
-	// Receive it
-	select {
-	case v = <-sc:
-	case v = <-conn.MessageData:
-		t.Errorf("Expected no RECEIPT/ERROR error, got [%v]\n", v)
-	}
-	// We expect what is received to be no data
-	if "" != string(v.Message.Body) {
-		t.Errorf("Expected same data, wanted[%v], got [%v], full[%v]\n",
-			"", string(v.Message.Body), v)
+	sh := Headers{HK_DESTINATION, d, HK_SUPPRESS_CL, "yes"}
+	for tn, tv := range tsclData {
+		//
+		e = conn.SendBytes(sh, tv.ba)
+		if e != nil {
+			t.Errorf("Expected no send error, got [%v]\n", e)
+		}
+		select {
+		case v = <-sc:
+		case v = <-conn.MessageData:
+			t.Errorf("Expected no RECEIPT/ERROR error, got [%v]\n", v)
+		}
+		if tv.wanted != string(v.Message.Body) {
+			t.Errorf("Expected same data, tn:%d wanted[%v], got [%v]\n",
+				tn, tv.wanted, string(v.Message.Body))
+		}
 	}
 
 	// Finally Unsubscribe
@@ -115,4 +92,5 @@ func TestSuppressContentLength(t *testing.T) {
 
 	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
+
 }
