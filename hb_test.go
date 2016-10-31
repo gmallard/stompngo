@@ -35,7 +35,7 @@ func TestHB10(t *testing.T) {
 	n, _ := openConn(t)
 	conn, _ := Connect(n, TEST_HEADERS)
 	if conn.hbd != nil {
-		t.Errorf("Expected no heartbeats for 1.0")
+		t.Fatalf("Expected no heartbeats for 1.0")
 	}
 	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
@@ -54,7 +54,7 @@ func TestHB11NoHeader(t *testing.T) {
 		return
 	}
 	if conn.hbd != nil {
-		t.Errorf("Expected no heartbeats for 1.1, no header")
+		t.Fatalf("Expected no heartbeats for 1.1, no header")
 	}
 	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
@@ -73,7 +73,7 @@ func TestHB11ZeroHeader(t *testing.T) {
 		return
 	}
 	if conn.hbd != nil {
-		t.Errorf("Expected no heartbeats for 1.1, zero header")
+		t.Fatalf("Expected no heartbeats for 1.1, zero header")
 	}
 	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
@@ -89,18 +89,18 @@ func TestHB11InitErrors(t *testing.T) {
 	conn, _ := Connect(n, ch)
 	// Known state
 	if conn.hbd != nil {
-		t.Errorf("Expected no heartbeats for error test start")
+		t.Fatalf("Expected no heartbeats for error test start")
 	}
 	//
 	e := conn.initializeHeartBeats(empty_headers)
 	if e != nil || conn.hbd != nil {
-		t.Errorf("Heartbeat error client no client data: %v %v", e, conn.hbd)
+		t.Fatalf("Heartbeat error client no client data: %v %v", e, conn.hbd)
 	}
 	//
 	h := Headers{HK_HEART_BEAT, "0,0"}
 	e = conn.initializeHeartBeats(h)
 	if e != nil || conn.hbd != nil {
-		t.Errorf("Heartbeat error client 0,0: %v %v", e, conn.hbd)
+		t.Fatalf("Heartbeat error client 0,0: %v %v", e, conn.hbd)
 	}
 	//
 	crc := conn.ConnectResponse.Headers.Delete(HK_HEART_BEAT)
@@ -109,21 +109,21 @@ func TestHB11InitErrors(t *testing.T) {
 	h = Headers{HK_HEART_BEAT, "1,2,2"}
 	e = conn.initializeHeartBeats(h)
 	if e == nil || conn.hbd != nil {
-		t.Errorf("Heartbeat error invalid client heart-beat header expected: %v %v",
+		t.Fatalf("Heartbeat error invalid client heart-beat header expected: %v %v",
 			e, conn.hbd)
 	}
 	//
 	h = Headers{HK_HEART_BEAT, "a,1"}
 	e = conn.initializeHeartBeats(h)
 	if e == nil || conn.hbd != nil {
-		t.Errorf("Heartbeat error non-numeric cx heartbeat value expected, got nil: %v %v",
+		t.Fatalf("Heartbeat error non-numeric cx heartbeat value expected, got nil: %v %v",
 			e, conn.hbd)
 	}
 	//
 	h = Headers{HK_HEART_BEAT, "1,b"}
 	e = conn.initializeHeartBeats(h)
 	if e == nil || conn.hbd != nil {
-		t.Errorf("Heartbeat error non-numeric cy heartbeat value expected, got nil: %v %v",
+		t.Fatalf("Heartbeat error non-numeric cy heartbeat value expected, got nil: %v %v",
 			e, conn.hbd)
 	}
 	//
@@ -131,21 +131,21 @@ func TestHB11InitErrors(t *testing.T) {
 	conn.ConnectResponse.Headers = crc.Add(HK_HEART_BEAT, "10,10,10")
 	e = conn.initializeHeartBeats(h)
 	if e == nil || conn.hbd != nil {
-		t.Errorf("Heartbeat error invalid server heartbeat value expected, got nil: %v %v",
+		t.Fatalf("Heartbeat error invalid server heartbeat value expected, got nil: %v %v",
 			e, conn.hbd)
 	}
 	//
 	conn.ConnectResponse.Headers = crc.Add(HK_HEART_BEAT, "a,3")
 	e = conn.initializeHeartBeats(h)
 	if e == nil || conn.hbd != nil {
-		t.Errorf("Heartbeat error invalid server sx value expected, got nil: %v %v",
+		t.Fatalf("Heartbeat error invalid server sx value expected, got nil: %v %v",
 			e, conn.hbd)
 	}
 	//
 	conn.ConnectResponse.Headers = crc.Add(HK_HEART_BEAT, "3,a")
 	e = conn.initializeHeartBeats(h)
 	if e == nil || conn.hbd != nil {
-		t.Errorf("Heartbeat error invalid server sy value expected, got nil: %v %v",
+		t.Fatalf("Heartbeat error invalid server sy value expected, got nil: %v %v",
 			e, conn.hbd)
 	}
 	//
@@ -167,16 +167,16 @@ func TestHB11Connect(t *testing.T) {
 	ch = ch.Add(HK_HEART_BEAT, "100,10000")
 	conn, e := Connect(n, ch)
 	if e != nil {
-		t.Errorf("Heartbeat expected connection, got error: %q\n", e)
+		t.Fatalf("Heartbeat expected connection, got error: %q\n", e)
 	}
 	if conn.hbd == nil {
-		t.Errorf("Heartbeat expected data, got nil")
+		t.Fatalf("Heartbeat expected data, got nil")
 	}
 	if conn.SendTickerInterval() == 0 {
-		t.Errorf("Send Ticker is zero.")
+		t.Fatalf("Send Ticker is zero.")
 	}
 	if conn.ReceiveTickerInterval() == 0 {
-		t.Errorf("Receive Ticker is zero.")
+		t.Fatalf("Receive Ticker is zero.")
 	}
 	//
 	_ = conn.Disconnect(empty_headers)
@@ -202,13 +202,13 @@ func TestHB11NoSend(t *testing.T) {
 	conn, e := Connect(n, ch)
 	// Error checks
 	if e != nil {
-		t.Errorf("Heartbeat nosend connect error, unexpected: %q", e)
+		t.Fatalf("Heartbeat nosend connect error, unexpected: %q", e)
 	}
 	if conn.hbd == nil {
-		t.Errorf("Heartbeat nosend error expected hbd value.")
+		t.Fatalf("Heartbeat nosend error expected hbd value.")
 	}
 	if conn.ReceiveTickerInterval() == 0 {
-		t.Errorf("Receive Ticker is zero.")
+		t.Fatalf("Receive Ticker is zero.")
 	}
 	//
 	conn.SetLogger(l)
@@ -223,7 +223,7 @@ func TestHB11NoSend(t *testing.T) {
 	//
 	conn.hbd.rdl.Lock()
 	if conn.Hbrf {
-		t.Errorf("Error, dirty heart beat read detected")
+		t.Fatalf("Error, dirty heart beat read detected")
 	}
 	conn.hbd.rdl.Unlock()
 	checkHBRecv(t, conn, 1)
@@ -251,13 +251,13 @@ func TestHB11NoReceive(t *testing.T) {
 	conn, e := Connect(n, ch)
 	// Error checks
 	if e != nil {
-		t.Errorf("Heartbeat noreceive connect error, unexpected: %q", e)
+		t.Fatalf("Heartbeat noreceive connect error, unexpected: %q", e)
 	}
 	if conn.hbd == nil {
-		t.Errorf("Heartbeat noreceive error expected hbd value.")
+		t.Fatalf("Heartbeat noreceive error expected hbd value.")
 	}
 	if conn.SendTickerInterval() == 0 {
-		t.Errorf("Send Ticker is zero.")
+		t.Fatalf("Send Ticker is zero.")
 	}
 	//
 	conn.SetLogger(l)
@@ -297,16 +297,16 @@ func TestHB11SendReceive(t *testing.T) {
 	conn, e := Connect(n, ch)
 	// Error checks
 	if e != nil {
-		t.Errorf("Heartbeat send-receive connect error, unexpected: %q", e)
+		t.Fatalf("Heartbeat send-receive connect error, unexpected: %q", e)
 	}
 	if conn.hbd == nil {
-		t.Errorf("Heartbeat send-receive error expected hbd value.")
+		t.Fatalf("Heartbeat send-receive error expected hbd value.")
 	}
 	if conn.ReceiveTickerInterval() == 0 {
-		t.Errorf("Receive Ticker is zero.")
+		t.Fatalf("Receive Ticker is zero.")
 	}
 	if conn.SendTickerInterval() == 0 {
-		t.Errorf("Send Ticker is zero.")
+		t.Fatalf("Send Ticker is zero.")
 	}
 	//
 	conn.SetLogger(l)
@@ -319,7 +319,7 @@ func TestHB11SendReceive(t *testing.T) {
 	conn.SetLogger(nil)
 	conn.hbd.rdl.Lock()
 	if conn.Hbrf {
-		t.Errorf("Error, dirty heart beat read detected")
+		t.Fatalf("Error, dirty heart beat read detected")
 	}
 	conn.hbd.rdl.Unlock()
 	checkHBSendRecv(t, conn, 3)
@@ -348,16 +348,16 @@ func TestHB11SendReceiveApollo(t *testing.T) {
 	conn, e := Connect(n, ch)
 	// Error checks
 	if e != nil {
-		t.Errorf("Heartbeat send-receive connect error, unexpected: %q", e)
+		t.Fatalf("Heartbeat send-receive connect error, unexpected: %q", e)
 	}
 	if conn.hbd == nil {
-		t.Errorf("Heartbeat send-receive error expected hbd value.")
+		t.Fatalf("Heartbeat send-receive error expected hbd value.")
 	}
 	if conn.ReceiveTickerInterval() == 0 {
-		t.Errorf("Receive Ticker is zero.")
+		t.Fatalf("Receive Ticker is zero.")
 	}
 	if conn.SendTickerInterval() == 0 {
-		t.Errorf("Send Ticker is zero.")
+		t.Fatalf("Send Ticker is zero.")
 	}
 	//
 	conn.SetLogger(l)
@@ -370,7 +370,7 @@ func TestHB11SendReceiveApollo(t *testing.T) {
 	conn.SetLogger(nil)
 	conn.hbd.rdl.Lock()
 	if conn.Hbrf {
-		t.Errorf("Error, dirty heart beat read detected")
+		t.Fatalf("Error, dirty heart beat read detected")
 	}
 	conn.hbd.rdl.Unlock()
 	checkHBSendRecv(t, conn, 4)
@@ -403,16 +403,16 @@ func TestHB11SendReceiveApolloRev(t *testing.T) {
 	conn, e := Connect(n, ch)
 	// Error checks
 	if e != nil {
-		t.Errorf("Heartbeat send-receive connect error, unexpected: %q", e)
+		t.Fatalf("Heartbeat send-receive connect error, unexpected: %q", e)
 	}
 	if conn.hbd == nil {
-		t.Errorf("Heartbeat send-receive error expected hbd value.")
+		t.Fatalf("Heartbeat send-receive error expected hbd value.")
 	}
 	if conn.ReceiveTickerInterval() == 0 {
-		t.Errorf("Receive Ticker is zero.")
+		t.Fatalf("Receive Ticker is zero.")
 	}
 	if conn.SendTickerInterval() == 0 {
-		t.Errorf("Send Ticker is zero.")
+		t.Fatalf("Send Ticker is zero.")
 	}
 	//
 	conn.SetLogger(l)
@@ -425,7 +425,7 @@ func TestHB11SendReceiveApolloRev(t *testing.T) {
 	conn.SetLogger(nil)
 	conn.hbd.rdl.Lock()
 	if conn.Hbrf {
-		t.Errorf("Error, dirty heart beat read detected")
+		t.Fatalf("Error, dirty heart beat read detected")
 	}
 	conn.hbd.rdl.Unlock()
 	checkHBSendRecv(t, conn, 5)
@@ -443,16 +443,16 @@ func checkHBSendRecv(t *testing.T, conn *Connection, i int) {
 	conn.hbd.sdl.Lock()
 	defer conn.hbd.sdl.Unlock()
 	if conn.SendTickerInterval() == 0 {
-		t.Errorf("Send Ticker is zero. %d", i)
+		t.Fatalf("Send Ticker is zero. %d", i)
 	}
 	if conn.ReceiveTickerInterval() == 0 {
-		t.Errorf("Receive Ticker is zero. %d", i)
+		t.Fatalf("Receive Ticker is zero. %d", i)
 	}
 	if conn.SendTickerCount() == 0 {
-		t.Errorf("Send Count is zero. %d", i)
+		t.Fatalf("Send Count is zero. %d", i)
 	}
 	if conn.ReceiveTickerInterval() == 0 {
-		t.Errorf("Receive Count is zero. %d", i)
+		t.Fatalf("Receive Count is zero. %d", i)
 	}
 }
 
@@ -463,16 +463,16 @@ func checkHBSend(t *testing.T, conn *Connection, i int) {
 	conn.hbd.sdl.Lock()
 	defer conn.hbd.sdl.Unlock()
 	if conn.SendTickerInterval() == 0 {
-		t.Errorf("Send Ticker is zero. %d", i)
+		t.Fatalf("Send Ticker is zero. %d", i)
 	}
 	if conn.ReceiveTickerInterval() != 0 {
-		t.Errorf("Receive Ticker is not zero. %d", i)
+		t.Fatalf("Receive Ticker is not zero. %d", i)
 	}
 	if conn.SendTickerCount() == 0 {
-		t.Errorf("Send Count is zero. %d", i)
+		t.Fatalf("Send Count is zero. %d", i)
 	}
 	if conn.ReceiveTickerInterval() != 0 {
-		t.Errorf("Receive Count is not zero. %d", i)
+		t.Fatalf("Receive Count is not zero. %d", i)
 	}
 }
 
@@ -483,15 +483,15 @@ func checkHBRecv(t *testing.T, conn *Connection, i int) {
 	conn.hbd.rdl.Lock()
 	defer conn.hbd.rdl.Unlock()
 	if conn.SendTickerInterval() != 0 {
-		t.Errorf("Send Ticker is not zero. %d", i)
+		t.Fatalf("Send Ticker is not zero. %d", i)
 	}
 	if conn.ReceiveTickerInterval() == 0 {
-		t.Errorf("Receive Ticker is zero. %d", i)
+		t.Fatalf("Receive Ticker is zero. %d", i)
 	}
 	if conn.SendTickerCount() != 0 {
-		t.Errorf("Send Count is not zero. %d", i)
+		t.Fatalf("Send Count is not zero. %d", i)
 	}
 	if conn.ReceiveTickerInterval() == 0 {
-		t.Errorf("Receive Count is zero. %d", i)
+		t.Fatalf("Receive Count is zero. %d", i)
 	}
 }

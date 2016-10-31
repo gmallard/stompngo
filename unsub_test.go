@@ -55,10 +55,10 @@ func TestUnsubNoHdr(t *testing.T) {
 		// Unsubscribe, no dest
 		e := conn.Unsubscribe(empty_headers)
 		if e == nil {
-			t.Errorf("Expected unsubscribe error, entry [%d], got [nil]\n", i)
+			t.Fatalf("Expected unsubscribe error, entry [%d], got [nil]\n", i)
 		}
 		if e != l.e {
-			t.Errorf("Unsubscribe error, entry [%d], expected [%v], got [%v]\n", i, l.e, e)
+			t.Fatalf("Unsubscribe error, entry [%d], expected [%v], got [%v]\n", i, l.e, e)
 		}
 	}
 	//
@@ -81,10 +81,10 @@ func TestUnsubNoId(t *testing.T) {
 		// Unsubscribe, no id at all
 		e := conn.Unsubscribe(uh)
 		if e == nil {
-			t.Errorf("Expected unsubscribe error, entry [%d], got [nil]\n", i)
+			t.Fatalf("Expected unsubscribe error, entry [%d], got [nil]\n", i)
 		}
 		if e != l.e {
-			t.Errorf("Unsubscribe error, entry [%d], expected [%v], got [%v]\n", i, l.e, e)
+			t.Fatalf("Unsubscribe error, entry [%d], expected [%v], got [%v]\n", i, l.e, e)
 		}
 	}
 	_ = conn.Disconnect(empty_headers)
@@ -106,10 +106,10 @@ func TestUnsubBadId(t *testing.T) {
 		// Unsubscribe, bad id
 		e := conn.Unsubscribe(uh)
 		if e == nil {
-			t.Errorf("Expected unsubscribe error, entry [%d], got [nil]\n", i)
+			t.Fatalf("Expected unsubscribe error, entry [%d], got [nil]\n", i)
 		}
 		if e != l.e {
-			t.Errorf("Unsubscribe error, entry [%d], expected [%v], got [%v]\n", i, l.e, e)
+			t.Fatalf("Unsubscribe error, entry [%d], expected [%v], got [%v]\n", i, l.e, e)
 		}
 	}
 	//

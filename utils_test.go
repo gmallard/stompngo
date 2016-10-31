@@ -103,7 +103,7 @@ func checkReceived(t *testing.T, conn *Connection) {
 	var md MessageData
 	select {
 	case md = <-conn.MessageData:
-		t.Errorf("Unexpected frame received, got [%v]\n", md)
+		t.Fatalf("Unexpected frame received, got [%v]\n", md)
 	default:
 	}
 }
@@ -114,7 +114,7 @@ func checkReceived(t *testing.T, conn *Connection) {
 func closeConn(t *testing.T, n net.Conn) error {
 	err := n.Close()
 	if err != nil {
-		t.Errorf("Unexpected n.Close() error: %v\n", err)
+		t.Fatalf("Unexpected n.Close() error: %v\n", err)
 	}
 	return err
 }
@@ -128,7 +128,7 @@ func getMessageData(sc <-chan MessageData, conn *Connection, t *testing.T) (md M
 	select {
 	case md = <-sc:
 	case md = <-conn.MessageData:
-		t.Errorf("read channel error:  expected [nil], got: [%v]\n",
+		t.Fatalf("read channel error:  expected [nil], got: [%v]\n",
 			md.Message.Command)
 	}
 	return md
@@ -142,7 +142,7 @@ func openConn(t *testing.T) (net.Conn, error) {
 	hap := net.JoinHostPort(h, p)
 	n, err := net.Dial(NetProtoTCP, hap)
 	if err != nil {
-		t.Errorf("Unexpected net.Dial error: %v\n", err)
+		t.Fatalf("Unexpected net.Dial error: %v\n", err)
 	}
 	return n, err
 }

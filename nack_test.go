@@ -27,33 +27,33 @@ func checkNackErrors(t *testing.T, p string, e error, s bool) {
 	switch p {
 	case SPL_12:
 		if e == nil {
-			t.Errorf("NACK -12- expected [%v], got nil\n", EREQIDNAK)
+			t.Fatalf("NACK -12- expected [%v], got nil\n", EREQIDNAK)
 		}
 		if e != EREQIDNAK {
-			t.Errorf("NACK -12- expected error [%v], got [%v]\n", EREQIDNAK, e)
+			t.Fatalf("NACK -12- expected error [%v], got [%v]\n", EREQIDNAK, e)
 		}
 	case SPL_11:
 		if s {
 			if e == nil {
-				t.Errorf("NACK -11- expected [%v], got nil\n", EREQSUBNAK)
+				t.Fatalf("NACK -11- expected [%v], got nil\n", EREQSUBNAK)
 			}
 			if e != EREQSUBNAK {
-				t.Errorf("NACK -11- expected error [%v], got [%v]\n", EREQSUBNAK, e)
+				t.Fatalf("NACK -11- expected error [%v], got [%v]\n", EREQSUBNAK, e)
 			}
 		} else {
 			if e == nil {
-				t.Errorf("NACK -11- expected [%v], got nil\n", EREQMIDNAK)
+				t.Fatalf("NACK -11- expected [%v], got nil\n", EREQMIDNAK)
 			}
 			if e != EREQMIDNAK {
-				t.Errorf("NACK -11- expected error [%v], got [%v]\n", EREQMIDNAK, e)
+				t.Fatalf("NACK -11- expected error [%v], got [%v]\n", EREQMIDNAK, e)
 			}
 		}
 	default: // SPL_10
 		if e == nil {
-			t.Errorf("NACK -10- expected [%v], got nil\n", EBADVERNAK)
+			t.Fatalf("NACK -10- expected [%v], got nil\n", EBADVERNAK)
 		}
 		if e != EBADVERNAK {
-			t.Errorf("NACK -10- expected error [%v], got [%v]\n", EBADVERNAK, e)
+			t.Fatalf("NACK -10- expected error [%v], got [%v]\n", EBADVERNAK, e)
 		}
 	}
 }

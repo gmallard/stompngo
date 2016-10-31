@@ -44,10 +44,10 @@ func TestShovel11(t *testing.T) {
 	sbh := Headers{HK_DESTINATION, d, HK_ID, d}
 	sc, e := conn.Subscribe(sbh)
 	if e != nil {
-		t.Errorf("Expected no subscribe error, got [%v]\n", e)
+		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
 	}
 	if sc == nil {
-		t.Errorf("Expected subscribe channel, got [nil]\n")
+		t.Fatalf("Expected subscribe channel, got [nil]\n")
 	}
 
 	// Read MessageData
@@ -55,22 +55,22 @@ func TestShovel11(t *testing.T) {
 	select {
 	case md = <-sc:
 	case md = <-conn.MessageData:
-		t.Errorf("read channel error:  expected [nil], got: [%v]\n",
+		t.Fatalf("read channel error:  expected [nil], got: [%v]\n",
 			md.Message.Command)
 	}
 
 	//
 	if md.Error != nil {
-		t.Errorf("Expected no message data error, got [%v]\n", md.Error)
+		t.Fatalf("Expected no message data error, got [%v]\n", md.Error)
 	}
 	rm := md.Message
 	rd := rm.Headers.Value(HK_DESTINATION)
 	if rd != d {
-		t.Errorf("Expected destination [%v], got [%v]\n", d, rd)
+		t.Fatalf("Expected destination [%v], got [%v]\n", d, rd)
 	}
 	rs := rm.Headers.Value(HK_SUBSCRIPTION)
 	if rs != d {
-		t.Errorf("Expected subscription [%v], got [%v]\n", d, rs)
+		t.Fatalf("Expected subscription [%v], got [%v]\n", d, rs)
 	}
 
 	// Broker behavior can differ WRT repeated header entries
@@ -82,28 +82,28 @@ func TestShovel11(t *testing.T) {
 
 	if os.Getenv("STOMP_ARTEMIS") != "" && conn.Protocol() == SPL_11 {
 		if !rm.Headers.ContainsKV("dupkey1", "value2") {
-			t.Errorf("ART11 Expected true for [%v], [%v]\n", "dupkey1", "value2")
+			t.Fatalf("ART11 Expected true for [%v], [%v]\n", "dupkey1", "value2")
 		}
 	} else {
 		if !rm.Headers.ContainsKV("dupkey1", "value0") {
-			t.Errorf("OTHERs Expected true for [%v], [%v]\n", "dupkey1", "value0")
+			t.Fatalf("OTHERs Expected true for [%v], [%v]\n", "dupkey1", "value0")
 		}
 	}
 
 	// Some servers MAY do this.  Apollo is one that does.
 	if os.Getenv("STOMP_APOLLO") != "" {
 		if !rm.Headers.ContainsKV("dupkey1", "value1") {
-			t.Errorf("APO1 Expected true for [%v], [%v]\n", "dupkey1", "value1")
+			t.Fatalf("APO1 Expected true for [%v], [%v]\n", "dupkey1", "value1")
 		}
 		if !rm.Headers.ContainsKV("dupkey1", "value2") {
-			t.Errorf("APO2 Expected true for [%v], [%v]\n", "dupkey1", "value2")
+			t.Fatalf("APO2 Expected true for [%v], [%v]\n", "dupkey1", "value2")
 		}
 	}
 	//
 	uh := Headers{HK_ID, rs, HK_DESTINATION, d}
 	e = conn.Unsubscribe(uh)
 	if e != nil {
-		t.Errorf("Expected no unsubscribe error, got [%v]\n", e)
+		t.Fatalf("Expected no unsubscribe error, got [%v]\n", e)
 	}
 	//
 	_ = conn.Disconnect(empty_headers)

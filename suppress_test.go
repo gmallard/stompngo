@@ -72,10 +72,10 @@ func TestSuppressContentLength(t *testing.T) {
 	sbh := Headers{HK_DESTINATION, d, HK_ID, id}
 	sc, e := conn.Subscribe(sbh)
 	if e != nil {
-		t.Errorf("Expected no subscribe error, got [%v]\n", e)
+		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
 	}
 	if sc == nil {
-		t.Errorf("Expected subscribe channel, got [nil]\n")
+		t.Fatalf("Expected subscribe channel, got [nil]\n")
 	}
 
 	// Do the work here
@@ -85,15 +85,15 @@ func TestSuppressContentLength(t *testing.T) {
 		//
 		e = conn.SendBytes(sh, tv.ba)
 		if e != nil {
-			t.Errorf("Expected no send error, got [%v]\n", e)
+			t.Fatalf("Expected no send error, got [%v]\n", e)
 		}
 		select {
 		case v = <-sc:
 		case v = <-conn.MessageData:
-			t.Errorf("Expected no RECEIPT/ERROR error, got [%v]\n", v)
+			t.Fatalf("Expected no RECEIPT/ERROR error, got [%v]\n", v)
 		}
 		if tv.wanted != string(v.Message.Body) {
-			t.Errorf("Expected same data, tn:%d wanted[%v], got [%v]\n",
+			t.Fatalf("Expected same data, tn:%d wanted[%v], got [%v]\n",
 				tn, tv.wanted, string(v.Message.Body))
 		}
 	}
@@ -102,7 +102,7 @@ func TestSuppressContentLength(t *testing.T) {
 	uh := Headers{HK_DESTINATION, d, HK_ID, id}
 	e = conn.Unsubscribe(uh)
 	if e != nil {
-		t.Errorf("Expected no unsubscribe error, got [%v]\n", e)
+		t.Fatalf("Expected no unsubscribe error, got [%v]\n", e)
 	}
 
 	_ = conn.Disconnect(empty_headers)
@@ -127,10 +127,10 @@ func TestSuppressContentType(t *testing.T) {
 	sbh := Headers{HK_DESTINATION, d, HK_ID, id}
 	sc, e := conn.Subscribe(sbh)
 	if e != nil {
-		t.Errorf("Expected no subscribe error, got [%v]\n", e)
+		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
 	}
 	if sc == nil {
-		t.Errorf("Expected subscribe channel, got [nil]\n")
+		t.Fatalf("Expected subscribe channel, got [nil]\n")
 	}
 
 	// Do the work here
@@ -146,19 +146,19 @@ func TestSuppressContentType(t *testing.T) {
 		//
 		e = conn.Send(sh, tv.body)
 		if e != nil {
-			t.Errorf("Expected no send error, got [%v]\n", e)
+			t.Fatalf("Expected no send error, got [%v]\n", e)
 		}
 		// fmt.Printf("SCT01 tn:%d sent:%s\n", tn, tv.body)
 		select {
 		case v = <-sc:
 		case v = <-conn.MessageData:
-			t.Errorf("Expected no RECEIPT/ERROR error, got [%v]\n", v)
+			t.Fatalf("Expected no RECEIPT/ERROR error, got [%v]\n", v)
 		}
 		_, try := v.Message.Headers.Contains(HK_CONTENT_TYPE)
 		// fmt.Printf("DUMP: md:%#v\n", v)
 		if tv.doSuppress {
 			if try != tv.wanted {
-				t.Errorf("TestSuppressContentType tn:%d wanted:%t got:%t\n",
+				t.Fatalf("TestSuppressContentType tn:%d wanted:%t got:%t\n",
 					tn, tv.wanted, try)
 			}
 		}
@@ -167,7 +167,7 @@ func TestSuppressContentType(t *testing.T) {
 	uh := Headers{HK_DESTINATION, d, HK_ID, id}
 	e = conn.Unsubscribe(uh)
 	if e != nil {
-		t.Errorf("Expected no unsubscribe error, got [%v]\n", e)
+		t.Fatalf("Expected no unsubscribe error, got [%v]\n", e)
 	}
 
 	_ = conn.Disconnect(empty_headers)

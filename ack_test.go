@@ -29,33 +29,33 @@ func checkAckErrors(t *testing.T, p string, e error, s bool) {
 	switch p {
 	case SPL_12:
 		if e == nil {
-			t.Errorf("ACK -12- expected [%v], got nil\n", EREQIDACK)
+			t.Fatalf("ACK -12- expected [%v], got nil\n", EREQIDACK)
 		}
 		if e != EREQIDACK {
-			t.Errorf("ACK -12- expected error [%v], got [%v]\n", EREQIDACK, e)
+			t.Fatalf("ACK -12- expected error [%v], got [%v]\n", EREQIDACK, e)
 		}
 	case SPL_11:
 		if s {
 			if e == nil {
-				t.Errorf("ACK -11- expected [%v], got nil\n", EREQSUBACK)
+				t.Fatalf("ACK -11- expected [%v], got nil\n", EREQSUBACK)
 			}
 			if e != EREQSUBACK {
-				t.Errorf("ACK -11- expected error [%v], got [%v]\n", EREQSUBACK, e)
+				t.Fatalf("ACK -11- expected error [%v], got [%v]\n", EREQSUBACK, e)
 			}
 		} else {
 			if e == nil {
-				t.Errorf("ACK -11- expected [%v], got nil\n", EREQMIDACK)
+				t.Fatalf("ACK -11- expected [%v], got nil\n", EREQMIDACK)
 			}
 			if e != EREQMIDACK {
-				t.Errorf("ACK -11- expected error [%v], got [%v]\n", EREQMIDACK, e)
+				t.Fatalf("ACK -11- expected error [%v], got [%v]\n", EREQMIDACK, e)
 			}
 		}
 	default: // SPL_10
 		if e == nil {
-			t.Errorf("ACK -10- expected [%v], got nil\n", EREQMIDACK)
+			t.Fatalf("ACK -10- expected [%v], got nil\n", EREQMIDACK)
 		}
 		if e != EREQMIDACK {
-			t.Errorf("ACK -10- expected error [%v], got [%v]\n", EREQMIDACK, e)
+			t.Fatalf("ACK -10- expected error [%v], got [%v]\n", EREQMIDACK, e)
 		}
 	}
 }
@@ -112,7 +112,7 @@ func TestAckSameConn(t *testing.T) {
 	// Subscribe
 	sc, e := conn.Subscribe(sbh)
 	if e != nil {
-		t.Errorf("SUBSCRIBE expected [nil], got: [%v]\n", e)
+		t.Fatalf("SUBSCRIBE expected [nil], got: [%v]\n", e)
 	}
 	// For RabbitMQ and STOMP 1.0, do not add current-time header, where the
 	// value contains ':' characters.
@@ -127,22 +127,22 @@ func TestAckSameConn(t *testing.T) {
 	}
 	e = conn.Send(sh, ms)
 	if e != nil {
-		t.Errorf("SEND expected [nil], got: [%v]\n", e)
+		t.Fatalf("SEND expected [nil], got: [%v]\n", e)
 	}
 	// Read MessageData
 	var md MessageData
 	select {
 	case md = <-sc:
 	case md = <-conn.MessageData:
-		t.Errorf("read channel error:  expected [nil], got: [%v]\n",
+		t.Fatalf("read channel error:  expected [nil], got: [%v]\n",
 			md.Message.Command)
 	}
 
 	if md.Error != nil {
-		t.Errorf("read error:  expected [nil], got: [%v]\n", md.Error)
+		t.Fatalf("read error:  expected [nil], got: [%v]\n", md.Error)
 	}
 	if ms != md.Message.BodyString() {
-		t.Errorf("message error: expected: [%v], got: [%v] Message: [%q]\n", ms, md.Message.BodyString(), md.Message)
+		t.Fatalf("message error: expected: [%v], got: [%v] Message: [%q]\n", ms, md.Message.BodyString(), md.Message)
 	}
 
 	// Ack headers
@@ -161,20 +161,20 @@ func TestAckSameConn(t *testing.T) {
 	// Ack
 	e = conn.Ack(ah)
 	if e != nil {
-		t.Errorf("ACK expected [nil], got: [%v]\n", e)
+		t.Fatalf("ACK expected [nil], got: [%v]\n", e)
 	}
 
 	// Make sure Apollo Jira issue APLO-88 stays fixed.
 	select {
 	case md = <-sc:
-		t.Errorf("RECEIVE not expected, got: [%v]\n", md)
+		t.Fatalf("RECEIVE not expected, got: [%v]\n", md)
 	default:
 	}
 
 	// Unsubscribe
 	e = conn.Unsubscribe(uh)
 	if e != nil {
-		t.Errorf("UNSUBSCRIBE expected [nil], got: [%v]\n", e)
+		t.Fatalf("UNSUBSCRIBE expected [nil], got: [%v]\n", e)
 	}
 	//
 	checkReceived(t, conn)
@@ -211,7 +211,7 @@ func TestAckDiffConn(t *testing.T) {
 	ms := "ackdc1 message 1"
 	e := conn.Send(sh, ms)
 	if e != nil {
-		t.Errorf("SEND expected [nil], got: [%v]\n", e)
+		t.Fatalf("SEND expected [nil], got: [%v]\n", e)
 	}
 	// Disconnect
 	_ = conn.Disconnect(empty_headers)
@@ -230,22 +230,22 @@ func TestAckDiffConn(t *testing.T) {
 	// Subscribe
 	sc, e := conn.Subscribe(sbh)
 	if e != nil {
-		t.Errorf("SUBSCRIBE expected [nil], got: [%v]\n", e)
+		t.Fatalf("SUBSCRIBE expected [nil], got: [%v]\n", e)
 	}
 	// Read MessageData
 	var md MessageData
 	select {
 	case md = <-sc:
 	case md = <-conn.MessageData:
-		t.Errorf("read channel error:  expected [nil], got: [%v]\n",
+		t.Fatalf("read channel error:  expected [nil], got: [%v]\n",
 			md.Message.Command)
 	}
 
 	if md.Error != nil {
-		t.Errorf("read error:  expected [nil], got: [%v]\n", md.Error)
+		t.Fatalf("read error:  expected [nil], got: [%v]\n", md.Error)
 	}
 	if ms != md.Message.BodyString() {
-		t.Errorf("message error: expected: [%v], got: [%v]\n", ms, md.Message.BodyString())
+		t.Fatalf("message error: expected: [%v], got: [%v]\n", ms, md.Message.BodyString())
 	}
 
 	// Ack headers
@@ -263,20 +263,20 @@ func TestAckDiffConn(t *testing.T) {
 	// Ack
 	e = conn.Ack(ah)
 	if e != nil {
-		t.Errorf("ACK expected [nil], got: [%v]\n", e)
+		t.Fatalf("ACK expected [nil], got: [%v]\n", e)
 	}
 
 	// Make sure Apollo Jira issue APLO-88 stays fixed.
 	select {
 	case md = <-sc:
-		t.Errorf("Receive not expected, got: [%v]\n", md)
+		t.Fatalf("Receive not expected, got: [%v]\n", md)
 	default:
 	}
 
 	// Unsubscribe
 	e = conn.Unsubscribe(uh)
 	if e != nil {
-		t.Errorf("UNSUBSCRIBE expected [nil], got: [%v]\n", e)
+		t.Fatalf("UNSUBSCRIBE expected [nil], got: [%v]\n", e)
 	}
 	//
 	_ = conn.Disconnect(empty_headers)

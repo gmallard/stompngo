@@ -44,14 +44,14 @@ func TestDataFrameBasic(t *testing.T) {
 	f := &Frame{Command: cm, Headers: wh, Body: []byte(ms)}
 	//
 	if cm != f.Command {
-		t.Errorf("Command, expected: [%v], got [%v]\n", cm, f.Command)
+		t.Fatalf("Command, expected: [%v], got [%v]\n", cm, f.Command)
 	}
 	if !wh.Compare(f.Headers) {
-		t.Errorf("Headers, expected: [true], got [false], for [%v] [%v]\n",
+		t.Fatalf("Headers, expected: [true], got [false], for [%v] [%v]\n",
 			wh, f.Headers)
 	}
 	if ms != string(f.Body) {
-		t.Errorf("Body string, expected: [%v], got [%v]\n", ms, string(f.Body))
+		t.Fatalf("Body string, expected: [%v], got [%v]\n", ms, string(f.Body))
 	}
 }
 
@@ -65,14 +65,14 @@ func TestDataMessageBasic(t *testing.T) {
 	m := &Message{Command: fc, Headers: wh, Body: []byte(ms)}
 	//
 	if fc != m.Command {
-		t.Errorf("Command, expected: [%v], got [%v]\n", fc, m.Command)
+		t.Fatalf("Command, expected: [%v], got [%v]\n", fc, m.Command)
 	}
 	if !wh.Compare(m.Headers) {
-		t.Errorf("Headers, expected: [true], got [false], for [%v] [%v]\n",
+		t.Fatalf("Headers, expected: [true], got [false], for [%v] [%v]\n",
 			wh, m.Headers)
 	}
 	if ms != m.BodyString() {
-		t.Errorf("Body string, expected: [%v], got [%v]\n", ms, m.BodyString())
+		t.Fatalf("Body string, expected: [%v], got [%v]\n", ms, m.BodyString())
 	}
 }
 
@@ -81,26 +81,26 @@ func TestDataMessageBasic(t *testing.T) {
 */
 func TestDataprotocols(t *testing.T) {
 	if !Supported(SPL_10) {
-		t.Errorf("Expected: [true], got: [false] for protocol level %v\n",
+		t.Fatalf("Expected: [true], got: [false] for protocol level %v\n",
 			SPL_10)
 	}
 	if !Supported(SPL_11) {
-		t.Errorf("Expected: [true], got: [false] for protocol level %v\n",
+		t.Fatalf("Expected: [true], got: [false] for protocol level %v\n",
 			SPL_11)
 	}
 	if !Supported(SPL_12) {
-		t.Errorf("Expected: [true], got: [false] for protocol level %v\n",
+		t.Fatalf("Expected: [true], got: [false] for protocol level %v\n",
 			SPL_12)
 	}
 	if Supported("9.9") {
-		t.Errorf("Expected: [false], got: [true] for protocol level %v\n",
+		t.Fatalf("Expected: [false], got: [true] for protocol level %v\n",
 			"9.9")
 	}
 	//
 	for _, v := range suptests {
 		b := Supported(v.v)
 		if b != v.s {
-			t.Errorf("Expected: [%v] for protocol level [%v]\n", v.s, v.v)
+			t.Fatalf("Expected: [%v] for protocol level [%v]\n", v.s, v.v)
 		}
 	}
 }
@@ -111,7 +111,7 @@ func TestDataprotocols(t *testing.T) {
 func TestDataProtocols(t *testing.T) {
 	for i, p := range Protocols() {
 		if supported[i] != p {
-			t.Errorf("Expected [%v], got [%v]\n", supported[i], p)
+			t.Fatalf("Expected [%v], got [%v]\n", supported[i], p)
 		}
 	}
 }
@@ -123,7 +123,7 @@ func TestDataError(t *testing.T) {
 	es := "An error string"
 	e := Error(es)
 	if es != e.Error() {
-		t.Errorf("Expected [%v], got [%v]\n", es, e.Error())
+		t.Fatalf("Expected [%v], got [%v]\n", es, e.Error())
 	}
 }
 
@@ -140,7 +140,7 @@ func TestDataMessageSize(t *testing.T) {
 	var w int64 = int64(len(CONNECT)) + 1 + wh.Size(b) + 1 + int64(len(ms)) + 1
 	r := m.Size(b)
 	if w != r {
-		t.Errorf("Message size, expected: [%d], got [%d]\n", w, r)
+		t.Fatalf("Message size, expected: [%d], got [%d]\n", w, r)
 	}
 }
 
@@ -155,7 +155,7 @@ func TestDataBrokerCmdVal(t *testing.T) {
 		"JUNK": false}
 	for k, v := range tData {
 		if v != validCmds[k] {
-			t.Errorf("Command Validity, expected: [%t], got [%t] for key [%s]\n",
+			t.Fatalf("Command Validity, expected: [%t], got [%t] for key [%s]\n",
 				v,
 				validCmds[k], k)
 		}

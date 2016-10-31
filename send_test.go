@@ -34,15 +34,15 @@ func TestSendBasic(t *testing.T) {
 	sh := Headers{HK_DESTINATION, d}
 	e := conn.Send(sh, ms)
 	if e != nil {
-		t.Errorf("Expected nil error, got [%v]\n", e)
+		t.Fatalf("Expected nil error, got [%v]\n", e)
 	}
 	//
 	e = conn.Send(empty_headers, ms)
 	if e == nil {
-		t.Errorf("Expected error, got [nil]\n")
+		t.Fatalf("Expected error, got [nil]\n")
 	}
 	if e != EREQDSTSND {
-		t.Errorf("Expected [%v], got [%v]\n", EREQDSTSND, e)
+		t.Fatalf("Expected [%v], got [%v]\n", EREQDSTSND, e)
 	}
 	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
@@ -64,7 +64,7 @@ func TestSendMultiple(t *testing.T) {
 		count: 5}
 	e := sendMultiple(smd)
 	if e != nil {
-		t.Errorf("Expected nil error, got [%v]\n", e)
+		t.Fatalf("Expected nil error, got [%v]\n", e)
 	}
 	//
 	_ = conn.Disconnect(empty_headers)

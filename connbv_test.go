@@ -36,7 +36,7 @@ func TestConnBadVer10One(t *testing.T) {
 	ch = ch.AddHeaders(other_headers)
 	c, e := Connect(n, ch)
 	if e != EBADVERSVR {
-		t.Errorf("Expected error [%v], got [%v]\n", EBADVERSVR, e)
+		t.Fatalf("Expected error [%v], got [%v]\n", EBADVERSVR, e)
 	}
 	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
@@ -59,10 +59,10 @@ func TestConnBadVer10Two(t *testing.T) {
 	ch = ch.AddHeaders(other_headers)
 	c, e := Connect(n, ch)
 	if e != nil {
-		t.Errorf("Expected nil error, got [%v]\n", e)
+		t.Fatalf("Expected nil error, got [%v]\n", e)
 	}
 	if c.Protocol() != SPL_10 {
-		t.Errorf("Expected protocol 1.0, got [%v]\n", c.Protocol())
+		t.Fatalf("Expected protocol 1.0, got [%v]\n", c.Protocol())
 	}
 	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)
@@ -85,7 +85,7 @@ func TestConnBadVer10Three(t *testing.T) {
 	ch = ch.AddHeaders(other_headers)
 	c, e := Connect(n, ch)
 	if e != EBADVERCLI {
-		t.Errorf("Expected error [%v], got [%v]\n", EBADVERCLI, e)
+		t.Fatalf("Expected error [%v], got [%v]\n", EBADVERCLI, e)
 	}
 	_ = c.Disconnect(empty_headers)
 	_ = closeConn(t, n)

@@ -51,7 +51,7 @@ func TestCodecEncodeBasic(t *testing.T) {
 	for _, ede := range tdList {
 		ev := encode(ede.decoded)
 		if ede.encoded != ev {
-			t.Errorf("ENCODE ERROR: expected: [%v] got: [%v]", ede.encoded, ev)
+			t.Fatalf("ENCODE ERROR: expected: [%v] got: [%v]", ede.encoded, ev)
 		}
 	}
 }
@@ -63,7 +63,7 @@ func TestCodecDecodeBasic(t *testing.T) {
 	for _, ede := range tdList {
 		dv := decode(ede.encoded)
 		if ede.decoded != dv {
-			t.Errorf("DECODE ERROR: expected: [%v] got: [%v]", ede.decoded, dv)
+			t.Fatalf("DECODE ERROR: expected: [%v] got: [%v]", ede.decoded, dv)
 		}
 	}
 }
@@ -115,7 +115,7 @@ func TestCodec11SendRecvCodec(t *testing.T) {
 	// Send
 	e := conn.Send(sh, ms)
 	if e != nil {
-		t.Errorf("11Send failed: %v", e)
+		t.Fatalf("11Send failed: %v", e)
 	}
 
 	// Wait for server to deliver ERROR
@@ -123,7 +123,7 @@ func TestCodec11SendRecvCodec(t *testing.T) {
 	// Poll for adhoc ERROR from server
 	select {
 	case v := <-conn.MessageData:
-		t.Errorf("11Adhoc Error: [%v]", v)
+		t.Fatalf("11Adhoc Error: [%v]", v)
 	default:
 		//
 	}
@@ -131,10 +131,10 @@ func TestCodec11SendRecvCodec(t *testing.T) {
 	sbh := wh.Add(HK_ID, d)
 	sc, e := conn.Subscribe(sbh)
 	if e != nil {
-		t.Errorf("11Subscribe failed: %v", e)
+		t.Fatalf("11Subscribe failed: %v", e)
 	}
 	if sc == nil {
-		t.Errorf("11Subscribe sub chan is nil")
+		t.Fatalf("11Subscribe sub chan is nil")
 	}
 
 	// Read MessageData
@@ -142,31 +142,31 @@ func TestCodec11SendRecvCodec(t *testing.T) {
 	select {
 	case md = <-sc:
 	case md = <-conn.MessageData:
-		t.Errorf("read channel error:  expected [nil], got: [%v]\n",
+		t.Fatalf("read channel error:  expected [nil], got: [%v]\n",
 			md.Message.Command)
 	}
 
 	if md.Error != nil {
-		t.Errorf("11Receive error: [%v]\n", md.Error)
+		t.Fatalf("11Receive error: [%v]\n", md.Error)
 	}
 	// Check data and header values
 	b := md.Message.BodyString()
 	if b != ms {
-		t.Errorf("11Receive expected: [%v] got: [%v]\n", ms, b)
+		t.Fatalf("11Receive expected: [%v] got: [%v]\n", ms, b)
 	}
 	if md.Message.Headers.Value(k1) != v1 {
-		t.Errorf("11Receive header expected: [%v] got: [%v]\n", v1, md.Message.Headers.Value(k1))
+		t.Fatalf("11Receive header expected: [%v] got: [%v]\n", v1, md.Message.Headers.Value(k1))
 	}
 	if md.Message.Headers.Value(k2) != v2 {
-		t.Errorf("11Receive header expected: [%v] got: [%v]\n", v2, md.Message.Headers.Value(k2))
+		t.Fatalf("11Receive header expected: [%v] got: [%v]\n", v2, md.Message.Headers.Value(k2))
 	}
 	if md.Message.Headers.Value(k3) != v3 {
-		t.Errorf("11Receive header expected: [%v] got: [%v]\n", v3, md.Message.Headers.Value(k3))
+		t.Fatalf("11Receive header expected: [%v] got: [%v]\n", v3, md.Message.Headers.Value(k3))
 	}
 	// Unsubscribe
 	e = conn.Unsubscribe(sbh)
 	if e != nil {
-		t.Errorf("11Unsubscribe failed: %v", e)
+		t.Fatalf("11Unsubscribe failed: %v", e)
 	}
 	//
 	_ = conn.Disconnect(empty_headers)

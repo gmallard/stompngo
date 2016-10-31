@@ -34,10 +34,10 @@ func TestSubNoDest(t *testing.T) {
 	// Subscribe, no dest
 	_, e := conn.Subscribe(empty_headers)
 	if e == nil {
-		t.Errorf("Expected subscribe error, got [nil]\n")
+		t.Fatalf("Expected subscribe error, got [nil]\n")
 	}
 	if e != EREQDSTSUB {
-		t.Errorf("Subscribe error, expected [%v], got [%v]\n", EREQDSTSUB, e)
+		t.Fatalf("Subscribe error, expected [%v], got [%v]\n", EREQDSTSUB, e)
 	}
 	//
 	_ = conn.Disconnect(empty_headers)
@@ -58,14 +58,14 @@ func TestSubNoIdOnce(t *testing.T) {
 	//
 	s, e := conn.Subscribe(sbh)
 	if e != nil {
-		t.Errorf("Expected no subscribe error, got [%v]\n", e)
+		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
 	}
 	if s == nil {
-		t.Errorf("Expected subscribe channel, got [nil]\n")
+		t.Fatalf("Expected subscribe channel, got [nil]\n")
 	}
 	select {
 	case v := <-conn.MessageData:
-		t.Errorf("Unexpected frame received, got [%v]\n", v)
+		t.Fatalf("Unexpected frame received, got [%v]\n", v)
 	default:
 	}
 	//
@@ -89,7 +89,7 @@ func TestSubNoIdTwice10(t *testing.T) {
 	//conn.SetLogger(l)
 	//
 	if conn.Protocol() != SPL_10 {
-		t.Errorf("Protocol error, got [%v], expected [%v]\n", conn.Protocol(), SPL_10)
+		t.Fatalf("Protocol error, got [%v], expected [%v]\n", conn.Protocol(), SPL_10)
 	}
 	//
 	d := tdest("/queue/subdup.p10.01")
@@ -97,29 +97,29 @@ func TestSubNoIdTwice10(t *testing.T) {
 	// First time
 	sc, e := conn.Subscribe(sbh)
 	if e != nil {
-		t.Errorf("Expected no subscribe error (T1), got [%v]\n", e)
+		t.Fatalf("Expected no subscribe error (T1), got [%v]\n", e)
 	}
 	if sc == nil {
-		t.Errorf("Expected subscribe channel (T1), got [nil]\n")
+		t.Fatalf("Expected subscribe channel (T1), got [nil]\n")
 	}
 	time.Sleep(500 * time.Millisecond) // give a broker a break
 	select {
 	case v := <-sc:
-		t.Errorf("Unexpected frame received (T1), got [%v]\n", v)
+		t.Fatalf("Unexpected frame received (T1), got [%v]\n", v)
 	case v := <-conn.MessageData:
-		t.Errorf("Unexpected frame received (T1), got [%v]\n", v)
+		t.Fatalf("Unexpected frame received (T1), got [%v]\n", v)
 	default:
 	}
 	// Second time
 	sc, e = conn.Subscribe(sbh)
 	if e == EDUPSID {
-		t.Errorf("Expected no subscribe error (T2), got [%v]\n", e)
+		t.Fatalf("Expected no subscribe error (T2), got [%v]\n", e)
 	}
 	if e != nil {
-		t.Errorf("Expected no subscribe error (T2), got [%v]\n", e)
+		t.Fatalf("Expected no subscribe error (T2), got [%v]\n", e)
 	}
 	if sc == nil {
-		t.Errorf("Expected subscribe channel (T2), got nil\n")
+		t.Fatalf("Expected subscribe channel (T2), got nil\n")
 	}
 	time.Sleep(500 * time.Millisecond) // give a broker a break
 	// Stomp 1.0 brokers are allowed significant latitude regarding a response
@@ -138,7 +138,7 @@ func TestSubNoIdTwice10(t *testing.T) {
 			t.Logf("Server frame expected and received (T2-B), got [%v] [%v] [%v] [%s]\n",
 				v.Message.Command, v.Error, v.Message.Headers, string(v.Message.Body))
 		default:
-			t.Errorf("Server frame expected (T2-E), not received.\n")
+			t.Fatalf("Server frame expected (T2-E), not received.\n")
 		}
 	}
 	// For both Apollo and RabbitMQ, the connection teardown by the server can
@@ -173,17 +173,17 @@ func TestSubNoIdTwice11p(t *testing.T) {
 	sc, e := conn.Subscribe(sbh)
 	t.Logf("%s\n", "INFO TestSubNoIdTwice11p - end 1st SUBSCRIBE")
 	if e != nil {
-		t.Errorf("ERROR Expected no subscribe error (T1), got [%v]\n", e)
+		t.Fatalf("ERROR Expected no subscribe error (T1), got [%v]\n", e)
 	}
 	if sc == nil {
-		t.Errorf("ERROR Expected subscribe channel (T2), got [nil]\n")
+		t.Fatalf("ERROR Expected subscribe channel (T2), got [nil]\n")
 	}
 	time.Sleep(500 * time.Millisecond) // give a broker a break
 	select {
 	case v := <-sc:
-		t.Errorf("ERROR Unexpected frame received (T3), got [%v]\n", v)
+		t.Fatalf("ERROR Unexpected frame received (T3), got [%v]\n", v)
 	case v := <-conn.MessageData:
-		t.Errorf("ERROR Unexpected frame received (T4), got [%v]\n", v)
+		t.Fatalf("ERROR Unexpected frame received (T4), got [%v]\n", v)
 	default:
 	}
 
@@ -194,15 +194,15 @@ func TestSubNoIdTwice11p(t *testing.T) {
 	sc, e = conn.Subscribe(sbh)
 	t.Logf("%s\n", "INFO TestSubNoIdTwice11p - end 2nd SUBSCRIBE")
 	if e == nil {
-		t.Errorf("ERROR Expected subscribe error (T5), got [nil]\n")
+		t.Fatalf("ERROR Expected subscribe error (T5), got [nil]\n")
 	}
 	if e != EDUPSID {
-		t.Errorf("ERROR Expected subscribe error (T6), [%v] got [%v]\n", EDUPSID, e)
+		t.Fatalf("ERROR Expected subscribe error (T6), [%v] got [%v]\n", EDUPSID, e)
 	} else {
 		t.Logf("INFO wanted/got actual (T7), [%v]\n", e)
 	}
 	if sc != nil {
-		t.Errorf("ERROR Expected nil subscribe channel (T8), got [%v]\n", sc)
+		t.Fatalf("ERROR Expected nil subscribe channel (T8), got [%v]\n", sc)
 	}
 	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
@@ -226,10 +226,10 @@ func TestSubUnsubBasic(t *testing.T) {
 	h = h.Add(HK_ID, d)
 	sc, e := conn.Subscribe(h)
 	if e != nil {
-		t.Errorf("Expected no subscribe error, got [%v]\n", e)
+		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
 	}
 	if sc == nil {
-		t.Errorf("Expected subscribe channel, got [nil]\n")
+		t.Fatalf("Expected subscribe channel, got [nil]\n")
 	}
 
 	// Read MessageData
@@ -237,27 +237,27 @@ func TestSubUnsubBasic(t *testing.T) {
 	select {
 	case md = <-sc:
 	case md = <-conn.MessageData:
-		t.Errorf("read channel error:  expected [nil], got: [%v]\n",
+		t.Fatalf("read channel error:  expected [nil], got: [%v]\n",
 			md.Message.Command)
 	}
 
 	//
 	if md.Error != nil {
-		t.Errorf("Expected no message data error, got [%v]\n", md.Error)
+		t.Fatalf("Expected no message data error, got [%v]\n", md.Error)
 	}
 	mdm := md.Message
 	rd := mdm.Headers.Value(HK_DESTINATION)
 	if rd != d {
-		t.Errorf("Expected destination [%v], got [%v]\n", d, rd)
+		t.Fatalf("Expected destination [%v], got [%v]\n", d, rd)
 	}
 	ri := mdm.Headers.Value(HK_SUBSCRIPTION)
 	if ri != d {
-		t.Errorf("Expected subscription [%v], got [%v]\n", d, ri)
+		t.Fatalf("Expected subscription [%v], got [%v]\n", d, ri)
 	}
 	//
 	e = conn.Unsubscribe(h)
 	if e != nil {
-		t.Errorf("Expected no unsubscribe error, got [%v]\n", e)
+		t.Fatalf("Expected no unsubscribe error, got [%v]\n", e)
 	}
 	//
 	_ = conn.Disconnect(empty_headers)
@@ -284,10 +284,10 @@ func TestSubUnsubBasic10(t *testing.T) {
 	sbh := sh
 	sc, e := conn.Subscribe(sbh)
 	if e != nil {
-		t.Errorf("Expected no subscribe error, got [%v]\n", e)
+		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
 	}
 	if sc == nil {
-		t.Errorf("Expected subscribe channel, got [nil]\n")
+		t.Fatalf("Expected subscribe channel, got [nil]\n")
 	}
 
 	// Read MessageData
@@ -295,23 +295,23 @@ func TestSubUnsubBasic10(t *testing.T) {
 	select {
 	case md = <-sc:
 	case md = <-conn.MessageData:
-		t.Errorf("read channel error:  expected [nil], got: [%v]\n",
+		t.Fatalf("read channel error:  expected [nil], got: [%v]\n",
 			md.Message.Command)
 	}
 
 	//
 	if md.Error != nil {
-		t.Errorf("Expected no message data error, got [%v]\n", md.Error)
+		t.Fatalf("Expected no message data error, got [%v]\n", md.Error)
 	}
 	mdm := md.Message
 	rd := mdm.Headers.Value(HK_DESTINATION)
 	if rd != d {
-		t.Errorf("Expected destination [%v], got [%v]\n", d, rd)
+		t.Fatalf("Expected destination [%v], got [%v]\n", d, rd)
 	}
 	//
 	e = conn.Unsubscribe(sbh)
 	if e != nil {
-		t.Errorf("Expected no unsubscribe error, got [%v]\n", e)
+		t.Fatalf("Expected no unsubscribe error, got [%v]\n", e)
 	}
 	//
 	_ = conn.Disconnect(empty_headers)
@@ -332,10 +332,10 @@ func TestSubEstablishSubscription(t *testing.T) {
 	// First time
 	s, e := conn.Subscribe(sbh)
 	if e != nil {
-		t.Errorf("Expected no subscribe error, got [%v]\n", e)
+		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
 	}
 	if s == nil {
-		t.Errorf("Expected subscribe channel, got [nil]\n")
+		t.Fatalf("Expected subscribe channel, got [nil]\n")
 	}
 	//
 	_ = conn.Disconnect(empty_headers)
@@ -359,25 +359,25 @@ func TestSubSetCap(t *testing.T) {
 	conn.SetSubChanCap(p)
 	r := conn.SubChanCap()
 	if r != p {
-		t.Errorf("Expected get capacity [%v], got [%v]\n", p, r)
+		t.Fatalf("Expected get capacity [%v], got [%v]\n", p, r)
 	}
 	//
 	d := tdest("/queue/subsetcap.basiconn.01")
 	h := Headers{HK_DESTINATION, d, HK_ID, d}
 	s, e := conn.Subscribe(h)
 	if e != nil {
-		t.Errorf("Expected no subscribe error, got [%v]\n", e)
+		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
 	}
 	if s == nil {
-		t.Errorf("Expected subscribe channel, got [nil]\n")
+		t.Fatalf("Expected subscribe channel, got [nil]\n")
 	}
 	if cap(s) != p {
-		t.Errorf("Expected subchan capacity [%v], got [%v]\n", p, cap(s))
+		t.Fatalf("Expected subchan capacity [%v], got [%v]\n", p, cap(s))
 	}
 	//
 	e = conn.Unsubscribe(h)
 	if e != nil {
-		t.Errorf("Expected no unsubscribe error, got [%v]\n", e)
+		t.Fatalf("Expected no unsubscribe error, got [%v]\n", e)
 	}
 	//
 	_ = conn.Disconnect(empty_headers)
