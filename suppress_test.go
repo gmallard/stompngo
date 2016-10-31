@@ -16,9 +16,7 @@
 
 package stompngo
 
-import (
-	"testing"
-)
+import "testing"
 
 var (
 	tsclData = []struct {
@@ -40,6 +38,23 @@ var (
 		{
 			[]uint8{0x00, 0x64, 0x65, 0x66, 0x00},
 			"",
+		},
+	}
+
+	tsctData = []struct {
+		body       string
+		doSuppress bool
+		wanted     bool
+	}{
+		{
+			"some data",
+			true,
+			false,
+		},
+		{
+			"other data",
+			false,
+			true,
 		},
 	}
 )
@@ -83,6 +98,71 @@ func TestSuppressContentLength(t *testing.T) {
 		}
 	}
 
+	// Finally Unsubscribe
+	uh := Headers{HK_DESTINATION, d, HK_ID, id}
+	e = conn.Unsubscribe(uh)
+	if e != nil {
+		t.Errorf("Expected no unsubscribe error, got [%v]\n", e)
+	}
+
+	_ = conn.Disconnect(empty_headers)
+	_ = closeConn(t, n)
+
+}
+
+/*
+	Test suppress_content_type header.
+*/
+func TestSuppressContentType(t *testing.T) {
+	n, _ := openConn(t)
+	ch := check11(TEST_HEADERS)
+	conn, _ := Connect(n, ch)
+
+	// l := log.New(os.Stdout, "TSCT", log.Ldate|log.Lmicroseconds)
+	// conn.SetLogger(l)
+
+	//
+	d := tdest("/queue/suppress.content.type")
+	id := Uuid()
+	sbh := Headers{HK_DESTINATION, d, HK_ID, id}
+	sc, e := conn.Subscribe(sbh)
+	if e != nil {
+		t.Errorf("Expected no subscribe error, got [%v]\n", e)
+	}
+	if sc == nil {
+		t.Errorf("Expected subscribe channel, got [nil]\n")
+	}
+
+	// Do the work here
+	var v MessageData
+	var sh Headers
+	for tn, tv := range tsctData {
+		if tv.doSuppress {
+			sh = Headers{HK_DESTINATION, d, HK_SUPPRESS_CT, "yes"}
+		} else {
+			// sh = Headers{HK_DESTINATION, d, HK_SUPPRESS_CT}
+			sh = Headers{HK_DESTINATION, d}
+		}
+		//
+		e = conn.Send(sh, tv.body)
+		if e != nil {
+			t.Errorf("Expected no send error, got [%v]\n", e)
+		}
+		// fmt.Printf("SCT01 tn:%d sent:%s\n", tn, tv.body)
+		select {
+		case v = <-sc:
+		case v = <-conn.MessageData:
+			t.Errorf("Expected no RECEIPT/ERROR error, got [%v]\n", v)
+		}
+		_, try := v.Message.Headers.Contains(HK_CONTENT_TYPE)
+		// fmt.Printf("DUMP: md:%#v\n", v)
+		if tv.doSuppress {
+			if try != tv.wanted {
+				t.Errorf("TestSuppressContentType tn:%d wanted:%t got:%t\n",
+					tn, tv.wanted, try)
+			}
+		}
+	}
 	// Finally Unsubscribe
 	uh := Headers{HK_DESTINATION, d, HK_ID, id}
 	e = conn.Unsubscribe(uh)

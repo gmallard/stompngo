@@ -99,12 +99,15 @@ func (f *Frame) writeFrame(w *bufio.Writer, l string) error {
 		return e
 	}
 
-	var ctok bool
-	// Content type.  Add it if the client does not ask for it.
-	_, ctok = f.Headers.Contains(HK_CONTENT_TYPE)
-	if !ctok {
-		f.Headers = append(f.Headers, HK_CONTENT_TYPE,
-			"text/plain; charset=UTF-8")
+	var sctok bool
+	// Content type.  Always add it if the client does not suppress and does not
+	// supply it.
+	_, sctok = f.Headers.Contains(HK_SUPPRESS_CT)
+	if !sctok {
+		if _, ctok := f.Headers.Contains(HK_CONTENT_TYPE); !ctok {
+			f.Headers = append(f.Headers, HK_CONTENT_TYPE,
+				DFLT_CONTENT_TYPE)
+		}
 	}
 
 	var sclok bool

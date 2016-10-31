@@ -311,6 +311,7 @@ const (
 	HK_MESSAGE        = "message"
 	HK_MESSAGE_ID     = "message-id"
 	HK_SUPPRESS_CL    = "suppress-content-length" // Not in any spec, but used
+	HK_SUPPRESS_CT    = "suppress-content-type"   // Not in any spec, but used
 	HK_PASSCODE       = "passcode"
 	HK_RECEIPT        = "receipt"
 	HK_RECEIPT_ID     = "receipt-id"
@@ -328,6 +329,13 @@ const (
 	AckModeAuto             = "auto"
 	AckModeClient           = "client"
 	AckModeClientIndividual = "client-individual"
+)
+
+/*
+	Default content-type.
+*/
+const (
+	DFLT_CONTENT_TYPE = "text/plain; charset=UTF-8"
 )
 
 /*
