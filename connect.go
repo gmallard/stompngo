@@ -19,7 +19,6 @@ package stompngo
 import (
 	"bufio"
 	"net"
-	"strings"
 	"time"
 )
 
@@ -112,102 +111,4 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 	go c.reader()
 	//
 	return c, e
-}
-
-/*
-	Connection handler, one time use during initial connect.
-
-	Handle broker response, react to version incompatabilities, set up session,
-	and if necessary initialize heart beats.
-*/
-func (c *Connection) connectHandler(h Headers) (e error) {
-	c.rdr = bufio.NewReader(c.netconn)
-	b, e := c.rdr.ReadBytes(0)
-	if e != nil {
-		return e
-	}
-	f, e := connectResponse(string(b))
-	if e != nil {
-		return e
-	}
-	//
-	c.ConnectResponse = &Message{f.Command, f.Headers, f.Body}
-	if c.ConnectResponse.Command == ERROR {
-		return ECONERR
-	}
-	//
-	e = c.setProtocolLevel(h, c.ConnectResponse.Headers)
-	if e != nil {
-		return e
-	}
-	//
-	if s, ok := c.ConnectResponse.Headers.Contains(HK_SESSION); ok {
-		c.session = s
-	}
-
-	if c.Protocol() >= SPL_11 {
-		e = c.initializeHeartBeats(h)
-		if e != nil {
-			return e
-		}
-	}
-
-	c.connected = true
-	c.mets.tfr += 1
-	c.mets.tbr += c.ConnectResponse.Size(false)
-	return nil
-}
-
-/*
-	Check client version, one time use during initial connect.
-*/
-func (c *Connection) checkClientVersions(h Headers) (e error) {
-	w := h.Value(HK_ACCEPT_VERSION)
-	if w == "" { // Not present, client wants 1.0
-		return nil
-	}
-	v := strings.SplitN(w, ",", -1) //
-	for _, sv := range v {
-		if hasValue(supported, sv) {
-			return nil // At least one is supported
-		}
-	}
-	return EBADVERCLI
-}
-
-/*
-	Set the protocol level for this new connection.
-*/
-func (c *Connection) setProtocolLevel(ch, sh Headers) (e error) {
-	chw := ch.Value(HK_ACCEPT_VERSION)
-	shr := sh.Value(HK_VERSION)
-
-	if chw == shr && Supported(shr) {
-		c.protocol = shr
-		return nil
-	}
-	if chw == "" && shr == "" { // Straight up 1.0
-		return nil // protocol level defaults to SPL_10
-	}
-	cv := strings.SplitN(chw, ",", -1) // Client requested versions
-
-	if chw != "" && shr != "" {
-		if hasValue(cv, shr) {
-			if !Supported(shr) {
-				return EBADVERSVR // Client and server agree, but we do not support it
-			}
-			c.protocol = shr
-			return nil
-		} else {
-			return EBADVERCLI
-		}
-	}
-	if chw != "" && shr == "" { // Client asked for something, server is pure 1.0
-		if hasValue(cv, SPL_10) {
-			return nil // protocol level defaults to SPL_10
-		}
-	}
-
-	c.protocol = shr // Could be anything we support
-	return nil
 }

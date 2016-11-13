@@ -18,8 +18,6 @@ package stompngo
 
 import (
 	"bufio"
-	"crypto/rand"
-	"crypto/sha1"
 	"fmt"
 	"io"
 	"strings"
@@ -85,90 +83,6 @@ func readBody(r *bufio.Reader, l int) ([]uint8, error) {
 }
 
 /*
-	Handle data from the wire after CONNECT is sent. Attempt to create a Frame
-	from the wire data.
-
-	Called one time per connection at connection start.
-*/
-func connectResponse(s string) (*Frame, error) {
-	//
-	f := new(Frame)
-	f.Headers = Headers{}
-	f.Body = make([]uint8, 0)
-
-	// Get f.Command
-	c := strings.SplitN(s, "\n", 2)
-	if len(c) < 2 {
-		return nil, EBADFRM
-	}
-	f.Command = c[0]
-	if f.Command != CONNECTED && f.Command != ERROR {
-		return f, EUNKFRM
-	}
-
-	switch c[1] {
-	case "\x00", "\n": // No headers, malformed bodies
-		f.Body = []uint8(c[1])
-		return f, EBADFRM
-	case "\n\x00": // No headers, no body is OK
-		return f, nil
-	default: // Otherwise continue
-	}
-
-	b := strings.SplitN(c[1], "\n\n", 2)
-	if len(b) == 1 { // No Headers, b[0] == body
-		w := []uint8(b[0])
-		f.Body = w[0 : len(w)-1]
-		if f.Command == CONNECTED && len(f.Body) > 0 {
-			return f, EBDYDATA
-		}
-		return f, nil
-	}
-
-	// Here:
-	// b[0] - the headers
-	// b[1] - the body
-
-	// Get f.Headers
-	for _, l := range strings.Split(b[0], "\n") {
-		p := strings.SplitN(l, ":", 2)
-		if len(p) < 2 {
-			f.Body = []uint8(p[0]) // Bad feedback
-			return f, EUNKHDR
-		}
-		f.Headers = append(f.Headers, p[0], p[1])
-	}
-	// get f.Body
-	w := []uint8(b[1])
-	f.Body = w[0 : len(w)-1]
-	if f.Command == CONNECTED && len(f.Body) > 0 {
-		return f, EBDYDATA
-	}
-
-	return f, nil
-}
-
-/*
-	Sha1 returns a SHA1 hash for a specified string.
-*/
-func Sha1(q string) string {
-	g := sha1.New()
-	g.Write([]byte(q))
-	return fmt.Sprintf("%x", g.Sum(nil))
-}
-
-/*
-	Uuid returns a type 4 UUID.
-*/
-func Uuid() string {
-	b := make([]byte, 16)
-	_, _ = io.ReadFull(rand.Reader, b)
-	b[6] = (b[6] & 0x0F) | 0x40
-	b[8] = (b[8] &^ 0x40) | 0x80
-	return fmt.Sprintf("%x-%x-%x-%x-%x", b[:4], b[4:6], b[6:8], b[8:10], b[10:])
-}
-
-/*
 	Common Header Validation.
 */
 func checkHeaders(h Headers, p string) error {
@@ -206,18 +120,6 @@ func max(a, b int64) int64 {
 		return a
 	}
 	return b
-}
-
-/*
-	Internal function, used only during CONNECT processing.
-*/
-func hasValue(a []string, w string) bool {
-	for _, v := range a {
-		if v == w {
-			return true
-		}
-	}
-	return false
 }
 
 /*
