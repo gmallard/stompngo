@@ -83,6 +83,7 @@ func (c *Connection) Disconnect(h Headers) error {
 		c.log(DISCONNECT, "dr", ch, c.DisconnectReceipt)
 	}
 	c.log(DISCONNECT, "ends", ch)
-	c.rsd <- true
+	close(c.ssdc)
+	c.log(DISCONNECT, "system shutdown cannel closed")
 	return e
 }

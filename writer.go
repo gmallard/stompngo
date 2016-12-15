@@ -28,23 +28,20 @@ import (
 	channel, and put them on the wire.
 */
 func (c *Connection) writer() {
-	q := false
+writeLoop:
 	for {
 
 		select {
 		case d := <-c.output:
 			c.wireWrite(d)
-			c.log("WTR_WIREWRITE", d.frame.Command, d.frame.Headers,
+			c.log("WTR_WIREWRITE COMPLETE", d.frame.Command, d.frame.Headers,
 				hexData(d.frame.Body))
-		case q = <-c.wsd:
-			break
+		case _ = <-c.ssdc:
+			c.log("WTR_WIREWRITE will break")
+			break writeLoop
 		}
-
-		if q {
-			break
-		}
-
-	}
+	} // of for
+	//
 	c.log("WTR_SHUTDOWN", time.Now())
 }
 

@@ -118,8 +118,7 @@ type Connection struct {
 	netconn           net.Conn
 	subs              map[string]*subscription
 	subsLock          sync.RWMutex
-	wsd               chan bool // writer shutdown
-	rsd               chan bool // reader shutdown
+	ssdc              chan struct{} // System shutdown channel
 	hbd               *heartBeatData
 	wtr               *bufio.Writer
 	rdr               *bufio.Reader

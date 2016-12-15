@@ -74,6 +74,7 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 		protocol:          SPL_10,
 		subs:              make(map[string]*subscription),
 		DisconnectReceipt: MessageData{},
+		ssdc:              make(chan struct{}),
 		scc:               1}
 
 	// Bsaic metric data
@@ -89,7 +90,6 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 
 	// OK, put a CONNECT on the wire
 	c.wtr = bufio.NewWriter(n)        // Create the writer
-	c.wsd = make(chan bool, 1)        // Make the writer shutdown channel
 	go c.writer()                     // Start it
 	f := Frame{CONNECT, ch, NULLBUFF} // Create actual CONNECT frame
 	r := make(chan error)             // Make the error channel for a write
@@ -97,17 +97,16 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 	e := <-r                          // Retrieve any error
 	//
 	if e != nil {
-		c.wsd <- true // Shutdown the writer, we are done with errors
+		close(c.ssdc) // Shutdown,  we are done with errors
 		return c, e
 	}
 	//
 	e = c.connectHandler(ch)
 	if e != nil {
-		c.wsd <- true // Shutdown the writer, we are done with errors
+		close(c.ssdc) // Shutdown ,  we are done with errors
 		return c, e
 	}
 	// We are connected
-	c.rsd = make(chan bool, 1) // Reader shutdown channel
 	go c.reader()
 	//
 	return c, e

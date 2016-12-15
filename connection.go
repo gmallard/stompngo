@@ -200,8 +200,6 @@ func (c *Connection) shutdown() {
 			c.hbd.rsd <- true
 		}
 	}
-	// Stop writer go routine
-	c.wsd <- true
 	// Close all individual subscribe channels
 	// This is a write lock
 	c.subsLock.Lock()

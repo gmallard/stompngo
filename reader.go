@@ -29,9 +29,7 @@ import (
 	structures from the received data, and push the MessageData to the client.
 */
 func (c *Connection) reader() {
-	//
-	q := false // Shutdown indicator
-
+readLoop:
 	for {
 		f, e := c.readFrame()
 		c.log("RDR_RECEIVE_FRAME", f.Command, f.Headers, hexData(f.Body),
@@ -40,12 +38,12 @@ func (c *Connection) reader() {
 			f.Headers = append(f.Headers, "connection_read_error", e.Error())
 			md := MessageData{Message(f), e}
 			c.handleReadError(md)
-			break
+			break readLoop
 		}
 
-		if f.Command == "" && q {
-			break
-		}
+		// if f.Command == "" {
+		//	break
+		//}
 
 		m := Message(f)
 		c.mets.tfr += 1 // Total frames read
@@ -90,13 +88,10 @@ func (c *Connection) reader() {
 		// TODO END
 
 		select {
-		case q = <-c.rsd:
+		case _ = <-c.ssdc:
+			break readLoop
 		default:
 		}
-		if q {
-			break
-		}
-
 	}
 	close(c.input)
 	c.log("RDR_SHUTDOWN", time.Now())
