@@ -18,6 +18,7 @@ package stompngo
 
 import (
 	"log"
+	"runtime"
 	"time"
 )
 
@@ -179,10 +180,17 @@ func (c *Connection) SetSubChanCap(nc int) {
 */
 func (c *Connection) log(v ...interface{}) {
 	logLock.Lock()
-	if c.logger != nil {
+	defer logLock.Unlock()
+	if c.logger == nil {
+		return
+	}
+	_, fn, ld, ok := runtime.Caller(0)
+
+	if ok {
+		c.logger.Printf("%s %s %d %v\n", c.session, fn, ld, v)
+	} else {
 		c.logger.Print(c.session, v)
 	}
-	logLock.Unlock()
 	return
 }
 

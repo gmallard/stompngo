@@ -28,17 +28,17 @@ import (
 	channel, and put them on the wire.
 */
 func (c *Connection) writer() {
-writeLoop:
+writerLoop:
 	for {
-
 		select {
 		case d := <-c.output:
+			c.log("WTR_WIREWRITE start")
 			c.wireWrite(d)
 			c.log("WTR_WIREWRITE COMPLETE", d.frame.Command, d.frame.Headers,
 				hexData(d.frame.Body))
 		case _ = <-c.ssdc:
-			c.log("WTR_WIREWRITE will break")
-			break writeLoop
+			c.log("WTR_WIREWRITE shutdown received")
+			break writerLoop
 		}
 	} // of for
 	//
@@ -81,7 +81,7 @@ func (c *Connection) wireWrite(d wiredata) {
 		c.hbd.ls = time.Now().UnixNano() // Latest good send
 		c.hbd.sdl.Unlock()
 	}
-	c.mets.tfw += 1             // Frame written count
+	c.mets.tfw++                // Frame written count
 	c.mets.tbw += f.Size(false) // Bytes written count
 	//
 	d.errchan <- nil
