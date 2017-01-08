@@ -34,7 +34,8 @@ func (c *Connection) writer() {
 		select {
 		case d := <-c.output:
 			c.wireWrite(d)
-			c.log("WTR_WIREWRITE", d)
+			c.log("WTR_WIREWRITE", d.frame.Command, d.frame.Headers,
+				hexData(d.frame.Body))
 		case q = <-c.wsd:
 			break
 		}

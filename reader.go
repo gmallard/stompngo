@@ -34,7 +34,8 @@ func (c *Connection) reader() {
 
 	for {
 		f, e := c.readFrame()
-		c.log("RDR_RECEIVE_FRAME", f, "RDR_RECEIVE_ERR", e)
+		c.log("RDR_RECEIVE_FRAME", f.Command, f.Headers, hexData(f.Body),
+			"RDR_RECEIVE_ERR", e)
 		if e != nil {
 			f.Headers = append(f.Headers, "connection_read_error", e.Error())
 			md := MessageData{Message(f), e}
@@ -61,12 +62,13 @@ func (c *Connection) reader() {
 			if _, sok := c.subs[sid]; sok {
 				// And it can also be closed under some timing circumstances
 				if c.subs[sid].cs {
-					c.log("RDR_CLSUB", sid, md)
+					c.log("RDR_CLSUB", sid, m.Command, m.Headers)
 				} else {
 					if c.subs[sid].drav {
 						c.subs[sid].drmc++
 						if c.subs[sid].drmc > c.subs[sid].dra {
-							c.log("RDR_DROPM", c.subs[sid].drmc, sid, md)
+							c.log("RDR_DROPM", c.subs[sid].drmc, sid, m.Command,
+								m.Headers, hexData(m.Body))
 						} else {
 							c.subs[sid].md <- md
 						}
@@ -75,7 +77,7 @@ func (c *Connection) reader() {
 					}
 				}
 			} else {
-				c.log("RDR_NOSUB", sid, md)
+				c.log("RDR_NOSUB", sid, m.Command, m.Headers)
 			}
 			c.subsLock.RUnlock()
 		} else {

@@ -40,6 +40,7 @@ var (
 	dest       = "/queue/sng.sample.stomp.destination" // default destination
 	scc        = 1                                     // Subchannel capacity
 	nmsgs      = 1                                     // default number of messages (useful at times)
+	maxbl      = -1                                    // Max body length to dump (-1 => no limit)
 )
 
 // Destination
@@ -170,4 +171,16 @@ func Vhost() string {
 		vhost = Host()
 	}
 	return vhost
+}
+
+func MaxBodyLength() int {
+	if s := os.Getenv("STOMP_MAXBODYLENGTH"); s != "" {
+		i, e := strconv.ParseInt(s, 10, 32)
+		if nil != e {
+			log.Println("MAXBODYLENGTH conversion error", e)
+		} else {
+			maxbl = int(i)
+		}
+	}
+	return maxbl
 }
