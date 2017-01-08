@@ -17,6 +17,7 @@
 package stompngo
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -51,41 +52,60 @@ readLoop:
 		// Headers already decoded
 		c.mets.tbr += m.Size(false) // Total bytes read
 
-		// TODO START - can this be simplified ?  Look cleaner ?
+		//*************************************************************************
+		// Replacement START
 		md := MessageData{m, e}
-		if sid, ok := f.Headers.Contains(HK_SUBSCRIPTION); ok {
-			// This is a read lock
-			c.subsLock.RLock()
-			// This sub can be already gone under some timing circumstances
-			if _, sok := c.subs[sid]; sok {
-				// And it can also be closed under some timing circumstances
-				if c.subs[sid].cs {
-					c.log("RDR_CLSUB", sid, m.Command, m.Headers)
-				} else {
-					if c.subs[sid].drav {
-						c.subs[sid].drmc++
-						if c.subs[sid].drmc > c.subs[sid].dra {
-							c.log("RDR_DROPM", c.subs[sid].drmc, sid, m.Command,
-								m.Headers, hexData(m.Body))
-						} else {
-							c.subs[sid].md <- md
-						}
-					} else {
-						c.subs[sid].md <- md
-					}
-				}
-			} else {
-				c.log("RDR_NOSUB", sid, m.Command, m.Headers)
+		switch f.Command {
+		//
+		case MESSAGE:
+			sid, ok := f.Headers.Contains(HK_SUBSCRIPTION)
+			if !ok { // This should *NEVER* happen
+				panic(fmt.Sprintf("stompngo INTERNAL ERROR: command:<%s> headers:<%v>",
+					f.Command, f.Headers))
 			}
+			c.subsLock.RLock()
+			ps, sok := c.subs[sid] // This is a map of pointers .....
+			//
+			if !sok {
+				// The sub can be gone under some timing conditions.  In that case
+				// we log it of possible, and continue (hope for the best).
+				c.log("RDR_NOSUB", sid, m.Command, m.Headers)
+				goto csRUnlock
+			}
+			if ps.cs {
+				// The sub can also already be closed under some conditions.
+				// Again, we log that if possible, and continue
+				c.log("RDR_CLSUB", sid, m.Command, m.Headers)
+				goto csRUnlock
+			}
+			// Handle subscription draining
+			switch ps.drav {
+			case false:
+				ps.md <- md
+			default:
+				ps.drmc++
+				if ps.drmc > ps.dra {
+					c.log("RDR_DROPM", ps.drmc, sid, m.Command,
+						m.Headers, hexData(m.Body))
+				} else {
+					ps.md <- md
+				}
+			}
+		csRUnlock:
 			c.subsLock.RUnlock()
-		} else {
-			// RECEIPTs and ERRORs are never drained.  They actually cannot
-			// be drained in any logical manner because they do not have a
-			// 'subscription' header.
+		//
+		case ERROR:
+			fallthrough
+		//
+		case RECEIPT:
 			c.input <- md
+		//
+		default:
+			panic(fmt.Sprintf("Broker SEVERE ERROR, not STOMP? command:<%s> headers:<%v>",
+				f.Command, f.Headers))
 		}
-
-		// TODO END
+		// Replacement END
+		//*************************************************************************
 
 		select {
 		case _ = <-c.ssdc:
