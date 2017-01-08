@@ -50,10 +50,9 @@ readLoop:
 		c.mets.tfr += 1 // Total frames read
 		// Headers already decoded
 		c.mets.tbr += m.Size(false) // Total bytes read
-		md := MessageData{m, e}
 
 		// TODO START - can this be simplified ?  Look cleaner ?
-
+		md := MessageData{m, e}
 		if sid, ok := f.Headers.Contains(HK_SUBSCRIPTION); ok {
 			// This is a read lock
 			c.subsLock.RLock()
@@ -90,9 +89,11 @@ readLoop:
 
 		select {
 		case _ = <-c.ssdc:
+			c.log("RDR_SHUTDOWN detected")
 			break readLoop
 		default:
 		}
+		c.log("RDR_RELOOP")
 	}
 	close(c.input)
 	c.log("RDR_SHUTDOWN", time.Now())

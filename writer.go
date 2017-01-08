@@ -36,6 +36,9 @@ writerLoop:
 			c.wireWrite(d)
 			c.log("WTR_WIREWRITE COMPLETE", d.frame.Command, d.frame.Headers,
 				hexData(d.frame.Body))
+			if d.frame.Command == DISCONNECT {
+				break writerLoop // we are done with this connection
+			}
 		case _ = <-c.ssdc:
 			c.log("WTR_WIREWRITE shutdown received")
 			break writerLoop
