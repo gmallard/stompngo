@@ -30,4 +30,9 @@ temp*
 # markdown artifacts in local development.
 *.html
 *.htm
+# Coverage artifiact
+coverage.out
+*.out
+*.test
+*.cvd
 
