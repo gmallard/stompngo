@@ -1,5 +1,5 @@
 //
-// Copyright © 2011-2016 Guy M. Allard
+// Copyright © 2011-2017 Guy M. Allard
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
