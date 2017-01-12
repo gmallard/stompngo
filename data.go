@@ -192,6 +192,11 @@ const (
 	EREQTIDCOM = Error("transaction-id required, COMMIT")
 	EREQTIDABT = Error("transaction-id required, ABORT")
 
+	// Transaction ID present but empty.
+	ETIDBEGEMT = Error("transaction-id empty, BEGIN")
+	ETIDCOMEMT = Error("transaction-id empty, COMMIT")
+	ETIDABTEMT = Error("transaction-id empty, ABORT")
+
 	// Subscription errors.
 	EDUPSID = Error("duplicate subscription-id")
 	EBADSID = Error("invalid subscription-id")

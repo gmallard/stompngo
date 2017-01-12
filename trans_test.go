@@ -29,84 +29,62 @@ func TestTransErrors(t *testing.T) {
 	ch := check11(TEST_HEADERS)
 	conn, _ := Connect(n, ch)
 
-	// Empty string transaction id - BEGIN
-	h := Headers{HK_TRANSACTION, ""}
-	e := conn.Begin(h)
-	if e == nil {
-		t.Fatalf("BEGIN expected error, got: [nil]\n")
+	//*** ABORT
+	// No transaction header ABORT
+	h := Headers{}
+	e := conn.Abort(h)
+	if e != EREQTIDABT {
+		t.Fatalf("ABORT expected %v, got: %v\n", EREQTIDABT, e)
 	}
-	if conn.Protocol() == SPL_10 {
-		if e != EHDRMTV {
-			t.Fatalf("BEGIN expected error [%v], got [%v]\n", EHDRMTV, e)
-		}
-	} else {
-		if e != EREQTIDBEG {
-			t.Fatalf("BEGIN expected error [%v], got [%v]\n", EREQTIDBEG, e)
-		}
-	}
-
-	// Empty string transaction id - COMMIT
-	e = conn.Commit(h)
-	if e == nil {
-		t.Fatalf("COMMIT expected error, got: [nil]\n")
-	}
-	if conn.Protocol() == SPL_10 {
-		if e != EHDRMTV {
-			t.Fatalf("BEGIN expected error [%v], got [%v]\n", EHDRMTV, e)
-		}
-	} else {
-		if e != EREQTIDCOM {
-			t.Fatalf("COMMIT expected error [%v], got [%v]\n", EREQTIDCOM, e)
-		}
-	}
-
 	// Empty string transaction id - ABORT
+	h = Headers{HK_TRANSACTION, ""}
 	e = conn.Abort(h)
 	if e == nil {
 		t.Fatalf("ABORT expected error, got: [nil]\n")
 	}
-	if conn.Protocol() == SPL_10 {
-		if e != EHDRMTV {
-			t.Fatalf("BEGIN expected error [%v], got [%v]\n", EHDRMTV, e)
-		}
-	} else {
-		if e != EREQTIDABT {
-			t.Fatalf("ABORT expected error [%v], got [%v]\n", EREQTIDABT, e)
-		}
+	if conn.Protocol() == SPL_10 && e != EHDRMTV {
+		t.Fatalf("ABORT expected %v, got: %v\n", EHDRMTV, e)
+	}
+	if conn.Protocol() > SPL_10 && e != ETIDABTEMT {
+		t.Fatalf("ABORT expected %v, got: %v\n", ETIDABTEMT, e)
 	}
 
-	//
-
-	// Missing transaction id - BEGIN
+	//*** BEGIN
+	// No transaction header BEGIN
 	h = Headers{}
+	e = conn.Begin(h)
+	if e != EREQTIDBEG {
+		t.Fatalf("BEGIN expected %v, got: %v\n", EREQTIDBEG, e)
+	}
+	// Empty string transaction id - BEGIN
+	h = Headers{HK_TRANSACTION, ""}
 	e = conn.Begin(h)
 	if e == nil {
 		t.Fatalf("BEGIN expected error, got: [nil]\n")
 	}
-	if e != EREQTIDBEG {
-		t.Fatalf("BEGIN expected error [%v], got [%v]\n", EREQTIDBEG, e)
+	if conn.Protocol() == SPL_10 && e != EHDRMTV {
+		t.Fatalf("BEGIN expected %v, got: %v\n", EHDRMTV, e)
+	}
+	if conn.Protocol() > SPL_10 && e != ETIDBEGEMT {
+		t.Fatalf("BEGIN expected %v, got: %v\n", ETIDBEGEMT, e)
 	}
 
-	// Missing transaction id - COMMIT
+	//*** COMMIT
+	// No transaction header - COMMIT
+	h = Headers{}
 	e = conn.Commit(h)
-	if e == nil {
-		t.Fatalf("COMMIT expected error, got: [nil]\n")
+	// Empty string transaction id - COMMIT
+	h = Headers{HK_TRANSACTION, ""}
+	e = conn.Commit(h)
+	if conn.Protocol() == SPL_10 && e != EHDRMTV {
+		t.Fatalf("COMMIT expected %v, got: %v\n", EHDRMTV, e)
 	}
-	if e != EREQTIDCOM {
-		t.Fatalf("COMMIT expected error [%v], got [%v]\n", EREQTIDCOM, e)
+	if conn.Protocol() > SPL_10 && e != ETIDCOMEMT {
+		t.Fatalf("COMMIT expected %v, got: %v\n", ETIDCOMEMT, e)
 	}
 
-	// Missing transaction id - ABORT
-	e = conn.Abort(h)
-	if e == nil {
-		t.Fatalf("ABORT expected error, got: [nil]\n")
-	}
-	if e != EREQTIDABT {
-		t.Fatalf("ABORT expected error [%v], got [%v]\n", EREQTIDABT, e)
-	}
 	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
-
 }
 
 /*
