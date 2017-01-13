@@ -17,7 +17,6 @@
 package stompngo
 
 import (
-	"os"
 	"testing"
 	"time"
 )
@@ -87,89 +86,77 @@ func BenchmarkCodecDecode(b *testing.B) {
 /*
 	Test STOMP 1.1 Send / Receive - no codec error.
 */
-func TestCodec11SendRecvCodec(t *testing.T) {
-	if os.Getenv("STOMP_TEST11p") == "" {
-		t.Skip("Test11SendRecvCodec norun")
-	}
+func TestCodecSendRecvCodec(t *testing.T) {
 	//
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
-	//
-	d := tdest("/queue/gostomp.11sendrecv.2")
-	ms := "11sendrecv.2 - message 1"
-	wh := Headers{HK_DESTINATION, d}
-
-	sh := wh.Clone()
-	// Excercise the 1.1 Header Codec
-	k1 := "key:one"
-	v1 := "value\\one"
-	sh = sh.Add(k1, v1)
-	k2 := "key/ntwo"
-	v2 := "value:two\\back:slash"
-	sh = sh.Add(k2, v2)
-	k3 := "key:three/naaa\\bbb"
-	v3 := "value\\three:aaa/nbbb"
-	sh = sh.Add(k3, v3)
-
-	// Send
-	e := conn.Send(sh, ms)
-	if e != nil {
-		t.Fatalf("11Send failed: %v", e)
-	}
-
-	// Wait for server to deliver ERROR
-	time.Sleep(1e9) // Wait one
-	// Poll for adhoc ERROR from server
-	select {
-	case v := <-conn.MessageData:
-		t.Fatalf("11Adhoc Error: [%v]", v)
-	default:
+	for _, p := range Protocols() {
+		n, _ := openConn(t)
+		ch := headersProtocol(TEST_HEADERS, p)
+		conn, _ := Connect(n, ch)
 		//
-	}
-	// Subscribe
-	sbh := wh.Add(HK_ID, d)
-	sc, e := conn.Subscribe(sbh)
-	if e != nil {
-		t.Fatalf("11Subscribe failed: %v", e)
-	}
-	if sc == nil {
-		t.Fatalf("11Subscribe sub chan is nil")
-	}
+		d := tdest("/queue/gostomp.sendrecv.2." + p)
+		ms := "11sendrecv.2 - message 1"
+		wh := Headers{HK_DESTINATION, d}
 
-	// Read MessageData
-	var md MessageData
-	select {
-	case md = <-sc:
-	case md = <-conn.MessageData:
-		t.Fatalf("read channel error:  expected [nil], got: [%v]\n",
-			md.Message.Command)
+		usemap := srcdmap[p]
+		//fmt.Printf("Protocol: %s\n", p)
+		//fmt.Printf("MapLen: %d\n", len(usemap))
+		for _, v := range usemap {
+			sh := wh.Clone()
+			for i := range v.sk {
+				sh = sh.Add(v.sk[i], v.sv[i])
+			}
+			// Send
+			e := conn.Send(sh, ms)
+			if e != nil {
+				t.Fatalf("Send failed: %v protocol:%s\n", e, p)
+			}
+			// Check for ERROR frame
+			time.Sleep(1e9 / 4) // Wait one quarter
+			// Poll for adhoc ERROR from server
+			select {
+			case vx := <-conn.MessageData:
+				t.Fatalf("Send Error: [%v] protocol:%s\n", vx, p)
+			default:
+				//
+			}
+			// Subscribe
+			sbh := wh.Add(HK_ID, v.sid)
+			sc, e := conn.Subscribe(sbh)
+			if e != nil {
+				t.Fatalf("Subscribe failed: %v protocol:%s\n", e, p)
+			}
+			if sc == nil {
+				t.Fatalf("Subscribe sub chan is nil protocol:%s\n", p)
+			}
+			//
+			md = MessageData{}
+			checkReceivedMD(t, conn, sc, "codec_test_"+p)
+			// Check body data
+			b := md.Message.BodyString()
+			if b != ms {
+				t.Fatalf("Receive expected: [%v] got: [%v] protocol:%s\n", ms, b, p)
+			}
+			// Check headers
+			// fmt.Printf("v.rv: %q\nhdrs: %q\n\n\n", v.rv, md.Message.Headers)
+			for key, value := range v.rv {
+				hv, ok = md.Message.Headers.Contains(key)
+				if !ok {
+					t.Fatalf("Header key expected: [%v] got: [%v] protocol:%s\n",
+						key, ok, p)
+				}
+				if value != hv {
+					t.Fatalf("Header value expected: [%v] got: [%v] protocol:%s\n",
+						value, hv, p)
+				}
+			}
+			// Unsubscribe
+			e = conn.Unsubscribe(sbh)
+			if e != nil {
+				t.Fatalf("Unsubscribe failed: %v protocol:%s\n", e, p)
+			}
+		}
+		//
+		_ = conn.Disconnect(empty_headers)
+		_ = closeConn(t, n)
 	}
-
-	if md.Error != nil {
-		t.Fatalf("11Receive error: [%v]\n", md.Error)
-	}
-	// Check data and header values
-	b := md.Message.BodyString()
-	if b != ms {
-		t.Fatalf("11Receive expected: [%v] got: [%v]\n", ms, b)
-	}
-	if md.Message.Headers.Value(k1) != v1 {
-		t.Fatalf("11Receive header expected: [%v] got: [%v]\n", v1, md.Message.Headers.Value(k1))
-	}
-	if md.Message.Headers.Value(k2) != v2 {
-		t.Fatalf("11Receive header expected: [%v] got: [%v]\n", v2, md.Message.Headers.Value(k2))
-	}
-	if md.Message.Headers.Value(k3) != v3 {
-		t.Fatalf("11Receive header expected: [%v] got: [%v]\n", v3, md.Message.Headers.Value(k3))
-	}
-	// Unsubscribe
-	e = conn.Unsubscribe(sbh)
-	if e != nil {
-		t.Fatalf("11Unsubscribe failed: %v", e)
-	}
-	//
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
-
 }

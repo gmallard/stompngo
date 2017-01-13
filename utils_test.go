@@ -17,6 +17,7 @@
 package stompngo
 
 import (
+	"encoding/hex"
 	"fmt"
 	"net"
 	"os"
@@ -25,10 +26,6 @@ import (
 	//
 	"github.com/gmallard/stompngo/senv"
 )
-
-var TEST_HEADERS = Headers{HK_LOGIN, "guest", HK_PASSCODE, "guest"}
-var TEST_TDESTPREF = "/queue/test.pref."
-var TEST_TRANID = "TransactionA"
 
 var empty_headers = Headers{}
 
@@ -97,6 +94,22 @@ func check11(h Headers) Headers {
 }
 
 /*
+	Return headers appropriate for the protocol level.
+*/
+func headersProtocol(h Headers, protocol string) Headers {
+	if protocol == SPL_10 {
+		return h
+	}
+	h = h.Add(HK_ACCEPT_VERSION, protocol)
+	vh := "localhost"                 // STOMP 1.{1,2} vhost
+	if os.Getenv("STOMP_RMQ") != "" { // Rabbitmq default vhost
+		vh = "/"
+	}
+	h = h.Add(HK_HOST, vh)
+	return h
+}
+
+/*
 	Test helper.
 */
 func checkReceived(t *testing.T, conn *Connection) {
@@ -106,6 +119,24 @@ func checkReceived(t *testing.T, conn *Connection) {
 		t.Fatalf("Unexpected frame received, got [%v]\n", md)
 	default:
 	}
+}
+
+/*
+	Test helper.
+*/
+func checkReceivedMD(t *testing.T, conn *Connection,
+	sc <-chan MessageData, id string) {
+	select {
+	case md = <-sc:
+	case md = <-conn.MessageData:
+		t.Fatalf("id: read channel error:  expected [nil], got: [%v]\n",
+			id, md.Message.Command)
+	}
+	if md.Error != nil {
+		t.Fatalf("id: receive error: [%v]\n",
+			id, md.Error)
+	}
+	return
 }
 
 /*
@@ -203,7 +234,8 @@ func tdumpmd(md MessageData) {
 		fmt.Printf("key:%s\t\tvalue:%s\n",
 			md.Message.Headers[i], md.Message.Headers[i+1])
 	}
-	fmt.Printf("Body: %s\n", string(md.Message.Body))
+	hdb := hex.Dump(md.Message.Body)
+	fmt.Printf("Body: %s\n", hdb)
 	if md.Error != nil {
 		fmt.Printf("Error: %s\n", md.Error.Error())
 	} else {
