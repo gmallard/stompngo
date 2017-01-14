@@ -23,10 +23,6 @@ import (
 	"time"
 )
 
-const (
-	hbs = 45
-)
-
 /*
 	HB Test: 1.0.
 */

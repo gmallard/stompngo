@@ -27,37 +27,6 @@ import (
 	"github.com/gmallard/stompngo/senv"
 )
 
-var empty_headers = Headers{}
-
-type multi_send_data struct {
-	conn  *Connection // this connection
-	dest  string      // queue/topic name
-	mpref string      // message prefix
-	count int         // number of messages
-}
-
-type frameData struct {
-	data string
-	resp error
-}
-
-var frames = []frameData{ // Many are possible but very unlikely
-	{"EBADFRM", EBADFRM},
-	{"EUNKFRM\n\n\x00", EUNKFRM},
-	{"ERROR\n\n\x00", nil},
-	{"ERROR\n\x00", EBADFRM},
-	{"ERROR\n\n", EBADFRM},
-	{"ERROR\nbadconhdr\n\n\x00", EUNKHDR},
-	{"ERROR\nbadcon:badmsg\n\n\x00", nil},
-	{"ERROR\nbadcon:badmsg\n\nbad message\x00", nil},
-	{"CONNECTED\n\n\x00", nil},
-	{"CONNECTED\n\nconnbody\x00", EBDYDATA},
-	{"CONNECTED\n\nconnbadbody", EBDYDATA},
-	{"CONNECTED\nk1:v1\nk2:v2\n\nconnbody\x00", EBDYDATA},
-	{"CONNECTED\nk1:v1\nk2:v2\n\nconnbody", EBDYDATA},
-	{"CONNECTED\nk1:v1\nk2:v2\n\n\x00", nil},
-}
-
 /*
 	Host and port for Dial.
 */

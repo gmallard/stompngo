@@ -18,46 +18,7 @@ package stompngo
 
 import "testing"
 
-var (
-	tsclData = []struct {
-		ba     []uint8
-		wanted string
-	}{
-		{
-			[]uint8{0x61, 0x62, 0x63, 0x64, 0x65, 0x66},
-			"abcdef",
-		},
-		{
-			[]uint8{0x61, 0x62, 0x63, 0x00, 0x64, 0x65, 0x66},
-			"abc",
-		},
-		{
-			[]uint8{0x64, 0x65, 0x66, 0x00},
-			"def",
-		},
-		{
-			[]uint8{0x00, 0x64, 0x65, 0x66, 0x00},
-			"",
-		},
-	}
-
-	tsctData = []struct {
-		body       string
-		doSuppress bool
-		wanted     bool
-	}{
-		{
-			"some data",
-			true,
-			false,
-		},
-		{
-			"other data",
-			false,
-			true,
-		},
-	}
-)
+var ()
 
 /*
 	Test suppress_content_length header.

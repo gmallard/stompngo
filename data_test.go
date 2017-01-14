@@ -20,20 +20,6 @@ import (
 	"testing"
 )
 
-type supdata struct {
-	v string // version
-	s bool   // is supported
-}
-
-var suptests = []supdata{
-	{SPL_10, true},
-	{SPL_11, true},
-	{SPL_12, true},
-	{"1.3", false},
-	{"2.0", false},
-	{"2.1", false},
-}
-
 /*
 	Data Test: Frame Basic.
 */

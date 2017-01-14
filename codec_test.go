@@ -21,30 +21,6 @@ import (
 	"time"
 )
 
-type testdata struct {
-	encoded string
-	decoded string
-}
-
-var tdList = []testdata{
-	{"stringa", "stringa"},
-	{"stringb", "stringb"},
-	{"stringc", "stringc"},
-	{"stringd", "stringd"},
-	{"stringe", "stringe"},
-	{"stringf", "stringf"},
-	{"stringg", "stringg"},
-	{"stringh", "stringh"},
-	{"\\\\", "\\"},
-	{"\\n", "\n"},
-	{"\\c", ":"},
-	{"\\\\\\n\\c", "\\\n:"},
-	{"\\c\\n\\\\", ":\n\\"},
-	{"\\\\\\c", "\\:"},
-	{"c\\cc", "c:c"},
-	{"n\\nn", "n\nn"},
-}
-
 // Test STOMP 1.1 Header Codec - Basic Encode.
 func TestCodecEncodeBasic(t *testing.T) {
 	for _, ede := range tdList {

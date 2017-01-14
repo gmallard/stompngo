@@ -21,21 +21,6 @@ import (
 	"testing"
 )
 
-type verData struct {
-	ch Headers // Client headers
-	sh Headers // Server headers
-	e  error   // Expected error
-}
-
-var verChecks = []verData{
-	{Headers{HK_ACCEPT_VERSION, SPL_11}, Headers{HK_VERSION, SPL_11}, nil},
-	{Headers{}, Headers{}, nil},
-	{Headers{HK_ACCEPT_VERSION, "1.0,1.1,1.2"}, Headers{HK_VERSION, SPL_12}, nil},
-	{Headers{HK_ACCEPT_VERSION, "1.3"}, Headers{HK_VERSION, "1.3"}, EBADVERSVR},
-	{Headers{HK_ACCEPT_VERSION, "1.3"}, Headers{HK_VERSION, "1.1"}, EBADVERCLI},
-	{Headers{HK_ACCEPT_VERSION, "1.0,1.1,1.2"}, Headers{}, nil},
-}
-
 /*
 	ConnDisc Test: net.Conn.
 */

@@ -20,27 +20,6 @@ import (
 	"testing"
 )
 
-type unsubData struct {
-	p string // protocol
-	e error  // error
-}
-
-var unsubListNoHdr = []unsubData{
-	{SPL_10, EREQDIUNS},
-	{SPL_11, EREQDIUNS},
-	{SPL_12, EREQDIUNS},
-}
-
-var unsubBadId = []unsubData{
-	{SPL_11, EBADSID},
-	{SPL_12, EBADSID},
-}
-
-var unsubNoId = []unsubData{
-	{SPL_11, EUNOSID},
-	{SPL_12, EUNOSID},
-}
-
 /*
 	Test Unsubscribe, no destination.
 */
