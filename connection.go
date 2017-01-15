@@ -195,10 +195,9 @@ func (c *Connection) log(v ...interface{}) {
 }
 
 /*
-	Shutdown logic.
+	Shutdown heartbeats
 */
-func (c *Connection) shutdown() {
-	c.log("SHUTDOWN", "starts")
+func (c *Connection) shutdownHeartBeats() {
 	// Shutdown heartbeats if necessary
 	if c.hbd != nil {
 		if c.hbd.hbs {
@@ -208,6 +207,14 @@ func (c *Connection) shutdown() {
 			c.hbd.rsd <- true
 		}
 	}
+}
+
+/*
+	Shutdown logic.
+*/
+func (c *Connection) shutdown() {
+	c.log("SHUTDOWN", "starts")
+	c.shutdownHeartBeats()
 	// Close all individual subscribe channels
 	// This is a write lock
 	c.subsLock.Lock()
@@ -226,6 +233,7 @@ func (c *Connection) shutdown() {
 */
 func (c *Connection) handleReadError(md MessageData) {
 	c.log("HDRERR", "starts", md)
+	c.shutdownHeartBeats() // We are done here
 	// Notify any general subscriber of error
 	c.input <- md
 	// Notify all individual subscribers of error
