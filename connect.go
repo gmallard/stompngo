@@ -18,6 +18,7 @@ package stompngo
 
 import (
 	"bufio"
+	// "fmt"
 	"net"
 	"time"
 )
@@ -66,6 +67,7 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 		return nil, ENORECPT
 	}
 	ch := h.Clone()
+	//fmt.Printf("CONDB01\n")
 	c := &Connection{netconn: n,
 		input:             make(chan MessageData, 1),
 		output:            make(chan wiredata),
@@ -87,7 +89,7 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 	if e := c.checkClientVersions(h); e != nil {
 		return c, e
 	}
-
+	//fmt.Printf("CONDB02\n")
 	// OK, put a CONNECT on the wire
 	c.wtr = bufio.NewWriter(n)        // Create the writer
 	go c.writer()                     // Start it
@@ -100,12 +102,14 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 		close(c.ssdc) // Shutdown,  we are done with errors
 		return c, e
 	}
+	//fmt.Printf("CONDB03\n")
 	//
 	e = c.connectHandler(ch)
 	if e != nil {
 		close(c.ssdc) // Shutdown ,  we are done with errors
 		return c, e
 	}
+	//fmt.Printf("CONDB04\n")
 	// We are connected
 	go c.reader()
 	//

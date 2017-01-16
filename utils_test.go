@@ -211,3 +211,13 @@ func tdumpmd(md MessageData) {
 		fmt.Println("Error: nil")
 	}
 }
+
+/*
+   Test helper.  Check disconnect error.
+*/
+func checkDisconnectError(t *testing.T, e error) {
+	if e == nil {
+		return
+	}
+	t.Fatalf("DISCONNECT Error:  expected nil, got:<%v>\n", e)
+}
