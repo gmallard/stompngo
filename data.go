@@ -198,6 +198,9 @@ const (
 	ETIDCOMEMT = Error("transaction-id empty, COMMIT")
 	ETIDABTEMT = Error("transaction-id empty, ABORT")
 
+	// Host header required, STOMP 1.1+
+	EREQHOST = Error("host header required for STOMP 1.1+")
+
 	// Subscription errors.
 	EDUPSID = Error("duplicate subscription-id")
 	EBADSID = Error("invalid subscription-id")

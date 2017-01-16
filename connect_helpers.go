@@ -145,12 +145,19 @@ func (c *Connection) checkClientVersions(h Headers) (e error) {
 		return nil
 	}
 	v := strings.SplitN(w, ",", -1) //
+	ok := false
 	for _, sv := range v {
 		if hasValue(supported, sv) {
-			return nil // At least one is supported
+			ok = true // At least we support one the client wants
 		}
 	}
-	return EBADVERCLI
+	if !ok {
+		return EBADVERCLI
+	}
+	if _, ok = h.Contains(HK_HOST); !ok {
+		return EREQHOST
+	}
+	return nil
 }
 
 /*
