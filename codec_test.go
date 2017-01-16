@@ -23,10 +23,12 @@ import (
 
 // Test STOMP 1.1 Header Codec - Basic Encode.
 func TestCodecEncodeBasic(t *testing.T) {
-	for _, ede := range tdList {
-		ev := encode(ede.decoded)
-		if ede.encoded != ev {
-			t.Fatalf("ENCODE ERROR: expected: [%v] got: [%v]", ede.encoded, ev)
+	for _, _ = range Protocols() {
+		for _, ede := range tdList {
+			ev := encode(ede.decoded)
+			if ede.encoded != ev {
+				t.Fatalf("ENCODE ERROR: expected: [%v] got: [%v]", ede.encoded, ev)
+			}
 		}
 	}
 }
@@ -35,26 +37,32 @@ func TestCodecEncodeBasic(t *testing.T) {
 	Test STOMP 1.1 Header Codec - Basic Decode.
 */
 func TestCodecDecodeBasic(t *testing.T) {
-	for _, ede := range tdList {
-		dv := decode(ede.encoded)
-		if ede.decoded != dv {
-			t.Fatalf("DECODE ERROR: expected: [%v] got: [%v]", ede.decoded, dv)
+	for _, _ = range Protocols() {
+		for _, ede := range tdList {
+			dv := decode(ede.encoded)
+			if ede.decoded != dv {
+				t.Fatalf("DECODE ERROR: expected: [%v] got: [%v]", ede.decoded, dv)
+			}
 		}
 	}
 }
 
 func BenchmarkCodecEncode(b *testing.B) {
-	for i := 0; i < len(tdList); i++ {
-		for n := 0; n < b.N; n++ {
-			_ = encode(tdList[i].decoded)
+	for _, _ = range Protocols() {
+		for i := 0; i < len(tdList); i++ {
+			for n := 0; n < b.N; n++ {
+				_ = encode(tdList[i].decoded)
+			}
 		}
 	}
 }
 
 func BenchmarkCodecDecode(b *testing.B) {
-	for i := 0; i < len(tdList); i++ {
-		for n := 0; n < b.N; n++ {
-			_ = decode(tdList[i].encoded)
+	for _, _ = range Protocols() {
+		for i := 0; i < len(tdList); i++ {
+			for n := 0; n < b.N; n++ {
+				_ = decode(tdList[i].encoded)
+			}
 		}
 	}
 }
@@ -66,7 +74,8 @@ func TestCodecSendRecvCodec(t *testing.T) {
 	//
 	for _, p := range Protocols() {
 		n, _ := openConn(t)
-		ch := headersProtocol(TEST_HEADERS, p)
+		ch := login_headers
+		ch = headersProtocol(ch, p)
 		conn, _ := Connect(n, ch)
 		//
 		d := tdest("/queue/gostomp.sendrecv.2." + p)

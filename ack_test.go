@@ -25,23 +25,6 @@ import (
 
 var _ = fmt.Println
 
-func checkAckErrors(t *testing.T, p string, e error, exe Error) {
-	switch p {
-	case SPL_12:
-		if e != exe {
-			t.Fatalf("ACK -12- expected error [%v], got [%v]\n", exe, e)
-		}
-	case SPL_11:
-		if e != exe {
-			t.Fatalf("ACK -11- expected error [%v], got [%v]\n", exe, e)
-		}
-	default: // SPL_10
-		if e != exe {
-			t.Fatalf("ACK -10- expected error [%v], got [%v]\n", exe, e)
-		}
-	}
-}
-
 /*
 	Test Ack errors.
 */
@@ -53,7 +36,11 @@ func TestAckErrors(t *testing.T) {
 	for _, tv := range terrList {
 		conn.protocol = tv.proto // Fake it
 		e := conn.Ack(tv.headers)
-		checkAckErrors(t, tv.proto, e, tv.errval)
+		//checkAckErrors(t, tv.proto, e, tv.errval)
+		if e != tv.errval {
+			t.Fatalf("ACK -%s- expected error [%v], got [%v]\n",
+				tv.proto, tv.errval, e)
+		}
 	}
 	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
@@ -63,7 +50,7 @@ func TestAckErrors(t *testing.T) {
 	Test Ack Same Connection.
 */
 func TestAckSameConn(t *testing.T) {
-	for _, sp := range supported {
+	for _, sp := range Protocols() {
 		n, _ := openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
@@ -158,7 +145,7 @@ func TestAckSameConn(t *testing.T) {
 */
 func TestAckDiffConn(t *testing.T) {
 
-	for _, sp := range supported {
+	for _, sp := range Protocols() {
 		n, _ := openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
