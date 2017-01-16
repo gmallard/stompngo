@@ -118,6 +118,7 @@ func (c *Connection) sendTicker() {
 	q := false
 	c.hbd.sc = 0
 	ticker := time.NewTicker(time.Duration(c.hbd.sti))
+hbSend:
 	for {
 		select {
 		case <-ticker.C:
@@ -139,12 +140,14 @@ func (c *Connection) sendTicker() {
 			c.hbd.sdl.Unlock()
 			//
 		case q = <-c.hbd.ssd:
-			break
-		}
+			break hbSend
+		case _ = <-c.ssdc:
+			break hbSend
+		} // End of select
 		if q {
-			break
+			break hbSend
 		}
-	}
+	} // End of for
 	c.log("Heartbeat Send Ends", time.Now())
 	return
 }
@@ -156,6 +159,7 @@ func (c *Connection) receiveTicker() {
 	q := false
 	c.hbd.rc = 0
 	var first, last int64
+hbGet:
 	for {
 		ticker := time.NewTicker(time.Duration(c.hbd.rti - (last - first)))
 		select {
@@ -177,12 +181,14 @@ func (c *Connection) receiveTicker() {
 			c.hbd.rdl.Unlock()
 			last = time.Now().UnixNano()
 		case q = <-c.hbd.rsd:
-			break
-		}
+			break hbGet
+		case _ = <-c.ssdc:
+			break hbGet
+		} // End of select
 		if q {
-			break
+			break hbGet
 		}
-	}
+	} // End of for
 	c.log("Heartbeat Receive Ends", time.Now())
 	return
 }

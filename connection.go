@@ -237,6 +237,8 @@ func (c *Connection) handleReadError(md MessageData) {
 		}
 	}
 	c.subsLock.RUnlock()
+	// Try to catch the writer
+	close(c.wtrsdc)
 	c.log("HDRERR", "ends")
 	// Let further shutdown logic proceed normally.
 	return

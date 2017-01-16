@@ -77,6 +77,7 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 		subs:              make(map[string]*subscription),
 		DisconnectReceipt: MessageData{},
 		ssdc:              make(chan struct{}),
+		wtrsdc:            make(chan struct{}),
 		scc:               1}
 
 	// Bsaic metric data
