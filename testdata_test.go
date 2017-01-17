@@ -484,4 +484,5 @@ var (
 	testuser       = "testguest"
 	testpw         = "testguest"
 	login_headers  = Headers{HK_LOGIN, testuser, HK_PASSCODE, testpw}
+	rid            = "receipt-12345"
 )
