@@ -36,7 +36,6 @@ func TestAckErrors(t *testing.T) {
 	for _, tv := range terrList {
 		conn.protocol = tv.proto // Fake it
 		e = conn.Ack(tv.headers)
-		//checkAckErrors(t, tv.proto, e, tv.errval)
 		if e != tv.errval {
 			t.Fatalf("ACK -%s- expected error [%v], got [%v]\n",
 				tv.proto, tv.errval, e)

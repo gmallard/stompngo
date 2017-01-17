@@ -23,60 +23,20 @@ import (
 
 var _ = fmt.Println
 
-func checkNackErrors(t *testing.T, p string, e error, s bool) {
-	switch p {
-	case SPL_12:
-		if e == nil {
-			t.Fatalf("NACK -12- expected [%v], got nil\n", EREQIDNAK)
-		}
-		if e != EREQIDNAK {
-			t.Fatalf("NACK -12- expected error [%v], got [%v]\n", EREQIDNAK, e)
-		}
-	case SPL_11:
-		if s {
-			if e == nil {
-				t.Fatalf("NACK -11- expected [%v], got nil\n", EREQSUBNAK)
-			}
-			if e != EREQSUBNAK {
-				t.Fatalf("NACK -11- expected error [%v], got [%v]\n", EREQSUBNAK, e)
-			}
-		} else {
-			if e == nil {
-				t.Fatalf("NACK -11- expected [%v], got nil\n", EREQMIDNAK)
-			}
-			if e != EREQMIDNAK {
-				t.Fatalf("NACK -11- expected error [%v], got [%v]\n", EREQMIDNAK, e)
-			}
-		}
-	default: // SPL_10
-		if e == nil {
-			t.Fatalf("NACK -10- expected [%v], got nil\n", EBADVERNAK)
-		}
-		if e != EBADVERNAK {
-			t.Fatalf("NACK -10- expected error [%v], got [%v]\n", EBADVERNAK, e)
-		}
-	}
-}
-
 /*
 	Test Nack error cases.
 */
 func TestNackErrors(t *testing.T) {
-
 	n, _ = openConn(t)
-	ch := check11(TEST_HEADERS)
+	ch := login_headers
 	conn, _ = Connect(n, ch)
-
-	for _, p := range Protocols() {
-		conn.protocol = p // Cheat to test all paths
-		// No subscription
-		e = conn.Nack(empty_headers)
-		checkNackErrors(t, conn.Protocol(), e, true)
-
-		nh := Headers{HK_SUBSCRIPTION, "my-sub-id"}
-		// No message id
-		e = conn.Nack(nh)
-		checkNackErrors(t, conn.Protocol(), e, false)
+	for _, tv := range nackList {
+		conn.protocol = tv.proto // Fake it
+		e = conn.Nack(tv.headers)
+		if e != tv.errval {
+			t.Fatalf("NACK -%s- expected error [%v], got [%v]\n",
+				tv.proto, tv.errval, e)
+		}
 	}
 	//
 	_ = conn.Disconnect(Headers{})

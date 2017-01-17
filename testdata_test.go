@@ -229,11 +229,28 @@ const (
 // nack_test BEGIN
 
 type (
-// None at present.
+	nackData struct {
+		proto   string
+		headers Headers
+		errval  Error
+	}
 )
 
 var (
-// None at present.
+	nackList = []nackData{
+		{SPL_10,
+			Headers{HK_DESTINATION, "/queue/a"},
+			EBADVERNAK},
+		{SPL_11,
+			Headers{HK_DESTINATION, "/queue/a"},
+			EREQSUBNAK},
+		{SPL_11,
+			Headers{HK_DESTINATION, "/queue/a", HK_SUBSCRIPTION, "sub11a"},
+			EREQMIDNAK},
+		{SPL_12,
+			Headers{HK_DESTINATION, "/queue/a"},
+			EREQIDNAK},
+	}
 )
 
 const (
