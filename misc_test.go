@@ -25,14 +25,14 @@ import (
 */
 func TestMiscBytes0(t *testing.T) {
 	// Write phase
-	n, _ := openConn(t)
+	n, _ = openConn(t)
 	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
+	conn, _ = Connect(n, ch)
 	//
 	ms := "" // No data
 	d := tdest("/queue/misc.zero.byte.msg")
 	sh := Headers{HK_DESTINATION, d}
-	e := conn.Send(sh, ms)
+	e = conn.Send(sh, ms)
 	if e != nil {
 		t.Fatalf("Expected nil error, got [%v]\n", e)
 	}
@@ -46,7 +46,7 @@ func TestMiscBytes0(t *testing.T) {
 	conn, _ = Connect(n, ch)
 	//
 	sbh := sh.Add(HK_ID, d)
-	sc, e := conn.Subscribe(sbh)
+	sc, e = conn.Subscribe(sbh)
 	if e != nil {
 		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
 	}
@@ -85,14 +85,14 @@ func TestMiscBytes0(t *testing.T) {
 */
 func TestMiscBytes1(t *testing.T) {
 	// Write phase
-	n, _ := openConn(t)
+	n, _ = openConn(t)
 	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
+	conn, _ = Connect(n, ch)
 	//
 	ms := "1" // Just one byte
 	d := tdest("/queue/one.byte.msg")
 	sh := Headers{HK_DESTINATION, d}
-	e := conn.Send(sh, ms)
+	e = conn.Send(sh, ms)
 	if e != nil {
 		t.Fatalf("Expected nil error, got [%v]\n", e)
 	}
@@ -106,7 +106,7 @@ func TestMiscBytes1(t *testing.T) {
 	conn, _ = Connect(n, ch)
 	//
 	sbh := sh.Add(HK_ID, d)
-	sc, e := conn.Subscribe(sbh)
+	sc, e = conn.Subscribe(sbh)
 	if e != nil {
 		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
 	}
@@ -144,9 +144,9 @@ func TestMiscBytes1(t *testing.T) {
 	Test nil Headers.
 */
 func TestMiscNilHeaders(t *testing.T) {
-	n, _ := openConn(t)
+	n, _ = openConn(t)
 	//
-	_, e := Connect(n, nil)
+	_, e = Connect(n, nil)
 	if e == nil {
 		t.Fatalf("Expected [%v], got [nil]\n", EHDRNIL)
 	}
@@ -155,7 +155,7 @@ func TestMiscNilHeaders(t *testing.T) {
 	}
 	//
 	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
+	conn, _ = Connect(n, ch)
 	//
 	e = nil // reset
 	e = conn.Abort(nil)
@@ -252,9 +252,9 @@ func TestMiscUuid(t *testing.T) {
 */
 func TestMiscBadHeaders(t *testing.T) {
 	//
-	n, _ := openConn(t)
+	n, _ = openConn(t)
 	neh := Headers{"a", "b", "c"} // not even number header count
-	conn, e := Connect(n, neh)
+	conn, e = Connect(n, neh)
 	if e == nil {
 		t.Fatalf("Expected [%v], got [nil]\n", EHDRLEN)
 	}

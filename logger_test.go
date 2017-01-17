@@ -26,9 +26,9 @@ import (
 	Test Logger Basic, confirm by observation.
 */
 func TestLoggerBasic(t *testing.T) {
-	n, _ := openConn(t)
+	n, _ = openConn(t)
 	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
+	conn, _ = Connect(n, ch)
 	//
 	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 	conn.SetLogger(l)
@@ -46,15 +46,15 @@ func TestLoggerBasic(t *testing.T) {
 func TestLoggerMiscBytes0(t *testing.T) {
 	ll := log.New(os.Stdout, "TLM01 ", log.Ldate|log.Lmicroseconds|log.Lshortfile)
 	// Write phase
-	n, _ := openConn(t)
+	n, _ = openConn(t)
 	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
+	conn, _ = Connect(n, ch)
 	conn.SetLogger(ll)
 	//
 	ms := "" // No data
 	d := tdest("/queue/logger.zero.byte.msg")
 	sh := Headers{HK_DESTINATION, d}
-	e := conn.Send(sh, ms)
+	e = conn.Send(sh, ms)
 	if e != nil {
 		t.Fatalf("Expected nil error, got [%v]\n", e)
 	}
@@ -70,7 +70,7 @@ func TestLoggerMiscBytes0(t *testing.T) {
 	conn.SetLogger(ll)
 	//
 	sbh := sh.Add(HK_ID, d)
-	sc, e := conn.Subscribe(sbh)
+	sc, e = conn.Subscribe(sbh)
 	if e != nil {
 		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
 	}

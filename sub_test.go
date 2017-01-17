@@ -28,11 +28,11 @@ import (
 */
 func TestSubNoDest(t *testing.T) {
 
-	n, _ := openConn(t)
+	n, _ = openConn(t)
 	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
+	conn, _ = Connect(n, ch)
 	// Subscribe, no dest
-	_, e := conn.Subscribe(empty_headers)
+	_, e = conn.Subscribe(empty_headers)
 	if e == nil {
 		t.Fatalf("Expected subscribe error, got [nil]\n")
 	}
@@ -49,18 +49,18 @@ func TestSubNoDest(t *testing.T) {
 */
 func TestSubNoIdOnce(t *testing.T) {
 
-	n, _ := openConn(t)
+	n, _ = openConn(t)
 	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
+	conn, _ = Connect(n, ch)
 	//
 	d := tdest("/queue/subunsub.genl.01")
 	sbh := Headers{HK_DESTINATION, d}
 	//
-	s, e := conn.Subscribe(sbh)
+	sc, e = conn.Subscribe(sbh)
 	if e != nil {
 		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
 	}
-	if s == nil {
+	if sc == nil {
 		t.Fatalf("Expected subscribe channel, got [nil]\n")
 	}
 	select {
@@ -82,9 +82,9 @@ func TestSubNoIdTwice10(t *testing.T) {
 	}
 
 	t.Log("TestSubNoIdTwice10", "starts")
-	n, _ := openConn(t)
+	n, _ = openConn(t)
 	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
+	conn, _ = Connect(n, ch)
 	//l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 	//conn.SetLogger(l)
 	//
@@ -95,7 +95,7 @@ func TestSubNoIdTwice10(t *testing.T) {
 	d := tdest("/queue/subdup.p10.01")
 	sbh := Headers{HK_DESTINATION, d}
 	// First time
-	sc, e := conn.Subscribe(sbh)
+	sc, e = conn.Subscribe(sbh)
 	if e != nil {
 		t.Fatalf("Expected no subscribe error (T1), got [%v]\n", e)
 	}
@@ -159,9 +159,9 @@ func TestSubNoIdTwice11p(t *testing.T) {
 	}
 
 	t.Log("TestSubNoIdTwice11p", "starts")
-	n, _ := openConn(t)
+	n, _ = openConn(t)
 	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
+	conn, _ = Connect(n, ch)
 	l := log.New(os.Stdout, "TSNI211P ", log.Ldate|log.Lmicroseconds)
 	conn.SetLogger(l)
 
@@ -170,7 +170,7 @@ func TestSubNoIdTwice11p(t *testing.T) {
 	sbh := Headers{HK_DESTINATION, d, HK_ID, id}
 	// First time
 	t.Logf("%s\n", "INFO TestSubNoIdTwice11p - start 1st SUBSCRIBE")
-	sc, e := conn.Subscribe(sbh)
+	sc, e = conn.Subscribe(sbh)
 	t.Logf("%s\n", "INFO TestSubNoIdTwice11p - end 1st SUBSCRIBE")
 	if e != nil {
 		t.Fatalf("ERROR Expected no subscribe error (T1), got [%v]\n", e)
@@ -214,9 +214,9 @@ func TestSubNoIdTwice11p(t *testing.T) {
 */
 func TestSubUnsubBasic(t *testing.T) {
 
-	n, _ := openConn(t)
+	n, _ = openConn(t)
 	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
+	conn, _ = Connect(n, ch)
 	//
 	m := "A message"
 	d := tdest("/queue/subunsub.basiconn.01")
@@ -224,7 +224,7 @@ func TestSubUnsubBasic(t *testing.T) {
 	_ = conn.Send(h, m)
 	//
 	h = h.Add(HK_ID, d)
-	sc, e := conn.Subscribe(h)
+	sc, e = conn.Subscribe(h)
 	if e != nil {
 		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
 	}
@@ -272,9 +272,9 @@ func TestSubUnsubBasic10(t *testing.T) {
 		t.Skip("TestSubUnsubBasic10 norun, need 1.0")
 	}
 
-	n, _ := openConn(t)
+	n, _ = openConn(t)
 	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
+	conn, _ = Connect(n, ch)
 	//
 	ms := "A message"
 	d := tdest("/queue/subunsub.basiconn.r10.01")
@@ -282,7 +282,7 @@ func TestSubUnsubBasic10(t *testing.T) {
 	_ = conn.Send(sh, ms)
 	//
 	sbh := sh
-	sc, e := conn.Subscribe(sbh)
+	sc, e = conn.Subscribe(sbh)
 	if e != nil {
 		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
 	}
@@ -323,18 +323,18 @@ func TestSubUnsubBasic10(t *testing.T) {
 */
 func TestSubEstablishSubscription(t *testing.T) {
 
-	n, _ := openConn(t)
+	n, _ = openConn(t)
 	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
+	conn, _ = Connect(n, ch)
 	//
 	d := tdest("/queue/estabsub.01")
 	sbh := Headers{HK_DESTINATION, d}
 	// First time
-	s, e := conn.Subscribe(sbh)
+	sc, e = conn.Subscribe(sbh)
 	if e != nil {
 		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
 	}
-	if s == nil {
+	if sc == nil {
 		t.Fatalf("Expected subscribe channel, got [nil]\n")
 	}
 	//
@@ -351,9 +351,9 @@ func TestSubSetCap(t *testing.T) {
 	}
 
 	//
-	n, _ := openConn(t)
+	n, _ = openConn(t)
 	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
+	conn, _ = Connect(n, ch)
 	//
 	p := 25
 	conn.SetSubChanCap(p)
@@ -364,15 +364,15 @@ func TestSubSetCap(t *testing.T) {
 	//
 	d := tdest("/queue/subsetcap.basiconn.01")
 	h := Headers{HK_DESTINATION, d, HK_ID, d}
-	s, e := conn.Subscribe(h)
+	sc, e = conn.Subscribe(h)
 	if e != nil {
 		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
 	}
-	if s == nil {
+	if sc == nil {
 		t.Fatalf("Expected subscribe channel, got [nil]\n")
 	}
-	if cap(s) != p {
-		t.Fatalf("Expected subchan capacity [%v], got [%v]\n", p, cap(s))
+	if cap(sc) != p {
+		t.Fatalf("Expected subchan capacity [%v], got [%v]\n", p, cap(sc))
 	}
 	//
 	e = conn.Unsubscribe(h)

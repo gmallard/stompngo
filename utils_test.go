@@ -155,7 +155,7 @@ func sendMultiple(md multi_send_data) error {
 	for i := 0; i < md.count; i++ {
 		cstr := fmt.Sprintf("%d", i)
 		mts := md.mpref + cstr
-		e := md.conn.Send(h, mts)
+		e = md.conn.Send(h, mts)
 		if e != nil {
 			return e // now
 		}
@@ -171,7 +171,7 @@ func sendMultipleBytes(md multi_send_data) error {
 	for i := 0; i < md.count; i++ {
 		cstr := fmt.Sprintf("%d", i)
 		mts := md.mpref + cstr
-		e := md.conn.SendBytes(h, []byte(mts))
+		e = md.conn.SendBytes(h, []byte(mts))
 		if e != nil {
 			return e // now
 		}

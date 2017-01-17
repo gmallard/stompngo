@@ -29,10 +29,10 @@ import (
 */
 func TestHBNone(t *testing.T) {
 	for _, sp := range Protocols() {
-		n, _ := openConn(t)
+		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		conn, _ := Connect(n, ch)
+		conn, _ = Connect(n, ch)
 
 		if conn.hbd != nil {
 			t.Fatalf("Expected no heartbeats, proto: <%s>\n", sp)
@@ -47,11 +47,11 @@ func TestHBNone(t *testing.T) {
 */
 func TestHBZeroHeader(t *testing.T) {
 	for _, sp := range Protocols() {
-		n, _ := openConn(t)
+		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
 		ch = ch.Add(HK_HEART_BEAT, "0,0")
-		conn, _ := Connect(n, ch)
+		conn, _ = Connect(n, ch)
 		if conn.hbd != nil {
 			t.Fatalf("Expected no heartbeats, 0,0 header, proto: <%s>\n", sp)
 		}
@@ -66,13 +66,13 @@ func TestHBZeroHeader(t *testing.T) {
 func TestHBInitErrors(t *testing.T) {
 
 	for _, sp := range Protocols() {
-		n, _ := openConn(t)
+		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		conn, _ := Connect(n, ch)
+		conn, _ = Connect(n, ch)
 		errorE1OrD1(t, conn, sp, "InitErrors", nil)
 		//
-		e := conn.initializeHeartBeats(empty_headers)
+		e = conn.initializeHeartBeats(empty_headers)
 		errorE1OrD1(t, conn, sp, "HBEmpty", e)
 		// fmt.Printf("1Err: <%v> <%v>\n", e, sp)
 		//
@@ -144,11 +144,11 @@ func TestHBInitErrors(t *testing.T) {
 */
 func TestHBConnect(t *testing.T) {
 	for _, sp := range oneOnePlusProtos {
-		n, _ := openConn(t)
+		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
 		ch = ch.Add(HK_HEART_BEAT, "250,250")
-		conn, e := Connect(n, ch)
+		conn, e = Connect(n, ch)
 		//
 		if e != nil {
 			t.Fatalf("Heartbeat sendreceiveapollo connect error, unexpected: error:%q response:%q\n",
@@ -181,13 +181,13 @@ func TestHBNoSend(t *testing.T) {
 	}
 	//
 	for _, sp := range oneOnePlusProtos {
-		n, _ := openConn(t)
+		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
 		ch = ch.Add(HK_HEART_BEAT, "0,6000")
 		l := log.New(os.Stderr, "", log.Ldate|log.Lmicroseconds)
 		l.Printf("ConnHeaders: %v\n", ch)
-		conn, e := Connect(n, ch)
+		conn, e = Connect(n, ch)
 		// Error checks
 		if e != nil {
 			t.Fatalf("Heartbeat TestHBNoSend connect error, unexpected: error:%q response:%q\n",
@@ -230,13 +230,13 @@ func TestHBNoReceive(t *testing.T) {
 		t.Skip("TestHBNoReceive norun, set STOMP_HBLONG")
 	}
 	for _, sp := range oneOnePlusProtos {
-		n, _ := openConn(t)
+		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
 		ch = ch.Add(HK_HEART_BEAT, "10000,0")
 		l := log.New(os.Stderr, "", log.Ldate|log.Lmicroseconds)
 		l.Printf("ConnHeaders: %v\n", ch)
-		conn, e := Connect(n, ch)
+		conn, e = Connect(n, ch)
 		// Error checks
 		if e != nil {
 			t.Fatalf("Heartbeat TestHBNoReceive connect error, unexpected: error:%q response:%q\n",
@@ -276,13 +276,13 @@ func TestHBSendReceive(t *testing.T) {
 		t.Skip("TestHBSendReceive norun, set STOMP_HBLONG")
 	}
 	for _, sp := range oneOnePlusProtos {
-		n, _ := openConn(t)
+		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
 		ch = ch.Add(HK_HEART_BEAT, "10000,600")
 		l := log.New(os.Stderr, "", log.Ldate|log.Lmicroseconds)
 		l.Printf("ConnHeaders: %v\n", ch)
-		conn, e := Connect(n, ch)
+		conn, e = Connect(n, ch)
 		// Error checks
 		if e != nil {
 			t.Fatalf("Heartbeat TestHBSendReceive connect error, unexpected: error:%q response:%q\n",
@@ -327,13 +327,13 @@ func TestHBSendReceiveApollo(t *testing.T) {
 		t.Skip("TestHBSendReceiveApollo norun, set STOMP_HBLONG")
 	}
 	for _, sp := range oneOnePlusProtos {
-		n, _ := openConn(t)
+		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
 		ch = ch.Add(HK_HEART_BEAT, "10000,100")
 		l := log.New(os.Stderr, "", log.Ldate|log.Lmicroseconds)
 		l.Printf("ConnHeaders: %v\n", ch)
-		conn, e := Connect(n, ch)
+		conn, e = Connect(n, ch)
 		// Error checks
 		if e != nil {
 			t.Fatalf("Heartbeat TestHBSendReceiveApollo connect error, unexpected: error:%q response:%q\n",
@@ -383,13 +383,13 @@ func TestHBSendReceiveRevApollo(t *testing.T) {
 		t.Skip("TestHBSendReceiveRevApollo norun, unset STOMP_AMQ")
 	}
 	for _, sp := range oneOnePlusProtos {
-		n, _ := openConn(t)
+		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
 		ch = ch.Add(HK_HEART_BEAT, "100,10000")
 		l := log.New(os.Stderr, "", log.Ldate|log.Lmicroseconds)
 		l.Printf("ConnHeaders: %v\n", ch)
-		conn, e := Connect(n, ch)
+		conn, e = Connect(n, ch)
 		// Error checks
 		if e != nil {
 			t.Fatalf("Heartbeat TestHBSendReceiveRevApollo connect error, unexpected: error:%q response:%q\n",

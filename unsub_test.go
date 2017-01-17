@@ -25,14 +25,14 @@ import (
 */
 func TestUnsubNoHdr(t *testing.T) {
 
-	n, _ := openConn(t)
+	n, _ = openConn(t)
 	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
+	conn, _ = Connect(n, ch)
 	//
 	for i, l := range unsubListNoHdr {
 		conn.protocol = l.p
 		// Unsubscribe, no dest
-		e := conn.Unsubscribe(empty_headers)
+		e = conn.Unsubscribe(empty_headers)
 		if e == nil {
 			t.Fatalf("Expected unsubscribe error, entry [%d], got [nil]\n", i)
 		}
@@ -50,15 +50,15 @@ func TestUnsubNoHdr(t *testing.T) {
 */
 func TestUnsubNoId(t *testing.T) {
 
-	n, _ := openConn(t)
+	n, _ = openConn(t)
 	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
+	conn, _ = Connect(n, ch)
 	//
 	uh := Headers{HK_DESTINATION, "/queue/unsub.noid"}
 	for i, l := range unsubNoId {
 		conn.protocol = l.p
 		// Unsubscribe, no id at all
-		e := conn.Unsubscribe(uh)
+		e = conn.Unsubscribe(uh)
 		if e == nil {
 			t.Fatalf("Expected unsubscribe error, entry [%d], got [nil]\n", i)
 		}
@@ -75,15 +75,15 @@ func TestUnsubNoId(t *testing.T) {
 */
 func TestUnsubBadId(t *testing.T) {
 
-	n, _ := openConn(t)
+	n, _ = openConn(t)
 	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
+	conn, _ = Connect(n, ch)
 	//
 	uh := Headers{HK_DESTINATION, "/queue/unsub.badid", HK_ID, "bogus"}
 	for i, l := range unsubBadId {
 		conn.protocol = l.p
 		// Unsubscribe, bad id
-		e := conn.Unsubscribe(uh)
+		e = conn.Unsubscribe(uh)
 		if e == nil {
 			t.Fatalf("Expected unsubscribe error, entry [%d], got [nil]\n", i)
 		}

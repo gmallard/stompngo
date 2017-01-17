@@ -29,9 +29,9 @@ func TestShovel11(t *testing.T) {
 		t.Skip("Test11Shovel norun, need 1.1+")
 	}
 
-	n, _ := openConn(t)
+	n, _ = openConn(t)
 	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
+	conn, _ = Connect(n, ch)
 	//
 	ms := "A message"
 	d := tdest("/queue/subunsub.shovel.01")
@@ -42,7 +42,7 @@ func TestShovel11(t *testing.T) {
 	_ = conn.Send(sh, ms)
 	//
 	sbh := Headers{HK_DESTINATION, d, HK_ID, d}
-	sc, e := conn.Subscribe(sbh)
+	sc, e = conn.Subscribe(sbh)
 	if e != nil {
 		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
 	}

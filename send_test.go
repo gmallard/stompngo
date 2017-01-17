@@ -25,14 +25,14 @@ import (
 */
 func TestSendBasic(t *testing.T) {
 
-	n, _ := openConn(t)
+	n, _ = openConn(t)
 	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
+	conn, _ = Connect(n, ch)
 	//
 	ms := "A message"
 	d := tdest("/queue/send.basiconn.01")
 	sh := Headers{HK_DESTINATION, d}
-	e := conn.Send(sh, ms)
+	e = conn.Send(sh, ms)
 	if e != nil {
 		t.Fatalf("Expected nil error, got [%v]\n", e)
 	}
@@ -54,15 +54,15 @@ func TestSendBasic(t *testing.T) {
 */
 func TestSendMultiple(t *testing.T) {
 
-	n, _ := openConn(t)
+	n, _ = openConn(t)
 	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
+	conn, _ = Connect(n, ch)
 	//
 	smd := multi_send_data{conn: conn,
 		dest:  tdest("/queue/sendmultiple.01."),
 		mpref: "sendmultiple.01.message.prefix ",
 		count: 5}
-	e := sendMultiple(smd)
+	e = sendMultiple(smd)
 	if e != nil {
 		t.Fatalf("Expected nil error, got [%v]\n", e)
 	}

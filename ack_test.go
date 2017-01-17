@@ -29,13 +29,13 @@ var _ = fmt.Println
 	Test Ack errors.
 */
 func TestAckErrors(t *testing.T) {
-	n, _ := openConn(t)
+	n, _ = openConn(t)
 	ch := login_headers
-	conn, _ := Connect(n, ch)
+	conn, _ = Connect(n, ch)
 	//
 	for _, tv := range terrList {
 		conn.protocol = tv.proto // Fake it
-		e := conn.Ack(tv.headers)
+		e = conn.Ack(tv.headers)
 		//checkAckErrors(t, tv.proto, e, tv.errval)
 		if e != tv.errval {
 			t.Fatalf("ACK -%s- expected error [%v], got [%v]\n",
@@ -51,10 +51,10 @@ func TestAckErrors(t *testing.T) {
 */
 func TestAckSameConn(t *testing.T) {
 	for _, sp := range Protocols() {
-		n, _ := openConn(t)
+		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		conn, _ := Connect(n, ch)
+		conn, _ = Connect(n, ch)
 		//
 		// Basic headers
 		wh := Headers{HK_DESTINATION,
@@ -66,7 +66,7 @@ func TestAckSameConn(t *testing.T) {
 		ms := "acksc1 message 1"
 		//
 		// Subscribe
-		sc, e := conn.Subscribe(sbh)
+		sc, e = conn.Subscribe(sbh)
 		if e != nil {
 			t.Fatalf("SUBSCRIBE expected [nil], got: [%v]\n", e)
 		}
@@ -146,10 +146,10 @@ func TestAckSameConn(t *testing.T) {
 func TestAckDiffConn(t *testing.T) {
 
 	for _, sp := range Protocols() {
-		n, _ := openConn(t)
+		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		conn, _ := Connect(n, ch)
+		conn, _ = Connect(n, ch)
 		//
 		// Basic headers
 		wh := Headers{HK_DESTINATION,
@@ -167,7 +167,7 @@ func TestAckDiffConn(t *testing.T) {
 		default:
 			sh = sh.Add("current-time", time.Now().String()) // The added header value has ':' characters
 		}
-		e := conn.Send(sh, ms)
+		e = conn.Send(sh, ms)
 		if e != nil {
 			t.Fatalf("SEND expected [nil], got: [%v]\n", e)
 		}
@@ -190,7 +190,7 @@ func TestAckDiffConn(t *testing.T) {
 		id := TEST_TDESTPREF + "acksc1.chkprotocol-" + conn.Protocol()
 		sbh = sbh.Add(HK_ID, id) // Always use an 'id'
 		// Subscribe
-		sc, e := conn.Subscribe(sbh)
+		sc, e = conn.Subscribe(sbh)
 		if e != nil {
 			t.Fatalf("SUBSCRIBE expected [nil], got: [%v]\n", e)
 		}

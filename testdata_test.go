@@ -1,5 +1,9 @@
 package stompngo
 
+import (
+	"net"
+)
+
 // ack_test BEGIN
 
 type (
@@ -486,4 +490,8 @@ var (
 	login_headers    = Headers{HK_LOGIN, testuser, HK_PASSCODE, testpw}
 	rid              = "receipt-12345"
 	oneOnePlusProtos = []string{SPL_11, SPL_12}
+	e                error
+	n                net.Conn
+	conn             *Connection
+	sc               <-chan MessageData
 )

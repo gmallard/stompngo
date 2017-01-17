@@ -107,7 +107,7 @@ func TestDataProtocols(t *testing.T) {
 */
 func TestDataError(t *testing.T) {
 	es := "An error string"
-	e := Error(es)
+	e = Error(es)
 	if es != e.Error() {
 		t.Fatalf("Expected [%v], got [%v]\n", es, e.Error())
 	}

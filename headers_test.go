@@ -46,7 +46,7 @@ func TestHeadersBasic(t *testing.T) {
 	}
 	//
 	h = Headers{k}
-	if e := h.Validate(); e != EHDRLEN {
+	if e = h.Validate(); e != EHDRLEN {
 		t.Fatalf("Header Validate, got [%v], expected [%v]\n", e, EHDRLEN)
 	}
 }
@@ -184,7 +184,7 @@ func TestHeadersEmtKV(t *testing.T) {
 	ek := Headers{"a", "b", "", "d"}  // empty key
 	ev := Headers{"a", "", "c", "d"}  // empty value
 	//
-	e := checkHeaders(wh, SPL_10)
+	e = checkHeaders(wh, SPL_10)
 	if e != nil {
 		t.Fatalf("CHD01 Expected [nil], got [%v]\n", e)
 	}

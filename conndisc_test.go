@@ -24,7 +24,7 @@ import (
 	ConnDisc Test: net.Conn.
 */
 func TestConnCDDiscNetconn(t *testing.T) {
-	n, _ := openConn(t)
+	n, _ = openConn(t)
 	_ = closeConn(t, n)
 }
 
@@ -33,10 +33,10 @@ func TestConnCDDiscNetconn(t *testing.T) {
 */
 func TestConnCDDisc(t *testing.T) {
 	for _, sp := range Protocols() {
-		n, _ := openConn(t)
+		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		conn, e := Connect(n, ch)
+		conn, e = Connect(n, ch)
 
 		if e != nil {
 			t.Fatalf("Expected no connect error, got [%v]\n", e)
@@ -109,10 +109,10 @@ func TestConnCDDisc(t *testing.T) {
 */
 func TestConnCDDiscNoDiscReceipt(t *testing.T) {
 	for _, sp := range Protocols() {
-		n, _ := openConn(t)
+		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		conn, e := Connect(n, ch)
+		conn, e = Connect(n, ch)
 		if e != nil {
 			t.Fatalf("Expected no connect error, got [%v]\n", e)
 		}
@@ -133,10 +133,10 @@ func TestConnCDDiscNoDiscReceipt(t *testing.T) {
 */
 func TestConnCDDiscStompDiscReceipt(t *testing.T) {
 	for _, sp := range Protocols() {
-		n, _ := openConn(t)
+		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		conn, e := Connect(n, ch)
+		conn, e = Connect(n, ch)
 		if e != nil {
 			t.Fatalf("Expected no connect error, got [%v]\n", e)
 		}
@@ -166,10 +166,10 @@ func TestConnCDDiscStompDiscReceipt(t *testing.T) {
 */
 func TestConnCDBodyLen(t *testing.T) {
 	for _, sp := range Protocols() {
-		n, _ := openConn(t)
+		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		conn, e := Connect(n, ch)
+		conn, e = Connect(n, ch)
 		if e != nil {
 			t.Fatalf("Expected no connect error, got [%v]\n", e)
 		}
@@ -190,10 +190,10 @@ func TestConnCDBodyLen(t *testing.T) {
 */
 func TestConnCDProto(t *testing.T) {
 	for _, sp := range Protocols() {
-		n, _ := openConn(t)
+		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		conn, e := Connect(n, ch)
+		conn, e = Connect(n, ch)
 		if e != nil {
 			t.Fatalf("Expected no connect error, got [%v]\n", e)
 		}
@@ -213,11 +213,11 @@ func TestConnCDProto(t *testing.T) {
 */
 func TestConnCDReceipt(t *testing.T) {
 	for _, sp := range Protocols() {
-		n, _ := openConn(t)
+		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
 		ch = ch.Add(HK_RECEIPT, "abcd1234")
-		_, e := Connect(n, ch)
+		_, e = Connect(n, ch)
 		if e == nil {
 			t.Fatalf("Expected connect error, got nil\n")
 		}
@@ -233,10 +233,10 @@ func TestConnCDReceipt(t *testing.T) {
 */
 func TestConnCDEconBad(t *testing.T) {
 	for _, sp := range Protocols() {
-		n, _ := openConn(t)
+		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		conn, e := Connect(n, ch)
+		conn, e = Connect(n, ch)
 		if e != nil {
 			t.Fatalf("Expected no connect error, got [%v]\n", e)
 		}
@@ -286,10 +286,10 @@ func TestConnCDEconBad(t *testing.T) {
 */
 func TestConnCDEconDiscDone(t *testing.T) {
 	for _, sp := range Protocols() {
-		n, _ := openConn(t)
+		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		conn, e := Connect(n, ch)
+		conn, e = Connect(n, ch)
 		if e != nil {
 			t.Fatalf("Expected no connect error, got [%v]\n", e)
 		}
@@ -311,16 +311,16 @@ func TestConnCDEconDiscDone(t *testing.T) {
 */
 func TestConnCDCDSetProtocolLevel(t *testing.T) {
 	for _, sp := range Protocols() {
-		n, _ := openConn(t)
+		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		conn, e := Connect(n, ch)
+		conn, e = Connect(n, ch)
 		if e != nil {
 			t.Fatalf("Expected no connect error, got [%v]\n", e)
 		} //
 		for i, v := range verChecks {
 			conn.protocol = SPL_10 // reset
-			e := conn.setProtocolLevel(v.ch, v.sh)
+			e = conn.setProtocolLevel(v.ch, v.sh)
 			if e != v.e {
 				t.Fatalf("Verdata Item [%d], expected [%v], got [%v]\n", i, v.e, e)
 			}
@@ -339,15 +339,15 @@ func TestConnCDCDSetProtocolLevel(t *testing.T) {
 */
 func TestConnCDRespData(t *testing.T) {
 	for _, sp := range Protocols() {
-		n, _ := openConn(t)
+		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		conn, e := Connect(n, ch)
+		conn, e = Connect(n, ch)
 		if e != nil {
 			t.Fatalf("Expected no connect error, got [%v]\n", e)
 		}
 		for i, f := range frames {
-			_, e := connectResponse(f.data)
+			_, e = connectResponse(f.data)
 			if e != f.resp {
 				t.Fatalf("Index [%v], expected [%v], got [%v]\n", i, f.resp, e)
 			}

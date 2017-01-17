@@ -24,14 +24,14 @@ var ()
 	Test suppress_content_length header.
 */
 func TestSuppressContentLength(t *testing.T) {
-	n, _ := openConn(t)
+	n, _ = openConn(t)
 	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
+	conn, _ = Connect(n, ch)
 	//
 	d := tdest("/queue/suppress.content.length")
 	id := Uuid()
 	sbh := Headers{HK_DESTINATION, d, HK_ID, id}
-	sc, e := conn.Subscribe(sbh)
+	sc, e = conn.Subscribe(sbh)
 	if e != nil {
 		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
 	}
@@ -75,9 +75,9 @@ func TestSuppressContentLength(t *testing.T) {
 	Test suppress_content_type header.
 */
 func TestSuppressContentType(t *testing.T) {
-	n, _ := openConn(t)
+	n, _ = openConn(t)
 	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
+	conn, _ = Connect(n, ch)
 
 	// l := log.New(os.Stdout, "TSCT", log.Ldate|log.Lmicroseconds)
 	// conn.SetLogger(l)
@@ -86,7 +86,7 @@ func TestSuppressContentType(t *testing.T) {
 	d := tdest("/queue/suppress.content.type")
 	id := Uuid()
 	sbh := Headers{HK_DESTINATION, d, HK_ID, id}
-	sc, e := conn.Subscribe(sbh)
+	sc, e = conn.Subscribe(sbh)
 	if e != nil {
 		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
 	}

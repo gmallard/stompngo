@@ -23,10 +23,10 @@ import "testing"
 */
 func TestConnBadValVer(t *testing.T) {
 	for _, p := range Protocols() {
-		n, _ := openConn(t)
+		n, _ = openConn(t)
 		ch := login_headers
 		ch = ch.Add(HK_ACCEPT_VERSION, "3.14159").Add(HK_HOST, "localhost")
-		conn, e := Connect(n, ch)
+		conn, e = Connect(n, ch)
 		if e == nil {
 			t.Errorf("Expected error, got nil, proto: %s\n", p)
 		}
@@ -43,10 +43,10 @@ func TestConnBadValVer(t *testing.T) {
 */
 func TestConnBadValHost(t *testing.T) {
 	for _, p := range Protocols() {
-		n, _ := openConn(t)
+		n, _ = openConn(t)
 		ch := login_headers
 		ch = ch.Add(HK_ACCEPT_VERSION, p)
-		conn, e := Connect(n, ch)
+		conn, e = Connect(n, ch)
 		if e == nil {
 			t.Errorf("Expected error, got nil, proto: %s\n", p)
 		}

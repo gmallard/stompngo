@@ -73,10 +73,10 @@ func BenchmarkCodecDecode(b *testing.B) {
 func TestCodecSendRecvCodec(t *testing.T) {
 	//
 	for _, p := range Protocols() {
-		n, _ := openConn(t)
+		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, p)
-		conn, _ := Connect(n, ch)
+		conn, _ = Connect(n, ch)
 		//
 		d := tdest("/queue/gostomp.sendrecv.2." + p)
 		ms := "11sendrecv.2 - message 1"
@@ -91,7 +91,7 @@ func TestCodecSendRecvCodec(t *testing.T) {
 				sh = sh.Add(v.sk[i], v.sv[i])
 			}
 			// Send
-			e := conn.Send(sh, ms)
+			e = conn.Send(sh, ms)
 			if e != nil {
 				t.Fatalf("Send failed: %v protocol:%s\n", e, p)
 			}
@@ -106,7 +106,7 @@ func TestCodecSendRecvCodec(t *testing.T) {
 			}
 			// Subscribe
 			sbh := wh.Add(HK_ID, v.sid)
-			sc, e := conn.Subscribe(sbh)
+			sc, e = conn.Subscribe(sbh)
 			if e != nil {
 				t.Fatalf("Subscribe failed: %v protocol:%s\n", e, p)
 			}
