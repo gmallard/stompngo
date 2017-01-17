@@ -63,7 +63,7 @@ func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
 	// Server specified values
 	sp := strings.Split(vs, ",")
 	if len(sp) != 2 {
-		return Error("invalid server heart-beat header: " + vc)
+		return Error("invalid server heart-beat header: " + vs)
 	}
 	w.sx, e = strconv.ParseInt(sp[0], 10, 64)
 	if e != nil {
