@@ -481,8 +481,8 @@ var (
 	hv               string
 	ok               bool
 	empty_headers    = Headers{}
-	testuser         = "testguest"
-	testpw           = "testguest"
+	testuser         = "guest" // "guest" is required by some brokers
+	testpw           = "guest"
 	login_headers    = Headers{HK_LOGIN, testuser, HK_PASSCODE, testpw}
 	rid              = "receipt-12345"
 	oneOnePlusProtos = []string{SPL_11, SPL_12}
