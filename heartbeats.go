@@ -84,9 +84,13 @@ func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
 		w.hbr = false //
 	}
 
+	// ========================================================================
+
 	if !w.hbs && !w.hbr {
 		return nil // none required
 	}
+
+	// ========================================================================
 
 	c.hbd = w                   // OK, we are doing some kind of heartbeating
 	ct := time.Now().UnixNano() // Prime current time

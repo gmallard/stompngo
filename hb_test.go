@@ -143,175 +143,175 @@ func TestHBInitErrors(t *testing.T) {
 	HB Test: Connect Test.
 */
 func TestHBConnect(t *testing.T) {
-	if os.Getenv("STOMP_TEST11p") == "" || os.Getenv("STOMP_TEST11p") == "1.0" {
-		t.Skip("TestHBConnect norun, need 1.1+")
+	for _, sp := range oneOnePlusProtos {
+		n, _ := openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		ch = ch.Add(HK_HEART_BEAT, "250,250")
+		conn, e := Connect(n, ch)
+		//
+		if e != nil {
+			t.Fatalf("Heartbeat expected connection, got error: %q\n", e)
+		}
+		if conn.hbd == nil {
+			t.Fatalf("Heartbeat expected data, got nil")
+		}
+		if conn.SendTickerInterval() == 0 {
+			t.Fatalf("Send Ticker is zero.")
+		}
+		if conn.ReceiveTickerInterval() == 0 {
+			t.Fatalf("Receive Ticker is zero.")
+		}
+		//
+		_ = conn.Disconnect(empty_headers)
+		_ = closeConn(t, n)
 	}
-
-	//
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	ch = ch.Add(HK_HEART_BEAT, "100,10000")
-	conn, e := Connect(n, ch)
-	if e != nil {
-		t.Fatalf("Heartbeat expected connection, got error: %q\n", e)
-	}
-	if conn.hbd == nil {
-		t.Fatalf("Heartbeat expected data, got nil")
-	}
-	if conn.SendTickerInterval() == 0 {
-		t.Fatalf("Send Ticker is zero.")
-	}
-	if conn.ReceiveTickerInterval() == 0 {
-		t.Fatalf("Receive Ticker is zero.")
-	}
-	//
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
 }
 
 /*
 	Test Connect - Test HeartBeat - Receive only, No Sends From Client
 */
 func TestHBNoSend(t *testing.T) {
-	if os.Getenv("STOMP_TEST11p") == "" || os.Getenv("STOMP_TEST11p") == "1.0" {
-		t.Skip("TestHBNoSend norun, need 1.1+")
+	if os.Getenv("STOMP_HBLONG") == "" {
+		t.Skip("TestHBNoSend norun, set STOMP_HBLONG")
 	}
-	if os.Getenv("STOMP_HB11LONG") == "" {
-		t.Skip("TestHBNoSend norun, set STOMP_HB11LONG")
-	}
-	//
-	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	ch = ch.Add(HK_HEART_BEAT, "0,6000") // No sending
-	l.Printf("ConnHeaders: %v\n", ch)
-	conn, e := Connect(n, ch)
-	// Error checks
-	if e != nil {
-		t.Fatalf("Heartbeat nosend connect error, unexpected: %q", e)
-	}
-	if conn.hbd == nil {
-		t.Fatalf("Heartbeat nosend error expected hbd value.")
-	}
-	if conn.ReceiveTickerInterval() == 0 {
-		t.Fatalf("Receive Ticker is zero.")
+	if os.Getenv("STOMP_ARTEMIS") != "" {
+		t.Skip("TestHBNoSend norun, unset STOMP_ARTEMIS")
 	}
 	//
-	conn.SetLogger(l)
-	//
-	conn.log("TestHBNoSend connect response", conn.ConnectResponse.Command,
-		conn.ConnectResponse.Headers, string(conn.ConnectResponse.Body))
-	conn.log("TestHBNoSend start sleep")
-	conn.log(1, "Send", conn.SendTickerInterval(), "Receive", conn.ReceiveTickerInterval())
-	time.Sleep(hbs * time.Second)
-	conn.log("TestHBNoSend end sleep")
-	conn.SetLogger(nil)
-	//
-	conn.hbd.rdl.Lock()
-	if conn.Hbrf {
-		t.Fatalf("Error, dirty heart beat read detected")
+	for _, sp := range oneOnePlusProtos {
+		n, _ := openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		ch = ch.Add(HK_HEART_BEAT, "0,6000")
+		l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
+		l.Printf("ConnHeaders: %v\n", ch)
+		conn, e := Connect(n, ch)
+		// Error checks
+		if e != nil {
+			t.Fatalf("Heartbeat nosend connect error, unexpected: %q", e)
+		}
+		if conn.hbd == nil {
+			t.Fatalf("Heartbeat nosend error expected hbd value.")
+		}
+		if conn.ReceiveTickerInterval() == 0 {
+			t.Fatalf("Receive Ticker is zero.")
+		}
+		//
+		conn.SetLogger(l)
+		//
+		conn.log("TestHBNoSend connect response", conn.ConnectResponse.Command,
+			conn.ConnectResponse.Headers, string(conn.ConnectResponse.Body))
+		conn.log("TestHBNoSend start sleep")
+		conn.log(1, "Send", conn.SendTickerInterval(), "Receive", conn.ReceiveTickerInterval())
+		time.Sleep(hbs * time.Second)
+		conn.log("TestHBNoSend end sleep")
+		conn.SetLogger(nil)
+		//
+		conn.hbd.rdl.Lock()
+		if conn.Hbrf {
+			t.Fatalf("Error, dirty heart beat read detected")
+		}
+		conn.hbd.rdl.Unlock()
+		checkHBRecv(t, conn, 1)
+		//
+		_ = conn.Disconnect(empty_headers)
+		_ = closeConn(t, n)
 	}
-	conn.hbd.rdl.Unlock()
-	checkHBRecv(t, conn, 1)
-	//
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
 }
 
 /*
 	Test Connect - Test HeartBeat - Send only, No Receives by Client
 */
 func TestHBNoReceive(t *testing.T) {
-	if os.Getenv("STOMP_TEST11p") == "" || os.Getenv("STOMP_TEST11p") == "1.0" {
-		t.Skip("TestHBNoReceive norun, need 1.1+")
+	if os.Getenv("STOMP_HBLONG") == "" {
+		t.Skip("TestHBNoReceive norun, set STOMP_HBLONG")
 	}
-	if os.Getenv("STOMP_HB11LONG") == "" {
-		t.Skip("TestHBNoReceive norun, set STOMP_HB11LONG")
+	for _, sp := range oneOnePlusProtos {
+		n, _ := openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		ch = ch.Add(HK_HEART_BEAT, "10000,0")
+		l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
+		l.Printf("ConnHeaders: %v\n", ch)
+		conn, e := Connect(n, ch)
+		// Error checks
+		if e != nil {
+			t.Fatalf("Heartbeat noreceive connect error, unexpected: %q", e)
+		}
+		if conn.hbd == nil {
+			t.Fatalf("Heartbeat noreceive error expected hbd value.")
+		}
+		if conn.SendTickerInterval() == 0 {
+			t.Fatalf("Send Ticker is zero.")
+		}
+		//
+		conn.SetLogger(l)
+		//
+		conn.log("TestHBNoReceive start sleep")
+		conn.log("TestHBNoReceive connect response",
+			conn.ConnectResponse.Command,
+			conn.ConnectResponse.Headers,
+			string(conn.ConnectResponse.Body))
+		conn.log(2, "Send", conn.SendTickerInterval(), "Receive",
+			conn.ReceiveTickerInterval())
+		time.Sleep(hbs * time.Second)
+		conn.log("TestHBNoReceive end sleep")
+		conn.SetLogger(nil)
+		//
+		checkHBSend(t, conn, 2)
+		_ = conn.Disconnect(empty_headers)
+		_ = closeConn(t, n)
 	}
-	//
-	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	ch = ch.Add(HK_HEART_BEAT, "10000,0") // No Receiving
-	l.Printf("ConnHeaders: %v\n", ch)
-	conn, e := Connect(n, ch)
-	// Error checks
-	if e != nil {
-		t.Fatalf("Heartbeat noreceive connect error, unexpected: %q", e)
-	}
-	if conn.hbd == nil {
-		t.Fatalf("Heartbeat noreceive error expected hbd value.")
-	}
-	if conn.SendTickerInterval() == 0 {
-		t.Fatalf("Send Ticker is zero.")
-	}
-	//
-	conn.SetLogger(l)
-	//
-	conn.log("TestHBNoReceive start sleep")
-	conn.log("TestHBNoReceive connect response",
-		conn.ConnectResponse.Command,
-		conn.ConnectResponse.Headers,
-		string(conn.ConnectResponse.Body))
-	conn.log(2, "Send", conn.SendTickerInterval(), "Receive",
-		conn.ReceiveTickerInterval())
-	time.Sleep(hbs * time.Second)
-	conn.log("TestHBNoReceive end sleep")
-	conn.SetLogger(nil)
-	//
-	checkHBSend(t, conn, 2)
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
 }
 
 /*
 	Test Connect - Test HeartBeat - Send and Receive
 */
 func TestHBSendReceive(t *testing.T) {
-	if os.Getenv("STOMP_TEST11p") == "" {
-		t.Skip("TestHBSendReceive norun, need 1.1+")
+	if os.Getenv("STOMP_HBLONG") == "" {
+		t.Skip("TestHBSendReceive norun, set STOMP_HBLONG")
 	}
-	if os.Getenv("STOMP_HB11LONG") == "" {
-		t.Skip("TestHBSendReceive norun, set STOMP_HB11LONG")
+	for _, sp := range oneOnePlusProtos {
+		n, _ := openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		ch = ch.Add(HK_HEART_BEAT, "10000,600")
+		l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
+		l.Printf("ConnHeaders: %v\n", ch)
+		conn, e := Connect(n, ch)
+		// Error checks
+		if e != nil {
+			t.Fatalf("Heartbeat sendreceive connect error, unexpected: %q", e)
+		}
+		if conn.hbd == nil {
+			t.Fatalf("Heartbeat sendreceive error expected hbd value.")
+		}
+		if conn.ReceiveTickerInterval() == 0 {
+			t.Fatalf("Receive Ticker is zero.")
+		}
+		if conn.SendTickerInterval() == 0 {
+			t.Fatalf("Send Ticker is zero.")
+		}
+		//
+		conn.SetLogger(l)
+		//
+		conn.log("TestHBSendReceive start sleep")
+		conn.log(3, "Send", conn.SendTickerInterval(), "Receive",
+			conn.ReceiveTickerInterval())
+		time.Sleep(hbs * time.Second)
+		conn.log("TestHBSendReceive end sleep")
+		conn.SetLogger(nil)
+		conn.hbd.rdl.Lock()
+		if conn.Hbrf {
+			t.Fatalf("Error, dirty heart beat read detected")
+		}
+		conn.hbd.rdl.Unlock()
+		checkHBSendRecv(t, conn, 3)
+		//
+		_ = conn.Disconnect(empty_headers)
+		_ = closeConn(t, n)
 	}
-	//
-	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	ch = ch.Add(HK_HEART_BEAT, "10000,6000")
-	l.Printf("ConnHeaders: %v\n", ch)
-	conn, e := Connect(n, ch)
-	// Error checks
-	if e != nil {
-		t.Fatalf("Heartbeat send-receive connect error, unexpected: %q", e)
-	}
-	if conn.hbd == nil {
-		t.Fatalf("Heartbeat send-receive error expected hbd value.")
-	}
-	if conn.ReceiveTickerInterval() == 0 {
-		t.Fatalf("Receive Ticker is zero.")
-	}
-	if conn.SendTickerInterval() == 0 {
-		t.Fatalf("Send Ticker is zero.")
-	}
-	//
-	conn.SetLogger(l)
-	//
-	conn.log("TestHBSendReceive start sleep")
-	conn.log(3, "Send", conn.SendTickerInterval(), "Receive",
-		conn.ReceiveTickerInterval())
-	time.Sleep(hbs * time.Second)
-	conn.log("TestHBSendReceive end sleep")
-	conn.SetLogger(nil)
-	conn.hbd.rdl.Lock()
-	if conn.Hbrf {
-		t.Fatalf("Error, dirty heart beat read detected")
-	}
-	conn.hbd.rdl.Unlock()
-	checkHBSendRecv(t, conn, 3)
-	//
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
 }
 
 /*
@@ -319,50 +319,50 @@ func TestHBSendReceive(t *testing.T) {
 	Match Apollo defaults.
 */
 func TestHBSendReceiveApollo(t *testing.T) {
-	if os.Getenv("STOMP_TEST11p") == "" || os.Getenv("STOMP_TEST11p") == "1.0" {
-		t.Skip("TestHBSendReceiveApollo norun, need 1.1+")
+	if os.Getenv("STOMP_HBLONG") == "" {
+		t.Skip("TestHBSendReceiveApollo norun, set STOMP_HBLONG")
 	}
-	if os.Getenv("STOMP_HB11LONG") == "" {
-		t.Skip("TestHBSendReceiveApollo norun, set STOMP_HB11LONG")
+	for _, sp := range oneOnePlusProtos {
+		n, _ := openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		ch = ch.Add(HK_HEART_BEAT, "10000,100")
+		l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
+		l.Printf("ConnHeaders: %v\n", ch)
+		conn, e := Connect(n, ch)
+		// Error checks
+		if e != nil {
+			t.Fatalf("Heartbeat sendreceiveapollo connect error, unexpected: %q", e)
+		}
+		if conn.hbd == nil {
+			t.Fatalf("Heartbeat sendreceiveapollo error expected hbd value.")
+		}
+
+		if conn.ReceiveTickerInterval() == 0 {
+			t.Fatalf("Receive Ticker is zero.")
+		}
+		if conn.SendTickerInterval() == 0 {
+			t.Fatalf("Send Ticker is zero.")
+		}
+		//
+		conn.SetLogger(l)
+		//
+		conn.log("TestHBSendReceiveApollo start sleep")
+		conn.log(4, "Send", conn.SendTickerInterval(), "Receive",
+			conn.ReceiveTickerInterval())
+		time.Sleep(hbs * time.Second)
+		conn.log("TestHBSendReceiveApollo end sleep")
+		conn.SetLogger(nil)
+		conn.hbd.rdl.Lock()
+		if conn.Hbrf {
+			t.Fatalf("Error, dirty heart beat read detected")
+		}
+		conn.hbd.rdl.Unlock()
+		checkHBSendRecv(t, conn, 4)
+		//
+		_ = conn.Disconnect(empty_headers)
+		_ = closeConn(t, n)
 	}
-	//
-	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	ch = ch.Add(HK_HEART_BEAT, "10000,100")
-	l.Printf("ConnHeaders: %v\n", ch)
-	conn, e := Connect(n, ch)
-	// Error checks
-	if e != nil {
-		t.Fatalf("Heartbeat send-receive connect error, unexpected: %q", e)
-	}
-	if conn.hbd == nil {
-		t.Fatalf("Heartbeat send-receive error expected hbd value.")
-	}
-	if conn.ReceiveTickerInterval() == 0 {
-		t.Fatalf("Receive Ticker is zero.")
-	}
-	if conn.SendTickerInterval() == 0 {
-		t.Fatalf("Send Ticker is zero.")
-	}
-	//
-	conn.SetLogger(l)
-	//
-	conn.log("TestHBSendReceiveApollo start sleep")
-	conn.log(4, "Send", conn.SendTickerInterval(), "Receive",
-		conn.ReceiveTickerInterval())
-	time.Sleep(hbs * time.Second)
-	conn.log("TestHBSendReceiveApollo end sleep")
-	conn.SetLogger(nil)
-	conn.hbd.rdl.Lock()
-	if conn.Hbrf {
-		t.Fatalf("Error, dirty heart beat read detected")
-	}
-	conn.hbd.rdl.Unlock()
-	checkHBSendRecv(t, conn, 4)
-	//
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
 }
 
 /*
@@ -371,53 +371,49 @@ func TestHBSendReceiveApollo(t *testing.T) {
 	Currently skipped for AMQ.
 */
 func TestHBSendReceiveApolloRev(t *testing.T) {
-	if os.Getenv("STOMP_TEST11p") == "" || os.Getenv("STOMP_TEST11p") == "1.0" {
-		t.Skip("TestHBSendReceiveApolloRev norun, need 1.1+")
+	if os.Getenv("STOMP_HBLONG") == "" {
+		t.Skip("TestHBSendReceiveApolloRev norun, set STOMP_HBLONG")
 	}
-	if os.Getenv("STOMP_HB11LONG") == "" {
-		t.Skip("TestHBSendReceiveApolloRev norun, set STOMP_HB11LONG")
+	for _, sp := range oneOnePlusProtos {
+		n, _ := openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		ch = ch.Add(HK_HEART_BEAT, "100,10000")
+		l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
+		l.Printf("ConnHeaders: %v\n", ch)
+		conn, e := Connect(n, ch)
+		// Error checks
+		if e != nil {
+			t.Fatalf("Heartbeat sendreceiveapollorev connect error, unexpected: %q", e)
+		}
+		if conn.hbd == nil {
+			t.Fatalf("Heartbeat sendreceiveapollorev error expected hbd value.")
+		}
+		if conn.ReceiveTickerInterval() == 0 {
+			t.Fatalf("Receive Ticker is zero.")
+		}
+		if conn.SendTickerInterval() == 0 {
+			t.Fatalf("Send Ticker is zero.")
+		}
+		//
+		conn.SetLogger(l)
+		//
+		conn.log("TestHBSendReceiveApolloRev start sleep")
+		conn.log(5, "Send", conn.SendTickerInterval(), "Receive",
+			conn.ReceiveTickerInterval())
+		time.Sleep(hbs * time.Second)
+		conn.log("TestHBSendReceiveApolloRev end sleep")
+		conn.SetLogger(nil)
+		conn.hbd.rdl.Lock()
+		if conn.Hbrf {
+			t.Fatalf("Error, dirty heart beat read detected")
+		}
+		conn.hbd.rdl.Unlock()
+		checkHBSendRecv(t, conn, 5)
+		//
+		_ = conn.Disconnect(empty_headers)
+		_ = closeConn(t, n)
 	}
-	if os.Getenv("STOMP_AMQ11") != "" {
-		t.Skip("TestHBSendReceiveApolloRev norun, skip AMQ11+")
-	}
-	//
-	l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	ch = ch.Add(HK_HEART_BEAT, "100,10000")
-	l.Printf("ConnHeaders: %v\n", ch)
-	conn, e := Connect(n, ch)
-	// Error checks
-	if e != nil {
-		t.Fatalf("Heartbeat send-receive connect error, unexpected: %q", e)
-	}
-	if conn.hbd == nil {
-		t.Fatalf("Heartbeat send-receive error expected hbd value.")
-	}
-	if conn.ReceiveTickerInterval() == 0 {
-		t.Fatalf("Receive Ticker is zero.")
-	}
-	if conn.SendTickerInterval() == 0 {
-		t.Fatalf("Send Ticker is zero.")
-	}
-	//
-	conn.SetLogger(l)
-	//
-	conn.log("TestHBSendReceiveApolloRev start sleep")
-	conn.log(5, "Send", conn.SendTickerInterval(), "Receive",
-		conn.ReceiveTickerInterval())
-	time.Sleep(hbs * time.Second)
-	conn.log("TestHBSendReceiveApolloRev end sleep")
-	conn.SetLogger(nil)
-	conn.hbd.rdl.Lock()
-	if conn.Hbrf {
-		t.Fatalf("Error, dirty heart beat read detected")
-	}
-	conn.hbd.rdl.Unlock()
-	checkHBSendRecv(t, conn, 5)
-	//
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
 }
 
 /*

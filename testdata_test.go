@@ -474,15 +474,16 @@ const (
 
 // For use by all
 var (
-	TEST_HEADERS   = Headers{HK_LOGIN, "guest", HK_PASSCODE, "guest"}
-	TEST_TDESTPREF = "/queue/test.pref."
-	TEST_TRANID    = "TransactionA"
-	md             MessageData
-	hv             string
-	ok             bool
-	empty_headers  = Headers{}
-	testuser       = "testguest"
-	testpw         = "testguest"
-	login_headers  = Headers{HK_LOGIN, testuser, HK_PASSCODE, testpw}
-	rid            = "receipt-12345"
+	TEST_HEADERS     = Headers{HK_LOGIN, "guest", HK_PASSCODE, "guest"}
+	TEST_TDESTPREF   = "/queue/test.pref."
+	TEST_TRANID      = "TransactionA"
+	md               MessageData
+	hv               string
+	ok               bool
+	empty_headers    = Headers{}
+	testuser         = "testguest"
+	testpw           = "testguest"
+	login_headers    = Headers{HK_LOGIN, testuser, HK_PASSCODE, testpw}
+	rid              = "receipt-12345"
+	oneOnePlusProtos = []string{SPL_11, SPL_12}
 )
