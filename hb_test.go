@@ -370,9 +370,12 @@ func TestHBSendReceiveApollo(t *testing.T) {
 	Match reverse of Apollo defaults.
 	Currently skipped for AMQ.
 */
-func TestHBSendReceiveApolloRev(t *testing.T) {
+func TestHBSendReceiveRevApollo(t *testing.T) {
 	if os.Getenv("STOMP_HBLONG") == "" {
-		t.Skip("TestHBSendReceiveApolloRev norun, set STOMP_HBLONG")
+		t.Skip("TestHBSendReceiveRevApollo norun, set STOMP_HBLONG")
+	}
+	if os.Getenv("STOMP_AMQ") != "" {
+		t.Skip("TestHBSendReceiveRevApollo norun, unset STOMP_AMQ")
 	}
 	for _, sp := range oneOnePlusProtos {
 		n, _ := openConn(t)
@@ -384,10 +387,10 @@ func TestHBSendReceiveApolloRev(t *testing.T) {
 		conn, e := Connect(n, ch)
 		// Error checks
 		if e != nil {
-			t.Errorf("Heartbeat sendreceiveapollorev connect error, unexpected: %q", e)
+			t.Errorf("Heartbeat TestHBSendReceiveRevApollo connect error, unexpected: %q", e)
 		}
 		if conn.hbd == nil {
-			t.Errorf("Heartbeat sendreceiveapollorev error expected hbd value.")
+			t.Errorf("Heartbeat TestHBSendReceiveRevApollo error expected hbd value.")
 		}
 		if conn.ReceiveTickerInterval() == 0 {
 			t.Errorf("Receive Ticker is zero.")
@@ -396,13 +399,14 @@ func TestHBSendReceiveApolloRev(t *testing.T) {
 			t.Errorf("Send Ticker is zero.")
 		}
 		//
+		l.Printf("CONNECTED Frame: <%q>\n", conn.ConnectResponse)
 		conn.SetLogger(l)
 		//
-		conn.log("TestHBSendReceiveApolloRev start sleep")
+		conn.log("TestHBSendReceiveRevApollo start sleep")
 		conn.log(5, "Send", conn.SendTickerInterval(), "Receive",
 			conn.ReceiveTickerInterval())
 		time.Sleep(hbs * time.Second)
-		conn.log("TestHBSendReceiveApolloRev end sleep")
+		conn.log("TestHBSendReceiveRevApollo end sleep")
 		conn.SetLogger(nil)
 		conn.hbd.rdl.Lock()
 		if conn.Hbrf {
