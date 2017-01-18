@@ -17,81 +17,61 @@
 package stompngo
 
 import (
+	//"log"
+	//"os"
 	"testing"
+	//"time"
 )
 
-/*
-	Test Unsubscribe, no destination.
-*/
-func TestUnsubNoHdr(t *testing.T) {
-
-	n, _ = openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ = Connect(n, ch)
-	//
-	for i, l := range unsubListNoHdr {
-		conn.protocol = l.p
-		// Unsubscribe, no dest
-		e = conn.Unsubscribe(empty_headers)
-		if e == nil {
-			t.Fatalf("Expected unsubscribe error, entry [%d], got [nil]\n", i)
+func TestUnSubNoHeader(t *testing.T) {
+	for _, sp := range Protocols() {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		conn, _ = Connect(n, ch)
+		//
+		for ti, tv := range unsubNoHeaderDataList {
+			_ = ti
+			_ = tv
+			e = conn.Unsubscribe(empty_headers)
+			if e == nil {
+				t.Fatalf("TestUnSubNoHeader[%d] proto:%s expected:%q got:nil\n",
+					ti, sp, tv.exe)
+			}
+			if e != tv.exe {
+				t.Fatalf("TestUnSubNoHeader[%d] proto:%s expected:%q got:%q\n",
+					ti, sp, tv.exe, e)
+			}
 		}
-		if e != l.e {
-			t.Fatalf("Unsubscribe error, entry [%d], expected [%v], got [%v]\n", i, l.e, e)
-		}
+		//
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
+		_ = closeConn(t, n)
 	}
-	//
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
 }
 
-/*
-	Test Unsubscribe, no ID.
-*/
-func TestUnsubNoId(t *testing.T) {
-
-	n, _ = openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ = Connect(n, ch)
-	//
-	uh := Headers{HK_DESTINATION, "/queue/unsub.noid"}
-	for i, l := range unsubNoId {
-		conn.protocol = l.p
-		// Unsubscribe, no id at all
-		e = conn.Unsubscribe(uh)
-		if e == nil {
-			t.Fatalf("Expected unsubscribe error, entry [%d], got [nil]\n", i)
-		}
-		if e != l.e {
-			t.Fatalf("Unsubscribe error, entry [%d], expected [%v], got [%v]\n", i, l.e, e)
-		}
+func TestUnSubNoID(t *testing.T) {
+	for _, sp := range Protocols() {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		conn, _ = Connect(n, ch)
+		//
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
+		_ = closeConn(t, n)
 	}
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
 }
 
-/*
-	Test Unsubscribe, bad ID.
-*/
-func TestUnsubBadId(t *testing.T) {
-
-	n, _ = openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ = Connect(n, ch)
-	//
-	uh := Headers{HK_DESTINATION, "/queue/unsub.badid", HK_ID, "bogus"}
-	for i, l := range unsubBadId {
-		conn.protocol = l.p
-		// Unsubscribe, bad id
-		e = conn.Unsubscribe(uh)
-		if e == nil {
-			t.Fatalf("Expected unsubscribe error, entry [%d], got [nil]\n", i)
-		}
-		if e != l.e {
-			t.Fatalf("Unsubscribe error, entry [%d], expected [%v], got [%v]\n", i, l.e, e)
-		}
+func TestUnSubPlain(t *testing.T) {
+	for _, sp := range Protocols() {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		conn, _ = Connect(n, ch)
+		//
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
+		_ = closeConn(t, n)
 	}
-	//
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
 }

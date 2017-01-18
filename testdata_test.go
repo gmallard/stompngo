@@ -292,11 +292,18 @@ const (
 // sub_test BEGIN
 
 type (
-// None at present.
+	subNoHeaderData struct {
+		proto string
+		exe   Error
+	}
 )
 
 var (
-// None at present.
+	subNoHeaderDataList = []subNoHeaderData{
+		{SPL_10, EREQDSTSUB},
+		{SPL_11, EREQDSTSUB},
+		{SPL_12, EREQDSTSUB},
+	}
 )
 
 const (
@@ -430,27 +437,17 @@ const (
 // unsub_test BEGIN
 
 type (
-	unsubData struct {
-		p string // protocol
-		e error  // error
+	unsubNoHeaderData struct {
+		proto string
+		exe   Error
 	}
 )
 
 var (
-	unsubListNoHdr = []unsubData{
+	unsubNoHeaderDataList = []subNoHeaderData{
 		{SPL_10, EREQDIUNS},
 		{SPL_11, EREQDIUNS},
 		{SPL_12, EREQDIUNS},
-	}
-
-	unsubBadId = []unsubData{
-		{SPL_11, EBADSID},
-		{SPL_12, EBADSID},
-	}
-
-	unsubNoId = []unsubData{
-		{SPL_11, EUNOSID},
-		{SPL_12, EUNOSID},
 	}
 )
 
@@ -511,4 +508,5 @@ var (
 	n                net.Conn
 	conn             *Connection
 	sc               <-chan MessageData
+	sp               string
 )
