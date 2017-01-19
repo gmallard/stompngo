@@ -17,6 +17,7 @@
 package stompngo
 
 import (
+	"fmt"
 	"log"
 	//"os"
 	"testing"
@@ -79,10 +80,10 @@ func TestUnSubNoID(t *testing.T) {
 	e = conn.Disconnect(empty_headers)
 	checkDisconnectError(t, e)
 	_ = closeConn(t, n)
-	log.Printf("TestUnSubNoHeader %d tests complete.\n", len(subNoHeaderDataList))
+	log.Printf("TestUnSubNoID %d tests complete.\n", len(unsubNoHeaderDataList))
 }
 
-func TestUnSubPlain(t *testing.T) {
+func TestUnSubBool(t *testing.T) {
 	n, _ = openConn(t)
 	ch := login_headers
 	ch = headersProtocol(ch, SPL_10) // To start
@@ -92,21 +93,30 @@ func TestUnSubPlain(t *testing.T) {
 			conn.ConnectResponse)
 	}
 	//
-	for ti, tv := range unsubNoHeaderDataList {
+	for ti, tv := range unsubBoolDataList {
 		conn.protocol = tv.proto // Cheat, fake all protocols
-		e = conn.Unsubscribe(empty_headers)
+
+		// SUBSCRIBE Phase (depending on test data)
+		if tv.subfirst {
+			// Do a real SUBSCRIBE
+			// sc, e = conn.Subscribe
+		}
+
+		fmt.Printf("fs,unsubh: <%v>\n", tv.unsubh)
+		// UNSCRIBE Phase
+		e = conn.Unsubscribe(tv.unsubh)
 		if e == nil {
-			t.Fatalf("TestUnSubPlain[%d] proto:%s expected:%q got:nil\n",
-				ti, sp, tv.exe)
+			t.Fatalf("TestUnSubBool[%d] NILCHECK proto:%s expected:%v got:nil\n",
+				ti, tv.proto, tv.exe)
 		}
 		if e != tv.exe {
-			t.Fatalf("TestUnSubPlain[%d] proto:%s expected:%q got:%q\n",
-				ti, sp, tv.exe, e)
+			t.Fatalf("TestUnSubBool[%d] NEQCHECK proto:%s expected:%v got:%q\n",
+				ti, tv.proto, tv.exe, e)
 		}
 	}
 	//
 	e = conn.Disconnect(empty_headers)
 	checkDisconnectError(t, e)
 	_ = closeConn(t, n)
-	log.Printf("TestUnSubNoHeader %d tests complete.\n", len(unsubNoHeaderDataList))
+	log.Printf("TestUnSubPlain %d tests complete.\n", len(unsubBoolDataList))
 }

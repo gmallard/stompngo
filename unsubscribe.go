@@ -16,6 +16,10 @@
 
 package stompngo
 
+import (
+	"fmt"
+)
+
 /*
 	Unsubscribe from a STOMP subscription.
 
@@ -43,12 +47,16 @@ func (c *Connection) Unsubscribe(h Headers) error {
 	}
 
 	//
-	_, okd := h.Contains(HK_DESTINATION)
-	hid, oki := h.Contains(HK_ID)
-	if !okd && !oki {
+	fmt.Printf("Unsubscribe Headers 01: <%q>\n", h)
+	d, okd := h.Contains(HK_DESTINATION)
+	_ = d
+	if !okd {
 		return EREQDIUNS
 	}
-
+	//
+	hid, oki := h.Contains(HK_ID)
+	sha11 := Sha1(h.Value(HK_DESTINATION)) // Special for 1.0
+	fmt.Printf("Unsubscribe Headers 02: <%q>\n", h)
 	// This is a read lock
 	c.subsLock.RLock()
 	_, p := c.subs[hid]
@@ -73,10 +81,19 @@ func (c *Connection) Unsubscribe(h Headers) error {
 		if !okd {
 			return EUNOSID
 		}
+		//
 		if oki { // User specified 'id'
 			if !p { // subscription does not exist
 				return EBADSID
 			}
+		} else {
+			c.subsLock.RLock()
+			_, xok := c.subs[sha11]
+			if !xok {
+				c.subsLock.RUnlock()
+				return EBADSID
+			}
+			c.subsLock.RUnlock()
 		}
 	default:
 		panic("unsubscribe version not supported")

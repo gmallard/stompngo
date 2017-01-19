@@ -174,7 +174,10 @@ const (
 	// Destination required
 	EREQDSTSND = Error("destination required, SEND")
 	EREQDSTSUB = Error("destination required, SUBSCRIBE")
-	EREQDIUNS  = Error("destination or id required, UNSUBSCRIBE")
+	EREQDIUNS  = Error("destination required, UNSUBSCRIBE")
+
+	// id required
+	EREQIDUNS = Error("id required, UNSUBSCRIBE")
 
 	// Message ID required.
 	EREQMIDACK = Error("message-id required, ACK") // 1.0, 1.1

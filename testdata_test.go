@@ -579,6 +579,14 @@ type (
 		unsubh Headers
 		exe    Error
 	}
+	unsubBoolData struct {
+		proto    string
+		subfirst bool
+		subh     Headers
+		isub     string
+		unsubh   Headers
+		exe      Error
+	}
 )
 
 var (
@@ -622,10 +630,39 @@ var (
 				HK_ID, "unsubIDTest.12.2"},
 			EBADSID},
 	}
-	unsubPlainDataList = []subPlainData{
-		{SPL_10,
+
+	// REQIDUNS = Error("id required, UNSUBSCRIBE")
+	// REQDIUNS  = Error("destination required, UNSUBSCRIBE")
+
+	unsubBoolDataList = []unsubBoolData{
+		// 1.0
+		{SPL_10, false,
 			Headers{},
-			nil},
+			"",
+			Headers{},
+			EREQDIUNS},
+		{SPL_10, false,
+			Headers{HK_DESTINATION, "/queue/PlainDataTest.10.1"},
+			"",
+			Headers{},
+			EREQIDUNS},
+		// 1.1
+		{SPL_11, false,
+			Headers{},
+			"",
+			Headers{},
+			EREQDIUNS},
+		{SPL_11, false,
+			Headers{HK_DESTINATION, "/queue/PlainDataTest.11.1"},
+			"",
+			Headers{},
+			EREQIDUNS},
+		// 1.2
+		{SPL_12, false,
+			Headers{},
+			"",
+			Headers{},
+			EREQDIUNS},
 	}
 )
 
