@@ -16,9 +16,9 @@
 
 package stompngo
 
-import (
-	"fmt"
-)
+//import (
+//	"fmt"
+//)
 
 /*
 	Unsubscribe from a STOMP subscription.
@@ -47,56 +47,45 @@ func (c *Connection) Unsubscribe(h Headers) error {
 	}
 
 	//
-	fmt.Printf("Unsubscribe Headers 01: <%q>\n", h)
 	d, okd := h.Contains(HK_DESTINATION)
+	//fmt.Printf("Unsubscribe Headers 01: <%q> <%t>\n", h, okd)
 	_ = d
 	if !okd {
-		return EREQDIUNS
+		return EREQDSTUNS
 	}
 	//
-	hid, oki := h.Contains(HK_ID)
-	sha11 := Sha1(h.Value(HK_DESTINATION)) // Special for 1.0
-	fmt.Printf("Unsubscribe Headers 02: <%q>\n", h)
+	shid, oki := h.Contains(HK_ID)
+	shaid := Sha1(h.Value(HK_DESTINATION)) // Special for 1.0
+	//fmt.Printf("Unsubscribe Headers 02: <%q> <%t>\n", h, oki)
 	// This is a read lock
+	//fmt.Printf("UNSUB DBG00 %q\n", c.subs)
 	c.subsLock.RLock()
-	_, p := c.subs[hid]
+	_, p := c.subs[shid]
+	_, ps := c.subs[shaid]
 	c.subsLock.RUnlock()
+	//fmt.Printf("UNSUB DBG01 %t %t\n", p, ps)
+	usekey := ""
 
 	switch c.Protocol() {
 	case SPL_12:
-		if !oki {
-			return EUNOSID
-		}
-		if !p { // subscription does not exist
-			return EBADSID
-		}
+		fallthrough
 	case SPL_11:
 		if !oki {
-			return EUNOSID
+			return EUNOSID // id required
 		}
 		if !p { // subscription does not exist
-			return EBADSID
+			return EBADSID // invalid subscription-id
 		}
+		usekey = shid
 	case SPL_10:
-		if !okd {
+		//
+		//fmt.Printf("SPL_10 D01 %v %v %vn", oki, p, ps)
+		if !p && !ps {
 			return EUNOSID
 		}
-		//
-		if oki { // User specified 'id'
-			if !p { // subscription does not exist
-				return EBADSID
-			}
-		} else {
-			c.subsLock.RLock()
-			_, xok := c.subs[sha11]
-			if !xok {
-				c.subsLock.RUnlock()
-				return EBADSID
-			}
-			c.subsLock.RUnlock()
-		}
+		usekey = shaid
 	default:
-		panic("unsubscribe version not supported")
+		panic("unsubscribe version not supported: " + c.Protocol())
 	}
 
 	e = c.transmitCommon(UNSUBSCRIBE, h) // transmitCommon Clones() the headers
@@ -104,12 +93,9 @@ func (c *Connection) Unsubscribe(h Headers) error {
 		return e
 	}
 
-	if oki {
-		// This is a write lock
-		c.subsLock.Lock()
-		delete(c.subs, hid)
-		c.subsLock.Unlock()
-	}
+	c.subsLock.Lock()
+	delete(c.subs, usekey)
+	c.subsLock.Unlock()
 	c.log(UNSUBSCRIBE, "end", h)
 	return nil
 }

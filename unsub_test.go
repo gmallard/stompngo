@@ -17,7 +17,7 @@
 package stompngo
 
 import (
-	"fmt"
+	//"fmt"
 	"log"
 	//"os"
 	"testing"
@@ -100,23 +100,34 @@ func TestUnSubBool(t *testing.T) {
 		if tv.subfirst {
 			// Do a real SUBSCRIBE
 			// sc, e = conn.Subscribe
+			sh := fixHeaderDest(tv.subh) // destination fixed if needed
+			sc, e = conn.Subscribe(sh)
+			if e == nil && sc == nil {
+				t.Fatalf("TestUnSubBool[%d] SUBSCRIBE proto:%s expected OK, got <%v> <%v>\n",
+					ti, e, sc)
+			}
+			if sc == nil {
+				t.Fatalf("TestUnSubBool[%d] SUBSCRIBE, proto:[%s], channel is nil\n",
+					ti, tv.proto)
+			}
+			if e != tv.exe1 {
+				t.Fatalf("TestUnSubBool[%d] SUBSCRIBE NEQCHECK proto:%s expected:%v got:%q\n",
+					ti, tv.proto, tv.exe2, e)
+			}
 		}
 
-		fmt.Printf("fs,unsubh: <%v>\n", tv.unsubh)
+		//fmt.Printf("fs,unsubh: <%v>\n", tv.unsubh)
 		// UNSCRIBE Phase
-		e = conn.Unsubscribe(tv.unsubh)
-		if e == nil {
-			t.Fatalf("TestUnSubBool[%d] NILCHECK proto:%s expected:%v got:nil\n",
-				ti, tv.proto, tv.exe)
-		}
-		if e != tv.exe {
-			t.Fatalf("TestUnSubBool[%d] NEQCHECK proto:%s expected:%v got:%q\n",
-				ti, tv.proto, tv.exe, e)
+		sh := fixHeaderDest(tv.unsubh) // destination fixed if needed
+		e = conn.Unsubscribe(sh)
+		if e != tv.exe2 {
+			t.Fatalf("TestUnSubBool[%d] UNSUBSCRIBE NEQCHECK proto:%s expected:%v got:%q\n",
+				ti, tv.proto, tv.exe2, e)
 		}
 	}
 	//
 	e = conn.Disconnect(empty_headers)
 	checkDisconnectError(t, e)
 	_ = closeConn(t, n)
-	log.Printf("TestUnSubPlain %d tests complete.\n", len(unsubBoolDataList))
+	log.Printf("TestUnSubBool %d tests complete.\n", len(unsubBoolDataList))
 }

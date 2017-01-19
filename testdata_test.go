@@ -304,9 +304,11 @@ type (
 	}
 
 	subPlainData struct {
-		proto string
-		subh  Headers
-		exe   error
+		proto  string
+		subh   Headers
+		unsubh Headers
+		exe1   error
+		exe2   error
 	}
 
 	subTwiceData struct {
@@ -344,15 +346,21 @@ var (
 		{SPL_10,
 			Headers{HK_DESTINATION, "/queue/subPlainTest.10",
 				HK_ID, "subPlainTest.10"},
-			nil},
+			Headers{HK_DESTINATION, "/queue/subPlainTest.10",
+				HK_ID, "subPlainTest.10"},
+			nil, nil},
 		{SPL_11,
 			Headers{HK_DESTINATION, "/queue/subPlainTest.11",
 				HK_ID, "subPlainTest.11"},
-			nil},
+			Headers{HK_DESTINATION, "/queue/subPlainTest.11",
+				HK_ID, "subPlainTest.11"},
+			nil, nil},
 		{SPL_12,
 			Headers{HK_DESTINATION, "/queue/subPlainTest.12",
 				HK_ID, "subPlainTest.11"},
-			nil},
+			Headers{HK_DESTINATION, "/queue/subPlainTest.12",
+				HK_ID, "subPlainTest.11"},
+			nil, nil},
 	}
 
 	subTwiceDataList = []subTwiceData{
@@ -567,25 +575,20 @@ const (
 type (
 	unsubNoHeaderData struct {
 		proto string
-		exe   Error
+		exe   error
 	}
 	unsubNoIDData struct {
 		proto  string
 		unsubh Headers
-		exe    Error
-	}
-	unsubPlainData struct {
-		proto  string
-		unsubh Headers
-		exe    Error
+		exe    error
 	}
 	unsubBoolData struct {
 		proto    string
 		subfirst bool
 		subh     Headers
-		isub     string
 		unsubh   Headers
-		exe      Error
+		exe1     error
+		exe2     error
 	}
 )
 
@@ -638,31 +641,42 @@ var (
 		// 1.0
 		{SPL_10, false,
 			Headers{},
-			"",
 			Headers{},
-			EREQDIUNS},
+			EREQDSTUNS, EREQDSTUNS},
 		{SPL_10, false,
 			Headers{HK_DESTINATION, "/queue/PlainDataTest.10.1"},
-			"",
-			Headers{},
-			EREQIDUNS},
+			Headers{HK_DESTINATION, "/queue/PlainDataTest.10.1"},
+			EREQIDUNS, EREQIDUNS},
+		{SPL_10, true,
+			Headers{HK_DESTINATION, "/queue/PlainDataTest.10.1"},
+			Headers{HK_DESTINATION, "/queue/PlainDataTest.10.1"},
+			nil, nil},
 		// 1.1
 		{SPL_11, false,
 			Headers{},
-			"",
 			Headers{},
-			EREQDIUNS},
+			EREQDSTUNS, EREQDSTUNS},
 		{SPL_11, false,
 			Headers{HK_DESTINATION, "/queue/PlainDataTest.11.1"},
-			"",
-			Headers{},
-			EREQIDUNS},
+			Headers{HK_DESTINATION, "/queue/PlainDataTest.11.1"},
+			EREQIDUNS, EREQIDUNS},
+		{SPL_11, true,
+			Headers{HK_DESTINATION, "/queue/PlainDataTest.10.1"},
+			Headers{HK_DESTINATION, "/queue/PlainDataTest.10.1"},
+			nil, EREQIDUNS},
 		// 1.2
 		{SPL_12, false,
 			Headers{},
-			"",
 			Headers{},
-			EREQDIUNS},
+			EREQDIUNS, EREQDSTUNS},
+		{SPL_12, false,
+			Headers{HK_DESTINATION, "/queue/PlainDataTest.12.1"},
+			Headers{HK_DESTINATION, "/queue/PlainDataTest.12.1"},
+			EREQIDUNS, EREQIDUNS},
+		{SPL_12, true,
+			Headers{HK_DESTINATION, "/queue/PlainDataTest.10.1"},
+			Headers{HK_DESTINATION, "/queue/PlainDataTest.10.1"},
+			nil, EREQIDUNS},
 	}
 )
 

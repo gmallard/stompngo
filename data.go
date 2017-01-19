@@ -175,6 +175,7 @@ const (
 	EREQDSTSND = Error("destination required, SEND")
 	EREQDSTSUB = Error("destination required, SUBSCRIBE")
 	EREQDIUNS  = Error("destination required, UNSUBSCRIBE")
+	EREQDSTUNS = Error("destination required, UNSUBSCRIBE") // Alternate name
 
 	// id required
 	EREQIDUNS = Error("id required, UNSUBSCRIBE")

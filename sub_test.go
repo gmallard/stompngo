@@ -97,16 +97,17 @@ func TestSubPlain(t *testing.T) {
 			t.Fatalf("TestSubPlain[%d] SUBSCRIBE, proto:[%s], channel is nil\n",
 				ti, tv.proto)
 		}
-		if e != tv.exe {
+		if e != tv.exe1 {
 			t.Fatalf("TestSubPlain[%d] SUBSCRIBE, proto:%s expected:%v got:%v\n",
-				ti, tv.proto, tv.exe, e)
+				ti, tv.proto, tv.exe1, e)
 		}
 
 		// UNSUBSCRIBE Phase
+		sh = fixHeaderDest(tv.unsubh) // destination fixed if needed
 		e = conn.Unsubscribe(sh)
-		if e != tv.exe {
+		if e != tv.exe2 {
 			t.Fatalf("TestSubPlain[%d] UNSUBSCRIBE, proto:%s expected:%v got:%v\n",
-				ti, tv.proto, tv.exe, e)
+				ti, tv.proto, tv.exe2, e)
 		}
 
 		e = conn.Disconnect(empty_headers)
@@ -180,9 +181,9 @@ func TestSubRoundTrip(t *testing.T) {
 			t.Fatalf("TestSubRoundTrip[%d] SUBSCRIBE, proto:[%s], channel is nil\n",
 				ti, tv.proto)
 		}
-		if e != tv.exe {
+		if e != tv.exe1 {
 			t.Fatalf("TestSubRoundTrip[%d] SUBSCRIBE, proto:%s expected:%v got:%v\n",
-				ti, tv.proto, tv.exe, e)
+				ti, tv.proto, tv.exe1, e)
 		}
 
 		// RECEIVE Phase
@@ -195,9 +196,9 @@ func TestSubRoundTrip(t *testing.T) {
 
 		// UNSUBSCRIBE Phase
 		e = conn.Unsubscribe(sh)
-		if e != tv.exe {
+		if e != tv.exe2 {
 			t.Fatalf("TestSubRoundTrip[%d] UNSUBSCRIBE, proto:%s expected:%v got:%v\n",
-				ti, tv.proto, tv.exe, e)
+				ti, tv.proto, tv.exe2, e)
 		}
 
 		e = conn.Disconnect(empty_headers)
