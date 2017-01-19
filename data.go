@@ -205,6 +205,9 @@ const (
 	EDUPSID = Error("duplicate subscription-id")
 	EBADSID = Error("invalid subscription-id")
 
+	// Scubscribe errors.
+	ESBADAM = Error("invalid ackmode, SUBSCRIBE")
+
 	// Unscubscribe error.
 	EUNOSID = Error("id required, UNSUBSCRIBE")
 
@@ -337,6 +340,12 @@ const (
 	AckModeAuto             = "auto"
 	AckModeClient           = "client"
 	AckModeClientIndividual = "client-individual"
+)
+
+var (
+	validAckModes10 = map[string]bool{AckModeAuto: true,
+		AckModeClient: true}
+	validAckModes1x = map[string]bool{AckModeClientIndividual: true}
 )
 
 /*

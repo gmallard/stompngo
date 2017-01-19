@@ -17,98 +17,224 @@
 package stompngo
 
 import (
-	//"log"
+	"fmt"
+	"log"
 	//"os"
 	"testing"
 	//"time"
 )
 
 func TestSubNoHeader(t *testing.T) {
-	for _, sp := range Protocols() {
-		n, _ = openConn(t)
-		ch := login_headers
-		ch = headersProtocol(ch, sp)
-		conn, _ = Connect(n, ch)
-		//
-		for ti, tv := range subNoHeaderDataList {
-			_, e = conn.Subscribe(empty_headers)
-			if e == nil {
-				t.Fatalf("TestSubNoHeader[%d] proto:%s expected:%q got:nil\n",
-					ti, sp, tv.exe)
-			}
-			if e != tv.exe {
-				t.Fatalf("TestSubNoHeader[%d] proto:%s expected:%q got:%q\n",
-					ti, sp, tv.exe, e)
-			}
-		}
-		//
-		e = conn.Disconnect(empty_headers)
-		checkDisconnectError(t, e)
-		_ = closeConn(t, n)
+	n, _ = openConn(t)
+	ch := login_headers
+	ch = headersProtocol(ch, SPL_10) // Start with 1.0
+	conn, e = Connect(n, ch)
+	if e != nil {
+		t.Fatalf("CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
+			conn.ConnectResponse)
 	}
+	//
+	for ti, tv := range subNoHeaderDataList {
+		conn.protocol = tv.proto // Cheat, fake all protocols
+		_, e = conn.Subscribe(empty_headers)
+		if e == nil {
+			t.Fatalf("TestSubNoHeader[%d] proto:%s expected:%v got:nil\n",
+				ti, tv.proto, tv.exe)
+		}
+		if e != tv.exe {
+			t.Fatalf("TestSubNoHeader[%d] proto:%s expected:%v got:%v\n",
+				ti, tv.proto, tv.exe, e)
+		}
+	}
+	//
+	e = conn.Disconnect(empty_headers)
+	checkDisconnectError(t, e)
+	_ = closeConn(t, n)
+	log.Printf("TestSubNoHeader %d tests complete.\n", len(subNoHeaderDataList))
 }
 
 func TestSubNoID(t *testing.T) {
-	for _, sp := range Protocols() {
-		n, _ = openConn(t)
-		ch := login_headers
-		ch = headersProtocol(ch, sp)
-		conn, _ = Connect(n, ch)
-		//
-		e = conn.Disconnect(empty_headers)
-		checkDisconnectError(t, e)
-		_ = closeConn(t, n)
+	n, _ = openConn(t)
+	ch := login_headers
+	ch = headersProtocol(ch, SPL_10) // Start with 1.0
+	conn, e = Connect(n, ch)
+	if e != nil {
+		t.Fatalf("CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
+			conn.ConnectResponse)
 	}
+	//
+	for ti, tv := range subNoIDDataList {
+		conn.protocol = tv.proto // Cheat, fake all protocols
+		ud := tdest(tv.subh.Value(HK_DESTINATION))
+		_, e = conn.Subscribe(Headers{HK_DESTINATION, ud})
+		if e != tv.exe {
+			t.Fatalf("TestSubNoID[%d] proto:%s expected:%v got:%v\n",
+				ti, tv.proto, tv.exe, e)
+		}
+	}
+	//
+	e = conn.Disconnect(empty_headers)
+	checkDisconnectError(t, e)
+	_ = closeConn(t, n)
+	log.Printf("TestSubNoID %d tests complete.\n", len(subNoIDDataList))
 }
 
 func TestSubPlain(t *testing.T) {
-	for _, sp := range Protocols() {
+	for ti, tv := range subPlainDataList {
 		n, _ = openConn(t)
 		ch := login_headers
-		ch = headersProtocol(ch, sp)
-		conn, _ = Connect(n, ch)
-		//
+		ch = headersProtocol(ch, tv.proto)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
+				conn.ConnectResponse)
+		}
+
+		// SUBSCRIBE Phase
+		sh := fixHeaderDest(tv.subh) // destination fixed if needed
+		sc, e = conn.Subscribe(sh)
+		if sc == nil {
+			t.Fatalf("TestSubPlain[%d] SUBSCRIBE, proto:[%s], channel is nil\n",
+				ti, tv.proto)
+		}
+		if e != tv.exe {
+			t.Fatalf("TestSubPlain[%d] SUBSCRIBE, proto:%s expected:%v got:%v\n",
+				ti, tv.proto, tv.exe, e)
+		}
+
+		// UNSUBSCRIBE Phase
+		e = conn.Unsubscribe(sh)
+		if e != tv.exe {
+			t.Fatalf("TestSubPlain[%d] UNSUBSCRIBE, proto:%s expected:%v got:%v\n",
+				ti, tv.proto, tv.exe, e)
+		}
+
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
+	log.Printf("TestSubPlain %d tests complete.\n", len(subPlainDataList))
 }
 
 func TestSubNoTwice(t *testing.T) {
-	for _, sp := range Protocols() {
+	for ti, tv := range subTwiceDataList {
 		n, _ = openConn(t)
 		ch := login_headers
-		ch = headersProtocol(ch, sp)
-		conn, _ = Connect(n, ch)
-		//
+		ch = headersProtocol(ch, tv.proto)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
+				conn.ConnectResponse)
+		}
+
+		// SUBSCRIBE Phase 1
+		sh := fixHeaderDest(tv.subh) // destination fixed if needed
+		sc, e = conn.Subscribe(sh)
+		if sc == nil {
+			t.Fatalf("TestSubNoTwice[%d] SUBSCRIBE1, proto:[%s], channel is nil\n",
+				ti, tv.proto)
+		}
+		if e != tv.exe1 {
+			t.Fatalf("TestSubNoTwice[%d] SUBSCRIBE1, proto:%s expected:%v got:%v\n",
+				ti, tv.proto, tv.exe1, e)
+		}
+
+		// SUBSCRIBE Phase 2
+		sc, e = conn.Subscribe(sh)
+		if e != tv.exe2 {
+			t.Fatalf("TestSubNoTwice[%d] SUBSCRIBE2, proto:%s expected:%v got:%v\n",
+				ti, tv.proto, tv.exe2, e)
+		}
+
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
+	log.Printf("TestSubNoTwice %d tests complete.\n", len(subTwiceDataList))
 }
 
 func TestSubRoundTrip(t *testing.T) {
-	for _, sp := range Protocols() {
+	for ti, tv := range subPlainDataList { // *NOTE* Use the PlainData table
 		n, _ = openConn(t)
 		ch := login_headers
-		ch = headersProtocol(ch, sp)
-		conn, _ = Connect(n, ch)
-		//
+		ch = headersProtocol(ch, tv.proto)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
+				conn.ConnectResponse)
+		}
+		sh := fixHeaderDest(tv.subh) // destination fixed if needed
+
+		// SEND Phase
+		msg := "SUBROUNDTRIP: " + tv.proto
+		nh := Headers{HK_DESTINATION, sh.Value(HK_DESTINATION)}
+		e = conn.Send(nh, msg)
+		if e != nil {
+			t.Fatalf("TestSubRoundTrip[%d] SEND, proto:%s expected:%v got:%v\n",
+				ti, tv.proto, nil, e)
+		}
+
+		// SUBSCRIBE Phase
+		sc, e = conn.Subscribe(sh)
+		if sc == nil {
+			t.Fatalf("TestSubRoundTrip[%d] SUBSCRIBE, proto:[%s], channel is nil\n",
+				ti, tv.proto)
+		}
+		if e != tv.exe {
+			t.Fatalf("TestSubRoundTrip[%d] SUBSCRIBE, proto:%s expected:%v got:%v\n",
+				ti, tv.proto, tv.exe, e)
+		}
+
+		// RECEIVE Phase
+		id := fmt.Sprintf("TestSubRoundTrip[%d] RECEIVE, proto:%s", ti, tv.proto)
+		checkReceivedMD(t, conn, sc, id)
+		if msg != md.Message.BodyString() {
+			t.Fatalf("TestSubRoundTrip[%d] RECEIVE, proto:%s expected:%v got:%v\n",
+				ti, tv.proto, msg, md.Message.BodyString())
+		}
+
+		// UNSUBSCRIBE Phase
+		e = conn.Unsubscribe(sh)
+		if e != tv.exe {
+			t.Fatalf("TestSubRoundTrip[%d] UNSUBSCRIBE, proto:%s expected:%v got:%v\n",
+				ti, tv.proto, tv.exe, e)
+		}
+
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
+	log.Printf("TestSubRoundTrip %d tests complete.\n", len(subPlainDataList))
 }
 
 func TestSubAckModes(t *testing.T) {
-	for _, sp := range Protocols() {
+	for ti, tv := range subAckDataList {
 		n, _ = openConn(t)
 		ch := login_headers
-		ch = headersProtocol(ch, sp)
-		conn, _ = Connect(n, ch)
-		//
+		ch = headersProtocol(ch, tv.proto)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
+				conn.ConnectResponse)
+		}
+
+		// SUBSCRIBE Phase 1
+		sh := fixHeaderDest(tv.subh) // destination fixed if needed
+		sc, e = conn.Subscribe(sh)
+		if e == nil {
+			if sc == nil {
+				t.Fatalf("TestSubAckModes[%d] SUBSCRIBE, proto:[%s], channel is nil\n",
+					ti, tv.proto)
+			}
+		}
+		if e != tv.exe {
+			t.Fatalf("TestSubAckModes[%d] SUBSCRIBE, proto:%s expected:%v got:%v\n",
+				ti, tv.proto, tv.exe, e)
+		}
+
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
+	log.Printf("TestSubAckModes %d tests complete.\n", len(subAckDataList))
 }

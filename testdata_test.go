@@ -294,7 +294,32 @@ const (
 type (
 	subNoHeaderData struct {
 		proto string
-		exe   Error
+		exe   error
+	}
+
+	subNoIDData struct {
+		proto string
+		subh  Headers
+		exe   error
+	}
+
+	subPlainData struct {
+		proto string
+		subh  Headers
+		exe   error
+	}
+
+	subTwiceData struct {
+		proto string
+		subh  Headers
+		exe1  error
+		exe2  error
+	}
+
+	subAckData struct {
+		proto string
+		subh  Headers
+		exe   error
 	}
 )
 
@@ -303,6 +328,109 @@ var (
 		{SPL_10, EREQDSTSUB},
 		{SPL_11, EREQDSTSUB},
 		{SPL_12, EREQDSTSUB},
+	}
+	subNoIDDataList = []subNoIDData{
+		{SPL_10,
+			Headers{HK_DESTINATION, "/queue/subNoIDTest.10"},
+			nil},
+		{SPL_11,
+			Headers{HK_DESTINATION, "/queue/subNoIDTest.11"},
+			nil},
+		{SPL_12,
+			Headers{HK_DESTINATION, "/queue/subNoIDTest.12"},
+			nil},
+	}
+	subPlainDataList = []subPlainData{
+		{SPL_10,
+			Headers{HK_DESTINATION, "/queue/subPlainTest.10",
+				HK_ID, "subPlainTest.10"},
+			nil},
+		{SPL_11,
+			Headers{HK_DESTINATION, "/queue/subPlainTest.11",
+				HK_ID, "subPlainTest.11"},
+			nil},
+		{SPL_12,
+			Headers{HK_DESTINATION, "/queue/subPlainTest.12",
+				HK_ID, "subPlainTest.11"},
+			nil},
+	}
+
+	subTwiceDataList = []subTwiceData{
+		{SPL_10,
+			Headers{HK_DESTINATION, "/queue/subTwiceTest.10",
+				HK_ID, "subTwiceTest.10"},
+			nil, EDUPSID},
+		{SPL_11,
+			Headers{HK_DESTINATION, "/queue/subTwiceTest.11",
+				HK_ID, "subTwiceTest.11"},
+			nil, EDUPSID},
+		{SPL_12,
+			Headers{HK_DESTINATION, "/queue/subTwiceTest.12",
+				HK_ID, "subTwiceTest.11"},
+			nil, EDUPSID},
+	}
+
+	subAckDataList = []subAckData{
+		// 1.0
+		{SPL_10,
+			Headers{HK_DESTINATION, "/queue/subAckTest.10.1"},
+			nil},
+		{SPL_10,
+			Headers{HK_DESTINATION, "/queue/subAckTest.10.2",
+				HK_ACK, AckModeAuto},
+			nil},
+		{SPL_10,
+			Headers{HK_DESTINATION, "/queue/subAckTest.10.3",
+				HK_ACK, AckModeClient},
+			nil},
+		{SPL_10,
+			Headers{HK_DESTINATION, "/queue/subAckTest.10.3",
+				HK_ACK, AckModeClientIndividual},
+			ESBADAM},
+		{SPL_10,
+			Headers{HK_DESTINATION, "/queue/subAckTest.10.4",
+				HK_ACK, badam},
+			ESBADAM},
+		// 1.1
+		{SPL_11,
+			Headers{HK_DESTINATION, "/queue/subAckTest.11.1"},
+			nil},
+		{SPL_11,
+			Headers{HK_DESTINATION, "/queue/subAckTest.11.2",
+				HK_ACK, AckModeAuto},
+			nil},
+		{SPL_11,
+			Headers{HK_DESTINATION, "/queue/subAckTest.11.3",
+				HK_ACK, AckModeClient},
+			nil},
+		{SPL_11,
+			Headers{HK_DESTINATION, "/queue/subAckTest.11.4",
+				HK_ACK, AckModeClientIndividual},
+			nil},
+		{SPL_11,
+			Headers{HK_DESTINATION, "/queue/subAckTest.11.5",
+				HK_ACK, badam},
+			ESBADAM},
+		// 1.2
+		{SPL_12,
+			Headers{HK_DESTINATION, "/queue/subAckTest.12.1"},
+			nil},
+		{SPL_12,
+			Headers{HK_DESTINATION, "/queue/subAckTest.12.2",
+				HK_ACK, AckModeAuto},
+			nil},
+		{SPL_12,
+			Headers{HK_DESTINATION, "/queue/subAckTest.12.3",
+				HK_ACK, AckModeClient},
+			nil},
+		{SPL_12,
+			Headers{HK_DESTINATION, "/queue/subAckTest.12.4",
+				HK_ACK, AckModeClientIndividual},
+			nil},
+		{SPL_12,
+			Headers{HK_DESTINATION, "/queue/subAckTest.12.5",
+				HK_ACK, badam},
+			ESBADAM},
 	}
 )
 
@@ -441,6 +569,16 @@ type (
 		proto string
 		exe   Error
 	}
+	unsubNoIDData struct {
+		proto  string
+		unsubh Headers
+		exe    Error
+	}
+	unsubPlainData struct {
+		proto  string
+		unsubh Headers
+		exe    Error
+	}
 )
 
 var (
@@ -448,6 +586,46 @@ var (
 		{SPL_10, EREQDIUNS},
 		{SPL_11, EREQDIUNS},
 		{SPL_12, EREQDIUNS},
+	}
+	unsubNoIDDataList = []subNoIDData{
+		// 1.0
+		{SPL_10,
+			Headers{},
+			EREQDIUNS},
+		{SPL_10,
+			Headers{HK_DESTINATION, "/queue/unsubIDTest.10.1"},
+			EUNOSID},
+		{SPL_10,
+			Headers{HK_DESTINATION, "/queue/unsubIDTest.10.2",
+				HK_ID, "unsubIDTest.10.2"},
+			EBADSID},
+		// 1.1
+		{SPL_11,
+			Headers{},
+			EREQDIUNS},
+		{SPL_11,
+			Headers{HK_DESTINATION, "/queue/unsubIDTest.11.1"},
+			EUNOSID},
+		{SPL_11,
+			Headers{HK_DESTINATION, "/queue/unsubIDTest.11.2",
+				HK_ID, "unsubIDTest.11.2"},
+			EBADSID},
+		// 1.2
+		{SPL_12,
+			Headers{},
+			EREQDIUNS},
+		{SPL_12,
+			Headers{HK_DESTINATION, "/queue/unsubIDTest.12.1"},
+			EUNOSID},
+		{SPL_12,
+			Headers{HK_DESTINATION, "/queue/unsubIDTest.12.2",
+				HK_ID, "unsubIDTest.12.2"},
+			EBADSID},
+	}
+	unsubPlainDataList = []subPlainData{
+		{SPL_10,
+			Headers{},
+			nil},
 	}
 )
 
@@ -509,4 +687,5 @@ var (
 	conn             *Connection
 	sc               <-chan MessageData
 	sp               string
+	badam            = "AckModeInvalid"
 )

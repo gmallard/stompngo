@@ -17,61 +17,96 @@
 package stompngo
 
 import (
-	//"log"
+	"log"
 	//"os"
 	"testing"
 	//"time"
 )
 
 func TestUnSubNoHeader(t *testing.T) {
-	for _, sp := range Protocols() {
-		n, _ = openConn(t)
-		ch := login_headers
-		ch = headersProtocol(ch, sp)
-		conn, _ = Connect(n, ch)
-		//
-		for ti, tv := range unsubNoHeaderDataList {
-			_ = ti
-			_ = tv
-			e = conn.Unsubscribe(empty_headers)
-			if e == nil {
-				t.Fatalf("TestUnSubNoHeader[%d] proto:%s expected:%q got:nil\n",
-					ti, sp, tv.exe)
-			}
-			if e != tv.exe {
-				t.Fatalf("TestUnSubNoHeader[%d] proto:%s expected:%q got:%q\n",
-					ti, sp, tv.exe, e)
-			}
-		}
-		//
-		e = conn.Disconnect(empty_headers)
-		checkDisconnectError(t, e)
-		_ = closeConn(t, n)
+	n, _ = openConn(t)
+	ch := login_headers
+	ch = headersProtocol(ch, SPL_10) // To start
+	conn, e = Connect(n, ch)
+	if e != nil {
+		t.Fatalf("CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
+			conn.ConnectResponse)
 	}
+	//
+	for ti, tv := range unsubNoHeaderDataList {
+		conn.protocol = tv.proto // Cheat, fake all protocols
+		e = conn.Unsubscribe(empty_headers)
+		if e == nil {
+			t.Fatalf("TestUnSubNoHeader[%d] proto:%s expected:%q got:nil\n",
+				ti, sp, tv.exe)
+		}
+		if e != tv.exe {
+			t.Fatalf("TestUnSubNoHeader[%d] proto:%s expected:%q got:%q\n",
+				ti, sp, tv.exe, e)
+		}
+	}
+	//
+	e = conn.Disconnect(empty_headers)
+	checkDisconnectError(t, e)
+	_ = closeConn(t, n)
+	log.Printf("TestUnSubNoHeader %d tests complete.\n", len(subNoHeaderDataList))
+
 }
 
 func TestUnSubNoID(t *testing.T) {
-	for _, sp := range Protocols() {
-		n, _ = openConn(t)
-		ch := login_headers
-		ch = headersProtocol(ch, sp)
-		conn, _ = Connect(n, ch)
-		//
-		e = conn.Disconnect(empty_headers)
-		checkDisconnectError(t, e)
-		_ = closeConn(t, n)
+	n, _ = openConn(t)
+	ch := login_headers
+	ch = headersProtocol(ch, SPL_10) // To start
+	conn, e = Connect(n, ch)
+	if e != nil {
+		t.Fatalf("CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
+			conn.ConnectResponse)
 	}
+	//
+	for ti, tv := range unsubNoHeaderDataList {
+		conn.protocol = tv.proto // Cheat, fake all protocols
+		e = conn.Unsubscribe(empty_headers)
+		if e == nil {
+			t.Fatalf("TestUnSubNoHeader[%d] proto:%s expected:%q got:nil\n",
+				ti, sp, tv.exe)
+		}
+		if e != tv.exe {
+			t.Fatalf("TestUnSubNoHeader[%d] proto:%s expected:%q got:%q\n",
+				ti, sp, tv.exe, e)
+		}
+	}
+	//
+	e = conn.Disconnect(empty_headers)
+	checkDisconnectError(t, e)
+	_ = closeConn(t, n)
+	log.Printf("TestUnSubNoHeader %d tests complete.\n", len(subNoHeaderDataList))
 }
 
 func TestUnSubPlain(t *testing.T) {
-	for _, sp := range Protocols() {
-		n, _ = openConn(t)
-		ch := login_headers
-		ch = headersProtocol(ch, sp)
-		conn, _ = Connect(n, ch)
-		//
-		e = conn.Disconnect(empty_headers)
-		checkDisconnectError(t, e)
-		_ = closeConn(t, n)
+	n, _ = openConn(t)
+	ch := login_headers
+	ch = headersProtocol(ch, SPL_10) // To start
+	conn, e = Connect(n, ch)
+	if e != nil {
+		t.Fatalf("CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
+			conn.ConnectResponse)
 	}
+	//
+	for ti, tv := range unsubNoHeaderDataList {
+		conn.protocol = tv.proto // Cheat, fake all protocols
+		e = conn.Unsubscribe(empty_headers)
+		if e == nil {
+			t.Fatalf("TestUnSubPlain[%d] proto:%s expected:%q got:nil\n",
+				ti, sp, tv.exe)
+		}
+		if e != tv.exe {
+			t.Fatalf("TestUnSubPlain[%d] proto:%s expected:%q got:%q\n",
+				ti, sp, tv.exe, e)
+		}
+	}
+	//
+	e = conn.Disconnect(empty_headers)
+	checkDisconnectError(t, e)
+	_ = closeConn(t, n)
+	log.Printf("TestUnSubNoHeader %d tests complete.\n", len(unsubNoHeaderDataList))
 }

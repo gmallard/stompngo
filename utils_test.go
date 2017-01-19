@@ -221,3 +221,16 @@ func checkDisconnectError(t *testing.T, e error) {
 	}
 	t.Fatalf("DISCONNECT Error:  expected nil, got:<%v>\n", e)
 }
+
+/*
+   Test helper.  Fix up destination
+*/
+func fixHeaderDest(h Headers) Headers {
+	r := h.Clone()
+	for i := 0; i < len(h); i += 2 {
+		if r[i] == HK_DESTINATION {
+			r[i+1] = tdest(r[i+1])
+		}
+	}
+	return r
+}
