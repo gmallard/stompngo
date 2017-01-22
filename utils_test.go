@@ -234,3 +234,32 @@ func fixHeaderDest(h Headers) Headers {
 	}
 	return r
 }
+
+/*
+   Test helper.  Set which broker is being tested.
+*/
+func setTestBroker() int {
+	brokerid = TEST_ANYBROKER
+	if os.Getenv("STOMP_AMQ") != "" {
+		brokerid = TEST_AMQ
+	} else if os.Getenv("STOMP_RMQ") != "" {
+		brokerid = TEST_RMQ
+	} else if os.Getenv("STOMP_ARTEMIS") != "" {
+		brokerid = TEST_ARTEMIS
+	} else if os.Getenv("STOMP_APOLLO") != "" {
+		brokerid = TEST_APOLLO
+	}
+	return brokerid
+}
+
+/*
+   Test helper.  CHeck for missing headers
+*/
+func checkDupeHeaders(ms, wh Headers) error {
+	for i := 0; i < len(wh); i += 2 {
+		if !ms.ContainsKV(wh[i], wh[i+1]) {
+			return Error("missing header values")
+		}
+	}
+	return nil
+}

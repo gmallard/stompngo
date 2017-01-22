@@ -558,11 +558,53 @@ const (
 // trans_test BEGIN
 
 type (
-// None at present.
+	transBasicData struct {
+		action string
+		th     Headers
+		te     error
+	}
+	transSendCommitData struct {
+		sh  Headers
+		se  error
+		th  Headers
+		te  error
+		sbh Headers
+		sbe error
+	}
+	transSendRollbackData struct {
+		sh Headers
+		se error
+		th Headers
+		te error
+	}
+	transMessageOrderData struct {
+		sh Headers
+		se error
+	}
 )
 
 var (
-// None at present.
+	transBasicList = []transBasicData{
+		{BEGIN, Headers{}, EREQTIDBEG},
+		{COMMIT, Headers{}, EREQTIDCOM},
+		{ABORT, Headers{}, EREQTIDABT},
+		{BEGIN, Headers{HK_TRANSACTION, ""}, ETIDBEGEMT},
+		{COMMIT, Headers{HK_TRANSACTION, ""}, ETIDCOMEMT},
+		{ABORT, Headers{HK_TRANSACTION, ""}, ETIDABTEMT},
+	}
+	transSendCommitList = []transSendCommitData{
+		{Headers{HK_DESTINATION, "/queue/tsrbdata.q"}, nil,
+			Headers{HK_TRANSACTION, "tsrbdata.q.tranid.1"}, nil,
+			Headers{HK_TRANSACTION, "tsrbdata.q.tranid.1"}, nil},
+	}
+
+	transSendRollbackList = []transSendRollbackData{
+		{Headers{HK_DESTINATION, "/queue/tsrbdata.q"}, nil,
+			Headers{HK_TRANSACTION, "tsrbdata.q.tranid.1"}, nil},
+	}
+	transMessageOrderList = []transMessageOrderData{
+		{Headers{HK_DESTINATION, "/queue/tsrbdata.q"}, nil},
+	}
 )
 
 const (
@@ -703,21 +745,35 @@ const (
 )
 
 // utils_test END
-// wrsubrduns_test BEGIN
+// shovel_dup_headers_test BEGIN
 
 type (
 // None at present.
 )
 
 var (
-// None at present.
+	tsdhHeaders = Headers{
+		"dupkey1", "value0",
+		"dupkey1", "value1",
+		"dupkey1", "value2",
+	}
+	wantedDupeV1 = Headers{
+		"dupkey1", "value1",
+	}
+	wantedDupeV2 = Headers{
+		"dupkey1", "value2",
+	}
+	wantedDupeVAll = Headers{
+		"dupkey1", "value1",
+		"dupkey1", "value2",
+	}
 )
 
 const (
 // None at present.
 )
 
-// wrsubrduns_test END
+// shovel_dupe_headers_test.go_test END
 
 // For use by all
 var (
@@ -739,4 +795,13 @@ var (
 	sc               <-chan MessageData
 	sp               string
 	badam            = "AckModeInvalid"
+	brokerid         int
+)
+
+const (
+	TEST_ANYBROKER = iota
+	TEST_AMQ       = iota
+	TEST_RMQ       = iota
+	TEST_ARTEMIS   = iota
+	TEST_APOLLO    = iota
 )
