@@ -564,18 +564,12 @@ type (
 		te     error
 	}
 	transSendCommitData struct {
-		sh  Headers
-		se  error
-		th  Headers
-		te  error
-		sbh Headers
-		sbe error
+		tid string
+		exe error
 	}
-	transSendRollbackData struct {
-		sh Headers
-		se error
-		th Headers
-		te error
+	transSendAbortData struct {
+		tid string
+		exe error
 	}
 	transMessageOrderData struct {
 		sh Headers
@@ -593,14 +587,11 @@ var (
 		{ABORT, Headers{HK_TRANSACTION, ""}, ETIDABTEMT},
 	}
 	transSendCommitList = []transSendCommitData{
-		{Headers{HK_DESTINATION, "/queue/tsrbdata.q"}, nil,
-			Headers{HK_TRANSACTION, "tsrbdata.q.tranid.1"}, nil,
-			Headers{HK_TRANSACTION, "tsrbdata.q.tranid.1"}, nil},
+		{"trans.send.commit", nil},
 	}
 
-	transSendRollbackList = []transSendRollbackData{
-		{Headers{HK_DESTINATION, "/queue/tsrbdata.q"}, nil,
-			Headers{HK_TRANSACTION, "tsrbdata.q.tranid.1"}, nil},
+	transSendAbortList = []transSendAbortData{
+		{"trans.send.abort", nil},
 	}
 	transMessageOrderList = []transMessageOrderData{
 		{Headers{HK_DESTINATION, "/queue/tsrbdata.q"}, nil},
@@ -796,6 +787,7 @@ var (
 	sp               string
 	badam            = "AckModeInvalid"
 	brokerid         int
+	tm               = "A Test Message."
 )
 
 const (
