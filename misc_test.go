@@ -17,6 +17,8 @@
 package stompngo
 
 import (
+	"log"
+	"os"
 	"testing"
 )
 
@@ -39,7 +41,9 @@ func TestMiscBytes0(t *testing.T) {
 			t.Fatalf("Expected nil error, got [%v]\n", e)
 		}
 		//
-		_ = conn.Disconnect(empty_headers)
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 
 		// Read phase
@@ -78,7 +82,9 @@ func TestMiscBytes0(t *testing.T) {
 			t.Fatalf("Expected [%v], got [%v]\n", ms, string(md.Message.Body))
 		}
 		//
-		_ = conn.Disconnect(empty_headers)
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
 }
@@ -102,7 +108,9 @@ func TestMiscBytes1(t *testing.T) {
 			t.Fatalf("Expected nil error, got [%v]\n", e)
 		}
 		//
-		_ = conn.Disconnect(empty_headers)
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 
 		// Read phase
@@ -111,6 +119,9 @@ func TestMiscBytes1(t *testing.T) {
 		ch = headersProtocol(ch, sp)
 		conn, _ = Connect(n, ch)
 		//
+		l := log.New(os.Stderr, "", log.Ldate|log.Lmicroseconds)
+		_ = l
+		//conn.SetLogger(l)
 		sbh := sh.Add(HK_ID, d)
 		sc, e = conn.Subscribe(sbh)
 		if e != nil {
@@ -141,7 +152,9 @@ func TestMiscBytes1(t *testing.T) {
 			t.Fatalf("Expected [%v], got [%v]\n", ms, string(md.Message.Body))
 		}
 		//
-		_ = conn.Disconnect(empty_headers)
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
 }
@@ -208,8 +221,6 @@ func TestMiscNilHeaders(t *testing.T) {
 			t.Fatalf("Send Expected [%v], got [nil]\n", EHDRNIL)
 		}
 		//
-		_ = conn.Disconnect(empty_headers)
-		_ = closeConn(t, n)
 	}
 }
 
@@ -306,7 +317,8 @@ func TestMiscBadHeaders(t *testing.T) {
 		}
 		//
 		if conn != nil && conn.Connected() {
-			_ = conn.Disconnect(empty_headers)
+			e = conn.Disconnect(empty_headers)
+			checkDisconnectError(t, e)
 		}
 		_ = closeConn(t, n)
 	}

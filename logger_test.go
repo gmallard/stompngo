@@ -34,7 +34,9 @@ func TestLoggerBasic(t *testing.T) {
 		l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 		conn.SetLogger(l)
 		//
-		_ = conn.Disconnect(empty_headers)
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
 
@@ -104,7 +106,9 @@ func TestLoggerMiscBytes0(t *testing.T) {
 			t.Fatalf("Expected [%v], got [%v]\n", ms, string(md.Message.Body))
 		}
 		//
-		_ = conn.Disconnect(empty_headers)
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
 

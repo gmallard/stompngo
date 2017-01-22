@@ -33,7 +33,9 @@ func TestConnBadValVer(t *testing.T) {
 		if e != EBADVERCLI {
 			t.Errorf("Expected <%v>, got <%v>, proto: %s\n", EBADVERCLI, e, p)
 		}
-		_ = conn.Disconnect(empty_headers)
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
 }
@@ -53,7 +55,9 @@ func TestConnBadValHost(t *testing.T) {
 		if e != EREQHOST {
 			t.Errorf("Expected <%v>, got <%v>, proto: %s\n", EREQHOST, e, p)
 		}
-		_ = conn.Disconnect(empty_headers)
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
 }

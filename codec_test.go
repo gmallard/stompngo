@@ -141,7 +141,9 @@ func TestCodecSendRecvCodec(t *testing.T) {
 			}
 		}
 		//
-		_ = conn.Disconnect(empty_headers)
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
 }

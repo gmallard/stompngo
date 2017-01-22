@@ -37,7 +37,9 @@ func TestHBNone(t *testing.T) {
 		if conn.hbd != nil {
 			t.Fatalf("Expected no heartbeats, proto: <%s>\n", sp)
 		}
-		_ = conn.Disconnect(empty_headers)
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
 }
@@ -55,7 +57,9 @@ func TestHBZeroHeader(t *testing.T) {
 		if conn.hbd != nil {
 			t.Fatalf("Expected no heartbeats, 0,0 header, proto: <%s>\n", sp)
 		}
-		_ = conn.Disconnect(empty_headers)
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
 }
@@ -134,7 +138,9 @@ func TestHBInitErrors(t *testing.T) {
 			t.Fatalf("HBT 3,b: expected:<%v> got:<%v> <%v>\n", ee, e, sp)
 		}
 		//
-		_ = conn.Disconnect(empty_headers)
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
 }
@@ -164,7 +170,9 @@ func TestHBConnect(t *testing.T) {
 			t.Fatalf("Receive Ticker is zero.")
 		}
 		//
-		_ = conn.Disconnect(empty_headers)
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
 }
@@ -217,7 +225,9 @@ func TestHBNoSend(t *testing.T) {
 		conn.hbd.rdl.Unlock()
 		checkHBRecv(t, conn, 1)
 		//
-		_ = conn.Disconnect(empty_headers)
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
 }
@@ -263,7 +273,9 @@ func TestHBNoReceive(t *testing.T) {
 		conn.SetLogger(nil)
 		//
 		checkHBSend(t, conn, 2)
-		_ = conn.Disconnect(empty_headers)
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
 }
@@ -313,7 +325,9 @@ func TestHBSendReceive(t *testing.T) {
 		conn.hbd.rdl.Unlock()
 		checkHBSendRecv(t, conn, 3)
 		//
-		_ = conn.Disconnect(empty_headers)
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
 }
@@ -365,7 +379,9 @@ func TestHBSendReceiveApollo(t *testing.T) {
 		conn.hbd.rdl.Unlock()
 		checkHBSendRecv(t, conn, 4)
 		//
-		_ = conn.Disconnect(empty_headers)
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
 }
@@ -422,7 +438,9 @@ func TestHBSendReceiveRevApollo(t *testing.T) {
 		conn.hbd.rdl.Unlock()
 		checkHBSendRecv(t, conn, 5)
 		//
-		_ = conn.Disconnect(empty_headers)
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
 }

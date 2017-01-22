@@ -326,10 +326,9 @@ func TestConnCDCDSetProtocolLevel(t *testing.T) {
 			}
 		}
 		//
+		checkReceived(t, conn)
 		e = conn.Disconnect(empty_headers)
-		if e != nil {
-			t.Fatalf("Expected no disconnect error, got [%v]\n", e)
-		}
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
 }
@@ -352,10 +351,9 @@ func TestConnCDRespData(t *testing.T) {
 				t.Fatalf("Index [%v], expected [%v], got [%v]\n", i, f.resp, e)
 			}
 		}
+		checkReceived(t, conn)
 		e = conn.Disconnect(empty_headers)
-		if e != nil {
-			t.Fatalf("Expected no disconnect error, got [%v]\n", e)
-		}
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
 }
