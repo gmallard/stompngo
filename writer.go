@@ -35,7 +35,7 @@ writerLoop:
 			c.log("WTR_WIREWRITE start")
 			c.wireWrite(d)
 			c.log("WTR_WIREWRITE COMPLETE", d.frame.Command, d.frame.Headers,
-				hexData(d.frame.Body))
+				HexData(d.frame.Body))
 			if d.frame.Command == DISCONNECT {
 				break writerLoop // we are done with this connection
 			}

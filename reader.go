@@ -33,7 +33,7 @@ func (c *Connection) reader() {
 readLoop:
 	for {
 		f, e := c.readFrame()
-		c.log("RDR_RECEIVE_FRAME", f.Command, f.Headers, hexData(f.Body),
+		c.log("RDR_RECEIVE_FRAME", f.Command, f.Headers, HexData(f.Body),
 			"RDR_RECEIVE_ERR", e)
 		if e != nil {
 			f.Headers = append(f.Headers, "connection_read_error", e.Error())
@@ -86,7 +86,7 @@ readLoop:
 				ps.drmc++
 				if ps.drmc > ps.dra {
 					c.log("RDR_DROPM", ps.drmc, sid, m.Command,
-						m.Headers, hexData(m.Body))
+						m.Headers, HexData(m.Body))
 				} else {
 					ps.md <- md
 				}

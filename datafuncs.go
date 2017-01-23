@@ -40,7 +40,7 @@ func (m *Message) BodyString() string {
 func (m *Message) String() string {
 	return "\nCommand:" + m.Command +
 		"\nHeaders:" + m.Headers.String() +
-		hexData(m.Body)
+		HexData(m.Body)
 }
 
 /*

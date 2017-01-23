@@ -143,7 +143,7 @@ func dumpmd(md MessageData) {
 	}
 }
 
-func hexData(b []uint8) string {
+func HexData(b []uint8) string {
 	td := b[:]
 	m := senv.MaxBodyLength()
 	if m > 0 {
