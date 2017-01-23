@@ -35,6 +35,15 @@ func (m *Message) BodyString() string {
 }
 
 /*
+	String makes Message a Stringer.
+*/
+func (m *Message) String() string {
+	return "\nCommand:" + m.Command +
+		"\nHeaders:" + m.Headers.String() +
+		hexData(m.Body)
+}
+
+/*
 	Size returns the size of Message on the wire, in bytes.
 */
 func (m *Message) Size(e bool) int64 {
@@ -193,4 +202,15 @@ func (h Headers) Size(e bool) int64 {
 		}
 	}
 	return int64(l)
+}
+
+/*
+	String makes Headers a Stringer.
+*/
+func (h Headers) String() string {
+	b := make([]byte, 0, 1024)
+	for i := 0; i < len(h); i += 2 {
+		b = append(b, h[i]+":"+h[i+1]+"\n"...)
+	}
+	return string(b)
 }
