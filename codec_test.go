@@ -76,7 +76,10 @@ func TestCodecSendRecvCodec(t *testing.T) {
 		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, p)
-		conn, _ = Connect(n, ch)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestCodecSendRecvCodec CONNECT expected nil, got %v\n", e)
+		}
 		//
 		d := tdest("/queue/gostomp.sendrecv.2." + p)
 		ms := "11sendrecv.2 - message 1"

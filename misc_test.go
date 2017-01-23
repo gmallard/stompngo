@@ -282,19 +282,19 @@ func TestMiscBadHeaders(t *testing.T) {
 		neh := Headers{"a", "b", "c"} // not even number header count
 		conn, e = Connect(n, neh)
 		if e == nil {
-			t.Fatalf("Expected [%v], got [nil]\n", EHDRLEN)
+			t.Fatalf("TestMiscBadHeaders Expected [%v], got [nil]\n", EHDRLEN)
 		}
 		if e != EHDRLEN {
-			t.Fatalf("Expected [%v], got [%v]\n", EHDRLEN, e)
+			t.Fatalf("TestMiscBadHeaders Expected [%v], got [%v]\n", EHDRLEN, e)
 		}
 		//
 		bvh := Headers{HK_HOST, "localhost", HK_ACCEPT_VERSION, "3.14159"}
 		conn, e = Connect(n, bvh)
 		if e == nil {
-			t.Fatalf("Expected [%v], got [nil]\n", EBADVERCLI)
+			t.Fatalf("TestMiscBadHeaders Expected [%v], got [nil]\n", EBADVERCLI)
 		}
 		if e != EBADVERCLI {
-			t.Fatalf("Expected [%v], got [%v]\n", EBADVERCLI, e)
+			t.Fatalf("TestMiscBadHeaders Expected [%v], got [%v]\n", EBADVERCLI, e)
 		}
 		//
 		ch := check11(TEST_HEADERS)

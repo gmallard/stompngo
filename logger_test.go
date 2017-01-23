@@ -29,7 +29,10 @@ func TestLoggerBasic(t *testing.T) {
 	for _, _ = range Protocols() {
 		n, _ = openConn(t)
 		ch := check11(TEST_HEADERS)
-		conn, _ = Connect(n, ch)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestLoggerBasic CONNECT expected nil, got %v\n", e)
+		}
 		//
 		l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
 		conn.SetLogger(l)
@@ -54,7 +57,10 @@ func TestLoggerMiscBytes0(t *testing.T) {
 		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		conn, _ = Connect(n, ch)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestLoggerMiscBytes0 CONNECT expected nil, got %v\n", e)
+		}
 		conn.SetLogger(ll)
 		//
 		ms := "" // No data

@@ -31,7 +31,10 @@ var _ = fmt.Println
 func TestAckErrors(t *testing.T) {
 	n, _ = openConn(t)
 	ch := login_headers
-	conn, _ = Connect(n, ch)
+	conn, e = Connect(n, ch)
+	if e != nil {
+		t.Fatalf("TestAckErrors CONNECT expected nil, got %v\n", e)
+	}
 	//
 	for _, tv := range terrList {
 		conn.protocol = tv.proto // Fake it
@@ -41,7 +44,9 @@ func TestAckErrors(t *testing.T) {
 				tv.proto, tv.errval, e)
 		}
 	}
-	_ = conn.Disconnect(empty_headers)
+	checkReceived(t, conn)
+	e = conn.Disconnect(empty_headers)
+	checkDisconnectError(t, e)
 	_ = closeConn(t, n)
 }
 
@@ -53,7 +58,10 @@ func TestAckSameConn(t *testing.T) {
 		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		conn, _ = Connect(n, ch)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestAckSameConn CONNECT expected nil, got %v\n", e)
+		}
 		//
 		// Basic headers
 		wh := Headers{HK_DESTINATION,
@@ -148,7 +156,10 @@ func TestAckDiffConn(t *testing.T) {
 		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		conn, _ = Connect(n, ch)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestAckDiffConn CONNECT expected nil, got %v\n", e)
+		}
 		//
 		// Basic headers
 		wh := Headers{HK_DESTINATION,

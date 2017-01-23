@@ -28,14 +28,14 @@ func TestConnBadValVer(t *testing.T) {
 		ch = ch.Add(HK_ACCEPT_VERSION, "3.14159").Add(HK_HOST, "localhost")
 		conn, e = Connect(n, ch)
 		if e == nil {
-			t.Errorf("Expected error, got nil, proto: %s\n", p)
+			t.Errorf("TestConnBadValVer Expected error, got nil, proto: %s\n", p)
 		}
 		if e != EBADVERCLI {
 			t.Errorf("Expected <%v>, got <%v>, proto: %s\n", EBADVERCLI, e, p)
 		}
 		checkReceived(t, conn)
-		e = conn.Disconnect(empty_headers)
-		checkDisconnectError(t, e)
+		// We are not connected by test design, check nothing around
+		// DISCONNECT.
 		_ = closeConn(t, n)
 	}
 }
@@ -50,14 +50,14 @@ func TestConnBadValHost(t *testing.T) {
 		ch = ch.Add(HK_ACCEPT_VERSION, p)
 		conn, e = Connect(n, ch)
 		if e == nil {
-			t.Errorf("Expected error, got nil, proto: %s\n", p)
+			t.Errorf("TestConnBadValHost Expected error, got nil, proto: %s\n", p)
 		}
 		if e != EREQHOST {
 			t.Errorf("Expected <%v>, got <%v>, proto: %s\n", EREQHOST, e, p)
 		}
 		checkReceived(t, conn)
-		e = conn.Disconnect(empty_headers)
-		checkDisconnectError(t, e)
+		// We are not connected by test design, check nothing around
+		// DISCONNECT.
 		_ = closeConn(t, n)
 	}
 }

@@ -304,10 +304,10 @@ func TestHBSendReceive(t *testing.T) {
 			t.Fatalf("Heartbeat TestHBSendReceive error expected hbd value.")
 		}
 		if conn.ReceiveTickerInterval() == 0 {
-			t.Fatalf("Receive Ticker is zero.")
+			t.Fatalf("TestHBSendReceive Receive Ticker is zero.")
 		}
 		if conn.SendTickerInterval() == 0 {
-			t.Fatalf("Send Ticker is zero.")
+			t.Fatalf("TestHBSendReceive Send Ticker is zero.")
 		}
 		//
 		conn.SetLogger(l)
@@ -320,7 +320,7 @@ func TestHBSendReceive(t *testing.T) {
 		conn.SetLogger(nil)
 		conn.hbd.rdl.Lock()
 		if conn.Hbrf {
-			t.Fatalf("Error, dirty heart beat read detected")
+			t.Fatalf("TestHBSendReceive Error, dirty heart beat read detected")
 		}
 		conn.hbd.rdl.Unlock()
 		checkHBSendRecv(t, conn, 3)
@@ -358,10 +358,10 @@ func TestHBSendReceiveApollo(t *testing.T) {
 		}
 
 		if conn.ReceiveTickerInterval() == 0 {
-			t.Fatalf("Receive Ticker is zero.")
+			t.Fatalf("TestHBSendReceiveApollo Receive Ticker is zero.")
 		}
 		if conn.SendTickerInterval() == 0 {
-			t.Fatalf("Send Ticker is zero.")
+			t.Fatalf("TestHBSendReceiveApollo Send Ticker is zero.")
 		}
 		//
 		conn.SetLogger(l)
@@ -374,7 +374,7 @@ func TestHBSendReceiveApollo(t *testing.T) {
 		conn.SetLogger(nil)
 		conn.hbd.rdl.Lock()
 		if conn.Hbrf {
-			t.Fatalf("Error, dirty heart beat read detected")
+			t.Fatalf("TestHBSendReceiveApollo Error, dirty heart beat read detected")
 		}
 		conn.hbd.rdl.Unlock()
 		checkHBSendRecv(t, conn, 4)
@@ -415,13 +415,13 @@ func TestHBSendReceiveRevApollo(t *testing.T) {
 			t.Fatalf("Heartbeat TestHBSendReceiveRevApollo error expected hbd value.")
 		}
 		if conn.ReceiveTickerInterval() == 0 {
-			t.Fatalf("Receive Ticker is zero.")
+			t.Fatalf("TestHBSendReceiveRevApollo Receive Ticker is zero.")
 		}
 		if conn.SendTickerInterval() == 0 {
-			t.Fatalf("Send Ticker is zero.")
+			t.Fatalf("TestHBSendReceiveRevApollo Send Ticker is zero.")
 		}
 		//
-		l.Printf("CONNECTED Frame: <%q>\n", conn.ConnectResponse)
+		l.Printf("TestHBSendReceiveRevApollo CONNECTED Frame: <%q>\n", conn.ConnectResponse)
 		conn.SetLogger(l)
 		//
 		conn.log("TestHBSendReceiveRevApollo start sleep")
@@ -433,7 +433,7 @@ func TestHBSendReceiveRevApollo(t *testing.T) {
 		conn.SetLogger(nil)
 		conn.hbd.rdl.Lock()
 		if conn.Hbrf {
-			t.Fatalf("Error, dirty heart beat read detected")
+			t.Fatalf("TestHBSendReceiveRevApollo Error, dirty heart beat read detected")
 		}
 		conn.hbd.rdl.Unlock()
 		checkHBSendRecv(t, conn, 5)
