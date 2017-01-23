@@ -27,7 +27,8 @@ func TestCodecEncodeBasic(t *testing.T) {
 		for _, ede := range tdList {
 			ev := encode(ede.decoded)
 			if ede.encoded != ev {
-				t.Fatalf("ENCODE ERROR: expected: [%v] got: [%v]", ede.encoded, ev)
+				t.Fatalf("TestCodecEncodeBasic ENCODE ERROR: expected: [%v] got: [%v]",
+					ede.encoded, ev)
 			}
 		}
 	}
@@ -41,7 +42,8 @@ func TestCodecDecodeBasic(t *testing.T) {
 		for _, ede := range tdList {
 			dv := decode(ede.encoded)
 			if ede.decoded != dv {
-				t.Fatalf("DECODE ERROR: expected: [%v] got: [%v]", ede.decoded, dv)
+				t.Fatalf("TestCodecDecodeBasic DECODE ERROR: expected: [%v] got: [%v]",
+					ede.decoded, dv)
 			}
 		}
 	}
@@ -96,14 +98,16 @@ func TestCodecSendRecvCodec(t *testing.T) {
 			// Send
 			e = conn.Send(sh, ms)
 			if e != nil {
-				t.Fatalf("Send failed: %v protocol:%s\n", e, p)
+				t.Fatalf("TestCodecSendRecvCodec Send failed: %v protocol:%s\n",
+					e, p)
 			}
 			// Check for ERROR frame
-			time.Sleep(1e9 / 4) // Wait one quarter
+			time.Sleep(1e9 / 8) // Wait one eigth
 			// Poll for adhoc ERROR from server
 			select {
 			case vx := <-conn.MessageData:
-				t.Fatalf("Send Error: [%v] protocol:%s\n", vx, p)
+				t.Fatalf("TestCodecSendRecvCodec Send Error: [%v] protocol:%s\n",
+					vx, p)
 			default:
 				//
 			}
@@ -111,36 +115,40 @@ func TestCodecSendRecvCodec(t *testing.T) {
 			sbh := wh.Add(HK_ID, v.sid)
 			sc, e = conn.Subscribe(sbh)
 			if e != nil {
-				t.Fatalf("Subscribe failed: %v protocol:%s\n", e, p)
+				t.Fatalf("TestCodecSendRecvCodec Subscribe failed: %v protocol:%s\n",
+					e, p)
 			}
 			if sc == nil {
-				t.Fatalf("Subscribe sub chan is nil protocol:%s\n", p)
+				t.Fatalf("TestCodecSendRecvCodec Subscribe sub chan is nil protocol:%s\n",
+					p)
 			}
 			//
 			md = MessageData{}
-			checkReceivedMD(t, conn, sc, "codec_test_"+p)
+			checkReceivedMD(t, conn, sc, "codec_test_"+p) // Receive
 			// Check body data
 			b := md.Message.BodyString()
 			if b != ms {
-				t.Fatalf("Receive expected: [%v] got: [%v] protocol:%s\n", ms, b, p)
+				t.Fatalf("TestCodecSendRecvCodec Receive expected: [%v] got: [%v] protocol:%s\n",
+					ms, b, p)
+			}
+			// Unsubscribe
+			e = conn.Unsubscribe(sbh)
+			if e != nil {
+				t.Fatalf("TestCodecSendRecvCodec Unsubscribe failed: %v protocol:%s\n",
+					e, p)
 			}
 			// Check headers
 			// fmt.Printf("v.rv: %q\nhdrs: %q\n\n\n", v.rv, md.Message.Headers)
 			for key, value := range v.rv {
 				hv, ok = md.Message.Headers.Contains(key)
 				if !ok {
-					t.Fatalf("Header key expected: [%v] got: [%v] protocol:%s\n",
+					t.Fatalf("TestCodecSendRecvCodec Header key expected: [%v] got: [%v] protocol:%s\n",
 						key, ok, p)
 				}
 				if value != hv {
-					t.Fatalf("Header value expected: [%v] got: [%v] protocol:%s\n",
+					t.Fatalf("TestCodecSendRecvCodec Header value expected: [%v] got: [%v] protocol:%s\n",
 						value, hv, p)
 				}
-			}
-			// Unsubscribe
-			e = conn.Unsubscribe(sbh)
-			if e != nil {
-				t.Fatalf("Unsubscribe failed: %v protocol:%s\n", e, p)
 			}
 		}
 		//

@@ -30,7 +30,7 @@ func TestSubNoHeader(t *testing.T) {
 	ch = headersProtocol(ch, SPL_10) // Start with 1.0
 	conn, e = Connect(n, ch)
 	if e != nil {
-		t.Fatalf("CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
+		t.Fatalf("TestSubNoHeader CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
 			conn.ConnectResponse)
 	}
 	//
@@ -59,7 +59,7 @@ func TestSubNoID(t *testing.T) {
 	ch = headersProtocol(ch, SPL_10) // Start with 1.0
 	conn, e = Connect(n, ch)
 	if e != nil {
-		t.Fatalf("CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
+		t.Fatalf("TestSubNoID CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
 			conn.ConnectResponse)
 	}
 	//
@@ -86,7 +86,7 @@ func TestSubPlain(t *testing.T) {
 		ch = headersProtocol(ch, tv.proto)
 		conn, e = Connect(n, ch)
 		if e != nil {
-			t.Fatalf("CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
+			t.Fatalf("TestSubPlain CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
 				conn.ConnectResponse)
 		}
 
@@ -124,7 +124,8 @@ func TestSubNoTwice(t *testing.T) {
 		ch = headersProtocol(ch, tv.proto)
 		conn, e = Connect(n, ch)
 		if e != nil {
-			t.Fatalf("CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
+			t.Fatalf("TestSubNoTwice CONNECT Failed: e:<%q> connresponse:<%q>\n",
+				e,
 				conn.ConnectResponse)
 		}
 
@@ -161,7 +162,8 @@ func TestSubRoundTrip(t *testing.T) {
 		ch = headersProtocol(ch, tv.proto)
 		conn, e = Connect(n, ch)
 		if e != nil {
-			t.Fatalf("CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
+			t.Fatalf("TestSubRoundTrip CONNECT Failed: e:<%q> connresponse:<%q>\n",
+				e,
 				conn.ConnectResponse)
 		}
 		sh := fixHeaderDest(tv.subh) // destination fixed if needed
@@ -215,7 +217,8 @@ func TestSubAckModes(t *testing.T) {
 		ch = headersProtocol(ch, tv.proto)
 		conn, e = Connect(n, ch)
 		if e != nil {
-			t.Fatalf("CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
+			t.Fatalf("TestSubAckModes CONNECT Failed: e:<%q> connresponse:<%q>\n",
+				e,
 				conn.ConnectResponse)
 		}
 

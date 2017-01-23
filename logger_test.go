@@ -85,10 +85,11 @@ func TestLoggerMiscBytes0(t *testing.T) {
 		sbh := sh.Add(HK_ID, d)
 		sc, e = conn.Subscribe(sbh)
 		if e != nil {
-			t.Fatalf("Expected no subscribe error, got [%v]\n", e)
+			t.Fatalf("TestLoggerMiscBytes0 Expected no subscribe error, got [%v]\n",
+				e)
 		}
 		if sc == nil {
-			t.Fatalf("Expected subscribe channel, got [nil]\n")
+			t.Fatalf("TestLoggerMiscBytes0 Expected subscribe channel, got [nil]\n")
 		}
 
 		// Read MessageData
@@ -96,20 +97,23 @@ func TestLoggerMiscBytes0(t *testing.T) {
 		select {
 		case md = <-sc:
 		case md = <-conn.MessageData:
-			t.Fatalf("read channel error:  expected [nil], got: [%v]\n",
+			t.Fatalf("TestLoggerMiscBytes0 read channel error:  expected [nil], got: [%v]\n",
 				md.Message.Command)
 		}
 
 		if md.Error != nil {
-			t.Fatalf("Expected no message data error, got [%v]\n", md.Error)
+			t.Fatalf("TestLoggerMiscBytes0 Expected no message data error, got [%v]\n",
+				md.Error)
 		}
 
 		// The real tests here
 		if len(md.Message.Body) != 0 {
-			t.Fatalf("Expected body length 0, got [%v]\n", len(md.Message.Body))
+			t.Fatalf("TestLoggerMiscBytes0 Expected body length 0, got [%v]\n",
+				len(md.Message.Body))
 		}
 		if string(md.Message.Body) != ms {
-			t.Fatalf("Expected [%v], got [%v]\n", ms, string(md.Message.Body))
+			t.Fatalf("TestLoggerMiscBytes0 Expected [%v], got [%v]\n",
+				ms, string(md.Message.Body))
 		}
 		//
 		checkReceived(t, conn)

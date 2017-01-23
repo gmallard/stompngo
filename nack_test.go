@@ -29,16 +29,22 @@ var _ = fmt.Println
 func TestNackErrors(t *testing.T) {
 	n, _ = openConn(t)
 	ch := login_headers
-	conn, _ = Connect(n, ch)
-	for _, tv := range nackList {
+	ch = headersProtocol(ch, sp)
+	conn, e = Connect(n, ch)
+	if e != nil {
+		t.Fatalf("TestNackErrors CONNECT expected no error, got [%v]\n", e)
+	}
+	for ti, tv := range nackList {
 		conn.protocol = tv.proto // Fake it
 		e = conn.Nack(tv.headers)
 		if e != tv.errval {
-			t.Fatalf("NACK -%s- expected error [%v], got [%v]\n",
-				tv.proto, tv.errval, e)
+			t.Fatalf("TestNackErrors[%d] NACK -%s- expected error [%v], got [%v]\n",
+				ti, tv.proto, tv.errval, e)
 		}
 	}
 	//
-	_ = conn.Disconnect(Headers{})
+	checkReceived(t, conn)
+	e = conn.Disconnect(empty_headers)
+	checkDisconnectError(t, e)
 	_ = closeConn(t, n)
 }

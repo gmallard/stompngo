@@ -31,7 +31,8 @@ func TestConnBadValVer(t *testing.T) {
 			t.Errorf("TestConnBadValVer Expected error, got nil, proto: %s\n", p)
 		}
 		if e != EBADVERCLI {
-			t.Errorf("Expected <%v>, got <%v>, proto: %s\n", EBADVERCLI, e, p)
+			t.Errorf("TestConnBadValVer Expected <%v>, got <%v>, proto: %s\n",
+				EBADVERCLI, e, p)
 		}
 		checkReceived(t, conn)
 		// We are not connected by test design, check nothing around
@@ -53,7 +54,8 @@ func TestConnBadValHost(t *testing.T) {
 			t.Errorf("TestConnBadValHost Expected error, got nil, proto: %s\n", p)
 		}
 		if e != EREQHOST {
-			t.Errorf("Expected <%v>, got <%v>, proto: %s\n", EREQHOST, e, p)
+			t.Errorf("TestConnBadValHost Expected <%v>, got <%v>, proto: %s\n",
+				EREQHOST, e, p)
 		}
 		checkReceived(t, conn)
 		// We are not connected by test design, check nothing around

@@ -31,14 +31,17 @@ func TestMiscBytes0(t *testing.T) {
 		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		conn, _ = Connect(n, ch)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestMiscBytes0 CONNECT expected nil, got %v\n", e)
+		}
 		//
 		ms := "" // No data
 		d := tdest("/queue/misc.zero.byte.msg")
 		sh := Headers{HK_DESTINATION, d}
 		e = conn.Send(sh, ms)
 		if e != nil {
-			t.Fatalf("Expected nil error, got [%v]\n", e)
+			t.Fatalf("TestMiscBytes0 Expected nil error, got [%v]\n", e)
 		}
 		//
 		checkReceived(t, conn)
@@ -55,10 +58,10 @@ func TestMiscBytes0(t *testing.T) {
 		sbh := sh.Add(HK_ID, d)
 		sc, e = conn.Subscribe(sbh)
 		if e != nil {
-			t.Fatalf("Expected no subscribe error, got [%v]\n", e)
+			t.Fatalf("TestMiscBytes0 Expected no subscribe error, got [%v]\n", e)
 		}
 		if sc == nil {
-			t.Fatalf("Expected subscribe channel, got [nil]\n")
+			t.Fatalf("TestMiscBytes0 Expected subscribe channel, got [nil]\n")
 		}
 
 		// Read MessageData
@@ -66,20 +69,23 @@ func TestMiscBytes0(t *testing.T) {
 		select {
 		case md = <-sc:
 		case md = <-conn.MessageData:
-			t.Fatalf("read channel error:  expected [nil], got: [%v]\n",
+			t.Fatalf("TestMiscBytes0 read channel error:  expected [nil], got: [%v]\n",
 				md.Message.Command)
 		}
 
 		if md.Error != nil {
-			t.Fatalf("Expected no message data error, got [%v]\n", md.Error)
+			t.Fatalf("TestMiscBytes0 Expected no message data error, got [%v]\n",
+				md.Error)
 		}
 
 		// The real tests here
 		if len(md.Message.Body) != 0 {
-			t.Fatalf("Expected body length 0, got [%v]\n", len(md.Message.Body))
+			t.Fatalf("TestMiscBytes0 Expected body length 0, got [%v]\n",
+				len(md.Message.Body))
 		}
 		if string(md.Message.Body) != ms {
-			t.Fatalf("Expected [%v], got [%v]\n", ms, string(md.Message.Body))
+			t.Fatalf("TestMiscBytes0 Expected [%v], got [%v]\n",
+				ms, string(md.Message.Body))
 		}
 		//
 		checkReceived(t, conn)
@@ -98,14 +104,17 @@ func TestMiscBytes1(t *testing.T) {
 		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		conn, _ = Connect(n, ch)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestMiscBytes1 CONNECT expected nil, got %v\n", e)
+		}
 		//
 		ms := "1" // Just one byte
 		d := tdest("/queue/one.byte.msg")
 		sh := Headers{HK_DESTINATION, d}
 		e = conn.Send(sh, ms)
 		if e != nil {
-			t.Fatalf("Expected nil error, got [%v]\n", e)
+			t.Fatalf("TestMiscBytes1 Expected nil error, got [%v]\n", e)
 		}
 		//
 		checkReceived(t, conn)
@@ -125,10 +134,10 @@ func TestMiscBytes1(t *testing.T) {
 		sbh := sh.Add(HK_ID, d)
 		sc, e = conn.Subscribe(sbh)
 		if e != nil {
-			t.Fatalf("Expected no subscribe error, got [%v]\n", e)
+			t.Fatalf("TestMiscBytes1 Expected no subscribe error, got [%v]\n", e)
 		}
 		if sc == nil {
-			t.Fatalf("Expected subscribe channel, got [nil]\n")
+			t.Fatalf("TestMiscBytes1 Expected subscribe channel, got [nil]\n")
 		}
 
 		// Read MessageData
@@ -141,15 +150,18 @@ func TestMiscBytes1(t *testing.T) {
 		}
 
 		if md.Error != nil {
-			t.Fatalf("Expected no message data error, got [%v]\n", md.Error)
+			t.Fatalf("TestMiscBytes1 Expected no message data error, got [%v]\n",
+				md.Error)
 		}
 
 		// The real tests here
 		if len(md.Message.Body) != 1 {
-			t.Fatalf("Expected body length 1, got [%v]\n", len(md.Message.Body))
+			t.Fatalf("TestMiscBytes1 Expected body length 1, got [%v]\n",
+				len(md.Message.Body))
 		}
 		if string(md.Message.Body) != ms {
-			t.Fatalf("Expected [%v], got [%v]\n", ms, string(md.Message.Body))
+			t.Fatalf("TestMiscBytes1 Expected [%v], got [%v]\n",
+				ms, string(md.Message.Body))
 		}
 		//
 		checkReceived(t, conn)
@@ -168,10 +180,12 @@ func TestMiscNilHeaders(t *testing.T) {
 		//
 		_, e = Connect(n, nil)
 		if e == nil {
-			t.Fatalf("Expected [%v], got [nil]\n", EHDRNIL)
+			t.Fatalf("TestMiscNilHeaders Expected [%v], got [nil]\n",
+				EHDRNIL)
 		}
 		if e != EHDRNIL {
-			t.Fatalf("Expected [%v], got [%v]\n", EHDRNIL, e)
+			t.Fatalf("TestMiscNilHeaders Expected [%v], got [%v]\n",
+				EHDRNIL, e)
 		}
 		//
 		ch := check11(TEST_HEADERS)
@@ -180,45 +194,52 @@ func TestMiscNilHeaders(t *testing.T) {
 		e = nil // reset
 		e = conn.Abort(nil)
 		if e == nil {
-			t.Fatalf("Abort Expected [%v], got [nil]\n", EHDRNIL)
+			t.Fatalf("TestMiscNilHeaders Abort Expected [%v], got [nil]\n",
+				EHDRNIL)
 		}
 		//
 		e = nil // reset
 		e = conn.Ack(nil)
 		if e == nil {
-			t.Fatalf("Ack Expected [%v], got [nil]\n", EHDRNIL)
+			t.Fatalf("TestMiscNilHeaders Ack Expected [%v], got [nil]\n",
+				EHDRNIL)
 		}
 		//
 		e = nil // reset
 		e = conn.Begin(nil)
 		if e == nil {
-			t.Fatalf("Begin Expected [%v], got [nil]\n", EHDRNIL)
+			t.Fatalf("TestMiscNilHeaders Begin Expected [%v], got [nil]\n",
+				EHDRNIL)
 		}
 		//
 		e = nil // reset
 		e = conn.Commit(nil)
 		if e == nil {
-			t.Fatalf("Commit Expected [%v], got [nil]\n", EHDRNIL)
+			t.Fatalf("TestMiscNilHeaders Commit Expected [%v], got [nil]\n",
+				EHDRNIL)
 		}
 		//
 		e = nil // reset
 		e = conn.Disconnect(nil)
 		if e == nil {
-			t.Fatalf("Disconnect Expected [%v], got [nil]\n", EHDRNIL)
+			t.Fatalf("TestMiscNilHeaders Disconnect Expected [%v], got [nil]\n",
+				EHDRNIL)
 		}
 		//
 		if conn.Protocol() > SPL_10 {
 			e = nil // reset
 			e = conn.Disconnect(nil)
 			if e == nil {
-				t.Fatalf("Nack Expected [%v], got [nil]\n", EHDRNIL)
+				t.Fatalf("TestMiscNilHeaders Nack Expected [%v], got [nil]\n",
+					EHDRNIL)
 			}
 		}
 		//
 		e = nil // reset
 		e = conn.Send(nil, "")
 		if e == nil {
-			t.Fatalf("Send Expected [%v], got [nil]\n", EHDRNIL)
+			t.Fatalf("TestMiscNilHeaders Send Expected [%v], got [nil]\n",
+				EHDRNIL)
 		}
 		//
 	}
@@ -233,11 +254,11 @@ func TestMiscMax(t *testing.T) {
 		var h int64 = 2 // high
 		mr := max(l, h)
 		if mr != 2 {
-			t.Fatalf("Expected [%v], got [%v]\n", h, mr)
+			t.Fatalf("TestMiscMax Expected [%v], got [%v]\n", h, mr)
 		}
 		mr = max(h, l)
 		if mr != 2 {
-			t.Fatalf("Expected [%v], got [%v]\n", h, mr)
+			t.Fatalf("TestMiscMax Expected [%v], got [%v]\n", h, mr)
 		}
 	}
 }
@@ -249,10 +270,10 @@ func TestMiscHasValue(t *testing.T) {
 	for _, _ = range Protocols() {
 		sa := []string{"a", "b"}
 		if !hasValue(sa, "a") {
-			t.Fatalf("Expected [true], got [false] for [%v]\n", "a")
+			t.Fatalf("TestMiscHasValue Expected [true], got [false] for [%v]\n", "a")
 		}
 		if hasValue(sa, "z") {
-			t.Fatalf("Expected [false], got [true] for [%v]\n", "z")
+			t.Fatalf("TestMiscHasValue Expected [false], got [true] for [%v]\n", "z")
 		}
 	}
 }
@@ -264,10 +285,11 @@ func TestMiscUuid(t *testing.T) {
 	for _, _ = range Protocols() {
 		id := Uuid()
 		if id == "" {
-			t.Fatalf("Expected a UUID, got empty string\n")
+			t.Fatalf("TestMiscUuid Expected a UUID, got empty string\n")
 		}
 		if len(id) != 36 {
-			t.Fatalf("Expected a 36 character UUID, got length [%v]\n", len(id))
+			t.Fatalf("TestMiscUuid Expected a 36 character UUID, got length [%v]\n",
+				len(id))
 		}
 	}
 }
@@ -276,11 +298,13 @@ func TestMiscUuid(t *testing.T) {
 	Test Bad Headers
 */
 func TestMiscBadHeaders(t *testing.T) {
-	for _, _ = range Protocols() {
+	for _, sp = range Protocols() {
 		//
 		n, _ = openConn(t)
 		neh := Headers{"a", "b", "c"} // not even number header count
 		conn, e = Connect(n, neh)
+
+		// Connection should be nil (i.e. no connection)
 		if e == nil {
 			t.Fatalf("TestMiscBadHeaders Expected [%v], got [nil]\n", EHDRLEN)
 		}
@@ -296,24 +320,32 @@ func TestMiscBadHeaders(t *testing.T) {
 		if e != EBADVERCLI {
 			t.Fatalf("TestMiscBadHeaders Expected [%v], got [%v]\n", EBADVERCLI, e)
 		}
+
 		//
-		ch := check11(TEST_HEADERS)
-		conn, e = Connect(n, ch) // Should be a good connect
-		//
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		//log.Printf("TestMiscBadHeaders Protocol %s, CONNECT Headers: %v\n", sp, ch)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestMiscBadHeaders CONNECT 2 expected nil, got %v connectresponse: %v\n",
+				e, conn.ConnectResponse)
+		}
+
+		// Connection should not be nil (i.e. good connection)
 		_, e = conn.Subscribe(neh)
 		if e == nil {
-			t.Fatalf("Expected [%v], got [nil]\n", EHDRLEN)
+			t.Fatalf("TestMiscBadHeaders Expected [%v], got [nil]\n", EHDRLEN)
 		}
 		if e != EHDRLEN {
-			t.Fatalf("Expected [%v], got [%v]\n", EHDRLEN, e)
+			t.Fatalf("TestMiscBadHeaders Expected [%v], got [%v]\n", EHDRLEN, e)
 		}
 		//
 		e = conn.Unsubscribe(neh)
 		if e == nil {
-			t.Fatalf("Expected [%v], got [nil]\n", EHDRLEN)
+			t.Fatalf("TestMiscBadHeaders Expected [%v], got [nil]\n", EHDRLEN)
 		}
 		if e != EHDRLEN {
-			t.Fatalf("Expected [%v], got [%v]\n", EHDRLEN, e)
+			t.Fatalf("TestMiscBadHeaders Expected [%v], got [%v]\n", EHDRLEN, e)
 		}
 		//
 		if conn != nil && conn.Connected() {

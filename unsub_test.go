@@ -30,7 +30,7 @@ func TestUnSubNoHeader(t *testing.T) {
 	ch = headersProtocol(ch, SPL_10) // To start
 	conn, e = Connect(n, ch)
 	if e != nil {
-		t.Fatalf("CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
+		t.Fatalf("TestUnSubNoHeader CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
 			conn.ConnectResponse)
 	}
 	//
@@ -47,6 +47,7 @@ func TestUnSubNoHeader(t *testing.T) {
 		}
 	}
 	//
+	checkReceived(t, conn)
 	e = conn.Disconnect(empty_headers)
 	checkDisconnectError(t, e)
 	_ = closeConn(t, n)
@@ -60,7 +61,7 @@ func TestUnSubNoID(t *testing.T) {
 	ch = headersProtocol(ch, SPL_10) // To start
 	conn, e = Connect(n, ch)
 	if e != nil {
-		t.Fatalf("CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
+		t.Fatalf("TestUnSubNoID CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
 			conn.ConnectResponse)
 	}
 	//
@@ -77,6 +78,7 @@ func TestUnSubNoID(t *testing.T) {
 		}
 	}
 	//
+	checkReceived(t, conn)
 	e = conn.Disconnect(empty_headers)
 	checkDisconnectError(t, e)
 	_ = closeConn(t, n)
@@ -126,6 +128,7 @@ func TestUnSubBool(t *testing.T) {
 		}
 	}
 	//
+	checkReceived(t, conn)
 	e = conn.Disconnect(empty_headers)
 	checkDisconnectError(t, e)
 	_ = closeConn(t, n)

@@ -75,7 +75,7 @@ func TestAckSameConn(t *testing.T) {
 		// Subscribe
 		sc, e = conn.Subscribe(sbh)
 		if e != nil {
-			t.Fatalf("SUBSCRIBE expected [nil], got: [%v]\n", e)
+			t.Fatalf("TestAckSameConn SUBSCRIBE expected [nil], got: [%v]\n", e)
 		}
 
 		//
@@ -93,21 +93,23 @@ func TestAckSameConn(t *testing.T) {
 		}
 		e = conn.Send(sh, ms)
 		if e != nil {
-			t.Fatalf("SEND expected [nil], got: [%v]\n", e)
+			t.Fatalf("TestAckSameConn SEND expected [nil], got: [%v]\n", e)
 		}
 		//
 		// Read MessageData
 		select {
 		case md = <-sc:
 		case md = <-conn.MessageData:
-			t.Fatalf("read channel error:  expected [nil], got: [%v]\n",
+			t.Fatalf("TestAckSameConn read channel error:  expected [nil], got: [%v]\n",
 				md.Message.Command)
 		}
 		if md.Error != nil {
-			t.Fatalf("read error:  expected [nil], got: [%v]\n", md.Error)
+			t.Fatalf("TestAckSameConn read error:  expected [nil], got: [%v]\n",
+				md.Error)
 		}
 		if ms != md.Message.BodyString() {
-			t.Fatalf("message error: expected: [%v], got: [%v] Message: [%q]\n", ms, md.Message.BodyString(), md.Message)
+			t.Fatalf("TestAckSameConn message error: expected: [%v], got: [%v] Message: [%q]\n",
+				ms, md.Message.BodyString(), md.Message)
 		}
 		// Ack headers
 		ah := Headers{}
@@ -128,7 +130,7 @@ func TestAckSameConn(t *testing.T) {
 		// Make sure Apollo Jira issue APLO-88 stays fixed.
 		select {
 		case md = <-sc:
-			t.Fatalf("RECEIVE not expected, got: [%v]\n", md)
+			t.Fatalf("TestAckSameConn RECEIVE not expected, got: [%v]\n", md)
 		default:
 		}
 
@@ -136,7 +138,7 @@ func TestAckSameConn(t *testing.T) {
 		uh := wh.Add(HK_ID, id)
 		e = conn.Unsubscribe(uh)
 		if e != nil {
-			t.Fatalf("UNSUBSCRIBE expected [nil], got: [%v]\n", e)
+			t.Fatalf("TestAckSameConn UNSUBSCRIBE expected [nil], got: [%v]\n", e)
 		}
 
 		//
@@ -179,7 +181,7 @@ func TestAckDiffConn(t *testing.T) {
 		}
 		e = conn.Send(sh, ms)
 		if e != nil {
-			t.Fatalf("SEND expected [nil], got: [%v]\n", e)
+			t.Fatalf("TestAckDiffConn SEND expected [nil], got: [%v]\n", e)
 		}
 		//
 		checkReceived(t, conn)
@@ -192,7 +194,7 @@ func TestAckDiffConn(t *testing.T) {
 		ch = headersProtocol(ch, sp)
 		conn, e = Connect(n, ch) // Reconnect
 		if e != nil {
-			t.Fatalf("Second Connect, expected no error, got:<%v>\n", e)
+			t.Fatalf("TestAckDiffConn Second Connect, expected no error, got:<%v>\n", e)
 		}
 		//
 		// Subscribe Headers
@@ -202,20 +204,21 @@ func TestAckDiffConn(t *testing.T) {
 		// Subscribe
 		sc, e = conn.Subscribe(sbh)
 		if e != nil {
-			t.Fatalf("SUBSCRIBE expected [nil], got: [%v]\n", e)
+			t.Fatalf("TestAckDiffConn SUBSCRIBE expected [nil], got: [%v]\n", e)
 		}
 		// Read MessageData
 		select {
 		case md = <-sc:
 		case md = <-conn.MessageData:
-			t.Fatalf("read channel error:  expected [nil], got: [%v]\n",
+			t.Fatalf("TestAckDiffConn read channel error:  expected [nil], got: [%v]\n",
 				md.Message.Command)
 		}
 		if md.Error != nil {
 			t.Fatalf("read error:  expected [nil], got: [%v]\n", md.Error)
 		}
 		if ms != md.Message.BodyString() {
-			t.Fatalf("message error: expected: [%v], got: [%v] Message: [%q]\n", ms, md.Message.BodyString(), md.Message)
+			t.Fatalf("TestAckDiffConn message error: expected: [%v], got: [%v] Message: [%q]\n",
+				ms, md.Message.BodyString(), md.Message)
 		}
 		// Ack headers
 		ah := Headers{}
@@ -231,19 +234,19 @@ func TestAckDiffConn(t *testing.T) {
 		// Ack
 		e = conn.Ack(ah)
 		if e != nil {
-			t.Fatalf("ACK expected [nil], got: [%v]\n", e)
+			t.Fatalf("TestAckDiffConn ACK expected [nil], got: [%v]\n", e)
 		}
 		// Make sure Apollo Jira issue APLO-88 stays fixed.
 		select {
 		case md = <-sc:
-			t.Fatalf("RECEIVE not expected, got: [%v]\n", md)
+			t.Fatalf("TestAckDiffConn RECEIVE not expected, got: [%v]\n", md)
 		default:
 		}
 		// Unsubscribe
 		uh := wh.Add(HK_ID, id)
 		e = conn.Unsubscribe(uh)
 		if e != nil {
-			t.Fatalf("UNSUBSCRIBE expected [nil], got: [%v]\n", e)
+			t.Fatalf("TestAckDiffConn UNSUBSCRIBE expected [nil], got: [%v]\n", e)
 		}
 		//
 		checkReceived(t, conn)

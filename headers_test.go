@@ -29,26 +29,29 @@ func TestHeadersBasic(t *testing.T) {
 		v := "valuea"
 		h := Headers{k, v}
 		if nil != h.Validate() {
-			t.Fatalf("Header validate error: [%v]\n", h.Validate())
+			t.Fatalf("TestHeadersBasic Header validate error: [%v]\n", h.Validate())
 		}
 		if len(h) != 2 {
-			t.Fatalf("Header Unexpected length error 1, length: [%v]\n", len(h))
+			t.Fatalf("TestHeadersBasic Header Unexpected length error 1, length: [%v]\n",
+				len(h))
 		}
 		h = h.Add("keyb", "valueb").Add("keya", "valuea2")
 		if len(h) != 6 {
-			t.Fatalf("Header Unexpected length error 2, length after add: [%v]\n", len(h))
+			t.Fatalf("TestHeadersBasic Header Unexpected length error 2, length after add: [%v]\n",
+				len(h))
 		}
 		if _, ok := h.Contains(k); !ok {
-			t.Fatalf("Header Unexpected false for key: [%v]\n", k)
+			t.Fatalf("TestHeadersBasic Header Unexpected false for key: [%v]\n", k)
 		}
 		k = "xyz"
 		if _, ok := h.Contains(k); ok {
-			t.Fatalf("Header Unexpected true for key: [%v]\n", k)
+			t.Fatalf("TestHeadersBasic Header Unexpected true for key: [%v]\n", k)
 		}
 		//
 		h = Headers{k}
 		if e = h.Validate(); e != EHDRLEN {
-			t.Fatalf("Header Validate, got [%v], expected [%v]\n", e, EHDRLEN)
+			t.Fatalf("TestHeadersBasic Header Validate, got [%v], expected [%v]\n",
+				e, EHDRLEN)
 		}
 	}
 }
@@ -64,26 +67,28 @@ func TestHeadersUTF8(t *testing.T) {
 		var e error   // An error
 		var rs string // Result string
 		if rs, e = wh.ValidateUTF8(); e != nil {
-			t.Fatalf("Unexpected UTF8 error 1: [%v]\n", e)
+			t.Fatalf("TestHeadersUTF8 Unexpected UTF8 error 1: [%v]\n", e)
 		}
 		if rs != "" {
-			t.Fatalf("Unexpected UTF8 error 1B, got [%v], expected [%v]\n", rs, "")
+			t.Fatalf("TestHeadersUTF8 Unexpected UTF8 error 1B, got [%v], expected [%v]\n", rs, "")
 		}
 		//
 		wh = Headers{k, v, `“Iñtërnâtiônàlizætiøn”`, "valueb", "keyc", `“Iñtërnâtiônàlizætiøn”`}
 		if _, e = wh.ValidateUTF8(); e != nil {
-			t.Fatalf("Unexpected UTF8 error 2: [%v]\n", e)
+			t.Fatalf("TestHeadersUTF8 Unexpected UTF8 error 2: [%v]\n", e)
 		}
 		//
 		wh = Headers{k, v, `“Iñtërnâtiônàlizætiøn”`, "\x80", "keyc", `“Iñtërnâtiônàlizætiøn”`}
 		if rs, e = wh.ValidateUTF8(); e == nil {
-			t.Fatalf("Unexpected UTF8 error  3, got nil, expected an error")
+			t.Fatalf("TestHeadersUTF8 Unexpected UTF8 error  3, got nil, expected an error")
 		}
 		if e != EHDRUTF8 {
-			t.Fatalf("Unexpected UTF8 error 4, got [%v], expected [%v]\n", e, EHDRUTF8)
+			t.Fatalf("TestHeadersUTF8 Unexpected UTF8 error 4, got [%v], expected [%v]\n",
+				e, EHDRUTF8)
 		}
 		if rs != "\x80" {
-			t.Fatalf("Unexpected UTF8 error 5, got [%v], expected [%v]\n", rs, "\x80")
+			t.Fatalf("TestHeadersUTF8 Unexpected UTF8 error 5, got [%v], expected [%v]\n",
+				rs, "\x80")
 		}
 	}
 }
@@ -96,7 +101,8 @@ func TestHeadersClone(t *testing.T) {
 		wh := Headers{"ka", "va"}.Add("kb", "vb").Add("kc", "vc")
 		hc := wh.Clone()
 		if !wh.Compare(hc) {
-			t.Fatalf("Unexpected false for clone: [%v], [%v]\n", wh, hc)
+			t.Fatalf("TestHeadersClone Unexpected false for clone: [%v], [%v]\n",
+				wh, hc)
 		}
 	}
 }
@@ -110,16 +116,19 @@ func TestHeadersAddDelete(t *testing.T) {
 		hb := Headers{"kaa", "va", "kbb", "vb", "kcc", "vc"}
 		hn := ha.AddHeaders(hb)
 		if len(ha)+len(hb) != len(hn) {
-			t.Fatalf("Unexpected length AddHeaders, got: [%v], expected: [%v]\n", len(hn), len(ha)+len(hb))
+			t.Fatalf("TestHeadersAddDelete Unexpected length AddHeaders, got: [%v], expected: [%v]\n",
+				len(hn), len(ha)+len(hb))
 		}
 		ol := len(hn)
 		hn = hn.Delete("ka")
 		if len(hn) != ol-2 {
-			t.Fatalf("Unexpected length Delete 1, got: [%v], expected: [%v]\n", len(hn), ol-2)
+			t.Fatalf("TestHeadersAddDelete Unexpected length Delete 1, got: [%v], expected: [%v]\n",
+				len(hn), ol-2)
 		}
 		hn = hn.Delete("kcc")
 		if len(hn) != ol-4 {
-			t.Fatalf("Unexpected length Delete 2, got: [%v], expected: [%v]\n", len(hn), ol-4)
+			t.Fatalf("TestHeadersAddDelete Unexpected length Delete 2, got: [%v], expected: [%v]\n",
+				len(hn), ol-4)
 		}
 	}
 }
@@ -132,11 +141,11 @@ func TestHeadersContainsKV(t *testing.T) {
 		ha := Headers{"ka", "va", "kb", "vb", "kc", "vc"}
 		b := ha.ContainsKV("kb", "vb")
 		if !b {
-			t.Fatalf("KV01 got false, expected true")
+			t.Fatalf("TestHeadersContainsKV KV01 got false, expected true")
 		}
 		b = ha.ContainsKV("kb", "zz")
 		if b {
-			t.Fatalf("KV02 got true, expected false")
+			t.Fatalf("TestHeadersContainsKV KV02 got true, expected false")
 		}
 	}
 }
@@ -152,19 +161,19 @@ func TestHeadersCompare(t *testing.T) {
 		hd := Headers{"k1", "v1", "k2", "v2", "k3", "v3"}
 		b := ha.Compare(hb)
 		if !b {
-			t.Fatalf("CMP01 Expected true, got false")
+			t.Fatalf("TestHeadersCompare CMP01 Expected true, got false")
 		}
 		b = ha.Compare(hc)
 		if b {
-			t.Fatalf("CMP02 Expected false, got true")
+			t.Fatalf("TestHeadersCompare CMP02 Expected false, got true")
 		}
 		b = ha.Compare(hd)
 		if b {
-			t.Fatalf("CMP03 Expected false, got true")
+			t.Fatalf("TestHeadersCompare CMP03 Expected false, got true")
 		}
 		b = hd.Compare(ha)
 		if b {
-			t.Fatalf("CMP04 Expected false, got true")
+			t.Fatalf("TestHeadersCompare CMP04 Expected false, got true")
 		}
 	}
 }
@@ -178,14 +187,16 @@ func TestHeadersSize(t *testing.T) {
 		s := ha.Size(false)
 		var w int64 = 4
 		if s != w {
-			t.Fatalf("SIZ01 size, got [%d], expected [%v]\n", s, w)
+			t.Fatalf("TestHeadersSize SIZ01 size, got [%d], expected [%v]\n",
+				s, w)
 		}
 		//
 		ha = Headers{"kaa", "vaa2", "kba", "vba2", "kca", "vca2"}
 		s = ha.Size(true)
 		w = 3 + 1 + 4 + 1 + 3 + 1 + 4 + 1 + 3 + 1 + 4 + 1
 		if s != w {
-			t.Fatalf("SIZ02 size, got [%d] expected [%v]\n", s, w)
+			t.Fatalf("TestHeadersSize SIZ02 size, got [%d] expected [%v]\n",
+				s, w)
 		}
 	}
 }
@@ -201,29 +212,32 @@ func TestHeadersEmtKV(t *testing.T) {
 		//
 		e = checkHeaders(wh, SPL_10)
 		if e != nil {
-			t.Fatalf("CHD01 Expected [nil], got [%v]\n", e)
+			t.Fatalf("TestHeadersEmtKV CHD01 Expected [nil], got [%v]\n", e)
 		}
 		e = checkHeaders(wh, SPL_11)
 		if e != nil {
-			t.Fatalf("CHD02 Expected [nil], got [%v]\n", e)
+			t.Fatalf("TestHeadersEmtKV CHD02 Expected [nil], got [%v]\n", e)
 		}
 		//
 		e = checkHeaders(ek, SPL_10)
 		if e != EHDRMTK {
-			t.Fatalf("CHD03 Expected [%v], got [%v]\n", EHDRMTK, e)
+			t.Fatalf("TestHeadersEmtKV CHD03 Expected [%v], got [%v]\n", EHDRMTK,
+				e)
 		}
 		e = checkHeaders(ek, SPL_11)
 		if e != EHDRMTK {
-			t.Fatalf("CHD04 Expected [%v], got [%v]\n", EHDRMTK, e)
+			t.Fatalf("TestHeadersEmtKV CHD04 Expected [%v], got [%v]\n", EHDRMTK,
+				e)
 		}
 		//
 		e = checkHeaders(ev, SPL_10)
 		if e != EHDRMTV {
-			t.Fatalf("CHD05 Expected [%v], got [%v]\n", EHDRMTV, e)
+			t.Fatalf("TestHeadersEmtKV CHD05 Expected [%v], got [%v]\n", EHDRMTV,
+				e)
 		}
 		e = checkHeaders(ev, SPL_11)
 		if e != nil {
-			t.Fatalf("CHD06 Expected [nil], got [%v]\n", e)
+			t.Fatalf("TestHeadersEmtKV CHD06 Expected [nil], got [%v]\n", e)
 		}
 	}
 }

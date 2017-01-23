@@ -37,7 +37,6 @@ func TestConnCDDisc(t *testing.T) {
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
 		conn, e = Connect(n, ch)
-
 		if e != nil {
 			t.Fatalf("TestConnCDDisc Expected no connect error, got [%v]\n", e)
 		}
@@ -112,6 +111,7 @@ func TestConnCDDiscNoDiscReceipt(t *testing.T) {
 		if e != nil {
 			t.Fatalf("TestConnCDDiscNoDiscReceipt Expected no connect error, got [%v]\n", e)
 		}
+		// DISCONNECT Here
 		checkReceived(t, conn)
 		e = conn.Disconnect(NoDiscReceipt)
 		checkDisconnectError(t, e)
@@ -122,6 +122,7 @@ func TestConnCDDiscNoDiscReceipt(t *testing.T) {
 			t.Fatalf("TestConnCDDiscNoDiscReceipt Expected no disconnect receipt command, got [%v]\n",
 				conn.DisconnectReceipt.Message.Command)
 		}
+		// NO DISCONNECT checks here
 		_ = closeConn(t, n)
 	}
 }
@@ -136,13 +137,16 @@ func TestConnCDDiscStompDiscReceipt(t *testing.T) {
 		ch = headersProtocol(ch, sp)
 		conn, e = Connect(n, ch)
 		if e != nil {
-			t.Fatalf("TestConnCDDiscStompDiscReceipt Expected no connect error, got [%v]\n", e)
+			t.Fatalf("TestConnCDDiscStompDiscReceipt Expected no connect error, got [%v]\n",
+				e)
 		}
+		// DISCONNECT Here
 		checkReceived(t, conn)
 		e = conn.Disconnect(Headers{HK_RECEIPT, rid})
 		if e != nil {
 
-			t.Fatalf("TestConnCDDiscStompDiscReceipt Expected no disconnect error, got [%v]\n", e)
+			t.Fatalf("TestConnCDDiscStompDiscReceipt Expected no disconnect error, got [%v]\n",
+				e)
 		}
 		if conn.DisconnectReceipt.Error != nil {
 			t.Fatalf("TestConnCDDiscStompDiscReceipt Expected no receipt error, got [%v]\n",
@@ -154,8 +158,10 @@ func TestConnCDDiscStompDiscReceipt(t *testing.T) {
 			t.Fatalf("TestConnCDDiscStompDiscReceipt Expected receipt-id, not received\n")
 		}
 		if rid != irid {
-			t.Fatalf("TestConnCDDiscStompDiscReceipt Expected receipt-id [%q], got [%q]\n", rid, irid)
+			t.Fatalf("TestConnCDDiscStompDiscReceipt Expected receipt-id [%q], got [%q]\n",
+				rid, irid)
 		}
+		// NO DISCONNECT checks here
 		_ = closeConn(t, n)
 	}
 }

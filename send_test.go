@@ -28,24 +28,29 @@ func TestSendBasic(t *testing.T) {
 		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		conn, _ = Connect(n, ch)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestSendBasic CONNECT expected no error, got [%v]\n", e)
+		}
 		//
 		ms := "A message"
 		d := tdest("/queue/send.basiconn.01." + sp)
 		sh := Headers{HK_DESTINATION, d}
 		e = conn.Send(sh, ms)
 		if e != nil {
-			t.Fatalf("Expected nil error, got [%v]\n", e)
+			t.Fatalf("TestSendBasic Expected nil error, got [%v]\n", e)
 		}
 		//
 		e = conn.Send(empty_headers, ms)
 		if e == nil {
-			t.Fatalf("Expected error, got [nil]\n")
+			t.Fatalf("TestSendBasic Expected error, got [nil]\n")
 		}
 		if e != EREQDSTSND {
-			t.Fatalf("Expected [%v], got [%v]\n", EREQDSTSND, e)
+			t.Fatalf("TestSendBasic Expected [%v], got [%v]\n", EREQDSTSND, e)
 		}
-		_ = conn.Disconnect(empty_headers)
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
 }
@@ -58,7 +63,10 @@ func TestSendMultiple(t *testing.T) {
 		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		conn, _ = Connect(n, ch)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestSendMultiple CONNECT expected no error, got [%v]\n", e)
+		}
 		//
 		smd := multi_send_data{conn: conn,
 			dest:  tdest("/queue/sendmultiple.01." + sp + "."),
@@ -66,10 +74,12 @@ func TestSendMultiple(t *testing.T) {
 			count: 5}
 		e = sendMultiple(smd)
 		if e != nil {
-			t.Fatalf("Expected nil error, got [%v]\n", e)
+			t.Fatalf("TestSendMultiple Expected nil error, got [%v]\n", e)
 		}
 		//
-		_ = conn.Disconnect(empty_headers)
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
 }

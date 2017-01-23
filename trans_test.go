@@ -72,7 +72,8 @@ func TestTransSendCommit(t *testing.T) {
 		ch = headersProtocol(ch, sp)
 		conn, _ = Connect(n, ch)
 		if e != nil {
-			t.Fatalf("TestTransSend[%d/%s] CONNECT expected OK, got: %v\n", pi,
+			t.Fatalf("TestTransSendCommit[%d/%s] CONNECT expected OK, got: %v\n",
+				pi,
 				sp, e)
 		}
 
@@ -80,19 +81,22 @@ func TestTransSendCommit(t *testing.T) {
 			// BEGIN
 			e = conn.Begin(Headers{HK_TRANSACTION, tv.tid})
 			if e != nil {
-				t.Fatalf("BEGIN[%d][%d] expected [%v], got: [%v]\n", pi, ti, tv.exe, e)
+				t.Fatalf("TestTransSendCommit BEGIN[%d][%d] expected [%v], got: [%v]\n",
+					pi, ti, tv.exe, e)
 			}
 			// SEND
 			sh := Headers{HK_DESTINATION, tdest("/queue/" + tv.tid + ".1"),
 				HK_TRANSACTION, tv.tid}
 			e = conn.Send(sh, tm)
 			if e != nil {
-				t.Fatalf("SEND[%d][%d] expected [%v], got: [%v]\n", pi, ti, tv.exe, e)
+				t.Fatalf("TestTransSendCommit SEND[%d][%d] expected [%v], got: [%v]\n",
+					pi, ti, tv.exe, e)
 			}
 			// COMMIT
 			e = conn.Commit(Headers{HK_TRANSACTION, tv.tid})
 			if e != nil {
-				t.Fatalf("COMMIT[%d][%d] expected [%v], got: [%v]\n", pi, ti, tv.exe, e)
+				t.Fatalf("TestTransSendCommit COMMIT[%d][%d] expected [%v], got: [%v]\n",
+					pi, ti, tv.exe, e)
 			}
 		}
 		//
@@ -115,26 +119,30 @@ func TestTransSendAbort(t *testing.T) {
 		ch = headersProtocol(ch, sp)
 		conn, _ = Connect(n, ch)
 		if e != nil {
-			t.Fatalf("TestTransSend[%d/%s] CONNECT expected OK, got: %v\n", pi,
+			t.Fatalf("TestTransSendAbort[%d/%s] CONNECT expected OK, got: %v\n",
+				pi,
 				sp, e)
 		}
 		for ti, tv := range transSendAbortList {
 			// BEGIN
 			e = conn.Begin(Headers{HK_TRANSACTION, tv.tid})
 			if e != nil {
-				t.Fatalf("BEGIN[%d][%d] expected [%v], got: [%v]\n", pi, ti, tv.exe, e)
+				t.Fatalf("TestTransSendAbort BEGIN[%d][%d] expected [%v], got: [%v]\n",
+					pi, ti, tv.exe, e)
 			}
 			// SEND
 			sh := Headers{HK_DESTINATION, tdest("/queue/" + tv.tid + ".1"),
 				HK_TRANSACTION, tv.tid}
 			e = conn.Send(sh, tm)
 			if e != nil {
-				t.Fatalf("SEND[%d][%d] expected [%v], got: [%v]\n", pi, ti, tv.exe, e)
+				t.Fatalf("TestTransSendAbort SEND[%d][%d] expected [%v], got: [%v]\n",
+					pi, ti, tv.exe, e)
 			}
 			// ABORT
 			e = conn.Abort(Headers{HK_TRANSACTION, tv.tid})
 			if e != nil {
-				t.Fatalf("COMMIT[%d][%d] expected [%v], got: [%v]\n", pi, ti, tv.exe, e)
+				t.Fatalf("TestTransSendAbort COMMIT[%d][%d] expected [%v], got: [%v]\n",
+					pi, ti, tv.exe, e)
 			}
 		}
 		//

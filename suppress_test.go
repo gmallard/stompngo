@@ -28,17 +28,23 @@ func TestSuppressContentLength(t *testing.T) {
 		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		conn, _ = Connect(n, ch)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestSuppressContentLength CONNECT Failed: e:<%q> connresponse:<%q>\n",
+				e,
+				conn.ConnectResponse)
+		}
 		//
 		d := tdest("/queue/suppress.content.length")
 		id := Uuid()
 		sbh := Headers{HK_DESTINATION, d, HK_ID, id}
 		sc, e = conn.Subscribe(sbh)
 		if e != nil {
-			t.Fatalf("Expected no subscribe error, got [%v]\n", e)
+			t.Fatalf("TestSuppressContentLength Expected no subscribe error, got [%v]\n",
+				e)
 		}
 		if sc == nil {
-			t.Fatalf("Expected subscribe channel, got [nil]\n")
+			t.Fatalf("TestSuppressContentLength Expected subscribe channel, got [nil]\n")
 		}
 
 		// Do the work here
@@ -48,15 +54,17 @@ func TestSuppressContentLength(t *testing.T) {
 			//
 			e = conn.SendBytes(sh, tv.ba)
 			if e != nil {
-				t.Fatalf("Expected no send error, got [%v]\n", e)
+				t.Fatalf("TestSuppressContentLength Expected no send error, got [%v]\n",
+					e)
 			}
 			select {
 			case v = <-sc:
 			case v = <-conn.MessageData:
-				t.Fatalf("Expected no RECEIPT/ERROR error, got [%v]\n", v)
+				t.Fatalf("TestSuppressContentLength Expected no RECEIPT/ERROR error, got [%v]\n",
+					v)
 			}
 			if tv.wanted != string(v.Message.Body) {
-				t.Fatalf("Expected same data, tn:%d wanted[%v], got [%v]\n",
+				t.Fatalf("TestSuppressContentLength Expected same data, tn:%d wanted[%v], got [%v]\n",
 					tn, tv.wanted, string(v.Message.Body))
 			}
 		}
@@ -65,10 +73,13 @@ func TestSuppressContentLength(t *testing.T) {
 		uh := Headers{HK_DESTINATION, d, HK_ID, id}
 		e = conn.Unsubscribe(uh)
 		if e != nil {
-			t.Fatalf("Expected no unsubscribe error, got [%v]\n", e)
+			t.Fatalf("TestSuppressContentLength Expected no unsubscribe error, got [%v]\n",
+				e)
 		}
 
-		_ = conn.Disconnect(empty_headers)
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
 }
@@ -81,8 +92,12 @@ func TestSuppressContentType(t *testing.T) {
 		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		conn, _ = Connect(n, ch)
-
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestSuppressContentType CONNECT Failed: e:<%q> connresponse:<%q>\n",
+				e,
+				conn.ConnectResponse)
+		}
 		// l := log.New(os.Stdout, "TSCT", log.Ldate|log.Lmicroseconds)
 		// conn.SetLogger(l)
 
@@ -92,10 +107,11 @@ func TestSuppressContentType(t *testing.T) {
 		sbh := Headers{HK_DESTINATION, d, HK_ID, id}
 		sc, e = conn.Subscribe(sbh)
 		if e != nil {
-			t.Fatalf("Expected no subscribe error, got [%v]\n", e)
+			t.Fatalf("TestSuppressContentType Expected no subscribe error, got [%v]\n",
+				e)
 		}
 		if sc == nil {
-			t.Fatalf("Expected subscribe channel, got [nil]\n")
+			t.Fatalf("TestSuppressContentType Expected subscribe channel, got [nil]\n")
 		}
 
 		// Do the work here
@@ -111,13 +127,15 @@ func TestSuppressContentType(t *testing.T) {
 			//
 			e = conn.Send(sh, tv.body)
 			if e != nil {
-				t.Fatalf("Expected no send error, got [%v]\n", e)
+				t.Fatalf("TestSuppressContentType Expected no send error, got [%v]\n",
+					e)
 			}
 			// fmt.Printf("SCT01 tn:%d sent:%s\n", tn, tv.body)
 			select {
 			case v = <-sc:
 			case v = <-conn.MessageData:
-				t.Fatalf("Expected no RECEIPT/ERROR error, got [%v]\n", v)
+				t.Fatalf("TestSuppressContentType Expected no RECEIPT/ERROR error, got [%v]\n",
+					v)
 			}
 			_, try := v.Message.Headers.Contains(HK_CONTENT_TYPE)
 			// fmt.Printf("DUMP: md:%#v\n", v)
@@ -132,10 +150,13 @@ func TestSuppressContentType(t *testing.T) {
 		uh := Headers{HK_DESTINATION, d, HK_ID, id}
 		e = conn.Unsubscribe(uh)
 		if e != nil {
-			t.Fatalf("Expected no unsubscribe error, got [%v]\n", e)
+			t.Fatalf("TestSuppressContentType Expected no unsubscribe error, got [%v]\n",
+				e)
 		}
 
-		_ = conn.Disconnect(empty_headers)
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
 }

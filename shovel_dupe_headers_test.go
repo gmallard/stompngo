@@ -36,7 +36,11 @@ func TestShovelDupeHeaders(t *testing.T) {
 		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		conn, _ = Connect(n, ch)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestShovelDupeHeaders CONNECT expected no error, got [%v]\n", e)
+		}
+
 		//
 		ms := "A message"
 		d := tdest("/queue/subunsub.shovel.01")
@@ -47,10 +51,10 @@ func TestShovelDupeHeaders(t *testing.T) {
 		sbh := Headers{HK_DESTINATION, d, HK_ID, d}
 		sc, e = conn.Subscribe(sbh)
 		if e != nil {
-			t.Fatalf("Expected no subscribe error, got [%v]\n", e)
+			t.Fatalf("TestShovelDupeHeaders Expected no subscribe error, got [%v]\n", e)
 		}
 		if sc == nil {
-			t.Fatalf("Expected subscribe channel, got [nil]\n")
+			t.Fatalf("TestShovelDupeHeaders Expected subscribe channel, got [nil]\n")
 		}
 
 		// Read MessageData
@@ -58,23 +62,27 @@ func TestShovelDupeHeaders(t *testing.T) {
 		select {
 		case md = <-sc:
 		case md = <-conn.MessageData:
-			t.Fatalf("read channel error:  expected [nil], got: [%v]\n",
+			t.Fatalf("TestShovelDupeHeaders read channel error:  expected [nil], got: [%v]\n",
 				md.Message.Command)
 		}
 
 		//
 		if md.Error != nil {
-			t.Fatalf("Expected no message data error, got [%v]\n", md.Error)
+			t.Fatalf("TestShovelDupeHeaders Expected no message data error, got [%v]\n",
+				md.Error)
 		}
 		rm := md.Message
-		fmt.Printf("SDHT01: %s <%v>\n", conn.Protocol(), rm.Headers)
+		fmt.Printf("TestShovelDupeHeaders SDHT01: %s <%v>\n", conn.Protocol(),
+			rm.Headers)
 		rd := rm.Headers.Value(HK_DESTINATION)
 		if rd != d {
-			t.Fatalf("Expected destination [%v], got [%v]\n", d, rd)
+			t.Fatalf("TestShovelDupeHeaders Expected destination [%v], got [%v]\n",
+				d, rd)
 		}
 		rs := rm.Headers.Value(HK_SUBSCRIPTION)
 		if rs != d {
-			t.Fatalf("Expected subscription [%v], got [%v]\n", d, rs)
+			t.Fatalf("TestShovelDupeHeaders Expected subscription [%v], got [%v]\n",
+				d, rs)
 		}
 
 		// Broker behavior can differ WRT repeated header entries
@@ -89,13 +97,13 @@ func TestShovelDupeHeaders(t *testing.T) {
 		switch brokerid {
 		case TEST_AMQ:
 			if !rm.Headers.ContainsKV("dupkey1", "value0") {
-				t.Fatalf("MAIN Expected true for [%v], [%v]\n", "dupkey1", "value0")
+				t.Fatalf("TestShovelDupeHeaders MAIN Expected true for [%v], [%v]\n", "dupkey1", "value0")
 			}
 		case TEST_RMQ:
 			break // For now
 		case TEST_APOLLO:
 			if !rm.Headers.ContainsKV("dupkey1", "value0") {
-				t.Fatalf("MAIN Expected true for [%v], [%v]\n", "dupkey1", "value0")
+				t.Fatalf("TestShovelDupeHeaders MAIN Expected true for [%v], [%v]\n", "dupkey1", "value0")
 			}
 			e = checkDupeHeaders(rm.Headers, wantedDupeVAll)
 			if e != nil {
@@ -103,42 +111,24 @@ func TestShovelDupeHeaders(t *testing.T) {
 					rm.Headers, wantedDupeVAll)
 			}
 		case TEST_ARTEMIS:
-			// OPen a tciket I think.  This is out of spec.
-			t.Fatalf("ARTEMIS PLAIN Spec Compliant\n")
+			// Open a tciket I think.  This might be out of spec.  Get logs / docs.
+			t.Fatalf("TestShovelDupeHeaders ARTEMIS PLAIN Spec Compliant\n")
 			//if !rm.Headers.ContainsKV("dupkey1", "value2") {
 			//	t.Fatalf("MAIN Expected true for [%v], [%v]\n", "dupkey1", "value0")
 			//}
 		default:
 		}
-		/*
-			if os.Getenv("STOMP_ARTEMIS") != "" && conn.Protocol() == SPL_11 {
-				if !rm.Headers.ContainsKV("dupkey1", "value2") {
-					t.Fatalf("ART11 Expected true for [%v], [%v]\n", "dupkey1", "value2")
-				}
-			} else {
-				if !rm.Headers.ContainsKV("dupkey1", "value0") {
-					t.Fatalf("OTHERs Expected true for [%v], [%v]\n", "dupkey1", "value0")
-				}
-			}
-
-			// Some servers MAY do this.  Apollo is one that does.
-			if os.Getenv("STOMP_APOLLO") != "" {
-				if !rm.Headers.ContainsKV("dupkey1", "value1") {
-					t.Fatalf("APO1 Expected true for [%v], [%v]\n", "dupkey1", "value1")
-				}
-				if !rm.Headers.ContainsKV("dupkey1", "value2") {
-					t.Fatalf("APO2 Expected true for [%v], [%v]\n", "dupkey1", "value2")
-				}
-			}
-		*/
 		//
 		uh := Headers{HK_ID, rs, HK_DESTINATION, d}
 		e = conn.Unsubscribe(uh)
 		if e != nil {
-			t.Fatalf("Expected no unsubscribe error, got [%v]\n", e)
+			t.Fatalf("TestShovelDupeHeaders Expected no unsubscribe error, got [%v]\n",
+				e)
 		}
 		//
-		_ = conn.Disconnect(empty_headers)
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
 }
