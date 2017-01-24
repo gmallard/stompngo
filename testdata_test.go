@@ -1,7 +1,9 @@
 package stompngo
 
 import (
+	"log"
 	"net"
+	"os"
 )
 
 //=============================================================================
@@ -903,6 +905,7 @@ var (
 	badam            = "AckModeInvalid"
 	brokerid         int
 	tm               = "A Test Message."
+	tlg              = log.New(os.Stderr, "TLG|", log.Ldate|log.Lmicroseconds)
 )
 
 //=============================================================================

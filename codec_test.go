@@ -17,9 +17,13 @@
 package stompngo
 
 import (
+	"log"
+	"os"
 	"testing"
 	"time"
 )
+
+var _ = log.Println
 
 // Test STOMP 1.1 Header Codec - Basic Encode.
 func TestCodecEncodeBasic(t *testing.T) {
@@ -75,27 +79,40 @@ func BenchmarkCodecDecode(b *testing.B) {
 func TestCodecSendRecvCodec(t *testing.T) {
 	//
 	for _, p := range Protocols() {
-		n, _ = openConn(t)
-		ch := login_headers
-		ch = headersProtocol(ch, p)
-		conn, e = Connect(n, ch)
-		if e != nil {
-			t.Fatalf("TestCodecSendRecvCodec CONNECT expected nil, got %v\n", e)
-		}
-		//
-		d := tdest("/queue/gostomp.sendrecv.2." + p)
-		ms := "11sendrecv.2 - message 1"
-		wh := Headers{HK_DESTINATION, d}
-
 		usemap := srcdmap[p]
-		//fmt.Printf("Protocol: %s\n", p)
-		//fmt.Printf("MapLen: %d\n", len(usemap))
+		//log.Printf("Protocol: %s\n", p)
+		//log.Printf("MapLen: %d\n", len(usemap))
 		for _, v := range usemap {
+
+			//
+			// RMQ and STOMP Level 1.0 :
+			// Headers are encoded (as if the STOMP protocol were 1.1
+			// or 1.2).
+			// MAYBEDO: Report issue.  (Is this a bug or a feature?)
+			//
+			if p == SPL_10 && os.Getenv("STOMP_RMQ") != "" {
+				continue
+			}
+
+			n, _ = openConn(t)
+			ch := login_headers
+			ch = headersProtocol(ch, p)
+			conn, e = Connect(n, ch)
+			if e != nil {
+				t.Fatalf("TestCodecSendRecvCodec CONNECT expected nil, got %v\n", e)
+			}
+			//
+			d := tdest("/queue/gostomp.codec.sendrecv.1.protocol." + p)
+			ms := "msg.codec.sendrecv.1.protocol." + p + " - a message"
+			wh := Headers{HK_DESTINATION, d}
+
+			//log.Printf("TestData: %+v\n", v)
 			sh := wh.Clone()
 			for i := range v.sk {
 				sh = sh.Add(v.sk[i], v.sv[i])
 			}
 			// Send
+			//log.Printf("Send Headers: %v\n", sh)
 			e = conn.Send(sh, ms)
 			if e != nil {
 				t.Fatalf("TestCodecSendRecvCodec Send failed: %v protocol:%s\n",
@@ -113,6 +130,7 @@ func TestCodecSendRecvCodec(t *testing.T) {
 			}
 			// Subscribe
 			sbh := wh.Add(HK_ID, v.sid)
+			//log.Printf("Subscribe Headers: %v\n", sbh)
 			sc, e = conn.Subscribe(sbh)
 			if e != nil {
 				t.Fatalf("TestCodecSendRecvCodec Subscribe failed: %v protocol:%s\n",
@@ -123,7 +141,6 @@ func TestCodecSendRecvCodec(t *testing.T) {
 					p)
 			}
 			//
-			md = MessageData{}
 			checkReceivedMD(t, conn, sc, "codec_test_"+p) // Receive
 			// Check body data
 			b := md.Message.BodyString()
@@ -132,13 +149,14 @@ func TestCodecSendRecvCodec(t *testing.T) {
 					ms, b, p)
 			}
 			// Unsubscribe
+			//log.Printf("Unsubscribe Headers: %v\n", sbh)
 			e = conn.Unsubscribe(sbh)
 			if e != nil {
 				t.Fatalf("TestCodecSendRecvCodec Unsubscribe failed: %v protocol:%s\n",
 					e, p)
 			}
 			// Check headers
-			// fmt.Printf("v.rv: %q\nhdrs: %q\n\n\n", v.rv, md.Message.Headers)
+			//log.Printf("Receive Headers: %v\n", md.Message.Headers)
 			for key, value := range v.rv {
 				hv, ok = md.Message.Headers.Contains(key)
 				if !ok {
@@ -150,11 +168,12 @@ func TestCodecSendRecvCodec(t *testing.T) {
 						value, hv, p)
 				}
 			}
+			//
+			checkReceived(t, conn)
+			e = conn.Disconnect(empty_headers)
+			checkDisconnectError(t, e)
+			_ = closeConn(t, n)
 		}
 		//
-		checkReceived(t, conn)
-		e = conn.Disconnect(empty_headers)
-		checkDisconnectError(t, e)
-		_ = closeConn(t, n)
 	}
 }

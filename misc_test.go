@@ -17,8 +17,6 @@
 package stompngo
 
 import (
-	"log"
-	"os"
 	"testing"
 )
 
@@ -27,7 +25,9 @@ import (
 */
 func TestMiscBytes0(t *testing.T) {
 	for _, sp := range Protocols() {
+		//tlg.Printf("TestMiscBytes0 protocol:%s\n", sp)
 		// Write phase
+		//tlg.Printf("TestMiscBytes0 WRITEPHASE\n")
 		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
@@ -37,7 +37,7 @@ func TestMiscBytes0(t *testing.T) {
 		}
 		//
 		ms := "" // No data
-		d := tdest("/queue/misc.zero.byte.msg")
+		d := tdest("/queue/misc.zero.byte.msg." + sp)
 		sh := Headers{HK_DESTINATION, d}
 		e = conn.Send(sh, ms)
 		if e != nil {
@@ -50,6 +50,7 @@ func TestMiscBytes0(t *testing.T) {
 		_ = closeConn(t, n)
 
 		// Read phase
+		//tlg.Printf("TestMiscBytes0 READPHASE\n")
 		n, _ = openConn(t)
 		ch = login_headers
 		ch = headersProtocol(ch, sp)
@@ -88,6 +89,7 @@ func TestMiscBytes0(t *testing.T) {
 				ms, string(md.Message.Body))
 		}
 		//
+		//tlg.Printf("TestMiscBytes0 CLEANUP\n")
 		checkReceived(t, conn)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
@@ -100,7 +102,9 @@ func TestMiscBytes0(t *testing.T) {
 */
 func TestMiscBytes1(t *testing.T) {
 	for _, sp := range Protocols() {
+		//tlg.Printf("TestMiscBytes0 protocol:%s\n", sp)
 		// Write phase
+		//tlg.Printf("TestMiscBytes0 WRITEPHASE\n")
 		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
@@ -109,8 +113,8 @@ func TestMiscBytes1(t *testing.T) {
 			t.Fatalf("TestMiscBytes1 CONNECT expected nil, got %v\n", e)
 		}
 		//
-		ms := "1" // Just one byte
-		d := tdest("/queue/one.byte.msg")
+		ms := "Z" // One Byte
+		d := tdest("/queue/misc.zero.byte.msg." + sp)
 		sh := Headers{HK_DESTINATION, d}
 		e = conn.Send(sh, ms)
 		if e != nil {
@@ -123,14 +127,12 @@ func TestMiscBytes1(t *testing.T) {
 		_ = closeConn(t, n)
 
 		// Read phase
+		//tlg.Printf("TestMiscBytes1 READPHASE\n")
 		n, _ = openConn(t)
 		ch = login_headers
 		ch = headersProtocol(ch, sp)
 		conn, _ = Connect(n, ch)
 		//
-		l := log.New(os.Stderr, "", log.Ldate|log.Lmicroseconds)
-		_ = l
-		//conn.SetLogger(l)
 		sbh := sh.Add(HK_ID, d)
 		sc, e = conn.Subscribe(sbh)
 		if e != nil {
@@ -145,7 +147,7 @@ func TestMiscBytes1(t *testing.T) {
 		select {
 		case md = <-sc:
 		case md = <-conn.MessageData:
-			t.Fatalf("read channel error:  expected [nil], got: [%v]\n",
+			t.Fatalf("TestMiscBytes1 read channel error:  expected [nil], got: [%v]\n",
 				md.Message.Command)
 		}
 
@@ -164,6 +166,7 @@ func TestMiscBytes1(t *testing.T) {
 				ms, string(md.Message.Body))
 		}
 		//
+		//tlg.Printf("TestMiscBytes1 CLEANUP\n")
 		checkReceived(t, conn)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)

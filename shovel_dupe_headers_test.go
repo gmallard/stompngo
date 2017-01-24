@@ -17,9 +17,11 @@
 package stompngo
 
 import (
-	"fmt"
+	"log"
 	"testing"
 )
+
+var _ = log.Println
 
 /*
 	Test a Stomp 1.1+ duplicate header shovel.
@@ -72,8 +74,8 @@ func TestShovelDupeHeaders(t *testing.T) {
 				md.Error)
 		}
 		rm := md.Message
-		fmt.Printf("TestShovelDupeHeaders SDHT01: %s <%v>\n", conn.Protocol(),
-			rm.Headers)
+		//log.Printf("TestShovelDupeHeaders SDHT01: %s <%v>\n", conn.Protocol(),
+		//	rm.Headers)
 		rd := rm.Headers.Value(HK_DESTINATION)
 		if rd != d {
 			t.Fatalf("TestShovelDupeHeaders Expected destination [%v], got [%v]\n",
@@ -93,28 +95,37 @@ func TestShovelDupeHeaders(t *testing.T) {
 		// In any case: YMMV.
 		_ = setTestBroker() // Set brokerid
 
-		// TODO: Fix this per observed behavior
+		//
 		switch brokerid {
 		case TEST_AMQ:
 			if !rm.Headers.ContainsKV("dupkey1", "value0") {
-				t.Fatalf("TestShovelDupeHeaders MAIN Expected true for [%v], [%v]\n", "dupkey1", "value0")
+				t.Fatalf("TestShovelDupeHeaders AMQ Expected true for [%v], [%v]\n", "dupkey1", "value0")
 			}
 		case TEST_RMQ:
-			break // For now
+			if !rm.Headers.ContainsKV("dupkey1", "value0") {
+				t.Fatalf("TestShovelDupeHeaders RMQ Expected true for [%v], [%v]\n", "dupkey1", "value0")
+			}
 		case TEST_APOLLO:
 			if !rm.Headers.ContainsKV("dupkey1", "value0") {
-				t.Fatalf("TestShovelDupeHeaders MAIN Expected true for [%v], [%v]\n", "dupkey1", "value0")
+				t.Fatalf("TestShovelDupeHeaders APOLLO Expected true for [%v], [%v]\n", "dupkey1", "value0")
 			}
 			e = checkDupeHeaders(rm.Headers, wantedDupeVAll)
 			if e != nil {
-				t.Fatalf("Expedted dupe headers, but something is missing: %v %v\n",
+				t.Fatalf("TestShovelDupeHeaders APOLLO Expected dupe headers, but something is missing: %v %v\n",
 					rm.Headers, wantedDupeVAll)
 			}
 		case TEST_ARTEMIS:
-			// Open a tciket I think.  This might be out of spec.  Get logs / docs.
-			t.Fatalf("TestShovelDupeHeaders ARTEMIS PLAIN Spec Compliant\n")
-			//if !rm.Headers.ContainsKV("dupkey1", "value2") {
-			//	t.Fatalf("MAIN Expected true for [%v], [%v]\n", "dupkey1", "value0")
+			//
+			if sp == SPL_11 {
+				if !rm.Headers.ContainsKV("dupkey1", "value2") {
+					t.Fatalf("TestShovelDupeHeaders MAIN Expected true for [%v], [%v]\n", "dupkey1", "value2")
+				}
+			} else { // This is SPL_12
+				if !rm.Headers.ContainsKV("dupkey1", "value0") {
+					t.Fatalf("TestShovelDupeHeaders MAIN Expected true for [%v], [%v]\n", "dupkey1", "value0")
+				}
+			}
+			break
 			//}
 		default:
 		}
