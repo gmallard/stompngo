@@ -190,7 +190,7 @@ func sendMultipleBytes(md multi_send_data) error {
    Test helper.  Get properly formatted destination.
 */
 func tdest(d string) string {
-	if os.Getenv("STOMP_ARTEMIS") == "" {
+	if brokerid != TEST_ARTEMIS {
 		return d
 	}
 	pref := "jms.queue"

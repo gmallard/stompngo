@@ -93,7 +93,6 @@ func TestShovelDupeHeaders(t *testing.T) {
 		// Also note that the wording of the 1.1 and 1.2 specs is slightly
 		// different WRT repeated header entries.
 		// In any case: YMMV.
-		_ = setTestBroker() // Set brokerid
 
 		//
 		switch brokerid {

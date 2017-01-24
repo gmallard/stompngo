@@ -191,7 +191,7 @@ func TestHBNoSend(t *testing.T) {
 	if os.Getenv("STOMP_HBLONG") == "" {
 		t.Skip("TestHBNoSend norun, set STOMP_HBLONG")
 	}
-	if os.Getenv("STOMP_ARTEMIS") != "" {
+	if brokerid == TEST_ARTEMIS {
 		t.Skip("TestHBNoSend norun, unset STOMP_ARTEMIS")
 	}
 	//
@@ -403,7 +403,7 @@ func TestHBSendReceiveRevApollo(t *testing.T) {
 	if os.Getenv("STOMP_HBLONG") == "" {
 		t.Skip("TestHBSendReceiveRevApollo norun, set STOMP_HBLONG")
 	}
-	if os.Getenv("STOMP_AMQ") != "" {
+	if brokerid == TEST_AMQ {
 		t.Skip("TestHBSendReceiveRevApollo norun, unset STOMP_AMQ")
 	}
 	for _, sp := range oneOnePlusProtos {
