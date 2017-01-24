@@ -105,23 +105,6 @@ func (c *Connection) ReceiveTickerCount() int64 {
 	return c.hbd.rc
 }
 
-// Package exported functions
-
-/*
-	Supported checks if a particular STOMP version is supported in the current
-	implementation.
-*/
-func Supported(v string) bool {
-	return hasValue(supported, v)
-}
-
-/*
-	Protocols returns a slice of client supported protocol levels.
-*/
-func Protocols() []string {
-	return supported
-}
-
 /*
 	FramesRead returns a count of the number of frames read on the connection.
 */
