@@ -35,4 +35,6 @@ coverage.out
 *.out
 *.test
 *.cvd
+# Logging output
+*.log
 
