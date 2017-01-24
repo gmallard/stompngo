@@ -35,7 +35,13 @@ func TestLoggerBasic(t *testing.T) {
 		}
 		//
 		l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
-		conn.SetLogger(l)
+		// The original purpose of these tests was merely to show that setting
+		// a logger produced output.  However this makes the test output very noisy.
+		// Do not set a logger inless spectifically requested by test environment
+		// variables.
+		if os.Getenv("STOMP_SETLOGGER") == "Y" {
+			conn.SetLogger(l)
+		}
 		//
 		checkReceived(t, conn)
 		e = conn.Disconnect(empty_headers)
@@ -61,7 +67,9 @@ func TestLoggerMiscBytes0(t *testing.T) {
 		if e != nil {
 			t.Fatalf("TestLoggerMiscBytes0 CONNECT expected nil, got %v\n", e)
 		}
-		conn.SetLogger(ll)
+		if os.Getenv("STOMP_SETLOGGER") == "Y" {
+			conn.SetLogger(ll)
+		}
 		//
 		ms := "" // No data
 		d := tdest("/queue/logger.zero.byte.msg." + sp)
@@ -80,7 +88,9 @@ func TestLoggerMiscBytes0(t *testing.T) {
 		ch = headersProtocol(ch, sp)
 		conn, _ = Connect(n, ch)
 		ll = log.New(os.Stdout, "TLM02 ", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-		conn.SetLogger(ll)
+		if os.Getenv("STOMP_SETLOGGER") == "Y" {
+			conn.SetLogger(ll)
+		}
 		//
 		sbh := sh.Add(HK_ID, d)
 		sc, e = conn.Subscribe(sbh)
