@@ -188,7 +188,7 @@ func TestHBConnect(t *testing.T) {
 	Test Connect - Test HeartBeat - Receive only, No Sends From Client
 */
 func TestHBNoSend(t *testing.T) {
-	if os.Getenv("STOMP_HBLONG") == "" {
+	if !testhbl {
 		t.Skip("TestHBNoSend norun, set STOMP_HBLONG")
 	}
 	if brokerid == TEST_ARTEMIS {
@@ -244,7 +244,7 @@ func TestHBNoSend(t *testing.T) {
 	Test Connect - Test HeartBeat - Send only, No Receives by Client
 */
 func TestHBNoReceive(t *testing.T) {
-	if os.Getenv("STOMP_HBLONG") == "" {
+	if !testhbl {
 		t.Skip("TestHBNoReceive norun, set STOMP_HBLONG")
 	}
 	for _, sp := range oneOnePlusProtos {
@@ -292,7 +292,7 @@ func TestHBNoReceive(t *testing.T) {
 	Test Connect - Test HeartBeat - Send and Receive
 */
 func TestHBSendReceive(t *testing.T) {
-	if os.Getenv("STOMP_HBLONG") == "" {
+	if !testhbl {
 		t.Skip("TestHBSendReceive norun, set STOMP_HBLONG")
 	}
 	for _, sp := range oneOnePlusProtos {
@@ -345,7 +345,7 @@ func TestHBSendReceive(t *testing.T) {
 	Match Apollo defaults.
 */
 func TestHBSendReceiveApollo(t *testing.T) {
-	if os.Getenv("STOMP_HBLONG") == "" {
+	if !testhbl {
 		t.Skip("TestHBSendReceiveApollo norun, set STOMP_HBLONG")
 	}
 	for _, sp := range oneOnePlusProtos {
@@ -400,7 +400,7 @@ func TestHBSendReceiveApollo(t *testing.T) {
 	Currently skipped for AMQ.
 */
 func TestHBSendReceiveRevApollo(t *testing.T) {
-	if os.Getenv("STOMP_HBLONG") == "" {
+	if !testhbl {
 		t.Skip("TestHBSendReceiveRevApollo norun, set STOMP_HBLONG")
 	}
 	if brokerid == TEST_AMQ {

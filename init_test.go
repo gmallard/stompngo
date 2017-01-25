@@ -24,6 +24,12 @@ import (
 
 func TestMain(m *testing.M) {
 	flag.Parse()
-	_ = setTestBroker()
+	packageInit()
 	os.Exit(m.Run())
+}
+
+//
+func packageInit() {
+	_ = setTestBroker()
+	setLongHeartBeatFlag()
 }
