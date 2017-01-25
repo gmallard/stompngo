@@ -199,7 +199,8 @@ type (
 //= hb_test var ===============================================================
 //=============================================================================
 var (
-	testhbl = false // Run long heartbeat tests
+	testhbl  = false // Run long heartbeat tests
+	testhbvb = false // Verbose long heart beat tests
 )
 
 //=============================================================================

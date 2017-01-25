@@ -263,15 +263,18 @@ func setTestBroker() int {
 /*
    Test helper.  Set long heartbeat test flag.
 */
-func setLongHeartBeatFlag() {
+func setHeartBeatFlags() {
 	if os.Getenv("STOMP_HBLONG") == "Y" { // Note:  a single value to run long hb tests
 		testhbl = true
+	}
+	if os.Getenv("STOMP_HBVERBOSE") != "" { // Any value will do
+		testhbvb = true
 	}
 	return
 }
 
 /*
-   Test helper.  CHeck for missing headers
+   Test helper.  Check for missing headers
 */
 func checkDupeHeaders(ms, wh Headers) error {
 	for i := 0; i < len(wh); i += 2 {

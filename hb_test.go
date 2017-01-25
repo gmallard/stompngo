@@ -215,11 +215,15 @@ func TestHBNoSend(t *testing.T) {
 			t.Fatalf("TestHBNoSend Receive Ticker is zero.")
 		}
 		//
-		conn.SetLogger(l)
+		if testhbvb {
+			conn.SetLogger(l)
+		}
 		//
-		conn.log("TestHBNoSend connect response", conn.ConnectResponse.Command,
-			conn.ConnectResponse.Headers, string(conn.ConnectResponse.Body))
 		conn.log("TestHBNoSend start sleep")
+		conn.log("TestHBNoSend connect response",
+			conn.ConnectResponse.Command,
+			conn.ConnectResponse.Headers,
+			string(conn.ConnectResponse.Body))
 		conn.log(1, "Send", conn.SendTickerInterval(), "Receive",
 			conn.ReceiveTickerInterval())
 		time.Sleep(hbs * time.Second)
@@ -267,7 +271,9 @@ func TestHBNoReceive(t *testing.T) {
 			t.Fatalf("TestHBNoReceive Send Ticker is zero.")
 		}
 		//
-		conn.SetLogger(l)
+		if testhbvb {
+			conn.SetLogger(l)
+		}
 		//
 		conn.log("TestHBNoReceive start sleep")
 		conn.log("TestHBNoReceive connect response",
@@ -318,9 +324,15 @@ func TestHBSendReceive(t *testing.T) {
 			t.Fatalf("TestHBSendReceive Send Ticker is zero.")
 		}
 		//
-		conn.SetLogger(l)
+		if testhbvb {
+			conn.SetLogger(l)
+		}
 		//
 		conn.log("TestHBSendReceive start sleep")
+		conn.log("TestHBSendReceive connect response",
+			conn.ConnectResponse.Command,
+			conn.ConnectResponse.Headers,
+			string(conn.ConnectResponse.Body))
 		conn.log(3, "Send", conn.SendTickerInterval(), "Receive",
 			conn.ReceiveTickerInterval())
 		time.Sleep(hbs * time.Second)
@@ -372,9 +384,15 @@ func TestHBSendReceiveApollo(t *testing.T) {
 			t.Fatalf("TestHBSendReceiveApollo Send Ticker is zero.")
 		}
 		//
-		conn.SetLogger(l)
+		if testhbvb {
+			conn.SetLogger(l)
+		}
 		//
 		conn.log("TestHBSendReceiveApollo start sleep")
+		conn.log("TestHBSendReceiveApollo connect response",
+			conn.ConnectResponse.Command,
+			conn.ConnectResponse.Headers,
+			string(conn.ConnectResponse.Body))
 		conn.log(4, "Send", conn.SendTickerInterval(), "Receive",
 			conn.ReceiveTickerInterval())
 		time.Sleep(hbs * time.Second)
@@ -430,9 +448,15 @@ func TestHBSendReceiveRevApollo(t *testing.T) {
 		}
 		//
 		l.Printf("TestHBSendReceiveRevApollo CONNECTED Frame: <%q>\n", conn.ConnectResponse)
-		conn.SetLogger(l)
+		if testhbvb {
+			conn.SetLogger(l)
+		}
 		//
 		conn.log("TestHBSendReceiveRevApollo start sleep")
+		conn.log("TestHBSendReceiveRevApollo connect response",
+			conn.ConnectResponse.Command,
+			conn.ConnectResponse.Headers,
+			string(conn.ConnectResponse.Body))
 		conn.log(5, "Send", conn.SendTickerInterval(), "Receive",
 			conn.ReceiveTickerInterval())
 		time.Sleep(hbs * time.Second)

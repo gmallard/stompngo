@@ -31,5 +31,5 @@ func TestMain(m *testing.M) {
 //
 func packageInit() {
 	_ = setTestBroker()
-	setLongHeartBeatFlag()
+	setHeartBeatFlags()
 }
