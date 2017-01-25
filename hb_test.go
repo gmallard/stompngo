@@ -188,7 +188,7 @@ func TestHBConnect(t *testing.T) {
 	Test Connect - Test HeartBeat - Receive only, No Sends From Client
 */
 func TestHBNoSend(t *testing.T) {
-	if !testhbl {
+	if !testhbrd.testhbl {
 		t.Skip("TestHBNoSend norun, set STOMP_HBLONG")
 	}
 	if brokerid == TEST_ARTEMIS {
@@ -215,7 +215,7 @@ func TestHBNoSend(t *testing.T) {
 			t.Fatalf("TestHBNoSend Receive Ticker is zero.")
 		}
 		//
-		if testhbvb {
+		if testhbrd.testhbvb {
 			conn.SetLogger(l)
 		}
 		//
@@ -248,7 +248,7 @@ func TestHBNoSend(t *testing.T) {
 	Test Connect - Test HeartBeat - Send only, No Receives by Client
 */
 func TestHBNoReceive(t *testing.T) {
-	if !testhbl {
+	if !testhbrd.testhbl {
 		t.Skip("TestHBNoReceive norun, set STOMP_HBLONG")
 	}
 	for _, sp := range oneOnePlusProtos {
@@ -271,7 +271,7 @@ func TestHBNoReceive(t *testing.T) {
 			t.Fatalf("TestHBNoReceive Send Ticker is zero.")
 		}
 		//
-		if testhbvb {
+		if testhbrd.testhbvb {
 			conn.SetLogger(l)
 		}
 		//
@@ -298,7 +298,7 @@ func TestHBNoReceive(t *testing.T) {
 	Test Connect - Test HeartBeat - Send and Receive
 */
 func TestHBSendReceive(t *testing.T) {
-	if !testhbl {
+	if !testhbrd.testhbl {
 		t.Skip("TestHBSendReceive norun, set STOMP_HBLONG")
 	}
 	for _, sp := range oneOnePlusProtos {
@@ -324,7 +324,7 @@ func TestHBSendReceive(t *testing.T) {
 			t.Fatalf("TestHBSendReceive Send Ticker is zero.")
 		}
 		//
-		if testhbvb {
+		if testhbrd.testhbvb {
 			conn.SetLogger(l)
 		}
 		//
@@ -357,7 +357,7 @@ func TestHBSendReceive(t *testing.T) {
 	Match Apollo defaults.
 */
 func TestHBSendReceiveApollo(t *testing.T) {
-	if !testhbl {
+	if !testhbrd.testhbl {
 		t.Skip("TestHBSendReceiveApollo norun, set STOMP_HBLONG")
 	}
 	for _, sp := range oneOnePlusProtos {
@@ -384,7 +384,7 @@ func TestHBSendReceiveApollo(t *testing.T) {
 			t.Fatalf("TestHBSendReceiveApollo Send Ticker is zero.")
 		}
 		//
-		if testhbvb {
+		if testhbrd.testhbvb {
 			conn.SetLogger(l)
 		}
 		//
@@ -418,7 +418,7 @@ func TestHBSendReceiveApollo(t *testing.T) {
 	Currently skipped for AMQ.
 */
 func TestHBSendReceiveRevApollo(t *testing.T) {
-	if !testhbl {
+	if !testhbrd.testhbl {
 		t.Skip("TestHBSendReceiveRevApollo norun, set STOMP_HBLONG")
 	}
 	if brokerid == TEST_AMQ {
@@ -448,7 +448,7 @@ func TestHBSendReceiveRevApollo(t *testing.T) {
 		}
 		//
 		l.Printf("TestHBSendReceiveRevApollo CONNECTED Frame: <%q>\n", conn.ConnectResponse)
-		if testhbvb {
+		if testhbrd.testhbvb {
 			conn.SetLogger(l)
 		}
 		//

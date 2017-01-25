@@ -192,15 +192,20 @@ const (
 //= hb_test type ==============================================================
 //=============================================================================
 type (
-// None at present.
+	hbrundata struct {
+		testhbl  bool // Run long heartbeat tests
+		testhbvb bool // Verbose long heartbeat tests
+	}
 )
 
 //=============================================================================
 //= hb_test var ===============================================================
 //=============================================================================
 var (
-	testhbl  = false // Run long heartbeat tests
-	testhbvb = false // Verbose long heart beat tests
+	testhbrd = hbrundata{
+		testhbl:  false,
+		testhbvb: false,
+	}
 )
 
 //=============================================================================

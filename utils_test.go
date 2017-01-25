@@ -265,10 +265,10 @@ func setTestBroker() int {
 */
 func setHeartBeatFlags() {
 	if os.Getenv("STOMP_HBLONG") == "Y" { // Note:  a single value to run long hb tests
-		testhbl = true
+		testhbrd.testhbl = true
 	}
 	if os.Getenv("STOMP_HBVERBOSE") != "" { // Any value will do
-		testhbvb = true
+		testhbrd.testhbvb = true
 	}
 	return
 }
