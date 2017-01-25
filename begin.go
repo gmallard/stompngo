@@ -42,7 +42,7 @@ func (c *Connection) Begin(h Headers) error {
 	if h.Value(HK_TRANSACTION) == "" {
 		return ETIDBEGEMT
 	}
-	e = c.transmitCommon(BEGIN, h) // transmitCommon Clones() the headers
+	e := c.transmitCommon(BEGIN, h) // transmitCommon Clones() the headers
 	c.log(BEGIN, "end", h)
 	return e
 }

@@ -43,7 +43,7 @@ func (c *Connection) Commit(h Headers) error {
 	if h.Value(HK_TRANSACTION) == "" {
 		return ETIDCOMEMT
 	}
-	e = c.transmitCommon(COMMIT, h) // transmitCommon Clones() the headers
+	e := c.transmitCommon(COMMIT, h) // transmitCommon Clones() the headers
 	c.log(COMMIT, "end", h)
 	return e
 }

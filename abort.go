@@ -42,7 +42,7 @@ func (c *Connection) Abort(h Headers) error {
 	if h.Value(HK_TRANSACTION) == "" {
 		return ETIDABTEMT
 	}
-	e = c.transmitCommon(ABORT, h) // transmitCommon Clones() the headers
+	e := c.transmitCommon(ABORT, h) // transmitCommon Clones() the headers
 	c.log(ABORT, "end", h)
 	return e
 }
