@@ -160,11 +160,11 @@ func TestHBConnect(t *testing.T) {
 		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		ch = ch.Add(HK_HEART_BEAT, "250,250")
+		ch = ch.Delete(HK_HEART_BEAT).Add(HK_HEART_BEAT, "250,250")
 		conn, e = Connect(n, ch)
 		//
 		if e != nil {
-			t.Fatalf("TestHBConnect Heartbeat sendreceiveapollo connect error, unexpected: error:%q response:%q\n",
+			t.Fatalf("TestHBConnect Heartbeat connect error, unexpected: error:%q response:%q\n",
 				e, conn.ConnectResponse)
 		}
 		if conn.hbd == nil {
@@ -199,7 +199,7 @@ func TestHBNoSend(t *testing.T) {
 		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		ch = ch.Add(HK_HEART_BEAT, "0,6000")
+		ch = ch.Delete(HK_HEART_BEAT).Add(HK_HEART_BEAT, "0,6000")
 		l := log.New(os.Stderr, "", log.Ldate|log.Lmicroseconds)
 		l.Printf("ConnHeaders: %v\n", ch)
 		conn, e = Connect(n, ch)
@@ -228,7 +228,6 @@ func TestHBNoSend(t *testing.T) {
 			conn.ReceiveTickerInterval())
 		time.Sleep(hbs * time.Second)
 		conn.log("TestHBNoSend end sleep")
-		conn.SetLogger(nil)
 		//
 		conn.hbd.rdl.Lock()
 		if conn.Hbrf {
@@ -255,7 +254,7 @@ func TestHBNoReceive(t *testing.T) {
 		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		ch = ch.Add(HK_HEART_BEAT, "10000,0")
+		ch = ch.Delete(HK_HEART_BEAT).Add(HK_HEART_BEAT, "10000,0")
 		l := log.New(os.Stderr, "", log.Ldate|log.Lmicroseconds)
 		l.Printf("ConnHeaders: %v\n", ch)
 		conn, e = Connect(n, ch)
@@ -284,7 +283,6 @@ func TestHBNoReceive(t *testing.T) {
 			conn.ReceiveTickerInterval())
 		time.Sleep(hbs * time.Second)
 		conn.log("TestHBNoReceive end sleep")
-		conn.SetLogger(nil)
 		//
 		checkHBSend(t, conn, 2)
 		checkReceived(t, conn)
@@ -305,7 +303,7 @@ func TestHBSendReceive(t *testing.T) {
 		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		ch = ch.Add(HK_HEART_BEAT, "10000,600")
+		ch = ch.Delete(HK_HEART_BEAT).Add(HK_HEART_BEAT, "10000,600")
 		l := log.New(os.Stderr, "", log.Ldate|log.Lmicroseconds)
 		l.Printf("ConnHeaders: %v\n", ch)
 		conn, e = Connect(n, ch)
@@ -337,7 +335,6 @@ func TestHBSendReceive(t *testing.T) {
 			conn.ReceiveTickerInterval())
 		time.Sleep(hbs * time.Second)
 		conn.log("TestHBSendReceive end sleep")
-		conn.SetLogger(nil)
 		conn.hbd.rdl.Lock()
 		if conn.Hbrf {
 			t.Fatalf("TestHBSendReceive Error, dirty heart beat read detected")
@@ -364,7 +361,7 @@ func TestHBSendReceiveApollo(t *testing.T) {
 		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		ch = ch.Add(HK_HEART_BEAT, "10000,100")
+		ch = ch.Delete(HK_HEART_BEAT).Add(HK_HEART_BEAT, "10000,100")
 		l := log.New(os.Stderr, "", log.Ldate|log.Lmicroseconds)
 		l.Printf("ConnHeaders: %v\n", ch)
 		conn, e = Connect(n, ch)
@@ -397,7 +394,6 @@ func TestHBSendReceiveApollo(t *testing.T) {
 			conn.ReceiveTickerInterval())
 		time.Sleep(hbs * time.Second)
 		conn.log("TestHBSendReceiveApollo end sleep")
-		conn.SetLogger(nil)
 		conn.hbd.rdl.Lock()
 		if conn.Hbrf {
 			t.Fatalf("TestHBSendReceiveApollo Error, dirty heart beat read detected")
@@ -428,7 +424,7 @@ func TestHBSendReceiveRevApollo(t *testing.T) {
 		n, _ = openConn(t)
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
-		ch = ch.Add(HK_HEART_BEAT, "100,10000")
+		ch = ch.Delete(HK_HEART_BEAT).Add(HK_HEART_BEAT, "100,10000")
 		l := log.New(os.Stderr, "", log.Ldate|log.Lmicroseconds)
 		l.Printf("ConnHeaders: %v\n", ch)
 		conn, e = Connect(n, ch)
@@ -462,7 +458,6 @@ func TestHBSendReceiveRevApollo(t *testing.T) {
 		time.Sleep(hbs * time.Second)
 		//time.Sleep(30 * time.Second) // For experimentation
 		conn.log("TestHBSendReceiveRevApollo end sleep")
-		conn.SetLogger(nil)
 		conn.hbd.rdl.Lock()
 		if conn.Hbrf {
 			t.Fatalf("TestHBSendReceiveRevApollo Error, dirty heart beat read detected")

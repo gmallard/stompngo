@@ -20,21 +20,31 @@ import (
 	"log"
 	"os"
 	"testing"
+	"time"
 )
 
 /*
 	Test Logger Basic, confirm by observation.
 */
 func TestLoggerBasic(t *testing.T) {
-	for _, _ = range Protocols() {
+	for _, sp = range Protocols() {
 		n, _ = openConn(t)
-		ch := check11(TEST_HEADERS)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		log.Printf("Connect Headers: %v\n", ch)
 		conn, e = Connect(n, ch)
 		if e != nil {
-			t.Fatalf("TestLoggerBasic CONNECT expected nil, got %v\n", e)
+			t.Errorf("TestLoggerBasic CONNECT expected nil, got %v\n", e)
+			if conn != nil {
+				t.Errorf("TestLoggerBasic CONNECT ERROR, got %v\n",
+					conn.ConnectResponse)
+			}
 		}
 		//
 		l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
+		// Show broker's CONNECT response (CONNECTED frame).
+		l.Printf("TestLoggerBasic ConnectResponse:\n%v\n", conn.ConnectResponse)
+
 		// The original purpose of these tests was merely to show that setting
 		// a logger produced output.  However this makes the test output very noisy.
 		// Do not set a logger inless spectifically requested by test environment
@@ -43,9 +53,11 @@ func TestLoggerBasic(t *testing.T) {
 			conn.SetLogger(l)
 		}
 		//
+
 		checkReceived(t, conn)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
+		time.Sleep(testlgslt * time.Millisecond)
 		_ = closeConn(t, n)
 	}
 

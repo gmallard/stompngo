@@ -75,7 +75,7 @@ func headersProtocol(h Headers, protocol string) Headers {
 	if os.Getenv("STOMP_RMQ") != "" { // Rabbitmq default vhost
 		vh = "/"
 	}
-	h = h.Add(HK_HOST, vh)
+	h = h.Add(HK_HOST, vh).Add(HK_HEART_BEAT, senv.Heartbeats())
 	return h
 }
 
