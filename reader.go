@@ -43,9 +43,9 @@ readLoop:
 			break readLoop
 		}
 
-		// if f.Command == "" {
-		//	break
-		//}
+		if f.Command == "" {
+			continue readLoop
+		}
 
 		m := Message(f)
 		c.mets.tfr += 1 // Total frames read
@@ -130,24 +130,23 @@ readLoop:
 */
 func (c *Connection) readFrame() (f Frame, e error) {
 	f = Frame{"", Headers{}, NULLBUFF}
+
 	// Read f.Command or line ends (maybe heartbeats)
-	for {
-		s, e := c.rdr.ReadString('\n')
-		if s == "" {
-			return f, e
-		}
-		if e != nil {
-			return f, e
-		}
-		if c.hbd != nil {
-			c.updateHBReads()
-		}
-		f.Command = s[0 : len(s)-1]
-		if s != "\n" {
-			break
-		}
-		// c.log("read slash n")
+	s, e := c.rdr.ReadString('\n')
+	if s == "" {
+		return f, e
 	}
+	if e != nil {
+		return f, e
+	}
+	if c.hbd != nil {
+		c.updateHBReads()
+	}
+	f.Command = s[0 : len(s)-1]
+	if s == "\n" {
+		return f, e
+	}
+
 	// Validate the command
 	if _, ok := validCmds[f.Command]; !ok {
 		return f, EINVBCMD

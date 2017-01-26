@@ -183,12 +183,17 @@ func (c *Connection) log(v ...interface{}) {
 func (c *Connection) shutdownHeartBeats() {
 	// Shutdown heartbeats if necessary
 	if c.hbd != nil {
-		if c.hbd.hbs {
-			c.hbd.ssd <- true
+		c.hbd.clk.Lock()
+		if !c.hbd.ssdn {
+			if c.hbd.hbs {
+				close(c.hbd.ssd)
+			}
+			if c.hbd.hbr {
+				close(c.hbd.rsd)
+			}
+			c.hbd.ssdn = true
 		}
-		if c.hbd.hbr {
-			c.hbd.rsd <- true
-		}
+		c.hbd.clk.Unlock()
 	}
 }
 

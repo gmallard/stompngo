@@ -264,8 +264,10 @@ var codecValues = []codecdata{
 	subsequent control of any heartbeat routines.
 */
 type heartBeatData struct {
-	sdl sync.Mutex // Send data lock
-	rdl sync.Mutex // Receive data lock
+	sdl  sync.Mutex // Send data lock
+	rdl  sync.Mutex // Receive data lock
+	clk  sync.Mutex // Shutdown lock
+	ssdn bool       // Shutdown complete
 	//
 	cx int64 // client send value, ms
 	cy int64 // client receive value, ms
@@ -281,8 +283,8 @@ type heartBeatData struct {
 	sc int64 // local sender ticker count
 	rc int64 // local receiver ticker count
 	//
-	ssd chan bool // sender shutdown channel
-	rsd chan bool // receiver shutdown channel
+	ssd chan struct{} // sender shutdown channel
+	rsd chan struct{} // receiver shutdown channel
 	//
 	ls int64 // last send time, ns
 	lr int64 // last receive time, ns

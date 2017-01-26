@@ -96,19 +96,19 @@ func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
 	ct := time.Now().UnixNano() // Prime current time
 
 	if w.hbs { // Finish sender parameters if required
-		sm := max(w.cx, w.sy)   // ticker interval, ms
-		w.sti = 1000000 * sm    // ticker interval, ns
-		w.ssd = make(chan bool) // add shutdown channel
-		w.ls = ct               // Best guess at start
+		sm := max(w.cx, w.sy)       // ticker interval, ms
+		w.sti = 1000000 * sm        // ticker interval, ns
+		w.ssd = make(chan struct{}) // add shutdown channel
+		w.ls = ct                   // Best guess at start
 		// fmt.Println("start send ticker")
 		go c.sendTicker()
 	}
 
 	if w.hbr { // Finish receiver parameters if required
-		rm := max(w.sx, w.cy)   // ticker interval, ms
-		w.rti = 1000000 * rm    // ticker interval, ns
-		w.rsd = make(chan bool) // add shutdown channel
-		w.lr = ct               // Best guess at start
+		rm := max(w.sx, w.cy)       // ticker interval, ms
+		w.rti = 1000000 * rm        // ticker interval, ns
+		w.rsd = make(chan struct{}) // add shutdown channel
+		w.lr = ct                   // Best guess at start
 		// fmt.Println("start receive ticker")
 		go c.receiveTicker()
 	}
@@ -119,7 +119,6 @@ func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
 	The heart beat send ticker.
 */
 func (c *Connection) sendTicker() {
-	q := false
 	c.hbd.sc = 0
 	ticker := time.NewTicker(time.Duration(c.hbd.sti))
 hbSend:
@@ -143,14 +142,11 @@ hbSend:
 			}
 			c.hbd.sdl.Unlock()
 			//
-		case q = <-c.hbd.ssd:
+		case _ = <-c.hbd.ssd:
 			break hbSend
 		case _ = <-c.ssdc:
 			break hbSend
 		} // End of select
-		if q {
-			break hbSend
-		}
 	} // End of for
 	c.log("Heartbeat Send Ends", time.Now())
 	return
@@ -160,7 +156,6 @@ hbSend:
 	The heart beat receive ticker.
 */
 func (c *Connection) receiveTicker() {
-	q := false
 	c.hbd.rc = 0
 	var first, last int64
 hbGet:
@@ -184,14 +179,11 @@ hbGet:
 			}
 			c.hbd.rdl.Unlock()
 			last = time.Now().UnixNano()
-		case q = <-c.hbd.rsd:
+		case _ = <-c.hbd.rsd:
 			break hbGet
 		case _ = <-c.ssdc:
 			break hbGet
 		} // End of select
-		if q {
-			break hbGet
-		}
 	} // End of for
 	c.log("Heartbeat Receive Ends", time.Now())
 	return
