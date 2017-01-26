@@ -40,7 +40,7 @@ func main() {
 	//
 	connect_headers := sng.Headers{sng.HK_LOGIN, senv.Login(),
 		sng.HK_PASSCODE, senv.Passcode(),
-		sng.HK_HOST, senv.Host(),
+		sng.HK_HOST, senv.Vhost(),
 		sng.HK_ACCEPT_VERSION, senv.Protocol(),
 	}
 	//
@@ -55,8 +55,17 @@ func main() {
 
 	//=========================================================================
 	// Use something like this as real application logic
-	fmt.Printf("Stomp Server:%s\n",
+	fmt.Printf("Client CONNECT Headers:\n%v\n", connect_headers)
+	fmt.Printf("Broker CONNECTED Data:\n")
+	fmt.Printf("Server: %s\n",
 		stomp_conn.ConnectResponse.Headers.Value(sng.HK_SERVER))
+	fmt.Printf("Protocol: %s\n",
+		stomp_conn.ConnectResponse.Headers.Value(sng.HK_VERSION))
+	fmt.Printf("Heartbeats: %s\n",
+		stomp_conn.ConnectResponse.Headers.Value(sng.HK_HEART_BEAT))
+	fmt.Printf("Session: %s\n",
+		stomp_conn.ConnectResponse.Headers.Value(sng.HK_SESSION))
+	//
 
 	//=========================================================================
 	// Use something like this as boilerplate for disconnect (Clean disconnects
