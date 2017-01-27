@@ -34,17 +34,15 @@ func (c *Connection) Abort(h Headers) error {
 	if !c.connected {
 		return ECONBAD
 	}
-	e := checkHeaders(h, c.Protocol())
-	if e != nil {
-		return e
-	}
+	// We must have a transaction header here
 	if _, ok := h.Contains(HK_TRANSACTION); !ok {
 		return EREQTIDABT
 	}
+	// And it must not be empty
 	if h.Value(HK_TRANSACTION) == "" {
-		return EREQTIDABT
+		return ETIDABTEMT
 	}
-	e = c.transmitCommon(ABORT, h) // transmitCommon Clones() the headers
+	e := c.transmitCommon(ABORT, h) // transmitCommon Clones() the headers
 	c.log(ABORT, "end", h)
 	return e
 }

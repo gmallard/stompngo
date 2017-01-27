@@ -16,29 +16,11 @@
 
 package stompngo
 
-import (
-	"crypto/rand"
-	"crypto/sha1"
-	"fmt"
-	"io"
-)
-
 /*
-	Sha1 returns a SHA1 hash for a specified string.
+	Size returns the size of Frame on the wire, in bytes.
 */
-func Sha1(q string) string {
-	g := sha1.New()
-	g.Write([]byte(q))
-	return fmt.Sprintf("%x", g.Sum(nil))
-}
-
-/*
-	Uuid returns a type 4 UUID.
-*/
-func Uuid() string {
-	b := make([]byte, 16)
-	_, _ = io.ReadFull(rand.Reader, b)
-	b[6] = (b[6] & 0x0F) | 0x40
-	b[8] = (b[8] &^ 0x40) | 0x80
-	return fmt.Sprintf("%x-%x-%x-%x-%x", b[:4], b[4:6], b[6:8], b[8:10], b[10:])
+func (f *Frame) Size(e bool) int64 {
+	var r int64 = 0
+	r += int64(len(f.Command)) + 1 + f.Headers.Size(e) + 1 + int64(len(f.Body)) + 1
+	return r
 }

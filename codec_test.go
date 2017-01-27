@@ -17,41 +17,23 @@
 package stompngo
 
 import (
+	"log"
 	"os"
 	"testing"
 	"time"
 )
 
-type testdata struct {
-	encoded string
-	decoded string
-}
-
-var tdList = []testdata{
-	{"stringa", "stringa"},
-	{"stringb", "stringb"},
-	{"stringc", "stringc"},
-	{"stringd", "stringd"},
-	{"stringe", "stringe"},
-	{"stringf", "stringf"},
-	{"stringg", "stringg"},
-	{"stringh", "stringh"},
-	{"\\\\", "\\"},
-	{"\\n", "\n"},
-	{"\\c", ":"},
-	{"\\\\\\n\\c", "\\\n:"},
-	{"\\c\\n\\\\", ":\n\\"},
-	{"\\\\\\c", "\\:"},
-	{"c\\cc", "c:c"},
-	{"n\\nn", "n\nn"},
-}
+var _ = log.Println
 
 // Test STOMP 1.1 Header Codec - Basic Encode.
 func TestCodecEncodeBasic(t *testing.T) {
-	for _, ede := range tdList {
-		ev := encode(ede.decoded)
-		if ede.encoded != ev {
-			t.Fatalf("ENCODE ERROR: expected: [%v] got: [%v]", ede.encoded, ev)
+	for _, _ = range Protocols() {
+		for _, ede := range tdList {
+			ev := encode(ede.decoded)
+			if ede.encoded != ev {
+				t.Fatalf("TestCodecEncodeBasic ENCODE ERROR: expected: [%v] got: [%v]",
+					ede.encoded, ev)
+			}
 		}
 	}
 }
@@ -60,26 +42,33 @@ func TestCodecEncodeBasic(t *testing.T) {
 	Test STOMP 1.1 Header Codec - Basic Decode.
 */
 func TestCodecDecodeBasic(t *testing.T) {
-	for _, ede := range tdList {
-		dv := decode(ede.encoded)
-		if ede.decoded != dv {
-			t.Fatalf("DECODE ERROR: expected: [%v] got: [%v]", ede.decoded, dv)
+	for _, _ = range Protocols() {
+		for _, ede := range tdList {
+			dv := decode(ede.encoded)
+			if ede.decoded != dv {
+				t.Fatalf("TestCodecDecodeBasic DECODE ERROR: expected: [%v] got: [%v]",
+					ede.decoded, dv)
+			}
 		}
 	}
 }
 
 func BenchmarkCodecEncode(b *testing.B) {
-	for i := 0; i < len(tdList); i++ {
-		for n := 0; n < b.N; n++ {
-			_ = encode(tdList[i].decoded)
+	for _, _ = range Protocols() {
+		for i := 0; i < len(tdList); i++ {
+			for n := 0; n < b.N; n++ {
+				_ = encode(tdList[i].decoded)
+			}
 		}
 	}
 }
 
 func BenchmarkCodecDecode(b *testing.B) {
-	for i := 0; i < len(tdList); i++ {
-		for n := 0; n < b.N; n++ {
-			_ = decode(tdList[i].encoded)
+	for _, _ = range Protocols() {
+		for i := 0; i < len(tdList); i++ {
+			for n := 0; n < b.N; n++ {
+				_ = decode(tdList[i].encoded)
+			}
 		}
 	}
 }
@@ -87,89 +76,104 @@ func BenchmarkCodecDecode(b *testing.B) {
 /*
 	Test STOMP 1.1 Send / Receive - no codec error.
 */
-func TestCodec11SendRecvCodec(t *testing.T) {
-	if os.Getenv("STOMP_TEST11p") == "" {
-		t.Skip("Test11SendRecvCodec norun")
-	}
+func TestCodecSendRecvCodec(t *testing.T) {
 	//
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
-	//
-	d := tdest("/queue/gostomp.11sendrecv.2")
-	ms := "11sendrecv.2 - message 1"
-	wh := Headers{HK_DESTINATION, d}
+	for _, p := range Protocols() {
+		usemap := srcdmap[p]
+		//log.Printf("Protocol: %s\n", p)
+		//log.Printf("MapLen: %d\n", len(usemap))
+		for _, v := range usemap {
 
-	sh := wh.Clone()
-	// Excercise the 1.1 Header Codec
-	k1 := "key:one"
-	v1 := "value\\one"
-	sh = sh.Add(k1, v1)
-	k2 := "key/ntwo"
-	v2 := "value:two\\back:slash"
-	sh = sh.Add(k2, v2)
-	k3 := "key:three/naaa\\bbb"
-	v3 := "value\\three:aaa/nbbb"
-	sh = sh.Add(k3, v3)
+			//
+			// RMQ and STOMP Level 1.0 :
+			// Headers are encoded (as if the STOMP protocol were 1.1
+			// or 1.2).
+			// MAYBEDO: Report issue.  (Is this a bug or a feature?)
+			//
+			if p == SPL_10 && os.Getenv("STOMP_RMQ") != "" {
+				continue
+			}
 
-	// Send
-	e := conn.Send(sh, ms)
-	if e != nil {
-		t.Fatalf("11Send failed: %v", e)
-	}
+			n, _ = openConn(t)
+			ch := login_headers
+			ch = headersProtocol(ch, p)
+			conn, e = Connect(n, ch)
+			if e != nil {
+				t.Fatalf("TestCodecSendRecvCodec CONNECT expected nil, got %v\n", e)
+			}
+			//
+			d := tdest("/queue/gostomp.codec.sendrecv.1.protocol." + p)
+			ms := "msg.codec.sendrecv.1.protocol." + p + " - a message"
+			wh := Headers{HK_DESTINATION, d}
 
-	// Wait for server to deliver ERROR
-	time.Sleep(1e9) // Wait one
-	// Poll for adhoc ERROR from server
-	select {
-	case v := <-conn.MessageData:
-		t.Fatalf("11Adhoc Error: [%v]", v)
-	default:
+			//log.Printf("TestData: %+v\n", v)
+			sh := wh.Clone()
+			for i := range v.sk {
+				sh = sh.Add(v.sk[i], v.sv[i])
+			}
+			// Send
+			//log.Printf("Send Headers: %v\n", sh)
+			e = conn.Send(sh, ms)
+			if e != nil {
+				t.Fatalf("TestCodecSendRecvCodec Send failed: %v protocol:%s\n",
+					e, p)
+			}
+			// Check for ERROR frame
+			time.Sleep(1e9 / 8) // Wait one eigth
+			// Poll for adhoc ERROR from server
+			select {
+			case vx := <-conn.MessageData:
+				t.Fatalf("TestCodecSendRecvCodec Send Error: [%v] protocol:%s\n",
+					vx, p)
+			default:
+				//
+			}
+			// Subscribe
+			sbh := wh.Add(HK_ID, v.sid)
+			//log.Printf("Subscribe Headers: %v\n", sbh)
+			sc, e = conn.Subscribe(sbh)
+			if e != nil {
+				t.Fatalf("TestCodecSendRecvCodec Subscribe failed: %v protocol:%s\n",
+					e, p)
+			}
+			if sc == nil {
+				t.Fatalf("TestCodecSendRecvCodec Subscribe sub chan is nil protocol:%s\n",
+					p)
+			}
+			//
+			checkReceivedMD(t, conn, sc, "codec_test_"+p) // Receive
+			// Check body data
+			b := md.Message.BodyString()
+			if b != ms {
+				t.Fatalf("TestCodecSendRecvCodec Receive expected: [%v] got: [%v] protocol:%s\n",
+					ms, b, p)
+			}
+			// Unsubscribe
+			//log.Printf("Unsubscribe Headers: %v\n", sbh)
+			e = conn.Unsubscribe(sbh)
+			if e != nil {
+				t.Fatalf("TestCodecSendRecvCodec Unsubscribe failed: %v protocol:%s\n",
+					e, p)
+			}
+			// Check headers
+			//log.Printf("Receive Headers: %v\n", md.Message.Headers)
+			for key, value := range v.rv {
+				hv, ok = md.Message.Headers.Contains(key)
+				if !ok {
+					t.Fatalf("TestCodecSendRecvCodec Header key expected: [%v] got: [%v] protocol:%s\n",
+						key, ok, p)
+				}
+				if value != hv {
+					t.Fatalf("TestCodecSendRecvCodec Header value expected: [%v] got: [%v] protocol:%s\n",
+						value, hv, p)
+				}
+			}
+			//
+			checkReceived(t, conn)
+			e = conn.Disconnect(empty_headers)
+			checkDisconnectError(t, e)
+			_ = closeConn(t, n)
+		}
 		//
 	}
-	// Subscribe
-	sbh := wh.Add(HK_ID, d)
-	sc, e := conn.Subscribe(sbh)
-	if e != nil {
-		t.Fatalf("11Subscribe failed: %v", e)
-	}
-	if sc == nil {
-		t.Fatalf("11Subscribe sub chan is nil")
-	}
-
-	// Read MessageData
-	var md MessageData
-	select {
-	case md = <-sc:
-	case md = <-conn.MessageData:
-		t.Fatalf("read channel error:  expected [nil], got: [%v]\n",
-			md.Message.Command)
-	}
-
-	if md.Error != nil {
-		t.Fatalf("11Receive error: [%v]\n", md.Error)
-	}
-	// Check data and header values
-	b := md.Message.BodyString()
-	if b != ms {
-		t.Fatalf("11Receive expected: [%v] got: [%v]\n", ms, b)
-	}
-	if md.Message.Headers.Value(k1) != v1 {
-		t.Fatalf("11Receive header expected: [%v] got: [%v]\n", v1, md.Message.Headers.Value(k1))
-	}
-	if md.Message.Headers.Value(k2) != v2 {
-		t.Fatalf("11Receive header expected: [%v] got: [%v]\n", v2, md.Message.Headers.Value(k2))
-	}
-	if md.Message.Headers.Value(k3) != v3 {
-		t.Fatalf("11Receive header expected: [%v] got: [%v]\n", v3, md.Message.Headers.Value(k3))
-	}
-	// Unsubscribe
-	e = conn.Unsubscribe(sbh)
-	if e != nil {
-		t.Fatalf("11Unsubscribe failed: %v", e)
-	}
-	//
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
-
 }

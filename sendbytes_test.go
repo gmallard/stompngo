@@ -24,50 +24,63 @@ import (
 	Test Send Basiconn, one message.
 */
 func TestSendBytesBasic(t *testing.T) {
+	for _, sp := range Protocols() {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestSendBytesBasic CONNECT expected no error, got [%v]\n", e)
+		}
 
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
-	//
-	mb := []byte("A message")
-	d := tdest("/queue/send.basiconn.01")
-	sh := Headers{HK_DESTINATION, d}
-	e := conn.SendBytes(sh, mb)
-	if e != nil {
-		t.Fatalf("Expected nil error, got [%v]\n", e)
+		//
+		mb := []byte("A message-" + sp)
+		d := tdest("/queue/send.basiconn.01.bytes." + sp)
+		sh := Headers{HK_DESTINATION, d}
+		e = conn.SendBytes(sh, mb)
+		if e != nil {
+			t.Fatalf("TestSendBytesBasic Expected nil error, got [%v]\n", e)
+		}
+		//
+		e = conn.SendBytes(empty_headers, mb)
+		if e == nil {
+			t.Fatalf("TestSendBytesBasic Expected error, got [nil]\n")
+		}
+		if e != EREQDSTSND {
+			t.Fatalf("TestSendBytesBasic Expected [%v], got [%v]\n", EREQDSTSND, e)
+		}
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
+		_ = closeConn(t, n)
 	}
-	//
-	e = conn.SendBytes(empty_headers, mb)
-	if e == nil {
-		t.Fatalf("Expected error, got [nil]\n")
-	}
-	if e != EREQDSTSND {
-		t.Fatalf("Expected [%v], got [%v]\n", EREQDSTSND, e)
-	}
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
-
 }
 
 /*
 	Test Send Multiple, multiple messages, 5 to be exact.
 */
 func TestSendBytesMultiple(t *testing.T) {
-
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
-	//
-	mdb := multi_send_data{conn: conn,
-		dest:  tdest("/queue/sendmultiple.01."),
-		mpref: "sendmultiple.01.message.prefix ",
-		count: 5}
-	e := sendMultipleBytes(mdb)
-	if e != nil {
-		t.Fatalf("Expected nil error, got [%v]\n", e)
+	for _, sp := range Protocols() {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestSendBytesMultiple CONNECT expected no error, got [%v]\n", e)
+		}
+		//
+		mdb := multi_send_data{conn: conn,
+			dest:  tdest("/queue/sendmultiple.01.bytes." + sp + "."),
+			mpref: "sendmultiple.01.message.prefix.bytes ",
+			count: 5}
+		e = sendMultipleBytes(mdb)
+		if e != nil {
+			t.Fatalf("TestSendBytesMultiple Expected nil error, got [%v]\n", e)
+		}
+		//
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
+		_ = closeConn(t, n)
 	}
-	//
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
-
 }

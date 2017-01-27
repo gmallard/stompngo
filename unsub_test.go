@@ -17,102 +17,120 @@
 package stompngo
 
 import (
+	//"fmt"
+	"log"
+	//"os"
 	"testing"
+	//"time"
 )
 
-type unsubData struct {
-	p string // protocol
-	e error  // error
-}
-
-var unsubListNoHdr = []unsubData{
-	{SPL_10, EREQDIUNS},
-	{SPL_11, EREQDIUNS},
-	{SPL_12, EREQDIUNS},
-}
-
-var unsubBadId = []unsubData{
-	{SPL_11, EBADSID},
-	{SPL_12, EBADSID},
-}
-
-var unsubNoId = []unsubData{
-	{SPL_11, EUNOSID},
-	{SPL_12, EUNOSID},
-}
-
-/*
-	Test Unsubscribe, no destination.
-*/
-func TestUnsubNoHdr(t *testing.T) {
-
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
+func TestUnSubNoHeader(t *testing.T) {
+	n, _ = openConn(t)
+	ch := login_headers
+	ch = headersProtocol(ch, SPL_10) // To start
+	conn, e = Connect(n, ch)
+	if e != nil {
+		t.Fatalf("TestUnSubNoHeader CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
+			conn.ConnectResponse)
+	}
 	//
-	for i, l := range unsubListNoHdr {
-		conn.protocol = l.p
-		// Unsubscribe, no dest
-		e := conn.Unsubscribe(empty_headers)
+	for ti, tv := range unsubNoHeaderDataList {
+		conn.protocol = tv.proto // Cheat, fake all protocols
+		e = conn.Unsubscribe(empty_headers)
 		if e == nil {
-			t.Fatalf("Expected unsubscribe error, entry [%d], got [nil]\n", i)
+			t.Fatalf("TestUnSubNoHeader[%d] proto:%s expected:%q got:nil\n",
+				ti, sp, tv.exe)
 		}
-		if e != l.e {
-			t.Fatalf("Unsubscribe error, entry [%d], expected [%v], got [%v]\n", i, l.e, e)
+		if e != tv.exe {
+			t.Fatalf("TestUnSubNoHeader[%d] proto:%s expected:%q got:%q\n",
+				ti, sp, tv.exe, e)
 		}
 	}
 	//
-	_ = conn.Disconnect(empty_headers)
+	checkReceived(t, conn)
+	e = conn.Disconnect(empty_headers)
+	checkDisconnectError(t, e)
 	_ = closeConn(t, n)
+	log.Printf("TestUnSubNoHeader %d tests complete.\n", len(subNoHeaderDataList))
+
 }
 
-/*
-	Test Unsubscribe, no ID.
-*/
-func TestUnsubNoId(t *testing.T) {
-
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
-	//
-	uh := Headers{HK_DESTINATION, "/queue/unsub.noid"}
-	for i, l := range unsubNoId {
-		conn.protocol = l.p
-		// Unsubscribe, no id at all
-		e := conn.Unsubscribe(uh)
-		if e == nil {
-			t.Fatalf("Expected unsubscribe error, entry [%d], got [nil]\n", i)
-		}
-		if e != l.e {
-			t.Fatalf("Unsubscribe error, entry [%d], expected [%v], got [%v]\n", i, l.e, e)
-		}
+func TestUnSubNoID(t *testing.T) {
+	n, _ = openConn(t)
+	ch := login_headers
+	ch = headersProtocol(ch, SPL_10) // To start
+	conn, e = Connect(n, ch)
+	if e != nil {
+		t.Fatalf("TestUnSubNoID CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
+			conn.ConnectResponse)
 	}
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
-}
-
-/*
-	Test Unsubscribe, bad ID.
-*/
-func TestUnsubBadId(t *testing.T) {
-
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
 	//
-	uh := Headers{HK_DESTINATION, "/queue/unsub.badid", HK_ID, "bogus"}
-	for i, l := range unsubBadId {
-		conn.protocol = l.p
-		// Unsubscribe, bad id
-		e := conn.Unsubscribe(uh)
+	for ti, tv := range unsubNoHeaderDataList {
+		conn.protocol = tv.proto // Cheat, fake all protocols
+		e = conn.Unsubscribe(empty_headers)
 		if e == nil {
-			t.Fatalf("Expected unsubscribe error, entry [%d], got [nil]\n", i)
+			t.Fatalf("TestUnSubNoHeader[%d] proto:%s expected:%q got:nil\n",
+				ti, sp, tv.exe)
 		}
-		if e != l.e {
-			t.Fatalf("Unsubscribe error, entry [%d], expected [%v], got [%v]\n", i, l.e, e)
+		if e != tv.exe {
+			t.Fatalf("TestUnSubNoHeader[%d] proto:%s expected:%q got:%q\n",
+				ti, sp, tv.exe, e)
 		}
 	}
 	//
-	_ = conn.Disconnect(empty_headers)
+	checkReceived(t, conn)
+	e = conn.Disconnect(empty_headers)
+	checkDisconnectError(t, e)
 	_ = closeConn(t, n)
+	log.Printf("TestUnSubNoID %d tests complete.\n", len(unsubNoHeaderDataList))
+}
+
+func TestUnSubBool(t *testing.T) {
+	n, _ = openConn(t)
+	ch := login_headers
+	ch = headersProtocol(ch, SPL_10) // To start
+	conn, e = Connect(n, ch)
+	if e != nil {
+		t.Fatalf("CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
+			conn.ConnectResponse)
+	}
+	//
+	for ti, tv := range unsubBoolDataList {
+		conn.protocol = tv.proto // Cheat, fake all protocols
+
+		// SUBSCRIBE Phase (depending on test data)
+		if tv.subfirst {
+			// Do a real SUBSCRIBE
+			// sc, e = conn.Subscribe
+			sh := fixHeaderDest(tv.subh) // destination fixed if needed
+			sc, e = conn.Subscribe(sh)
+			if e == nil && sc == nil {
+				t.Fatalf("TestUnSubBool[%d] SUBSCRIBE proto:%s expected OK, got <%v> <%v>\n",
+					ti, e, sc)
+			}
+			if sc == nil {
+				t.Fatalf("TestUnSubBool[%d] SUBSCRIBE, proto:[%s], channel is nil\n",
+					ti, tv.proto)
+			}
+			if e != tv.exe1 {
+				t.Fatalf("TestUnSubBool[%d] SUBSCRIBE NEQCHECK proto:%s expected:%v got:%q\n",
+					ti, tv.proto, tv.exe2, e)
+			}
+		}
+
+		//fmt.Printf("fs,unsubh: <%v>\n", tv.unsubh)
+		// UNSCRIBE Phase
+		sh := fixHeaderDest(tv.unsubh) // destination fixed if needed
+		e = conn.Unsubscribe(sh)
+		if e != tv.exe2 {
+			t.Fatalf("TestUnSubBool[%d] UNSUBSCRIBE NEQCHECK proto:%s expected:%v got:%q\n",
+				ti, tv.proto, tv.exe2, e)
+		}
+	}
+	//
+	checkReceived(t, conn)
+	e = conn.Disconnect(empty_headers)
+	checkDisconnectError(t, e)
+	_ = closeConn(t, n)
+	log.Printf("TestUnSubBool %d tests complete.\n", len(unsubBoolDataList))
 }

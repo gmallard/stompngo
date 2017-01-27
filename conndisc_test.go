@@ -17,318 +17,351 @@
 package stompngo
 
 import (
-	"os"
 	"testing"
 )
-
-type verData struct {
-	ch Headers // Client headers
-	sh Headers // Server headers
-	e  error   // Expected error
-}
-
-var verChecks = []verData{
-	{Headers{HK_ACCEPT_VERSION, SPL_11}, Headers{HK_VERSION, SPL_11}, nil},
-	{Headers{}, Headers{}, nil},
-	{Headers{HK_ACCEPT_VERSION, "1.0,1.1,1.2"}, Headers{HK_VERSION, SPL_12}, nil},
-	{Headers{HK_ACCEPT_VERSION, "1.3"}, Headers{HK_VERSION, "1.3"}, EBADVERSVR},
-	{Headers{HK_ACCEPT_VERSION, "1.3"}, Headers{HK_VERSION, "1.1"}, EBADVERCLI},
-	{Headers{HK_ACCEPT_VERSION, "1.0,1.1,1.2"}, Headers{}, nil},
-}
 
 /*
 	ConnDisc Test: net.Conn.
 */
-func TestConnDiscNetconn(t *testing.T) {
-	n, _ := openConn(t)
+func TestConnCDDiscNetconn(t *testing.T) {
+	n, _ = openConn(t)
 	_ = closeConn(t, n)
 }
 
 /*
 	ConnDisc Test: stompngo.Connect.
 */
-func TestConnDiscStompConn(t *testing.T) {
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, e := Connect(n, ch)
-	if e != nil {
-		t.Fatalf("Expected no connect error, got [%v]\n", e)
+func TestConnCDDisc(t *testing.T) {
+	for _, sp := range Protocols() {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestConnCDDisc Expected no connect error, got [%v]\n", e)
+		}
+		if conn == nil {
+			t.Fatalf("TestConnCDDisc Expected a connection, got [nil]\n")
+		}
+		if conn.ConnectResponse.Command != CONNECTED {
+			t.Fatalf("TestConnCDDisc Expected command [%v], got [%v]\n", CONNECTED,
+				conn.ConnectResponse.Command)
+		}
+		if !conn.connected {
+			t.Fatalf("TestConnCDDisc Expected connected [true], got [false]\n")
+		}
+		if !conn.Connected() {
+			t.Fatalf("TestConnCDDisc Expected connected [true], got [false]\n")
+		}
+		//
+		if conn.Session() == "" {
+			t.Fatalf("TestConnCDDisc Expected connected session, got [default value]\n")
+		}
+		//
+		if conn.SendTickerInterval() != 0 {
+			t.Fatalf("TestConnCDDisc Expected zero SendTickerInterval, got [%v]\n",
+				conn.SendTickerInterval())
+		}
+		if conn.ReceiveTickerInterval() != 0 {
+			t.Fatalf("TestConnCDDisc Expected zero ReceiveTickerInterval, got [%v]\n",
+				conn.SendTickerInterval())
+		}
+		if conn.SendTickerCount() != 0 {
+			t.Fatalf("TestConnCDDisc Expected zero SendTickerCount, got [%v]\n",
+				conn.SendTickerCount())
+		}
+		if conn.ReceiveTickerCount() != 0 {
+			t.Fatalf("TestConnCDDisc Expected zero ReceiveTickerCount, got [%v]\n",
+				conn.SendTickerCount())
+		}
+		//
+		if conn.FramesRead() != 1 {
+			t.Fatalf("TestConnCDDisc Expected 1 frame read, got [%d]\n", conn.FramesRead())
+		}
+		if conn.BytesRead() <= 0 {
+			t.Fatalf("TestConnCDDisc Expected non-zero bytes read, got [%d]\n", conn.BytesRead())
+		}
+		if conn.FramesWritten() != 1 {
+			t.Fatalf("TestConnCDDisc Expected 1 frame written, got [%d]\n", conn.FramesWritten())
+		}
+		if conn.BytesWritten() <= 0 {
+			t.Fatalf("ETestConnCDDisc xpected non-zero bytes written, got [%d]\n",
+				conn.BytesWritten())
+		}
+		if conn.Running().Nanoseconds() == 0 {
+			t.Fatalf("TestConnCDDisc Expected non-zero runtime, got [0]\n")
+		}
+		//
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
+		_ = closeConn(t, n)
 	}
-	if conn == nil {
-		t.Fatalf("Expected a connection, got [nil]\n")
-	}
-	if conn.ConnectResponse.Command != CONNECTED {
-		t.Fatalf("Expected command [%v], got [%v]\n", CONNECTED,
-			conn.ConnectResponse.Command)
-	}
-	if !conn.connected {
-		t.Fatalf("Expected connected [true], got [false]\n")
-	}
-	if !conn.Connected() {
-		t.Fatalf("Expected connected [true], got [false]\n")
-	}
-	//
-	if conn.Session() == "" {
-		t.Fatalf("Expected connected session, got [default value]\n")
-	}
-	//
-	if conn.SendTickerInterval() != 0 {
-		t.Fatalf("Expected zero SendTickerInterval, got [%v]\n",
-			conn.SendTickerInterval())
-	}
-	if conn.ReceiveTickerInterval() != 0 {
-		t.Fatalf("Expected zero ReceiveTickerInterval, got [%v]\n",
-			conn.SendTickerInterval())
-	}
-	if conn.SendTickerCount() != 0 {
-		t.Fatalf("Expected zero SendTickerCount, got [%v]\n",
-			conn.SendTickerCount())
-	}
-	if conn.ReceiveTickerCount() != 0 {
-		t.Fatalf("Expected zero ReceiveTickerCount, got [%v]\n",
-			conn.SendTickerCount())
-	}
-	//
-	if conn.FramesRead() != 1 {
-		t.Fatalf("Expected 1 frame read, got [%d]\n", conn.FramesRead())
-	}
-	if conn.BytesRead() <= 0 {
-		t.Fatalf("Expected non-zero bytes read, got [%d]\n", conn.BytesRead())
-	}
-	if conn.FramesWritten() != 1 {
-		t.Fatalf("Expected 1 frame written, got [%d]\n", conn.FramesWritten())
-	}
-	if conn.BytesWritten() <= 0 {
-		t.Fatalf("Expected non-zero bytes written, got [%d]\n",
-			conn.BytesWritten())
-	}
-	if conn.Running().Nanoseconds() == 0 {
-		t.Fatalf("Expected non-zero runtime, got [0]\n")
-	}
-	//
-	_ = conn.Disconnect(empty_headers)
-	if conn.Connected() {
-		t.Fatalf("Expected connected [false], got [true]\n")
-	}
-	_ = closeConn(t, n)
-}
-
-/*
-	ConnDisc Test: stompngo.Disconnect.
-*/
-func TestConnDiscStompDisc(t *testing.T) {
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
-	e := conn.Disconnect(empty_headers)
-	if e != nil {
-		t.Fatalf("Expected no disconnect error, got [%v]\n", e)
-	}
-	_ = closeConn(t, n)
 }
 
 /*
 	ConnDisc Test: stompngo.Disconnect with client bypassing a receipt.
 */
-func TestConnDiscNoDiscReceipt(t *testing.T) {
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
-	e := conn.Disconnect(NoDiscReceipt)
-	if e != nil {
-		t.Fatalf("Expected no disconnect error, got [%v]\n", e)
+func TestConnCDDiscNoDiscReceipt(t *testing.T) {
+	for _, sp := range Protocols() {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestConnCDDiscNoDiscReceipt Expected no connect error, got [%v]\n", e)
+		}
+		// DISCONNECT Here
+		checkReceived(t, conn)
+		e = conn.Disconnect(NoDiscReceipt)
+		checkDisconnectError(t, e)
+		if e != nil {
+			t.Fatalf("TestConnCDDiscNoDiscReceipt Expected no disconnect error, got [%v]\n", e)
+		}
+		if conn.DisconnectReceipt.Message.Command != "" {
+			t.Fatalf("TestConnCDDiscNoDiscReceipt Expected no disconnect receipt command, got [%v]\n",
+				conn.DisconnectReceipt.Message.Command)
+		}
+		// NO DISCONNECT checks here
+		_ = closeConn(t, n)
 	}
-	if conn.DisconnectReceipt.Message.Command != "" {
-		t.Fatalf("Expected no disconnect receipt command, got [%v]\n",
-			conn.DisconnectReceipt.Message.Command)
-	}
-	_ = closeConn(t, n)
 }
 
 /*
 	ConnDisc Test: stompngo.Disconnect with receipt requested.
 */
-func TestConnDiscStompDiscReceipt(t *testing.T) {
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
-	rid := "my-receipt-001"
-	e := conn.Disconnect(Headers{HK_RECEIPT, rid})
-	if e != nil {
+func TestConnCDDiscStompDiscReceipt(t *testing.T) {
+	for _, sp := range Protocols() {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestConnCDDiscStompDiscReceipt Expected no connect error, got [%v]\n",
+				e)
+		}
+		// DISCONNECT Here
+		checkReceived(t, conn)
+		e = conn.Disconnect(Headers{HK_RECEIPT, rid})
+		if e != nil {
 
-		t.Fatalf("Expected no disconnect error, got [%v]\n", e)
+			t.Fatalf("TestConnCDDiscStompDiscReceipt Expected no disconnect error, got [%v]\n",
+				e)
+		}
+		if conn.DisconnectReceipt.Error != nil {
+			t.Fatalf("TestConnCDDiscStompDiscReceipt Expected no receipt error, got [%v]\n",
+				conn.DisconnectReceipt.Error)
+		}
+		md := conn.DisconnectReceipt.Message
+		irid, ok := md.Headers.Contains(HK_RECEIPT_ID)
+		if !ok {
+			t.Fatalf("TestConnCDDiscStompDiscReceipt Expected receipt-id, not received\n")
+		}
+		if rid != irid {
+			t.Fatalf("TestConnCDDiscStompDiscReceipt Expected receipt-id [%q], got [%q]\n",
+				rid, irid)
+		}
+		// NO DISCONNECT checks here
+		_ = closeConn(t, n)
 	}
-	if conn.DisconnectReceipt.Error != nil {
-		t.Fatalf("Expected no receipt error, got [%v]\n",
-			conn.DisconnectReceipt.Error)
-	}
-	md := conn.DisconnectReceipt.Message
-	irid, ok := md.Headers.Contains(HK_RECEIPT_ID)
-	if !ok {
-		t.Fatalf("Expected receipt-id, not received\n")
-	}
-	if rid != irid {
-		t.Fatalf("Expected receipt-id [%q], got [%q]\n", rid, irid)
-	}
-	_ = closeConn(t, n)
 }
 
 /*
 	ConnDisc Test: Body Length of CONNECTED response.
 */
-func TestConnBodyLen(t *testing.T) {
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-
-	conn, e := Connect(n, ch)
-	if e != nil {
-		t.Fatalf("Expected no connect error, got [%v]\n", e)
-	}
-	if len(conn.ConnectResponse.Body) != 0 {
-		t.Fatalf("Expected body length 0, got [%v]\n",
-			len(conn.ConnectResponse.Body))
-	}
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
-}
-
-/*
-	Conn11 Test: Test 1.1+ Connection.
-*/
-func TestConn11p(t *testing.T) {
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, e := Connect(n, ch)
-	if e != nil {
-		t.Fatalf("Expected no connect error, got [%v]\n", e)
-	}
-	v := os.Getenv("STOMP_TEST11p")
-	if v != "" {
-		switch v {
-		case SPL_12:
-			if conn.Protocol() != SPL_12 {
-				t.Fatalf("Expected protocol %v, got [%v]\n", SPL_12, conn.Protocol())
-			}
-		default:
-			if conn.Protocol() != SPL_11 {
-				t.Fatalf("Expected protocol %v, got [%v]\n", SPL_11, conn.Protocol())
-			}
+func TestConnCDBodyLen(t *testing.T) {
+	for _, sp := range Protocols() {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestConnCDBodyLen Expected no connect error, got [%v]\n", e)
 		}
-	} else {
-		if conn.Protocol() != SPL_10 {
-			t.Fatalf("Expected protocol %v, got [%v]\n", SPL_10, conn.Protocol())
+		if len(conn.ConnectResponse.Body) != 0 {
+			t.Fatalf("TestConnCDBodyLen Expected body length 0, got [%v]\n",
+				len(conn.ConnectResponse.Body))
 		}
+		e = conn.Disconnect(empty_headers)
+		if e != nil {
+			t.Fatalf("TestConnCDBodyLen Expected no disconnect error, got [%v]\n", e)
+		}
+		_ = closeConn(t, n)
 	}
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
 }
 
 /*
-	Conn11Receipt Test: Test receipt not allowed on connect.
+	Conn11 Test: Test Protocol level
 */
-func TestConn11Receipt(t *testing.T) {
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	ch = ch.Add(HK_RECEIPT, "abcd1234")
-	_, e := Connect(n, ch)
-	if e == nil {
-		t.Fatalf("Expected connect error, got nil\n")
+func TestConnCDProto(t *testing.T) {
+	for _, sp := range Protocols() {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestConnCDProto Expected no connect error, got [%v]\n", e)
+		}
+		if conn.Protocol() != sp {
+			t.Fatalf("TestConnCDProto Expected protocol %v, got [%v]\n", sp, conn.Protocol())
+		}
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		if e != nil {
+			t.Fatalf("TestConnCDProto Expected no disconnect error, got [%v]\n", e)
+		}
+		_ = closeConn(t, n)
 	}
-	if e != ENORECPT {
-		t.Fatalf("Expected [%v], got [%v]\n", ENORECPT, e)
-	}
-	_ = closeConn(t, n)
 }
 
 /*
-	ConnDisc Test: ECONBAD
+	ConnReceipt Test: Test receipt not allowed on connect.
 */
-func TestConnEconBad(t *testing.T) {
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, e := Connect(n, ch)
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
-	//
-	e = conn.Abort(empty_headers)
-	if e != ECONBAD {
-		t.Fatalf("Abort expected [%v] got [%v]\n", ECONBAD, e)
-	}
-	e = conn.Ack(empty_headers)
-	if e != ECONBAD {
-		t.Fatalf("Ack expected [%v] got [%v]\n", ECONBAD, e)
-	}
-	e = conn.Begin(empty_headers)
-	if e != ECONBAD {
-		t.Fatalf("Begin expected [%v] got [%v]\n", ECONBAD, e)
-	}
-	e = conn.Commit(empty_headers)
-	if e != ECONBAD {
-		t.Fatalf("Commit expected [%v] got [%v]\n", ECONBAD, e)
-	}
-	e = conn.Nack(empty_headers)
-	if e != ECONBAD {
-		t.Fatalf("Nack expected [%v] got [%v]\n", ECONBAD, e)
-	}
-	e = conn.Send(empty_headers, "")
-	if e != ECONBAD {
-		t.Fatalf("Send expected [%v] got [%v]\n", ECONBAD, e)
-	}
-	_, e = conn.Subscribe(empty_headers)
-	if e != ECONBAD {
-		t.Fatalf("Subscribe expected [%v] got [%v]\n", ECONBAD, e)
-	}
-	e = conn.Unsubscribe(empty_headers)
-	if e != ECONBAD {
-		t.Fatalf("Unsubscribe expected [%v] got [%v]\n", ECONBAD, e)
+func TestConnCDReceipt(t *testing.T) {
+	for _, sp := range Protocols() {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		ch = ch.Add(HK_RECEIPT, "abcd1234")
+		_, e = Connect(n, ch)
+		if e == nil {
+			t.Fatalf("TestConnCDReceipt Expected connect error, got nil\n")
+		}
+		if e != ENORECPT {
+			t.Fatalf("TestConnCDReceipt Expected [%v], got [%v]\n", ENORECPT, e)
+		}
+		// No DISCONNECT checks for this test.
+		_ = closeConn(t, n)
 	}
 }
 
 /*
 	ConnDisc Test: ECONBAD
 */
-func TestConnEconDiscDone(t *testing.T) {
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, e := Connect(n, ch)
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
-	//
-	e = conn.Disconnect(empty_headers)
-	if e != ECONBAD {
-		t.Fatalf("Previous disconnect expected [%v] got [%v]\n", ECONBAD, e)
+func TestConnCDEconBad(t *testing.T) {
+	for _, sp := range Protocols() {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestConnCDEconBad Expected no connect error, got [%v]\n", e)
+		}
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		if e != nil {
+			t.Fatalf("TestConnCDEconBad Expected no disconnect error, got [%v]\n", e)
+		}
+		_ = closeConn(t, n)
+		//
+		e = conn.Abort(empty_headers)
+		if e != ECONBAD {
+			t.Fatalf("TestConnCDEconBad Abort expected [%v] got [%v]\n", ECONBAD, e)
+		}
+		e = conn.Ack(empty_headers)
+		if e != ECONBAD {
+			t.Fatalf("TestConnCDEconBad Ack expected [%v] got [%v]\n", ECONBAD, e)
+		}
+		e = conn.Begin(empty_headers)
+		if e != ECONBAD {
+			t.Fatalf("TestConnCDEconBad Begin expected [%v] got [%v]\n", ECONBAD, e)
+		}
+		e = conn.Commit(empty_headers)
+		if e != ECONBAD {
+			t.Fatalf("TestConnCDEconBad Commit expected [%v] got [%v]\n", ECONBAD, e)
+		}
+		e = conn.Nack(empty_headers)
+		if e != ECONBAD {
+			t.Fatalf("TestConnCDEconBad Nack expected [%v] got [%v]\n", ECONBAD, e)
+		}
+		e = conn.Send(empty_headers, "")
+		if e != ECONBAD {
+			t.Fatalf("TestConnCDEconBad Send expected [%v] got [%v]\n", ECONBAD, e)
+		}
+		_, e = conn.Subscribe(empty_headers)
+		if e != ECONBAD {
+			t.Fatalf("TestConnCDEconBad Subscribe expected [%v] got [%v]\n", ECONBAD, e)
+		}
+		e = conn.Unsubscribe(empty_headers)
+		if e != ECONBAD {
+			t.Fatalf("TestConnCDEconBad Unsubscribe expected [%v] got [%v]\n", ECONBAD, e)
+		}
+	}
+}
+
+/*
+	ConnDisc Test: ECONBAD
+*/
+func TestConnCDEconDiscDone(t *testing.T) {
+	for _, sp := range Protocols() {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestConnCDEconDiscDone Expected no connect error, got [%v]\n", e)
+		}
+		e = conn.Disconnect(empty_headers)
+		if e != nil {
+			t.Fatalf("TestConnCDEconDiscDone Expected no disconnect error, got [%v]\n", e)
+		}
+		_ = closeConn(t, n)
+		//
+		e = conn.Disconnect(empty_headers)
+		if e != ECONBAD {
+			t.Fatalf("TestConnCDEconDiscDone Previous disconnect expected [%v] got [%v]\n", ECONBAD, e)
+		}
 	}
 }
 
 /*
 	ConnDisc Test: setProtocolLevel
 */
-func TestConnSetProtocolLevel(t *testing.T) {
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
-	//
-	for i, v := range verChecks {
-		conn.protocol = SPL_10 // reset
-		e := conn.setProtocolLevel(v.ch, v.sh)
-		if e != v.e {
-			t.Fatalf("Verdata Item [%d], expected [%v], got [%v]\n", i, v.e, e)
+func TestConnCDCDSetProtocolLevel(t *testing.T) {
+	for _, sp := range Protocols() {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestConnCDCDSetProtocolLevel Expected no connect error, got [%v]\n", e)
+		} //
+		for i, v := range verChecks {
+			conn.protocol = SPL_10 // reset
+			e = conn.setProtocolLevel(v.ch, v.sh)
+			if e != v.e {
+				t.Fatalf("TestConnCDCDSetProtocolLevel Verdata Item [%d], expected [%v], got [%v]\n", i, v.e, e)
+			}
 		}
+		//
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
+		_ = closeConn(t, n)
 	}
-	//
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
 }
 
 /*
 	ConnDisc Test: connRespData
 */
-func TestConnRespData(t *testing.T) {
-
-	for i, f := range frames {
-		_, e := connectResponse(f.data)
-		if e != f.resp {
-			t.Fatalf("Index [%v], expected [%v], got [%v]\n", i, f.resp, e)
+func TestConnCDRespData(t *testing.T) {
+	for _, sp := range Protocols() {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestConnCDRespData Expected no connect error, got [%v]\n", e)
 		}
+		for i, f := range frames {
+			_, e = connectResponse(f.data)
+			if e != f.resp {
+				t.Fatalf("TestConnCDRespData Index [%v], expected [%v], got [%v]\n", i, f.resp, e)
+			}
+		}
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
+		_ = closeConn(t, n)
 	}
 }

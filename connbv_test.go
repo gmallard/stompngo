@@ -16,77 +16,50 @@
 
 package stompngo
 
-import (
-	"net"
-	"os"
-	"testing"
-)
+import "testing"
 
 /*
-	ConnBadVer Test: Bad Version One.
+	ConnBadValVer Test: Bad Version value.
 */
-func TestConnBadVer10One(t *testing.T) {
-	if true {
-		t.Skip("TestConnBadVer10One no 1.0 only servers available")
+func TestConnBadValVer(t *testing.T) {
+	for _, p := range Protocols() {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = ch.Add(HK_ACCEPT_VERSION, "3.14159").Add(HK_HOST, "localhost")
+		conn, e = Connect(n, ch)
+		if e == nil {
+			t.Errorf("TestConnBadValVer Expected error, got nil, proto: %s\n", p)
+		}
+		if e != EBADVERCLI {
+			t.Errorf("TestConnBadValVer Expected <%v>, got <%v>, proto: %s\n",
+				EBADVERCLI, e, p)
+		}
+		checkReceived(t, conn)
+		// We are not connected by test design, check nothing around
+		// DISCONNECT.
+		_ = closeConn(t, n)
 	}
-	h, p := badVerHostAndPort()
-	n, e := net.Dial(NetProtoTCP, net.JoinHostPort(h, p))
-	ch := TEST_HEADERS
-	other_headers := Headers{HK_ACCEPT_VERSION, "1.1,2.0,3.14159", HK_HOST, h}
-	ch = ch.AddHeaders(other_headers)
-	c, e := Connect(n, ch)
-	if e != EBADVERSVR {
-		t.Fatalf("Expected error [%v], got [%v]\n", EBADVERSVR, e)
-	}
-	_ = c.Disconnect(empty_headers)
-	_ = closeConn(t, n)
 }
 
 /*
-	ConnBadVer Test: Bad Version Two.
+	ConnBadValHost Test: Bad Version, no host (vhost) value.
 */
-func TestConnBadVer10Two(t *testing.T) {
-	if os.Getenv("STOMP_TESTBV") == "" { // Want bad version check? (Know what you are doing...)
-		t.Skip("TestConnBadVer10Two norun, set STOMP_TESTBV")
+func TestConnBadValHost(t *testing.T) {
+	for _, p := range Protocols() {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = ch.Add(HK_ACCEPT_VERSION, p)
+		conn, e = Connect(n, ch)
+		if e == nil {
+			t.Errorf("TestConnBadValHost Expected error, got nil, proto: %s\n", p)
+		}
+		if e != EREQHOST {
+			t.Errorf("TestConnBadValHost Expected <%v>, got <%v>, proto: %s\n",
+				EREQHOST, e, p)
+		}
+		checkReceived(t, conn)
+		// We are not connected by test design, check nothing around
+		// DISCONNECT.
+		_ = closeConn(t, n)
 	}
-	if os.Getenv("STOMP_TEST11p") != "" { // Want bad version check? (Know what you are doing...)
-		t.Skip("TestConnBadVer10Two norun, set STOMP_TEST11p")
-	}
-	h, p := badVerHostAndPort()
-	n, e := net.Dial(NetProtoTCP, net.JoinHostPort(h, p))
-	ch := TEST_HEADERS
-	other_headers := Headers{HK_ACCEPT_VERSION, "2.0,1.0,3.14159", HK_HOST, h}
-	ch = ch.AddHeaders(other_headers)
-	c, e := Connect(n, ch)
-	if e != nil {
-		t.Fatalf("Expected nil error, got [%v]\n", e)
-	}
-	if c.Protocol() != SPL_10 {
-		t.Fatalf("Expected protocol 1.0, got [%v]\n", c.Protocol())
-	}
-	_ = c.Disconnect(empty_headers)
-	_ = closeConn(t, n)
-}
-
-/*
-	ConnBadVer Test: Bad Version Three.
-*/
-func TestConnBadVer10Three(t *testing.T) {
-	if os.Getenv("STOMP_TESTBV") == "" { // Want bad version check? (Know what you are doing...)
-		t.Skip("TestConnBadVer10Three norun, set STOMP_TESTBV")
-	}
-	if os.Getenv("STOMP_TEST11p") != "" { // Want bad version check? (Know what you are doing...)
-		t.Skip("TestConnBadVer10Three norun, set STOMP_TEST11p")
-	}
-	h, p := badVerHostAndPort()
-	n, e := net.Dial(NetProtoTCP, net.JoinHostPort(h, p))
-	ch := TEST_HEADERS
-	other_headers := Headers{HK_ACCEPT_VERSION, "4.5,3.14159", HK_HOST, h}
-	ch = ch.AddHeaders(other_headers)
-	c, e := Connect(n, ch)
-	if e != EBADVERCLI {
-		t.Fatalf("Expected error [%v], got [%v]\n", EBADVERCLI, e)
-	}
-	_ = c.Disconnect(empty_headers)
-	_ = closeConn(t, n)
 }

@@ -18,12 +18,9 @@ package stompngo
 
 import (
 	"bufio"
-	"encoding/hex"
 	"fmt"
 	"io"
 	"strings"
-	//
-	"github.com/gmallard/stompngo/senv"
 )
 
 /*
@@ -141,15 +138,4 @@ func dumpmd(md MessageData) {
 	} else {
 		fmt.Println("Error: nil")
 	}
-}
-
-func hexData(b []uint8) string {
-	td := b[:]
-	m := senv.MaxBodyLength()
-	if m > 0 {
-		if m < len(td) {
-			td = td[:m]
-		}
-	}
-	return "\n" + hex.Dump(td)
 }

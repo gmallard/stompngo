@@ -17,369 +17,228 @@
 package stompngo
 
 import (
+	"fmt"
 	"log"
-	"os"
+	//"os"
 	"testing"
-	"time"
+	//"time"
 )
 
-/*
-	Test Subscribe, no destination.
-*/
-func TestSubNoDest(t *testing.T) {
-
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
-	// Subscribe, no dest
-	_, e := conn.Subscribe(empty_headers)
-	if e == nil {
-		t.Fatalf("Expected subscribe error, got [nil]\n")
-	}
-	if e != EREQDSTSUB {
-		t.Fatalf("Subscribe error, expected [%v], got [%v]\n", EREQDSTSUB, e)
-	}
-	//
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
-}
-
-/*
-	Test subscribe, no ID.
-*/
-func TestSubNoIdOnce(t *testing.T) {
-
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
-	//
-	d := tdest("/queue/subunsub.genl.01")
-	sbh := Headers{HK_DESTINATION, d}
-	//
-	s, e := conn.Subscribe(sbh)
+func TestSubNoHeader(t *testing.T) {
+	n, _ = openConn(t)
+	ch := login_headers
+	ch = headersProtocol(ch, SPL_10) // Start with 1.0
+	conn, e = Connect(n, ch)
 	if e != nil {
-		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
-	}
-	if s == nil {
-		t.Fatalf("Expected subscribe channel, got [nil]\n")
-	}
-	select {
-	case v := <-conn.MessageData:
-		t.Fatalf("Unexpected frame received, got [%v]\n", v)
-	default:
+		t.Fatalf("TestSubNoHeader CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
+			conn.ConnectResponse)
 	}
 	//
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
-}
-
-/*
-	Test subscribe, no ID, twice to same destination, protocol level 1.0.
-*/
-func TestSubNoIdTwice10(t *testing.T) {
-	if os.Getenv("STOMP_TEST11p") != "" {
-		t.Skip("TestSubNoIdTwice10 norun, need 1.0")
-	}
-
-	t.Log("TestSubNoIdTwice10", "starts")
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
-	//l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
-	//conn.SetLogger(l)
-	//
-	if conn.Protocol() != SPL_10 {
-		t.Fatalf("Protocol error, got [%v], expected [%v]\n", conn.Protocol(), SPL_10)
-	}
-	//
-	d := tdest("/queue/subdup.p10.01")
-	sbh := Headers{HK_DESTINATION, d}
-	// First time
-	sc, e := conn.Subscribe(sbh)
-	if e != nil {
-		t.Fatalf("Expected no subscribe error (T1), got [%v]\n", e)
-	}
-	if sc == nil {
-		t.Fatalf("Expected subscribe channel (T1), got [nil]\n")
-	}
-	time.Sleep(500 * time.Millisecond) // give a broker a break
-	select {
-	case v := <-sc:
-		t.Fatalf("Unexpected frame received (T1), got [%v]\n", v)
-	case v := <-conn.MessageData:
-		t.Fatalf("Unexpected frame received (T1), got [%v]\n", v)
-	default:
-	}
-	// Second time
-	sc, e = conn.Subscribe(sbh)
-	if e == EDUPSID {
-		t.Fatalf("Expected no subscribe error (T2), got [%v]\n", e)
-	}
-	if e != nil {
-		t.Fatalf("Expected no subscribe error (T2), got [%v]\n", e)
-	}
-	if sc == nil {
-		t.Fatalf("Expected subscribe channel (T2), got nil\n")
-	}
-	time.Sleep(500 * time.Millisecond) // give a broker a break
-	// Stomp 1.0 brokers are allowed significant latitude regarding a response
-	// to a duplicate subscription request.  Currently, only do these checks for
-	// brokers other than AMQ.  AMQ does not return an ERROR frame for duplicate
-	// subscriptions with 1.0, choosing to ignore it.
-	// Apollo and RabbitMQ both return an ERROR frame *and* tear down the
-	// connection.
-	if os.Getenv("STOMP_APOLLO") != "" || os.Getenv("STOMP_RMQ") != "" {
-		// fmt.Println("sccheck runs ....", conn.Connected())
-		select {
-		case v := <-sc:
-			t.Logf("Server frame expected and received (T2-A), got [%v] [%v] [%v] [%s]\n",
-				v.Message.Command, v.Error, v.Message.Headers, string(v.Message.Body))
-		case v := <-conn.MessageData:
-			t.Logf("Server frame expected and received (T2-B), got [%v] [%v] [%v] [%s]\n",
-				v.Message.Command, v.Error, v.Message.Headers, string(v.Message.Body))
-		default:
-			t.Fatalf("Server frame expected (T2-E), not received.\n")
+	for ti, tv := range subNoHeaderDataList {
+		conn.protocol = tv.proto // Cheat, fake all protocols
+		_, e = conn.Subscribe(empty_headers)
+		if e == nil {
+			t.Fatalf("TestSubNoHeader[%d] proto:%s expected:%v got:nil\n",
+				ti, tv.proto, tv.exe)
+		}
+		if e != tv.exe {
+			t.Fatalf("TestSubNoHeader[%d] proto:%s expected:%v got:%v\n",
+				ti, tv.proto, tv.exe, e)
 		}
 	}
-	// For both Apollo and RabbitMQ, the connection teardown by the server can
-	// mean the client side connection is no longer usable.
-	if os.Getenv("STOMP_APOLLO") == "" && os.Getenv("STOMP_RMQ") == "" {
-		_ = conn.Disconnect(empty_headers)
+	//
+	e = conn.Disconnect(empty_headers)
+	checkDisconnectError(t, e)
+	_ = closeConn(t, n)
+	log.Printf("TestSubNoHeader %d tests complete.\n", len(subNoHeaderDataList))
+}
+
+func TestSubNoID(t *testing.T) {
+	n, _ = openConn(t)
+	ch := login_headers
+	ch = headersProtocol(ch, SPL_10) // Start with 1.0
+	conn, e = Connect(n, ch)
+	if e != nil {
+		t.Fatalf("TestSubNoID CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
+			conn.ConnectResponse)
+	}
+	//
+	for ti, tv := range subNoIDDataList {
+		conn.protocol = tv.proto // Cheat, fake all protocols
+		ud := tdest(tv.subh.Value(HK_DESTINATION))
+		_, e = conn.Subscribe(Headers{HK_DESTINATION, ud})
+		if e != tv.exe {
+			t.Fatalf("TestSubNoID[%d] proto:%s expected:%v got:%v\n",
+				ti, tv.proto, tv.exe, e)
+		}
+	}
+	//
+	e = conn.Disconnect(empty_headers)
+	checkDisconnectError(t, e)
+	_ = closeConn(t, n)
+	log.Printf("TestSubNoID %d tests complete.\n", len(subNoIDDataList))
+}
+
+func TestSubPlain(t *testing.T) {
+	for ti, tv := range subPlainDataList {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, tv.proto)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestSubPlain CONNECT Failed: e:<%q> connresponse:<%q>\n", e,
+				conn.ConnectResponse)
+		}
+
+		// SUBSCRIBE Phase
+		sh := fixHeaderDest(tv.subh) // destination fixed if needed
+		sc, e = conn.Subscribe(sh)
+		if sc == nil {
+			t.Fatalf("TestSubPlain[%d] SUBSCRIBE, proto:[%s], channel is nil\n",
+				ti, tv.proto)
+		}
+		if e != tv.exe1 {
+			t.Fatalf("TestSubPlain[%d] SUBSCRIBE, proto:%s expected:%v got:%v\n",
+				ti, tv.proto, tv.exe1, e)
+		}
+
+		// UNSUBSCRIBE Phase
+		sh = fixHeaderDest(tv.unsubh) // destination fixed if needed
+		e = conn.Unsubscribe(sh)
+		if e != tv.exe2 {
+			t.Fatalf("TestSubPlain[%d] UNSUBSCRIBE, proto:%s expected:%v got:%v\n",
+				ti, tv.proto, tv.exe2, e)
+		}
+
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
 	}
-	t.Log("TestSubNoIdTwice10", "ends")
+	log.Printf("TestSubPlain %d tests complete.\n", len(subPlainDataList))
 }
 
-/*
-	Test subscribe, no ID, twice to same destination, protocol level 1.1+.
-*/
-func TestSubNoIdTwice11p(t *testing.T) {
-	if os.Getenv("STOMP_TEST11p") == "" {
-		t.Skip("TestSubNoIdTwice11p norun, need 1.1+")
-	}
+func TestSubNoTwice(t *testing.T) {
+	for ti, tv := range subTwiceDataList {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, tv.proto)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestSubNoTwice CONNECT Failed: e:<%q> connresponse:<%q>\n",
+				e,
+				conn.ConnectResponse)
+		}
 
-	t.Log("TestSubNoIdTwice11p", "starts")
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
-	l := log.New(os.Stdout, "TSNI211P ", log.Ldate|log.Lmicroseconds)
-	conn.SetLogger(l)
+		// SUBSCRIBE Phase 1
+		sh := fixHeaderDest(tv.subh) // destination fixed if needed
+		sc, e = conn.Subscribe(sh)
+		if sc == nil {
+			t.Fatalf("TestSubNoTwice[%d] SUBSCRIBE1, proto:[%s], channel is nil\n",
+				ti, tv.proto)
+		}
+		if e != tv.exe1 {
+			t.Fatalf("TestSubNoTwice[%d] SUBSCRIBE1, proto:%s expected:%v got:%v\n",
+				ti, tv.proto, tv.exe1, e)
+		}
 
-	d := tdest("/queue/subdup.p11.01")
-	id := "TestSubNoIdTwice11p"
-	sbh := Headers{HK_DESTINATION, d, HK_ID, id}
-	// First time
-	t.Logf("%s\n", "INFO TestSubNoIdTwice11p - start 1st SUBSCRIBE")
-	sc, e := conn.Subscribe(sbh)
-	t.Logf("%s\n", "INFO TestSubNoIdTwice11p - end 1st SUBSCRIBE")
-	if e != nil {
-		t.Fatalf("ERROR Expected no subscribe error (T1), got [%v]\n", e)
-	}
-	if sc == nil {
-		t.Fatalf("ERROR Expected subscribe channel (T2), got [nil]\n")
-	}
-	time.Sleep(500 * time.Millisecond) // give a broker a break
-	select {
-	case v := <-sc:
-		t.Fatalf("ERROR Unexpected frame received (T3), got [%v]\n", v)
-	case v := <-conn.MessageData:
-		t.Fatalf("ERROR Unexpected frame received (T4), got [%v]\n", v)
-	default:
-	}
+		// SUBSCRIBE Phase 2
+		sc, e = conn.Subscribe(sh)
+		if e != tv.exe2 {
+			t.Fatalf("TestSubNoTwice[%d] SUBSCRIBE2, proto:%s expected:%v got:%v\n",
+				ti, tv.proto, tv.exe2, e)
+		}
 
-	// Second time.  The stompngo package maintains a list of all current
-	// subscription ids.  An attempt to subscribe using an existing id is
-	// immediately rejected by the package (never actually sent to the broker).
-	t.Logf("%s\n", "INFO TestSubNoIdTwice11p - start 2nd SUBSCRIBE")
-	sc, e = conn.Subscribe(sbh)
-	t.Logf("%s\n", "INFO TestSubNoIdTwice11p - end 2nd SUBSCRIBE")
-	if e == nil {
-		t.Fatalf("ERROR Expected subscribe error (T5), got [nil]\n")
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
+		_ = closeConn(t, n)
 	}
-	if e != EDUPSID {
-		t.Fatalf("ERROR Expected subscribe error (T6), [%v] got [%v]\n", EDUPSID, e)
-	} else {
-		t.Logf("INFO wanted/got actual (T7), [%v]\n", e)
-	}
-	if sc != nil {
-		t.Fatalf("ERROR Expected nil subscribe channel (T8), got [%v]\n", sc)
-	}
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
-	t.Log("TestSubNoIdTwice11p", "ends")
+	log.Printf("TestSubNoTwice %d tests complete.\n", len(subTwiceDataList))
 }
 
-/*
-	Test send, subscribe, read, unsubscribe.
-*/
-func TestSubUnsubBasic(t *testing.T) {
+func TestSubRoundTrip(t *testing.T) {
+	for ti, tv := range subPlainDataList { // *NOTE* Use the PlainData table
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, tv.proto)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestSubRoundTrip CONNECT Failed: e:<%q> connresponse:<%q>\n",
+				e,
+				conn.ConnectResponse)
+		}
+		sh := fixHeaderDest(tv.subh) // destination fixed if needed
 
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
-	//
-	m := "A message"
-	d := tdest("/queue/subunsub.basiconn.01")
-	h := Headers{HK_DESTINATION, d}
-	_ = conn.Send(h, m)
-	//
-	h = h.Add(HK_ID, d)
-	sc, e := conn.Subscribe(h)
-	if e != nil {
-		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
-	}
-	if sc == nil {
-		t.Fatalf("Expected subscribe channel, got [nil]\n")
-	}
+		// SEND Phase
+		msg := "SUBROUNDTRIP: " + tv.proto
+		nh := Headers{HK_DESTINATION, sh.Value(HK_DESTINATION)}
+		e = conn.Send(nh, msg)
+		if e != nil {
+			t.Fatalf("TestSubRoundTrip[%d] SEND, proto:%s expected:%v got:%v\n",
+				ti, tv.proto, nil, e)
+		}
 
-	// Read MessageData
-	var md MessageData
-	select {
-	case md = <-sc:
-	case md = <-conn.MessageData:
-		t.Fatalf("read channel error:  expected [nil], got: [%v]\n",
-			md.Message.Command)
-	}
+		// SUBSCRIBE Phase
+		sc, e = conn.Subscribe(sh)
+		if sc == nil {
+			t.Fatalf("TestSubRoundTrip[%d] SUBSCRIBE, proto:[%s], channel is nil\n",
+				ti, tv.proto)
+		}
+		if e != tv.exe1 {
+			t.Fatalf("TestSubRoundTrip[%d] SUBSCRIBE, proto:%s expected:%v got:%v\n",
+				ti, tv.proto, tv.exe1, e)
+		}
 
-	//
-	if md.Error != nil {
-		t.Fatalf("Expected no message data error, got [%v]\n", md.Error)
+		// RECEIVE Phase
+		id := fmt.Sprintf("TestSubRoundTrip[%d] RECEIVE, proto:%s", ti, tv.proto)
+		checkReceivedMD(t, conn, sc, id)
+		if msg != md.Message.BodyString() {
+			t.Fatalf("TestSubRoundTrip[%d] RECEIVE, proto:%s expected:%v got:%v\n",
+				ti, tv.proto, msg, md.Message.BodyString())
+		}
+
+		// UNSUBSCRIBE Phase
+		e = conn.Unsubscribe(sh)
+		if e != tv.exe2 {
+			t.Fatalf("TestSubRoundTrip[%d] UNSUBSCRIBE, proto:%s expected:%v got:%v\n",
+				ti, tv.proto, tv.exe2, e)
+		}
+
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
+		_ = closeConn(t, n)
 	}
-	mdm := md.Message
-	rd := mdm.Headers.Value(HK_DESTINATION)
-	if rd != d {
-		t.Fatalf("Expected destination [%v], got [%v]\n", d, rd)
-	}
-	ri := mdm.Headers.Value(HK_SUBSCRIPTION)
-	if ri != d {
-		t.Fatalf("Expected subscription [%v], got [%v]\n", d, ri)
-	}
-	//
-	e = conn.Unsubscribe(h)
-	if e != nil {
-		t.Fatalf("Expected no unsubscribe error, got [%v]\n", e)
-	}
-	//
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
+	log.Printf("TestSubRoundTrip %d tests complete.\n", len(subPlainDataList))
 }
 
-/*
-	Test send, subscribe, read, unsubscribe, 1.0 only, no sub id.
-*/
-func TestSubUnsubBasic10(t *testing.T) {
-	if os.Getenv("STOMP_TEST11p") != "" {
-		t.Skip("TestSubUnsubBasic10 norun, need 1.0")
-	}
+func TestSubAckModes(t *testing.T) {
+	for ti, tv := range subAckDataList {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, tv.proto)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestSubAckModes CONNECT Failed: e:<%q> connresponse:<%q>\n",
+				e,
+				conn.ConnectResponse)
+		}
 
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
-	//
-	ms := "A message"
-	d := tdest("/queue/subunsub.basiconn.r10.01")
-	sh := Headers{HK_DESTINATION, d}
-	_ = conn.Send(sh, ms)
-	//
-	sbh := sh
-	sc, e := conn.Subscribe(sbh)
-	if e != nil {
-		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
-	}
-	if sc == nil {
-		t.Fatalf("Expected subscribe channel, got [nil]\n")
-	}
+		// SUBSCRIBE Phase 1
+		sh := fixHeaderDest(tv.subh) // destination fixed if needed
+		sc, e = conn.Subscribe(sh)
+		if e == nil {
+			if sc == nil {
+				t.Fatalf("TestSubAckModes[%d] SUBSCRIBE, proto:[%s], channel is nil\n",
+					ti, tv.proto)
+			}
+		}
+		if e != tv.exe {
+			t.Fatalf("TestSubAckModes[%d] SUBSCRIBE, proto:%s expected:%v got:%v\n",
+				ti, tv.proto, tv.exe, e)
+		}
 
-	// Read MessageData
-	var md MessageData
-	select {
-	case md = <-sc:
-	case md = <-conn.MessageData:
-		t.Fatalf("read channel error:  expected [nil], got: [%v]\n",
-			md.Message.Command)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
+		_ = closeConn(t, n)
 	}
-
-	//
-	if md.Error != nil {
-		t.Fatalf("Expected no message data error, got [%v]\n", md.Error)
-	}
-	mdm := md.Message
-	rd := mdm.Headers.Value(HK_DESTINATION)
-	if rd != d {
-		t.Fatalf("Expected destination [%v], got [%v]\n", d, rd)
-	}
-	//
-	e = conn.Unsubscribe(sbh)
-	if e != nil {
-		t.Fatalf("Expected no unsubscribe error, got [%v]\n", e)
-	}
-	//
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
-}
-
-/*
-	Test establishSubscription.
-*/
-func TestSubEstablishSubscription(t *testing.T) {
-
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
-	//
-	d := tdest("/queue/estabsub.01")
-	sbh := Headers{HK_DESTINATION, d}
-	// First time
-	s, e := conn.Subscribe(sbh)
-	if e != nil {
-		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
-	}
-	if s == nil {
-		t.Fatalf("Expected subscribe channel, got [nil]\n")
-	}
-	//
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
-}
-
-/*
-	Test unsubscribe, set subscribe channel capacity.
-*/
-func TestSubSetCap(t *testing.T) {
-	if os.Getenv("STOMP_TEST11p") == "" {
-		t.Skip("TestSubSetCap norun, need 1.1+")
-	}
-
-	//
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
-	//
-	p := 25
-	conn.SetSubChanCap(p)
-	r := conn.SubChanCap()
-	if r != p {
-		t.Fatalf("Expected get capacity [%v], got [%v]\n", p, r)
-	}
-	//
-	d := tdest("/queue/subsetcap.basiconn.01")
-	h := Headers{HK_DESTINATION, d, HK_ID, d}
-	s, e := conn.Subscribe(h)
-	if e != nil {
-		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
-	}
-	if s == nil {
-		t.Fatalf("Expected subscribe channel, got [nil]\n")
-	}
-	if cap(s) != p {
-		t.Fatalf("Expected subchan capacity [%v], got [%v]\n", p, cap(s))
-	}
-	//
-	e = conn.Unsubscribe(h)
-	if e != nil {
-		t.Fatalf("Expected no unsubscribe error, got [%v]\n", e)
-	}
-	//
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
+	log.Printf("TestSubAckModes %d tests complete.\n", len(subAckDataList))
 }

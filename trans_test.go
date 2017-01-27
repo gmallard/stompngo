@@ -24,271 +24,131 @@ import (
 	Test transaction errors.
 */
 func TestTransErrors(t *testing.T) {
-
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
-
-	// Empty string transaction id - BEGIN
-	h := Headers{HK_TRANSACTION, ""}
-	e := conn.Begin(h)
-	if e == nil {
-		t.Fatalf("BEGIN expected error, got: [nil]\n")
-	}
-	if conn.Protocol() == SPL_10 {
-		if e != EHDRMTV {
-			t.Fatalf("BEGIN expected error [%v], got [%v]\n", EHDRMTV, e)
+	for pi, sp := range Protocols() {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestTransErrors[%d/%s] CONNECT expected OK, got: %v\n", pi,
+				sp, e)
 		}
-	} else {
-		if e != EREQTIDBEG {
-			t.Fatalf("BEGIN expected error [%v], got [%v]\n", EREQTIDBEG, e)
+		for ti, tv := range transBasicList {
+			switch tv.action {
+			case BEGIN:
+				e = conn.Begin(tv.th)
+			case COMMIT:
+				e = conn.Commit(tv.th)
+			case ABORT:
+				e = conn.Abort(tv.th)
+			default:
+				t.Fatalf("TestTransErrors[%d/%s] %s BAD DATA[%d]\n", pi,
+					sp, tv.action, ti)
+			}
+			if e == nil {
+				t.Fatalf("TestTransErrors[%d/%s] %s expected error[%d], got %v\n", pi,
+					sp, tv.action, ti, e)
+			}
+			if e != tv.te {
+				t.Fatalf("TestTransErrors[%d/%s] %s expected[%d]: %v, got %v\n", pi,
+					sp, tv.action, ti, tv.te, e)
+			}
 		}
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
+		_ = closeConn(t, n)
 	}
-
-	// Empty string transaction id - COMMIT
-	e = conn.Commit(h)
-	if e == nil {
-		t.Fatalf("COMMIT expected error, got: [nil]\n")
-	}
-	if conn.Protocol() == SPL_10 {
-		if e != EHDRMTV {
-			t.Fatalf("BEGIN expected error [%v], got [%v]\n", EHDRMTV, e)
-		}
-	} else {
-		if e != EREQTIDCOM {
-			t.Fatalf("COMMIT expected error [%v], got [%v]\n", EREQTIDCOM, e)
-		}
-	}
-
-	// Empty string transaction id - ABORT
-	e = conn.Abort(h)
-	if e == nil {
-		t.Fatalf("ABORT expected error, got: [nil]\n")
-	}
-	if conn.Protocol() == SPL_10 {
-		if e != EHDRMTV {
-			t.Fatalf("BEGIN expected error [%v], got [%v]\n", EHDRMTV, e)
-		}
-	} else {
-		if e != EREQTIDABT {
-			t.Fatalf("ABORT expected error [%v], got [%v]\n", EREQTIDABT, e)
-		}
-	}
-
-	//
-
-	// Missing transaction id - BEGIN
-	h = Headers{}
-	e = conn.Begin(h)
-	if e == nil {
-		t.Fatalf("BEGIN expected error, got: [nil]\n")
-	}
-	if e != EREQTIDBEG {
-		t.Fatalf("BEGIN expected error [%v], got [%v]\n", EREQTIDBEG, e)
-	}
-
-	// Missing transaction id - COMMIT
-	e = conn.Commit(h)
-	if e == nil {
-		t.Fatalf("COMMIT expected error, got: [nil]\n")
-	}
-	if e != EREQTIDCOM {
-		t.Fatalf("COMMIT expected error [%v], got [%v]\n", EREQTIDCOM, e)
-	}
-
-	// Missing transaction id - ABORT
-	e = conn.Abort(h)
-	if e == nil {
-		t.Fatalf("ABORT expected error, got: [nil]\n")
-	}
-	if e != EREQTIDABT {
-		t.Fatalf("ABORT expected error [%v], got [%v]\n", EREQTIDABT, e)
-	}
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
-
 }
 
 /*
-	Test transaction send.
+	Test transaction send and commit.
 */
-func TestTransSend(t *testing.T) {
+func TestTransSendCommit(t *testing.T) {
 
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
+	for pi, sp := range Protocols() {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		conn, _ = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestTransSendCommit[%d/%s] CONNECT expected OK, got: %v\n",
+				pi,
+				sp, e)
+		}
 
-	// begin, send, commit
-	d := tdest(TEST_TDESTPREF + "1")
-	th := Headers{HK_TRANSACTION, TEST_TRANID,
-		HK_DESTINATION, d}
-	m := "transaction message 1"
-	e := conn.Begin(th)
-	if e != nil {
-		t.Fatalf("BEGIN expected [nil], got: [%v]\n", e)
+		for ti, tv := range transSendCommitList {
+			// BEGIN
+			e = conn.Begin(Headers{HK_TRANSACTION, tv.tid})
+			if e != nil {
+				t.Fatalf("TestTransSendCommit BEGIN[%d][%d] expected [%v], got: [%v]\n",
+					pi, ti, tv.exe, e)
+			}
+			// SEND
+			sh := Headers{HK_DESTINATION, tdest("/queue/" + tv.tid + ".1"),
+				HK_TRANSACTION, tv.tid}
+			e = conn.Send(sh, tm)
+			if e != nil {
+				t.Fatalf("TestTransSendCommit SEND[%d][%d] expected [%v], got: [%v]\n",
+					pi, ti, tv.exe, e)
+			}
+			// COMMIT
+			e = conn.Commit(Headers{HK_TRANSACTION, tv.tid})
+			if e != nil {
+				t.Fatalf("TestTransSendCommit COMMIT[%d][%d] expected [%v], got: [%v]\n",
+					pi, ti, tv.exe, e)
+			}
+		}
+		//
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
+		_ = closeConn(t, n)
 	}
-	e = conn.Send(th, m)
-	if e != nil {
-		t.Fatalf("SEND expected [nil], got: [%v]\n", e)
-	}
-	e = conn.Commit(th)
-	if e != nil {
-		t.Fatalf("COMMIT expected [nil], got: [%v]\n", e)
-	}
-	// Then subscribe and test server message
-	h := Headers{HK_DESTINATION, d}
-	s, e := conn.Subscribe(h)
-	if e != nil {
-		t.Fatalf("SUBSCRIBE expected [nil], got: [%v]\n", e)
-	}
-
-	r := getMessageData(s, conn, t)
-
-	if r.Error != nil {
-		t.Fatalf("read error:  expected [nil], got: [%v]\n", r.Error)
-	}
-	if m != r.Message.BodyString() {
-		t.Fatalf("message error: expected: [%v], got: [%v]\n", m, r.Message.BodyString())
-	}
-
-	//
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
-
 }
 
 /*
-	Test transaction send then rollback.
+	Test transaction send then abort.
 */
-func TestTransSendRollback(t *testing.T) {
 
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
+func TestTransSendAbort(t *testing.T) {
 
-	// begin, send, abort
-	d := tdest(TEST_TDESTPREF + "2")
-	th := Headers{HK_TRANSACTION, TEST_TRANID,
-		HK_DESTINATION, d}
-	ms := "transaction message 1"
-
-	e := conn.Begin(th)
-	if e != nil {
-		t.Fatalf("BEGIN error, expected [nil], got: [%v]\n", e)
+	for pi, sp := range Protocols() {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		conn, _ = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestTransSendAbort[%d/%s] CONNECT expected OK, got: %v\n",
+				pi,
+				sp, e)
+		}
+		for ti, tv := range transSendAbortList {
+			// BEGIN
+			e = conn.Begin(Headers{HK_TRANSACTION, tv.tid})
+			if e != nil {
+				t.Fatalf("TestTransSendAbort BEGIN[%d][%d] expected [%v], got: [%v]\n",
+					pi, ti, tv.exe, e)
+			}
+			// SEND
+			sh := Headers{HK_DESTINATION, tdest("/queue/" + tv.tid + ".1"),
+				HK_TRANSACTION, tv.tid}
+			e = conn.Send(sh, tm)
+			if e != nil {
+				t.Fatalf("TestTransSendAbort SEND[%d][%d] expected [%v], got: [%v]\n",
+					pi, ti, tv.exe, e)
+			}
+			// ABORT
+			e = conn.Abort(Headers{HK_TRANSACTION, tv.tid})
+			if e != nil {
+				t.Fatalf("TestTransSendAbort COMMIT[%d][%d] expected [%v], got: [%v]\n",
+					pi, ti, tv.exe, e)
+			}
+		}
+		//
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
+		_ = closeConn(t, n)
 	}
-	e = conn.Send(th, ms)
-	if e != nil {
-		t.Fatalf("SEND error, expected [nil], got: [%v]\n", e)
-	}
-	e = conn.Abort(th)
-	if e != nil {
-		t.Fatalf("ABORT error, expected [nil], got: [%v]\n", e)
-	}
-
-	// begin, send, commit
-	ms = "transaction message 2"
-
-	e = conn.Begin(th)
-	if e != nil {
-		t.Fatalf("BEGIN error, expected [nil], got: [%v]\n", e)
-	}
-	e = conn.Send(th, ms)
-	if e != nil {
-		t.Fatalf("SEND error, expected [nil], got: [%v]\n", e)
-	}
-	e = conn.Commit(th)
-	if e != nil {
-		t.Fatalf("COMMIT error, expected [nil], got: [%v]\n", e)
-	}
-
-	sbh := Headers{HK_DESTINATION, d}
-	// Then subscribe and test server message
-	sc, e := conn.Subscribe(sbh)
-	if e != nil {
-		t.Fatalf("SUBSCRIBE error, expected [nil], got: [%v]\n", e)
-	}
-
-	md := getMessageData(sc, conn, t)
-
-	if md.Error != nil {
-		t.Fatalf("Read error, expected [nil], got: [%v]\n", md.Error)
-	}
-	if ms != md.Message.BodyString() {
-		t.Fatalf("Message error: expected: [%v] got: [%v]\n", ms, md.Message.BodyString())
-	}
-
-	//
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
-
-}
-
-/*
-	Test transaction message order.
-*/
-func TestTransMessageOrder(t *testing.T) {
-
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
-
-	d := tdest(TEST_TDESTPREF + "3")
-	th := Headers{HK_TRANSACTION, TEST_TRANID,
-		HK_DESTINATION, d}
-	sbh := Headers{HK_DESTINATION, d}
-	sh := sbh
-	mst := "Message in transaction"
-
-	// Subscribe
-	sc, e := conn.Subscribe(sbh)
-	if e != nil {
-		t.Fatalf("SUBSCRIBE expected [nil], got: [%v]\n", e)
-	}
-
-	// Then begin
-	e = conn.Begin(th)
-	if e != nil {
-		t.Fatalf("BEGIN expected [nil], got: [%v]\n", e)
-	}
-	// Then send in transaction
-	e = conn.Send(th, mst) // in transaction
-	if e != nil {
-		t.Fatalf("SEND expected [nil], got: [%v]\n", e)
-	}
-	//
-	msn := "Message NOT in transaction"
-	// Then send NOT in transaction
-	e = conn.Send(sh, msn) // NOT in transaction
-	if e != nil {
-		t.Fatalf("SEND expected [nil], got: [%v]\n", e)
-	}
-	// First receive - should be second message
-	md := getMessageData(sc, conn, t)
-
-	if md.Error != nil {
-		t.Fatalf("Read error: expected [nil], got: [%v]\n", md.Error)
-	}
-	if msn != md.Message.BodyString() {
-		t.Fatalf("Message error TMO1: expected: [%v] got: [%v]", msn, md.Message.BodyString())
-	}
-
-	// Now commit
-	e = conn.Commit(th)
-	if e != nil {
-		t.Fatalf("COMMIT expected [nil], got: [%v]\n", e)
-	}
-
-	// Second receive - should be first message
-	md = getMessageData(sc, conn, t)
-
-	if md.Error != nil {
-		t.Fatalf("Read error:  expected [nil], got: [%v]\n", md.Error)
-	}
-	if mst != md.Message.BodyString() {
-		t.Fatalf("Message error TMO2: expected: [%v] got: [%v]", mst, md.Message.BodyString())
-	}
-	//
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
-
 }

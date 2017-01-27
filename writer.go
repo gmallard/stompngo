@@ -35,12 +35,15 @@ writerLoop:
 			c.log("WTR_WIREWRITE start")
 			c.wireWrite(d)
 			c.log("WTR_WIREWRITE COMPLETE", d.frame.Command, d.frame.Headers,
-				hexData(d.frame.Body))
+				HexData(d.frame.Body))
 			if d.frame.Command == DISCONNECT {
 				break writerLoop // we are done with this connection
 			}
 		case _ = <-c.ssdc:
-			c.log("WTR_WIREWRITE shutdown received")
+			c.log("WTR_WIREWRITE shutdown S received")
+			break writerLoop
+		case _ = <-c.wtrsdc:
+			c.log("WTR_WIREWRITE shutdown W received")
 			break writerLoop
 		}
 	} // of for

@@ -17,49 +17,16 @@
 package stompngo
 
 import (
+	"encoding/hex"
 	"fmt"
 	"net"
 	"os"
+	"runtime/debug"
 	"strings"
 	"testing"
 	//
 	"github.com/gmallard/stompngo/senv"
 )
-
-var TEST_HEADERS = Headers{HK_LOGIN, "guest", HK_PASSCODE, "guest"}
-var TEST_TDESTPREF = "/queue/test.pref."
-var TEST_TRANID = "TransactionA"
-
-var empty_headers = Headers{}
-
-type multi_send_data struct {
-	conn  *Connection // this connection
-	dest  string      // queue/topic name
-	mpref string      // message prefix
-	count int         // number of messages
-}
-
-type frameData struct {
-	data string
-	resp error
-}
-
-var frames = []frameData{ // Many are possible but very unlikely
-	{"EBADFRM", EBADFRM},
-	{"EUNKFRM\n\n\x00", EUNKFRM},
-	{"ERROR\n\n\x00", nil},
-	{"ERROR\n\x00", EBADFRM},
-	{"ERROR\n\n", EBADFRM},
-	{"ERROR\nbadconhdr\n\n\x00", EUNKHDR},
-	{"ERROR\nbadcon:badmsg\n\n\x00", nil},
-	{"ERROR\nbadcon:badmsg\n\nbad message\x00", nil},
-	{"CONNECTED\n\n\x00", nil},
-	{"CONNECTED\n\nconnbody\x00", EBDYDATA},
-	{"CONNECTED\n\nconnbadbody", EBDYDATA},
-	{"CONNECTED\nk1:v1\nk2:v2\n\nconnbody\x00", EBDYDATA},
-	{"CONNECTED\nk1:v1\nk2:v2\n\nconnbody", EBDYDATA},
-	{"CONNECTED\nk1:v1\nk2:v2\n\n\x00", nil},
-}
 
 /*
 	Host and port for Dial.
@@ -97,15 +64,52 @@ func check11(h Headers) Headers {
 }
 
 /*
+	Return headers appropriate for the protocol level.
+*/
+func headersProtocol(h Headers, protocol string) Headers {
+	if protocol == SPL_10 {
+		return h
+	}
+	h = h.Add(HK_ACCEPT_VERSION, protocol)
+	vh := "localhost"                 // STOMP 1.{1,2} vhost
+	if os.Getenv("STOMP_RMQ") != "" { // Rabbitmq default vhost
+		vh = "/"
+	}
+	h = h.Add(HK_HOST, vh).Add(HK_HEART_BEAT, senv.Heartbeats())
+	return h
+}
+
+/*
 	Test helper.
 */
 func checkReceived(t *testing.T, conn *Connection) {
 	var md MessageData
 	select {
 	case md = <-conn.MessageData:
+		debug.PrintStack()
 		t.Fatalf("Unexpected frame received, got [%v]\n", md)
 	default:
 	}
+}
+
+/*
+	Test helper.
+*/
+func checkReceivedMD(t *testing.T, conn *Connection,
+	sc <-chan MessageData, id string) {
+	select {
+	case md = <-sc:
+	case md = <-conn.MessageData:
+		debug.PrintStack()
+		t.Fatalf("id: read channel error:  expected [nil], got: [%v]\n",
+			id, md.Message.Command)
+	}
+	if md.Error != nil {
+		debug.PrintStack()
+		t.Fatalf("id: receive error: [%v]\n",
+			id, md.Error)
+	}
+	return
 }
 
 /*
@@ -114,6 +118,7 @@ func checkReceived(t *testing.T, conn *Connection) {
 func closeConn(t *testing.T, n net.Conn) error {
 	err := n.Close()
 	if err != nil {
+		debug.PrintStack()
 		t.Fatalf("Unexpected n.Close() error: %v\n", err)
 	}
 	return err
@@ -128,6 +133,7 @@ func getMessageData(sc <-chan MessageData, conn *Connection, t *testing.T) (md M
 	select {
 	case md = <-sc:
 	case md = <-conn.MessageData:
+		debug.PrintStack()
 		t.Fatalf("read channel error:  expected [nil], got: [%v]\n",
 			md.Message.Command)
 	}
@@ -142,6 +148,7 @@ func openConn(t *testing.T) (net.Conn, error) {
 	hap := net.JoinHostPort(h, p)
 	n, err := net.Dial(NetProtoTCP, hap)
 	if err != nil {
+		debug.PrintStack()
 		t.Fatalf("Unexpected net.Dial error: %v\n", err)
 	}
 	return n, err
@@ -155,7 +162,7 @@ func sendMultiple(md multi_send_data) error {
 	for i := 0; i < md.count; i++ {
 		cstr := fmt.Sprintf("%d", i)
 		mts := md.mpref + cstr
-		e := md.conn.Send(h, mts)
+		e = md.conn.Send(h, mts)
 		if e != nil {
 			return e // now
 		}
@@ -171,7 +178,7 @@ func sendMultipleBytes(md multi_send_data) error {
 	for i := 0; i < md.count; i++ {
 		cstr := fmt.Sprintf("%d", i)
 		mts := md.mpref + cstr
-		e := md.conn.SendBytes(h, []byte(mts))
+		e = md.conn.SendBytes(h, []byte(mts))
 		if e != nil {
 			return e // now
 		}
@@ -183,7 +190,7 @@ func sendMultipleBytes(md multi_send_data) error {
    Test helper.  Get properly formatted destination.
 */
 func tdest(d string) string {
-	if os.Getenv("STOMP_ARTEMIS") == "" {
+	if brokerid != TEST_ARTEMIS {
 		return d
 	}
 	pref := "jms.queue"
@@ -203,10 +210,77 @@ func tdumpmd(md MessageData) {
 		fmt.Printf("key:%s\t\tvalue:%s\n",
 			md.Message.Headers[i], md.Message.Headers[i+1])
 	}
-	fmt.Printf("Body: %s\n", string(md.Message.Body))
+	hdb := hex.Dump(md.Message.Body)
+	fmt.Printf("Body: %s\n", hdb)
 	if md.Error != nil {
 		fmt.Printf("Error: %s\n", md.Error.Error())
 	} else {
 		fmt.Println("Error: nil")
 	}
+}
+
+/*
+   Test helper.  Check disconnect error.
+*/
+func checkDisconnectError(t *testing.T, e error) {
+	if e == nil {
+		return
+	}
+	debug.PrintStack()
+	t.Fatalf("DISCONNECT Error:  expected nil, got:<%v>\n", e)
+}
+
+/*
+   Test helper.  Fix up destination
+*/
+func fixHeaderDest(h Headers) Headers {
+	r := h.Clone()
+	for i := 0; i < len(h); i += 2 {
+		if r[i] == HK_DESTINATION {
+			r[i+1] = tdest(r[i+1])
+		}
+	}
+	return r
+}
+
+/*
+   Test helper.  Set which broker is being tested.
+*/
+func setTestBroker() int {
+	brokerid = TEST_ANYBROKER
+	if os.Getenv("STOMP_AMQ") != "" {
+		brokerid = TEST_AMQ
+	} else if os.Getenv("STOMP_RMQ") != "" {
+		brokerid = TEST_RMQ
+	} else if os.Getenv("STOMP_ARTEMIS") != "" {
+		brokerid = TEST_ARTEMIS
+	} else if os.Getenv("STOMP_APOLLO") != "" {
+		brokerid = TEST_APOLLO
+	}
+	return brokerid
+}
+
+/*
+   Test helper.  Set long heartbeat test flag.
+*/
+func setHeartBeatFlags() {
+	if os.Getenv("STOMP_HBLONG") == "Y" { // Note:  a single value to run long hb tests
+		testhbrd.testhbl = true
+	}
+	if os.Getenv("STOMP_HBVERBOSE") != "" { // Any value will do
+		testhbrd.testhbvb = true
+	}
+	return
+}
+
+/*
+   Test helper.  Check for missing headers
+*/
+func checkDupeHeaders(ms, wh Headers) error {
+	for i := 0; i < len(wh); i += 2 {
+		if !ms.ContainsKV(wh[i], wh[i+1]) {
+			return Error("missing header values")
+		}
+	}
+	return nil
 }

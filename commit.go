@@ -35,17 +35,15 @@ func (c *Connection) Commit(h Headers) error {
 	if !c.connected {
 		return ECONBAD
 	}
-	e := checkHeaders(h, c.Protocol())
-	if e != nil {
-		return e
-	}
+	// We must have a transaction header here
 	if _, ok := h.Contains(HK_TRANSACTION); !ok {
 		return EREQTIDCOM
 	}
+	// And it must not be empty
 	if h.Value(HK_TRANSACTION) == "" {
-		return EREQTIDCOM
+		return ETIDCOMEMT
 	}
-	e = c.transmitCommon(COMMIT, h) // transmitCommon Clones() the headers
+	e := c.transmitCommon(COMMIT, h) // transmitCommon Clones() the headers
 	c.log(COMMIT, "end", h)
 	return e
 }

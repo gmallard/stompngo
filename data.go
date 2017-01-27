@@ -119,6 +119,7 @@ type Connection struct {
 	subs              map[string]*subscription
 	subsLock          sync.RWMutex
 	ssdc              chan struct{} // System shutdown channel
+	wtrsdc            chan struct{} // Special writer shutdown channel
 	hbd               *heartBeatData
 	wtr               *bufio.Writer
 	rdr               *bufio.Reader
@@ -173,7 +174,11 @@ const (
 	// Destination required
 	EREQDSTSND = Error("destination required, SEND")
 	EREQDSTSUB = Error("destination required, SUBSCRIBE")
-	EREQDIUNS  = Error("destination or id required, UNSUBSCRIBE")
+	EREQDIUNS  = Error("destination required, UNSUBSCRIBE")
+	EREQDSTUNS = Error("destination required, UNSUBSCRIBE") // Alternate name
+
+	// id required
+	EREQIDUNS = Error("id required, UNSUBSCRIBE")
 
 	// Message ID required.
 	EREQMIDACK = Error("message-id required, ACK") // 1.0, 1.1
@@ -192,9 +197,20 @@ const (
 	EREQTIDCOM = Error("transaction-id required, COMMIT")
 	EREQTIDABT = Error("transaction-id required, ABORT")
 
+	// Transaction ID present but empty.
+	ETIDBEGEMT = Error("transaction-id empty, BEGIN")
+	ETIDCOMEMT = Error("transaction-id empty, COMMIT")
+	ETIDABTEMT = Error("transaction-id empty, ABORT")
+
+	// Host header required, STOMP 1.1+
+	EREQHOST = Error("host header required for STOMP 1.1+")
+
 	// Subscription errors.
 	EDUPSID = Error("duplicate subscription-id")
 	EBADSID = Error("invalid subscription-id")
+
+	// Scubscribe errors.
+	ESBADAM = Error("invalid ackmode, SUBSCRIBE")
 
 	// Unscubscribe error.
 	EUNOSID = Error("id required, UNSUBSCRIBE")
@@ -248,8 +264,10 @@ var codecValues = []codecdata{
 	subsequent control of any heartbeat routines.
 */
 type heartBeatData struct {
-	sdl sync.Mutex // Send data lock
-	rdl sync.Mutex // Receive data lock
+	sdl  sync.Mutex // Send data lock
+	rdl  sync.Mutex // Receive data lock
+	clk  sync.Mutex // Shutdown lock
+	ssdn bool       // Shutdown complete
 	//
 	cx int64 // client send value, ms
 	cy int64 // client receive value, ms
@@ -265,8 +283,8 @@ type heartBeatData struct {
 	sc int64 // local sender ticker count
 	rc int64 // local receiver ticker count
 	//
-	ssd chan bool // sender shutdown channel
-	rsd chan bool // receiver shutdown channel
+	ssd chan struct{} // sender shutdown channel
+	rsd chan struct{} // receiver shutdown channel
 	//
 	ls int64 // last send time, ns
 	lr int64 // last receive time, ns
@@ -328,6 +346,12 @@ const (
 	AckModeAuto             = "auto"
 	AckModeClient           = "client"
 	AckModeClientIndividual = "client-individual"
+)
+
+var (
+	validAckModes10 = map[string]bool{AckModeAuto: true,
+		AckModeClient: true}
+	validAckModes1x = map[string]bool{AckModeClientIndividual: true}
 )
 
 /*

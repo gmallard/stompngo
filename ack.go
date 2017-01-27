@@ -48,7 +48,6 @@ func (c *Connection) Ack(h Headers) error {
 	if e != nil {
 		return e
 	}
-
 	switch c.Protocol() {
 	case SPL_12:
 		if _, ok := h.Contains(HK_ID); !ok {

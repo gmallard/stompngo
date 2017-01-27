@@ -64,8 +64,9 @@ func (c *Connection) Subscribe(h Headers) (<-chan MessageData, error) {
 	if e != nil {
 		return nil, e
 	}
-	if _, ok := h.Contains(HK_DESTINATION); !ok {
-		return nil, EREQDSTSUB
+	e = c.checkSubscribeHeaders(h)
+	if e != nil {
+		return nil, e
 	}
 	ch := h.Clone()
 	if _, ok := ch.Contains(HK_ACK); !ok {
@@ -86,6 +87,37 @@ func (c *Connection) Subscribe(h Headers) (<-chan MessageData, error) {
 }
 
 /*
+	Check SUBSCRIBE specific requirements.
+*/
+func (c *Connection) checkSubscribeHeaders(h Headers) error {
+	if _, ok := h.Contains(HK_DESTINATION); !ok {
+		return EREQDSTSUB
+	}
+	//
+	am, ok := h.Contains(HK_ACK)
+	//
+	switch c.Protocol() {
+	case SPL_10:
+		if ok { // Client supplied ack header
+			if !validAckModes10[am] {
+				return ESBADAM
+			}
+		}
+	case SPL_11:
+		fallthrough
+	case SPL_12:
+		if ok { // Client supplied ack header
+			if !(validAckModes10[am] || validAckModes1x[am]) {
+				return ESBADAM
+			}
+		}
+	default:
+		log.Fatalf("Internal protocol level error:<%s>\n", c.Protocol())
+	}
+	return nil
+}
+
+/*
 	Handle subscribe id.
 */
 func (c *Connection) establishSubscription(h Headers) (*subscription, error, Headers) {
@@ -93,11 +125,16 @@ func (c *Connection) establishSubscription(h Headers) (*subscription, error, Hea
 	//
 	id, hid := h.Contains(HK_ID)
 	uuid1 := Uuid()
+	sha11 := Sha1(h.Value(HK_DESTINATION))
 	//
 	c.subsLock.RLock() // Acquire Read lock
 	// No duplicates
 	if hid {
 		if _, q := c.subs[id]; q {
+			c.subsLock.RUnlock()   // Release Read lock
+			return nil, EDUPSID, h // Duplicate subscriptions not allowed
+		}
+		if _, q := c.subs[sha11]; q {
 			c.subsLock.RUnlock()   // Release Read lock
 			return nil, EDUPSID, h // Duplicate subscriptions not allowed
 		}
@@ -109,36 +146,33 @@ func (c *Connection) establishSubscription(h Headers) (*subscription, error, Hea
 	}
 	c.subsLock.RUnlock() // Release Read lock
 	//
-
 	sd := new(subscription) // New subscription data
-	sd.cs = false           // No shutdown yet
-	sd.drav = false         // Drain after value validity
-	sd.dra = 0              // Never drain MESSAGE frames
-	sd.drmc = 0             // Current drain count
-	lam := AckModeAuto      // Default/used ACK mode
-	if ham, ok := h.Contains(HK_ACK); ok {
-		lam = ham // Reset (possible) used ack mode
+	if hid {
+		sd.id = id // Note user supplied id
 	}
-
+	sd.cs = false                         // No shutdown yet
+	sd.drav = false                       // Drain after value validity
+	sd.dra = 0                            // Never drain MESSAGE frames
+	sd.drmc = 0                           // Current drain count
 	sd.md = make(chan MessageData, c.scc) // Make subscription MD channel
-	sd.am = lam                           // Set subscription ack mode
-
-	if c.Protocol() == SPL_10 {
-		if hid { // If 1.0 client wants one, assign it.
-			sd.id = id // Set subscription ID
-		} else {
-			// Try to help 1.0 clients that subscribe without using an 'id' header
-			ds, _ := h.Contains(HK_DESTINATION) // Destination exists or we would not be here
-			nsid := Sha1(ds)                    // This will be unique for a given estination
-			sd.id = nsid                        // for 1.0 with no ID, allow 1 subscribe per destination
-			h = h.Add(HK_ID, nsid)              // Add unique id to the headers
-		}
-	} else { // 1.1+
-		if hid { // Client specified id
-			sd.id = id // Set subscription ID
-		} else {
-			h = h.Add(HK_ID, uuid1) // Add unique id to the headers
-			sd.id = uuid1           // Set subscription ID to that
+	sd.am = h.Value(HK_ACK)               // Set subscription ack mode
+	//
+	if !hid {
+		// No caller supplied ID.  This STOMP client package supplies one.  It is the
+		// caller's responsibility for discover the value from subsequent message
+		// traffic.
+		switch c.Protocol() {
+		case SPL_10:
+			nsid := sha11 // This will be unique for a given estination
+			sd.id = nsid
+			h = h.Add(HK_ID, nsid)
+		case SPL_11:
+			fallthrough
+		case SPL_12:
+			sd.id = uuid1
+			h = h.Add(HK_ID, uuid1)
+		default:
+			log.Fatalf("Internal protocol level error:<%s>\n", c.Protocol())
 		}
 	}
 

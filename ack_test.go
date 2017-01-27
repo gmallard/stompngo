@@ -25,162 +25,128 @@ import (
 
 var _ = fmt.Println
 
-func checkAckErrors(t *testing.T, p string, e error, s bool) {
-	switch p {
-	case SPL_12:
-		if e == nil {
-			t.Fatalf("ACK -12- expected [%v], got nil\n", EREQIDACK)
-		}
-		if e != EREQIDACK {
-			t.Fatalf("ACK -12- expected error [%v], got [%v]\n", EREQIDACK, e)
-		}
-	case SPL_11:
-		if s {
-			if e == nil {
-				t.Fatalf("ACK -11- expected [%v], got nil\n", EREQSUBACK)
-			}
-			if e != EREQSUBACK {
-				t.Fatalf("ACK -11- expected error [%v], got [%v]\n", EREQSUBACK, e)
-			}
-		} else {
-			if e == nil {
-				t.Fatalf("ACK -11- expected [%v], got nil\n", EREQMIDACK)
-			}
-			if e != EREQMIDACK {
-				t.Fatalf("ACK -11- expected error [%v], got [%v]\n", EREQMIDACK, e)
-			}
-		}
-	default: // SPL_10
-		if e == nil {
-			t.Fatalf("ACK -10- expected [%v], got nil\n", EREQMIDACK)
-		}
-		if e != EREQMIDACK {
-			t.Fatalf("ACK -10- expected error [%v], got [%v]\n", EREQMIDACK, e)
-		}
-	}
-}
-
 /*
 	Test Ack errors.
 */
 func TestAckErrors(t *testing.T) {
-
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
-
-	for _, sp := range Protocols() {
-		conn.protocol = sp // Cheat to test all paths
-		//
-		ah := Headers{}
-		// No subscription
-		e := conn.Ack(ah)
-		checkAckErrors(t, conn.Protocol(), e, true)
-
-		ah = Headers{HK_SUBSCRIPTION, "my-sub-id"}
-		// No message-id, and (1.2) no id
-		e = conn.Ack(ah)
-		checkAckErrors(t, conn.Protocol(), e, false)
+	n, _ = openConn(t)
+	ch := login_headers
+	conn, e = Connect(n, ch)
+	if e != nil {
+		t.Fatalf("TestAckErrors CONNECT expected nil, got %v\n", e)
 	}
 	//
-	_ = conn.Disconnect(empty_headers)
+	for _, tv := range terrList {
+		conn.protocol = tv.proto // Fake it
+		e = conn.Ack(tv.headers)
+		if e != tv.errval {
+			t.Fatalf("ACK -%s- expected error [%v], got [%v]\n",
+				tv.proto, tv.errval, e)
+		}
+	}
+	checkReceived(t, conn)
+	e = conn.Disconnect(empty_headers)
+	checkDisconnectError(t, e)
 	_ = closeConn(t, n)
-
 }
 
 /*
 	Test Ack Same Connection.
 */
 func TestAckSameConn(t *testing.T) {
+	for _, sp := range Protocols() {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestAckSameConn CONNECT expected nil, got %v\n", e)
+		}
+		//
+		// Basic headers
+		wh := Headers{HK_DESTINATION,
+			tdest(TEST_TDESTPREF + "acksc1-" + conn.Protocol())}
+		// Subscribe Headers
+		sbh := wh.Add(HK_ACK, AckModeClient)
+		id := TEST_TDESTPREF + "acksc1.chkprotocol-" + conn.Protocol()
+		sbh = sbh.Add(HK_ID, id) // Always use an 'id'
+		ms := "acksc1 message 1"
+		//
+		// Subscribe
+		sc, e = conn.Subscribe(sbh)
+		if e != nil {
+			t.Fatalf("TestAckSameConn SUBSCRIBE expected [nil], got: [%v]\n", e)
+		}
 
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
-
-	// Basic headers
-	wh := Headers{HK_DESTINATION,
-		tdest(TEST_TDESTPREF + "acksc1-" + conn.Protocol())}
-	// Subscribe Headers
-	sbh := wh.Add(HK_ACK, AckModeClient)
-	id := TEST_TDESTPREF + "acksc1.chkprotocol-" + conn.Protocol()
-	sbh = sbh.Add(HK_ID, id) // Always use an 'id'
-	// Unsubscribe headers
-	uh := wh.Add(HK_ID, id)
-
-	ms := "acksc1 message 1"
-
-	// Subscribe
-	sc, e := conn.Subscribe(sbh)
-	if e != nil {
-		t.Fatalf("SUBSCRIBE expected [nil], got: [%v]\n", e)
-	}
-	// For RabbitMQ and STOMP 1.0, do not add current-time header, where the
-	// value contains ':' characters.
-	sh := wh.Clone()
-	switch conn.Protocol() {
-	case SPL_10:
-		if os.Getenv("STOMP_RMQ") == "" {
+		//
+		// Send
+		sh := wh.Clone()
+		// For RabbitMQ and STOMP 1.0, do not add current-time header, where the
+		// value contains ':' characters.
+		switch conn.Protocol() {
+		case SPL_10:
+			if os.Getenv("STOMP_RMQ") == "" {
+				sh = sh.Add("current-time", time.Now().String()) // The added header value has ':' characters
+			}
+		default:
 			sh = sh.Add("current-time", time.Now().String()) // The added header value has ':' characters
 		}
-	default:
-		sh = sh.Add("current-time", time.Now().String()) // The added header value has ':' characters
-	}
-	e = conn.Send(sh, ms)
-	if e != nil {
-		t.Fatalf("SEND expected [nil], got: [%v]\n", e)
-	}
-	// Read MessageData
-	var md MessageData
-	select {
-	case md = <-sc:
-	case md = <-conn.MessageData:
-		t.Fatalf("read channel error:  expected [nil], got: [%v]\n",
-			md.Message.Command)
-	}
+		e = conn.Send(sh, ms)
+		if e != nil {
+			t.Fatalf("TestAckSameConn SEND expected [nil], got: [%v]\n", e)
+		}
+		//
+		// Read MessageData
+		select {
+		case md = <-sc:
+		case md = <-conn.MessageData:
+			t.Fatalf("TestAckSameConn read channel error:  expected [nil], got: [%v]\n",
+				md.Message.Command)
+		}
+		if md.Error != nil {
+			t.Fatalf("TestAckSameConn read error:  expected [nil], got: [%v]\n",
+				md.Error)
+		}
+		if ms != md.Message.BodyString() {
+			t.Fatalf("TestAckSameConn message error: expected: [%v], got: [%v] Message: [%q]\n",
+				ms, md.Message.BodyString(), md.Message)
+		}
+		// Ack headers
+		ah := Headers{}
+		if conn.Protocol() == SPL_12 {
+			ah = ah.Add(HK_ID, md.Message.Headers.Value(HK_ACK))
+		} else {
+			ah = ah.Add(HK_MESSAGE_ID, md.Message.Headers.Value(HK_MESSAGE_ID))
+		}
+		//
+		if conn.Protocol() == SPL_11 {
+			ah = ah.Add(HK_SUBSCRIPTION, id) // Always use subscription for 1.1
+		}
+		// Ack
+		e = conn.Ack(ah)
+		if e != nil {
+			t.Fatalf("ACK expected [nil], got: [%v]\n", e)
+		}
+		// Make sure Apollo Jira issue APLO-88 stays fixed.
+		select {
+		case md = <-sc:
+			t.Fatalf("TestAckSameConn RECEIVE not expected, got: [%v]\n", md)
+		default:
+		}
 
-	if md.Error != nil {
-		t.Fatalf("read error:  expected [nil], got: [%v]\n", md.Error)
-	}
-	if ms != md.Message.BodyString() {
-		t.Fatalf("message error: expected: [%v], got: [%v] Message: [%q]\n", ms, md.Message.BodyString(), md.Message)
-	}
+		// Unsubscribe
+		uh := wh.Add(HK_ID, id)
+		e = conn.Unsubscribe(uh)
+		if e != nil {
+			t.Fatalf("TestAckSameConn UNSUBSCRIBE expected [nil], got: [%v]\n", e)
+		}
 
-	// Ack headers
-	ah := Headers{}
-	if conn.Protocol() == SPL_12 {
-		ah = ah.Add(HK_ID, md.Message.Headers.Value(HK_ACK))
-	} else {
-		ah = ah.Add(HK_MESSAGE_ID, md.Message.Headers.Value("message-id"))
+		//
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
+		_ = closeConn(t, n)
 	}
-
-	//
-	if conn.Protocol() == SPL_11 {
-		ah = ah.Add(HK_SUBSCRIPTION, id) // Always use subscription for 1.2
-	}
-
-	// Ack
-	e = conn.Ack(ah)
-	if e != nil {
-		t.Fatalf("ACK expected [nil], got: [%v]\n", e)
-	}
-
-	// Make sure Apollo Jira issue APLO-88 stays fixed.
-	select {
-	case md = <-sc:
-		t.Fatalf("RECEIVE not expected, got: [%v]\n", md)
-	default:
-	}
-
-	// Unsubscribe
-	e = conn.Unsubscribe(uh)
-	if e != nil {
-		t.Fatalf("UNSUBSCRIBE expected [nil], got: [%v]\n", e)
-	}
-	//
-	checkReceived(t, conn)
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
-
 }
 
 /*
@@ -188,97 +154,104 @@ func TestAckSameConn(t *testing.T) {
 */
 func TestAckDiffConn(t *testing.T) {
 
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
-
-	// Basic headers
-	wh := Headers{HK_DESTINATION,
-		tdest(TEST_TDESTPREF + "ackdc1-" + conn.Protocol())}
-	id := TEST_TDESTPREF + "ackdc1.chkprotocol-" + conn.Protocol()
-	// Send
-	sh := wh.Clone()
-	// For RabbitMQ and STOMP 1.0, do not add current-time header, where the
-	// value contains ':' characters.
-	switch conn.Protocol() {
-	case SPL_10:
-		if os.Getenv("STOMP_RMQ") == "" {
+	for _, sp := range Protocols() {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		conn, e = Connect(n, ch)
+		if e != nil {
+			t.Fatalf("TestAckDiffConn CONNECT expected nil, got %v\n", e)
+		}
+		//
+		// Basic headers
+		wh := Headers{HK_DESTINATION,
+			tdest(TEST_TDESTPREF + "acksc1-" + conn.Protocol())}
+		ms := "acksc1 message 1"
+		// Send
+		sh := wh.Clone()
+		// For RabbitMQ and STOMP 1.0, do not add current-time header, where the
+		// value contains ':' characters.
+		switch conn.Protocol() {
+		case SPL_10:
+			if os.Getenv("STOMP_RMQ") == "" {
+				sh = sh.Add("current-time", time.Now().String()) // The added header value has ':' characters
+			}
+		default:
 			sh = sh.Add("current-time", time.Now().String()) // The added header value has ':' characters
 		}
-	default:
-		sh = sh.Add("current-time", time.Now().String()) // The added header value has ':' characters
+		e = conn.Send(sh, ms)
+		if e != nil {
+			t.Fatalf("TestAckDiffConn SEND expected [nil], got: [%v]\n", e)
+		}
+		//
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
+		_ = closeConn(t, n)
+		//
+		n, _ = openConn(t)
+		ch = login_headers
+		ch = headersProtocol(ch, sp)
+		conn, e = Connect(n, ch) // Reconnect
+		if e != nil {
+			t.Fatalf("TestAckDiffConn Second Connect, expected no error, got:<%v>\n", e)
+		}
+		//
+		// Subscribe Headers
+		sbh := wh.Add(HK_ACK, AckModeClient)
+		id := TEST_TDESTPREF + "acksc1.chkprotocol-" + conn.Protocol()
+		sbh = sbh.Add(HK_ID, id) // Always use an 'id'
+		// Subscribe
+		sc, e = conn.Subscribe(sbh)
+		if e != nil {
+			t.Fatalf("TestAckDiffConn SUBSCRIBE expected [nil], got: [%v]\n", e)
+		}
+		// Read MessageData
+		select {
+		case md = <-sc:
+		case md = <-conn.MessageData:
+			t.Fatalf("TestAckDiffConn read channel error:  expected [nil], got: [%v]\n",
+				md.Message.Command)
+		}
+		if md.Error != nil {
+			t.Fatalf("read error:  expected [nil], got: [%v]\n", md.Error)
+		}
+		if ms != md.Message.BodyString() {
+			t.Fatalf("TestAckDiffConn message error: expected: [%v], got: [%v] Message: [%q]\n",
+				ms, md.Message.BodyString(), md.Message)
+		}
+		// Ack headers
+		ah := Headers{}
+		if conn.Protocol() == SPL_12 {
+			ah = ah.Add(HK_ID, md.Message.Headers.Value(HK_ACK))
+		} else {
+			ah = ah.Add(HK_MESSAGE_ID, md.Message.Headers.Value(HK_MESSAGE_ID))
+		}
+		//
+		if conn.Protocol() == SPL_11 {
+			ah = ah.Add(HK_SUBSCRIPTION, id) // Always use subscription for 1.1
+		}
+		// Ack
+		e = conn.Ack(ah)
+		if e != nil {
+			t.Fatalf("TestAckDiffConn ACK expected [nil], got: [%v]\n", e)
+		}
+		// Make sure Apollo Jira issue APLO-88 stays fixed.
+		select {
+		case md = <-sc:
+			t.Fatalf("TestAckDiffConn RECEIVE not expected, got: [%v]\n", md)
+		default:
+		}
+		// Unsubscribe
+		uh := wh.Add(HK_ID, id)
+		e = conn.Unsubscribe(uh)
+		if e != nil {
+			t.Fatalf("TestAckDiffConn UNSUBSCRIBE expected [nil], got: [%v]\n", e)
+		}
+		//
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
+		_ = closeConn(t, n)
 	}
-	ms := "ackdc1 message 1"
-	e := conn.Send(sh, ms)
-	if e != nil {
-		t.Fatalf("SEND expected [nil], got: [%v]\n", e)
-	}
-	// Disconnect
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
-
-	// Restart
-	n, _ = openConn(t)
-	conn, _ = Connect(n, ch)
-
-	// Subscribe Headers
-	sbh := wh.Add(HK_ACK, AckModeClient)
-	sbh = sbh.Add(HK_ID, id) // Always use an 'id'
-	// Unsubscribe headers
-	uh := wh.Add(HK_ID, id)
-
-	// Subscribe
-	sc, e := conn.Subscribe(sbh)
-	if e != nil {
-		t.Fatalf("SUBSCRIBE expected [nil], got: [%v]\n", e)
-	}
-	// Read MessageData
-	var md MessageData
-	select {
-	case md = <-sc:
-	case md = <-conn.MessageData:
-		t.Fatalf("read channel error:  expected [nil], got: [%v]\n",
-			md.Message.Command)
-	}
-
-	if md.Error != nil {
-		t.Fatalf("read error:  expected [nil], got: [%v]\n", md.Error)
-	}
-	if ms != md.Message.BodyString() {
-		t.Fatalf("message error: expected: [%v], got: [%v]\n", ms, md.Message.BodyString())
-	}
-
-	// Ack headers
-	ah := Headers{}
-	switch conn.Protocol() {
-	case SPL_12:
-		ah = ah.Add(HK_ID, md.Message.Headers.Value(HK_ACK))
-	case SPL_11:
-		ah = ah.Add(HK_MESSAGE_ID, md.Message.Headers.Value("message-id"))
-		ah = ah.Add("subscription", id) // Always use subscription for 1.1
-	default:
-		ah = ah.Add(HK_MESSAGE_ID, md.Message.Headers.Value("message-id"))
-	}
-
-	// Ack
-	e = conn.Ack(ah)
-	if e != nil {
-		t.Fatalf("ACK expected [nil], got: [%v]\n", e)
-	}
-
-	// Make sure Apollo Jira issue APLO-88 stays fixed.
-	select {
-	case md = <-sc:
-		t.Fatalf("Receive not expected, got: [%v]\n", md)
-	default:
-	}
-
-	// Unsubscribe
-	e = conn.Unsubscribe(uh)
-	if e != nil {
-		t.Fatalf("UNSUBSCRIBE expected [nil], got: [%v]\n", e)
-	}
-	//
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
 }

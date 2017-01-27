@@ -105,23 +105,6 @@ func (c *Connection) ReceiveTickerCount() int64 {
 	return c.hbd.rc
 }
 
-// Package exported functions
-
-/*
-	Supported checks if a particular STOMP version is supported in the current
-	implementation.
-*/
-func Supported(v string) bool {
-	return hasValue(supported, v)
-}
-
-/*
-	Protocols returns a slice of client supported protocol levels.
-*/
-func Protocols() []string {
-	return supported
-}
-
 /*
 	FramesRead returns a count of the number of frames read on the connection.
 */
@@ -195,19 +178,31 @@ func (c *Connection) log(v ...interface{}) {
 }
 
 /*
+	Shutdown heartbeats
+*/
+func (c *Connection) shutdownHeartBeats() {
+	// Shutdown heartbeats if necessary
+	if c.hbd != nil {
+		c.hbd.clk.Lock()
+		if !c.hbd.ssdn {
+			if c.hbd.hbs {
+				close(c.hbd.ssd)
+			}
+			if c.hbd.hbr {
+				close(c.hbd.rsd)
+			}
+			c.hbd.ssdn = true
+		}
+		c.hbd.clk.Unlock()
+	}
+}
+
+/*
 	Shutdown logic.
 */
 func (c *Connection) shutdown() {
 	c.log("SHUTDOWN", "starts")
-	// Shutdown heartbeats if necessary
-	if c.hbd != nil {
-		if c.hbd.hbs {
-			c.hbd.ssd <- true
-		}
-		if c.hbd.hbr {
-			c.hbd.rsd <- true
-		}
-	}
+	c.shutdownHeartBeats()
 	// Close all individual subscribe channels
 	// This is a write lock
 	c.subsLock.Lock()
@@ -226,6 +221,7 @@ func (c *Connection) shutdown() {
 */
 func (c *Connection) handleReadError(md MessageData) {
 	c.log("HDRERR", "starts", md)
+	c.shutdownHeartBeats() // We are done here
 	// Notify any general subscriber of error
 	c.input <- md
 	// Notify all individual subscribers of error
@@ -237,6 +233,8 @@ func (c *Connection) handleReadError(md MessageData) {
 		}
 	}
 	c.subsLock.RUnlock()
+	// Try to catch the writer
+	close(c.wtrsdc)
 	c.log("HDRERR", "ends")
 	// Let further shutdown logic proceed normally.
 	return

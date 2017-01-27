@@ -18,6 +18,7 @@ package stompngo
 
 import (
 	"bufio"
+	// "fmt"
 	"strings"
 )
 
@@ -28,25 +29,30 @@ import (
 	and if necessary initialize heart beats.
 */
 func (c *Connection) connectHandler(h Headers) (e error) {
+	//fmt.Printf("CHDB01\n")
 	c.rdr = bufio.NewReader(c.netconn)
 	b, e := c.rdr.ReadBytes(0)
 	if e != nil {
 		return e
 	}
+	//fmt.Printf("CHDB02\n")
 	f, e := connectResponse(string(b))
 	if e != nil {
 		return e
 	}
+	//fmt.Printf("CHDB03\n")
 	//
 	c.ConnectResponse = &Message{f.Command, f.Headers, f.Body}
 	if c.ConnectResponse.Command == ERROR {
 		return ECONERR
 	}
+	//fmt.Printf("CHDB04\n")
 	//
 	e = c.setProtocolLevel(h, c.ConnectResponse.Headers)
 	if e != nil {
 		return e
 	}
+	//fmt.Printf("CHDB05\n")
 	//
 	if s, ok := c.ConnectResponse.Headers.Contains(HK_SESSION); ok {
 		c.session = s
@@ -58,6 +64,7 @@ func (c *Connection) connectHandler(h Headers) (e error) {
 			return e
 		}
 	}
+	//fmt.Printf("CHDB06\n")
 
 	c.connected = true
 	c.mets.tfr += 1
@@ -138,12 +145,19 @@ func (c *Connection) checkClientVersions(h Headers) (e error) {
 		return nil
 	}
 	v := strings.SplitN(w, ",", -1) //
+	ok := false
 	for _, sv := range v {
 		if hasValue(supported, sv) {
-			return nil // At least one is supported
+			ok = true // At least we support one the client wants
 		}
 	}
-	return EBADVERCLI
+	if !ok {
+		return EBADVERCLI
+	}
+	if _, ok = h.Contains(HK_HOST); !ok {
+		return EREQHOST
+	}
+	return nil
 }
 
 /*

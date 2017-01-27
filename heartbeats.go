@@ -63,7 +63,7 @@ func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
 	// Server specified values
 	sp := strings.Split(vs, ",")
 	if len(sp) != 2 {
-		return Error("invalid server heart-beat header: " + vc)
+		return Error("invalid server heart-beat header: " + vs)
 	}
 	w.sx, e = strconv.ParseInt(sp[0], 10, 64)
 	if e != nil {
@@ -84,27 +84,31 @@ func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
 		w.hbr = false //
 	}
 
+	// ========================================================================
+
 	if !w.hbs && !w.hbr {
 		return nil // none required
 	}
+
+	// ========================================================================
 
 	c.hbd = w                   // OK, we are doing some kind of heartbeating
 	ct := time.Now().UnixNano() // Prime current time
 
 	if w.hbs { // Finish sender parameters if required
-		sm := max(w.cx, w.sy)   // ticker interval, ms
-		w.sti = 1000000 * sm    // ticker interval, ns
-		w.ssd = make(chan bool) // add shutdown channel
-		w.ls = ct               // Best guess at start
+		sm := max(w.cx, w.sy)       // ticker interval, ms
+		w.sti = 1000000 * sm        // ticker interval, ns
+		w.ssd = make(chan struct{}) // add shutdown channel
+		w.ls = ct                   // Best guess at start
 		// fmt.Println("start send ticker")
 		go c.sendTicker()
 	}
 
 	if w.hbr { // Finish receiver parameters if required
-		rm := max(w.sx, w.cy)   // ticker interval, ms
-		w.rti = 1000000 * rm    // ticker interval, ns
-		w.rsd = make(chan bool) // add shutdown channel
-		w.lr = ct               // Best guess at start
+		rm := max(w.sx, w.cy)       // ticker interval, ms
+		w.rti = 1000000 * rm        // ticker interval, ns
+		w.rsd = make(chan struct{}) // add shutdown channel
+		w.lr = ct                   // Best guess at start
 		// fmt.Println("start receive ticker")
 		go c.receiveTicker()
 	}
@@ -115,9 +119,9 @@ func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
 	The heart beat send ticker.
 */
 func (c *Connection) sendTicker() {
-	q := false
 	c.hbd.sc = 0
 	ticker := time.NewTicker(time.Duration(c.hbd.sti))
+hbSend:
 	for {
 		select {
 		case <-ticker.C:
@@ -138,13 +142,12 @@ func (c *Connection) sendTicker() {
 			}
 			c.hbd.sdl.Unlock()
 			//
-		case q = <-c.hbd.ssd:
-			break
-		}
-		if q {
-			break
-		}
-	}
+		case _ = <-c.hbd.ssd:
+			break hbSend
+		case _ = <-c.ssdc:
+			break hbSend
+		} // End of select
+	} // End of for
 	c.log("Heartbeat Send Ends", time.Now())
 	return
 }
@@ -153,9 +156,9 @@ func (c *Connection) sendTicker() {
 	The heart beat receive ticker.
 */
 func (c *Connection) receiveTicker() {
-	q := false
 	c.hbd.rc = 0
 	var first, last int64
+hbGet:
 	for {
 		ticker := time.NewTicker(time.Duration(c.hbd.rti - (last - first)))
 		select {
@@ -176,13 +179,12 @@ func (c *Connection) receiveTicker() {
 			}
 			c.hbd.rdl.Unlock()
 			last = time.Now().UnixNano()
-		case q = <-c.hbd.rsd:
-			break
-		}
-		if q {
-			break
-		}
-	}
+		case _ = <-c.hbd.rsd:
+			break hbGet
+		case _ = <-c.ssdc:
+			break hbGet
+		} // End of select
+	} // End of for
 	c.log("Heartbeat Receive Ends", time.Now())
 	return
 }

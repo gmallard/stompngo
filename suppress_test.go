@@ -18,159 +18,145 @@ package stompngo
 
 import "testing"
 
-var (
-	tsclData = []struct {
-		ba     []uint8
-		wanted string
-	}{
-		{
-			[]uint8{0x61, 0x62, 0x63, 0x64, 0x65, 0x66},
-			"abcdef",
-		},
-		{
-			[]uint8{0x61, 0x62, 0x63, 0x00, 0x64, 0x65, 0x66},
-			"abc",
-		},
-		{
-			[]uint8{0x64, 0x65, 0x66, 0x00},
-			"def",
-		},
-		{
-			[]uint8{0x00, 0x64, 0x65, 0x66, 0x00},
-			"",
-		},
-	}
-
-	tsctData = []struct {
-		body       string
-		doSuppress bool
-		wanted     bool
-	}{
-		{
-			"some data",
-			true,
-			false,
-		},
-		{
-			"other data",
-			false,
-			true,
-		},
-	}
-)
+var ()
 
 /*
 	Test suppress_content_length header.
 */
 func TestSuppressContentLength(t *testing.T) {
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
-	//
-	d := tdest("/queue/suppress.content.length")
-	id := Uuid()
-	sbh := Headers{HK_DESTINATION, d, HK_ID, id}
-	sc, e := conn.Subscribe(sbh)
-	if e != nil {
-		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
-	}
-	if sc == nil {
-		t.Fatalf("Expected subscribe channel, got [nil]\n")
-	}
-
-	// Do the work here
-	var v MessageData
-	sh := Headers{HK_DESTINATION, d, HK_SUPPRESS_CL, "yes"}
-	for tn, tv := range tsclData {
-		//
-		e = conn.SendBytes(sh, tv.ba)
+	for _, sp := range Protocols() {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		conn, e = Connect(n, ch)
 		if e != nil {
-			t.Fatalf("Expected no send error, got [%v]\n", e)
+			t.Fatalf("TestSuppressContentLength CONNECT Failed: e:<%q> connresponse:<%q>\n",
+				e,
+				conn.ConnectResponse)
 		}
-		select {
-		case v = <-sc:
-		case v = <-conn.MessageData:
-			t.Fatalf("Expected no RECEIPT/ERROR error, got [%v]\n", v)
+		//
+		d := tdest("/queue/suppress.content.length")
+		id := Uuid()
+		sbh := Headers{HK_DESTINATION, d, HK_ID, id}
+		sc, e = conn.Subscribe(sbh)
+		if e != nil {
+			t.Fatalf("TestSuppressContentLength Expected no subscribe error, got [%v]\n",
+				e)
 		}
-		if tv.wanted != string(v.Message.Body) {
-			t.Fatalf("Expected same data, tn:%d wanted[%v], got [%v]\n",
-				tn, tv.wanted, string(v.Message.Body))
+		if sc == nil {
+			t.Fatalf("TestSuppressContentLength Expected subscribe channel, got [nil]\n")
 		}
+
+		// Do the work here
+		var v MessageData
+		sh := Headers{HK_DESTINATION, d, HK_SUPPRESS_CL, "yes"}
+		for tn, tv := range tsclData {
+			//
+			e = conn.SendBytes(sh, tv.ba)
+			if e != nil {
+				t.Fatalf("TestSuppressContentLength Expected no send error, got [%v]\n",
+					e)
+			}
+			select {
+			case v = <-sc:
+			case v = <-conn.MessageData:
+				t.Fatalf("TestSuppressContentLength Expected no RECEIPT/ERROR error, got [%v]\n",
+					v)
+			}
+			if tv.wanted != string(v.Message.Body) {
+				t.Fatalf("TestSuppressContentLength Expected same data, tn:%d wanted[%v], got [%v]\n",
+					tn, tv.wanted, string(v.Message.Body))
+			}
+		}
+
+		// Finally Unsubscribe
+		uh := Headers{HK_DESTINATION, d, HK_ID, id}
+		e = conn.Unsubscribe(uh)
+		if e != nil {
+			t.Fatalf("TestSuppressContentLength Expected no unsubscribe error, got [%v]\n",
+				e)
+		}
+
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
+		_ = closeConn(t, n)
 	}
-
-	// Finally Unsubscribe
-	uh := Headers{HK_DESTINATION, d, HK_ID, id}
-	e = conn.Unsubscribe(uh)
-	if e != nil {
-		t.Fatalf("Expected no unsubscribe error, got [%v]\n", e)
-	}
-
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
-
 }
 
 /*
 	Test suppress_content_type header.
 */
 func TestSuppressContentType(t *testing.T) {
-	n, _ := openConn(t)
-	ch := check11(TEST_HEADERS)
-	conn, _ := Connect(n, ch)
-
-	// l := log.New(os.Stdout, "TSCT", log.Ldate|log.Lmicroseconds)
-	// conn.SetLogger(l)
-
-	//
-	d := tdest("/queue/suppress.content.type")
-	id := Uuid()
-	sbh := Headers{HK_DESTINATION, d, HK_ID, id}
-	sc, e := conn.Subscribe(sbh)
-	if e != nil {
-		t.Fatalf("Expected no subscribe error, got [%v]\n", e)
-	}
-	if sc == nil {
-		t.Fatalf("Expected subscribe channel, got [nil]\n")
-	}
-
-	// Do the work here
-	var v MessageData
-	var sh Headers
-	for tn, tv := range tsctData {
-		if tv.doSuppress {
-			sh = Headers{HK_DESTINATION, d, HK_SUPPRESS_CT, "yes"}
-		} else {
-			// sh = Headers{HK_DESTINATION, d, HK_SUPPRESS_CT}
-			sh = Headers{HK_DESTINATION, d}
-		}
-		//
-		e = conn.Send(sh, tv.body)
+	for _, sp := range Protocols() {
+		n, _ = openConn(t)
+		ch := login_headers
+		ch = headersProtocol(ch, sp)
+		conn, e = Connect(n, ch)
 		if e != nil {
-			t.Fatalf("Expected no send error, got [%v]\n", e)
+			t.Fatalf("TestSuppressContentType CONNECT Failed: e:<%q> connresponse:<%q>\n",
+				e,
+				conn.ConnectResponse)
 		}
-		// fmt.Printf("SCT01 tn:%d sent:%s\n", tn, tv.body)
-		select {
-		case v = <-sc:
-		case v = <-conn.MessageData:
-			t.Fatalf("Expected no RECEIPT/ERROR error, got [%v]\n", v)
+		// l := log.New(os.Stdout, "TSCT", log.Ldate|log.Lmicroseconds)
+		// conn.SetLogger(l)
+
+		//
+		d := tdest("/queue/suppress.content.type")
+		id := Uuid()
+		sbh := Headers{HK_DESTINATION, d, HK_ID, id}
+		sc, e = conn.Subscribe(sbh)
+		if e != nil {
+			t.Fatalf("TestSuppressContentType Expected no subscribe error, got [%v]\n",
+				e)
 		}
-		_, try := v.Message.Headers.Contains(HK_CONTENT_TYPE)
-		// fmt.Printf("DUMP: md:%#v\n", v)
-		if tv.doSuppress {
-			if try != tv.wanted {
-				t.Fatalf("TestSuppressContentType tn:%d wanted:%t got:%t\n",
-					tn, tv.wanted, try)
+		if sc == nil {
+			t.Fatalf("TestSuppressContentType Expected subscribe channel, got [nil]\n")
+		}
+
+		// Do the work here
+		var v MessageData
+		var sh Headers
+		for tn, tv := range tsctData {
+			if tv.doSuppress {
+				sh = Headers{HK_DESTINATION, d, HK_SUPPRESS_CT, "yes"}
+			} else {
+				// sh = Headers{HK_DESTINATION, d, HK_SUPPRESS_CT}
+				sh = Headers{HK_DESTINATION, d}
+			}
+			//
+			e = conn.Send(sh, tv.body)
+			if e != nil {
+				t.Fatalf("TestSuppressContentType Expected no send error, got [%v]\n",
+					e)
+			}
+			// fmt.Printf("SCT01 tn:%d sent:%s\n", tn, tv.body)
+			select {
+			case v = <-sc:
+			case v = <-conn.MessageData:
+				t.Fatalf("TestSuppressContentType Expected no RECEIPT/ERROR error, got [%v]\n",
+					v)
+			}
+			_, try := v.Message.Headers.Contains(HK_CONTENT_TYPE)
+			// fmt.Printf("DUMP: md:%#v\n", v)
+			if tv.doSuppress {
+				if try != tv.wanted {
+					t.Fatalf("TestSuppressContentType tn:%d wanted:%t got:%t\n",
+						tn, tv.wanted, try)
+				}
 			}
 		}
-	}
-	// Finally Unsubscribe
-	uh := Headers{HK_DESTINATION, d, HK_ID, id}
-	e = conn.Unsubscribe(uh)
-	if e != nil {
-		t.Fatalf("Expected no unsubscribe error, got [%v]\n", e)
-	}
+		// Finally Unsubscribe
+		uh := Headers{HK_DESTINATION, d, HK_ID, id}
+		e = conn.Unsubscribe(uh)
+		if e != nil {
+			t.Fatalf("TestSuppressContentType Expected no unsubscribe error, got [%v]\n",
+				e)
+		}
 
-	_ = conn.Disconnect(empty_headers)
-	_ = closeConn(t, n)
-
+		checkReceived(t, conn)
+		e = conn.Disconnect(empty_headers)
+		checkDisconnectError(t, e)
+		_ = closeConn(t, n)
+	}
 }

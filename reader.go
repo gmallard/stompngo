@@ -33,7 +33,7 @@ func (c *Connection) reader() {
 readLoop:
 	for {
 		f, e := c.readFrame()
-		c.log("RDR_RECEIVE_FRAME", f.Command, f.Headers, hexData(f.Body),
+		c.log("RDR_RECEIVE_FRAME", f.Command, f.Headers, HexData(f.Body),
 			"RDR_RECEIVE_ERR", e)
 		if e != nil {
 			f.Headers = append(f.Headers, "connection_read_error", e.Error())
@@ -43,9 +43,9 @@ readLoop:
 			break readLoop
 		}
 
-		// if f.Command == "" {
-		//	break
-		//}
+		if f.Command == "" {
+			continue readLoop
+		}
 
 		m := Message(f)
 		c.mets.tfr += 1 // Total frames read
@@ -86,7 +86,7 @@ readLoop:
 				ps.drmc++
 				if ps.drmc > ps.dra {
 					c.log("RDR_DROPM", ps.drmc, sid, m.Command,
-						m.Headers, hexData(m.Body))
+						m.Headers, HexData(m.Body))
 				} else {
 					ps.md <- md
 				}
@@ -130,24 +130,23 @@ readLoop:
 */
 func (c *Connection) readFrame() (f Frame, e error) {
 	f = Frame{"", Headers{}, NULLBUFF}
+
 	// Read f.Command or line ends (maybe heartbeats)
-	for {
-		s, e := c.rdr.ReadString('\n')
-		if s == "" {
-			return f, e
-		}
-		if e != nil {
-			return f, e
-		}
-		if c.hbd != nil {
-			c.updateHBReads()
-		}
-		f.Command = s[0 : len(s)-1]
-		if s != "\n" {
-			break
-		}
-		// c.log("read slash n")
+	s, e := c.rdr.ReadString('\n')
+	if s == "" {
+		return f, e
 	}
+	if e != nil {
+		return f, e
+	}
+	if c.hbd != nil {
+		c.updateHBReads()
+	}
+	f.Command = s[0 : len(s)-1]
+	if s == "\n" {
+		return f, e
+	}
+
 	// Validate the command
 	if _, ok := validCmds[f.Command]; !ok {
 		return f, EINVBCMD
