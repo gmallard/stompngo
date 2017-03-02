@@ -67,3 +67,118 @@ well:
 
 * [issues](https://github.com/gmallard/stompngo/issues?sort=comments&state=open)
 
+## Contributors (by first author date) ##
+
+Contribution information (maintained semiautomatically, best efforts basis):
+
+<table border="1" style="width:100%;border: 1px solid black;">
+<tr>
+<th style="border: 1px solid black;padding-left: 10px;" >
+First Author Date
+</th>
+<th style="border: 1px solid black;padding-left: 10px;" >
+(Commit Count)
+</th>
+<th style="border: 1px solid black;padding-left: 10px;" >
+Name / E-mail
+</th>
+</tr>
+<tr>
+<td style="border: 1px solid black;padding-left: 10px;" >
+2011-10-10
+</td>
+<td style="border: 1px solid black;padding-left: 10px;" >
+(0251)
+</td>
+<td style="border: 1px solid black;padding-left: 10px;" >
+<span style="font-weight: bold;" >
+gmallard
+</span>
+ / allard.guy.m@gmail.com
+</td>
+</tr>
+<tr>
+<td style="border: 1px solid black;padding-left: 10px;" >
+2014-02-02
+</td>
+<td style="border: 1px solid black;padding-left: 10px;" >
+(0001)
+</td>
+<td style="border: 1px solid black;padding-left: 10px;" >
+<span style="font-weight: bold;" >
+Kelsey Hightower
+</span>
+ / kelsey.hightower@gmail.com
+</td>
+</tr>
+<tr>
+<td style="border: 1px solid black;padding-left: 10px;" >
+2014-02-03
+</td>
+<td style="border: 1px solid black;padding-left: 10px;" >
+(0075)
+</td>
+<td style="border: 1px solid black;padding-left: 10px;" >
+<span style="font-weight: bold;" >
+Guy M. Allard
+</span>
+ / allard.guy.m@gmail.com
+</td>
+</tr>
+<tr>
+<td style="border: 1px solid black;padding-left: 10px;" >
+2014-12-12
+</td>
+<td style="border: 1px solid black;padding-left: 10px;" >
+(0001)
+</td>
+<td style="border: 1px solid black;padding-left: 10px;" >
+<span style="font-weight: bold;" >
+Logan Attwood
+</span>
+ / logan@therounds.ca
+</td>
+</tr>
+<tr>
+<td style="border: 1px solid black;padding-left: 10px;" >
+2015-04-16
+</td>
+<td style="border: 1px solid black;padding-left: 10px;" >
+(0002)
+</td>
+<td style="border: 1px solid black;padding-left: 10px;" >
+<span style="font-weight: bold;" >
+Max Garvey
+</span>
+ / mgarvey@monsooncommerce.com
+</td>
+</tr>
+<tr>
+<td style="border: 1px solid black;padding-left: 10px;" >
+2016-04-11
+</td>
+<td style="border: 1px solid black;padding-left: 10px;" >
+(0001)
+</td>
+<td style="border: 1px solid black;padding-left: 10px;" >
+<span style="font-weight: bold;" >
+Joakim Sernbrant
+</span>
+ / joakim.sernbrant@trioptima.com
+</td>
+</tr>
+<tr>
+<td style="border: 1px solid black;padding-left: 10px;" >
+2017-03-01
+</td>
+<td style="border: 1px solid black;padding-left: 10px;" >
+(0001)
+</td>
+<td style="border: 1px solid black;padding-left: 10px;" >
+<span style="font-weight: bold;" >
+Daniel Corin
+</span>
+ / danielcorin@users.noreply.github.com
+</td>
+</tr>
+</table>
