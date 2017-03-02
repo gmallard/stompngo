@@ -26,7 +26,7 @@ package stompngo
 
 	Obtain a receipt unless the client specifically indicates a receipt request
 	should be excluded.  If the client  actually asks for a receipt, use the
-	supplied receipt id.  Otherwise generate a uniqueue receipt id and add that
+	supplied receipt id.  Otherwise generate a unique receipt id and add that
 	to the DISCONNECT headers.
 
 	Example:
