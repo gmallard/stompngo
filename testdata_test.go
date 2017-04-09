@@ -726,15 +726,15 @@ type (
 //=============================================================================
 var (
 	unsubNoHeaderDataList = []subNoHeaderData{
-		{SPL_10, EREQDIUNS},
-		{SPL_11, EREQDIUNS},
-		{SPL_12, EREQDIUNS},
+		{SPL_10, EUNODSID},
+		{SPL_11, EUNOSID},
+		{SPL_12, EUNOSID},
 	}
 	unsubNoIDDataList = []subNoIDData{
 		// 1.0
 		{SPL_10,
 			Headers{},
-			EREQDIUNS},
+			EUNODSID},
 		{SPL_10,
 			Headers{HK_DESTINATION, "/queue/unsubIDTest.10.1"},
 			EUNOSID},
@@ -752,63 +752,72 @@ var (
 		{SPL_11,
 			Headers{HK_DESTINATION, "/queue/unsubIDTest.11.2",
 				HK_ID, "unsubIDTest.11.2"},
-			EBADSID},
+			EUNOSID},
 		// 1.2
 		{SPL_12,
 			Headers{},
-			EREQDIUNS},
+			EUNODSID},
 		{SPL_12,
 			Headers{HK_DESTINATION, "/queue/unsubIDTest.12.1"},
 			EUNOSID},
 		{SPL_12,
 			Headers{HK_DESTINATION, "/queue/unsubIDTest.12.2",
 				HK_ID, "unsubIDTest.12.2"},
-			EBADSID},
+			EUNOSID},
 	}
 
 	// REQIDUNS = Error("id required, UNSUBSCRIBE")
 	// REQDIUNS  = Error("destination required, UNSUBSCRIBE")
 
 	unsubBoolDataList = []unsubBoolData{
+
 		// 1.0
-		{SPL_10, false,
+		{SPL_10, false, // 0
 			Headers{},
 			Headers{},
-			EREQDSTUNS, EREQDSTUNS},
+			EUNODSID, EUNODSID},
+
 		{SPL_10, false,
 			Headers{HK_DESTINATION, "/queue/PlainDataTest.10.1"},
 			Headers{HK_DESTINATION, "/queue/PlainDataTest.10.1"},
-			EREQIDUNS, EREQIDUNS},
+			nil, EUNODSID},
+
 		{SPL_10, true,
-			Headers{HK_DESTINATION, "/queue/PlainDataTest.10.1"},
-			Headers{HK_DESTINATION, "/queue/PlainDataTest.10.1"},
+			Headers{HK_DESTINATION, "/queue/PlainDataTest.10.2"},
+			Headers{HK_DESTINATION, "/queue/PlainDataTest.10.2"},
 			nil, nil},
+
 		// 1.1
-		{SPL_11, false,
+		{SPL_11, false, // 3
 			Headers{},
 			Headers{},
-			EREQDSTUNS, EREQDSTUNS},
+			EUNOSID, EUNOSID},
+
 		{SPL_11, false,
 			Headers{HK_DESTINATION, "/queue/PlainDataTest.11.1"},
 			Headers{HK_DESTINATION, "/queue/PlainDataTest.11.1"},
-			EREQIDUNS, EREQIDUNS},
+			EUNOSID, EUNOSID},
+
 		{SPL_11, true,
-			Headers{HK_DESTINATION, "/queue/PlainDataTest.10.1"},
-			Headers{HK_DESTINATION, "/queue/PlainDataTest.10.1"},
-			nil, EREQIDUNS},
+			Headers{HK_DESTINATION, "/queue/PlainDataTest.11.2"},
+			Headers{HK_DESTINATION, "/queue/PlainDataTest.11.2"},
+			nil, EUNOSID},
+
 		// 1.2
 		{SPL_12, false,
 			Headers{},
 			Headers{},
-			EREQDIUNS, EREQDSTUNS},
+			EUNOSID, EUNOSID},
+
 		{SPL_12, false,
 			Headers{HK_DESTINATION, "/queue/PlainDataTest.12.1"},
 			Headers{HK_DESTINATION, "/queue/PlainDataTest.12.1"},
-			EREQIDUNS, EREQIDUNS},
+			EUNOSID, EUNOSID},
+
 		{SPL_12, true,
 			Headers{HK_DESTINATION, "/queue/PlainDataTest.10.1"},
 			Headers{HK_DESTINATION, "/queue/PlainDataTest.10.1"},
-			nil, EREQIDUNS},
+			nil, EUNOSID},
 	}
 )
 

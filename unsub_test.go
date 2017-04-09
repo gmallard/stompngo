@@ -68,10 +68,6 @@ func TestUnSubNoID(t *testing.T) {
 	for ti, tv := range unsubNoHeaderDataList {
 		conn.protocol = tv.proto // Cheat, fake all protocols
 		e = conn.Unsubscribe(empty_headers)
-		if e == nil {
-			t.Fatalf("TestUnSubNoHeader[%d] proto:%s expected:%q got:nil\n",
-				ti, sp, tv.exe)
-		}
 		if e != tv.exe {
 			t.Fatalf("TestUnSubNoHeader[%d] proto:%s expected:%q got:%q\n",
 				ti, sp, tv.exe, e)

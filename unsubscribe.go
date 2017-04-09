@@ -38,6 +38,7 @@ package stompngo
 */
 func (c *Connection) Unsubscribe(h Headers) error {
 	c.log(UNSUBSCRIBE, "start", h)
+	// fmt.Printf("Unsub Headers: %v\n", h)
 	if !c.connected {
 		return ECONBAD
 	}
@@ -46,24 +47,35 @@ func (c *Connection) Unsubscribe(h Headers) error {
 		return e
 	}
 
+	// Specification Requirements:
+	// 1.0) requires either a destination header or an id header
+	// 1.1) ... requires ... the id header ....
+	// 1.2) an id header MUST be included in the frame
 	//
-	d, okd := h.Contains(HK_DESTINATION)
-	//fmt.Printf("Unsubscribe Headers 01: <%q> <%t>\n", h, okd)
-	_ = d
-	if !okd {
-		return EREQDSTUNS
+	_, okd := h.Contains(HK_DESTINATION)
+	shid, oki := h.Contains(HK_ID)
+	switch c.Protocol() {
+	case SPL_12:
+		if !oki {
+			return EUNOSID
+		}
+	case SPL_11:
+		if !oki {
+			return EUNOSID
+		}
+	case SPL_10:
+		if !oki && !okd {
+			return EUNODSID
+		}
+	default:
+		panic("unsubscribe version not supported: " + c.Protocol())
 	}
 	//
-	shid, oki := h.Contains(HK_ID)
 	shaid := Sha1(h.Value(HK_DESTINATION)) // Special for 1.0
-	//fmt.Printf("Unsubscribe Headers 02: <%q> <%t>\n", h, oki)
-	// This is a read lock
-	//fmt.Printf("UNSUB DBG00 %q\n", c.subs)
 	c.subsLock.RLock()
 	_, p := c.subs[shid]
 	_, ps := c.subs[shaid]
 	c.subsLock.RUnlock()
-	//fmt.Printf("UNSUB DBG01 %t %t\n", p, ps)
 	usekey := ""
 
 	switch c.Protocol() {
@@ -78,10 +90,8 @@ func (c *Connection) Unsubscribe(h Headers) error {
 		}
 		usekey = shid
 	case SPL_10:
-		//
-		//fmt.Printf("SPL_10 D01 %v %v %vn", oki, p, ps)
 		if !p && !ps {
-			return EUNOSID
+			return EUNODSID
 		}
 		usekey = shaid
 	default:

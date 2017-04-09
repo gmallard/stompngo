@@ -213,7 +213,8 @@ const (
 	ESBADAM = Error("invalid ackmode, SUBSCRIBE")
 
 	// Unscubscribe error.
-	EUNOSID = Error("id required, UNSUBSCRIBE")
+	EUNOSID  = Error("id required, UNSUBSCRIBE")
+	EUNODSID = Error("destination or id required, UNSUBSCRIBE") // 1.0
 
 	// Unsupported version error.
 	EBADVERCLI = Error("unsupported protocol version, client")
