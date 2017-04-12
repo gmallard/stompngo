@@ -17,6 +17,7 @@
 package stompngo
 
 import (
+	"encoding/hex"
 	"fmt"
 	"strconv"
 	"strings"
@@ -149,7 +150,8 @@ func (c *Connection) readFrame() (f Frame, e error) {
 
 	// Validate the command
 	if _, ok := validCmds[f.Command]; !ok {
-		return f, EINVBCMD
+		ev := fmt.Errorf("%s\n%s", EINVBCMD, hex.Dump([]byte(f.Command)))
+		return f, ev
 	}
 	// Read f.Headers
 	for {
