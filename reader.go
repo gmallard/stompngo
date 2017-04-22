@@ -19,6 +19,7 @@ package stompngo
 import (
 	"encoding/hex"
 	"fmt"
+	"net"
 	"strconv"
 	"strings"
 	"time"
@@ -133,11 +134,12 @@ func (c *Connection) readFrame() (f Frame, e error) {
 	f = Frame{"", Headers{}, NULLBUFF}
 
 	// Read f.Command or line ends (maybe heartbeats)
+	c.setReadDeadline()
 	s, e := c.rdr.ReadString('\n')
 	if s == "" {
 		return f, e
 	}
-	if e != nil {
+	if c.checkReadError(e) != nil {
 		return f, e
 	}
 	if c.hbd != nil {
@@ -155,8 +157,9 @@ func (c *Connection) readFrame() (f Frame, e error) {
 	}
 	// Read f.Headers
 	for {
+		c.setReadDeadline()
 		s, e := c.rdr.ReadString('\n')
-		if e != nil {
+		if c.checkReadError(e) != nil {
 			return f, e
 		}
 		if c.hbd != nil {
@@ -188,15 +191,15 @@ func (c *Connection) readFrame() (f Frame, e error) {
 			return f, e
 		}
 		if l == 0 {
-			f.Body, e = readUntilNul(c.rdr)
+			f.Body, e = readUntilNul(c)
 		} else {
-			f.Body, e = readBody(c.rdr, l)
+			f.Body, e = readBody(c, l)
 		}
 	} else {
 		// content-length not present
-		f.Body, e = readUntilNul(c.rdr)
+		f.Body, e = readUntilNul(c)
 	}
-	if e != nil {
+	if c.checkReadError(e) != nil {
 		return f, e
 	}
 	if c.hbd != nil {
@@ -210,4 +213,21 @@ func (c *Connection) updateHBReads() {
 	c.hbd.rdl.Lock()
 	c.hbd.lr = time.Now().UnixNano() // Latest good read
 	c.hbd.rdl.Unlock()
+}
+
+func (c *Connection) setReadDeadline() {
+	if c.dld.rde && c.dld.rds {
+		_ = c.netconn.SetReadDeadline(time.Now().Add(c.dld.rdld))
+	}
+}
+
+func (c *Connection) checkReadError(e error) error {
+	if e != nil {
+		if e.(net.Error).Timeout() {
+			if c.dld.dns {
+				c.dld.dlnotify(e, false)
+			}
+		}
+	}
+	return e
 }

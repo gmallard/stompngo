@@ -32,10 +32,14 @@ type ExpiredNotification func(err error, rw bool)
 type deadlineData struct {
 	wde  bool          // Write deadline data enabled
 	wdld time.Duration // Write deadline duration
-	wds  bool          // True if duration has been set
+	wds  bool          // True if write duration has been set
 	//
 	dlnotify ExpiredNotification
 	dns      bool // True if dlnotify has been set
+	//
+	rde  bool          // Read deadline data enabled
+	rdld time.Duration // Read deadline duration
+	rds  bool          // True if read duration has been set
 }
 
 /*
@@ -67,4 +71,27 @@ func (c *Connection) ExpiredNotification(enf ExpiredNotification) {
 */
 func (c *Connection) IsWriteDeadlineEnabled() bool {
 	return c.dld.wde
+}
+
+/*
+	ReadDeadline sets the write deadline duration.
+*/
+func (c *Connection) ReadDeadline(d time.Duration) {
+	c.dld.rdld = d
+	c.dld.rds = true
+}
+
+/*
+	EnableReadDeadline enables/disables the use of read deadlines.
+*/
+func (c *Connection) EnableReadDeadline(e bool) {
+	c.dld.rde = e
+}
+
+/*
+	IsReadDeadlineEnabled returns the current value of write deadline
+	enablement.
+*/
+func (c *Connection) IsReadDeadlineEnabled() bool {
+	return c.dld.rde
 }
