@@ -368,3 +368,8 @@ const (
 const (
 	StompPlusDrainAfter = "sng_drafter" // SUBSCRIBE Header
 )
+
+var (
+	LFB = []byte("\n")
+	ZRB = []byte{0}
+)
