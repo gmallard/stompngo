@@ -18,6 +18,7 @@ package stompngo
 
 import (
 	"bufio"
+	"net"
 	// "bytes"
 	"strconv"
 	"time"
@@ -59,20 +60,25 @@ func (c *Connection) wireWrite(d wiredata) {
 	// fmt.Printf("WWD01 f:[%v]\n", f)
 	switch f.Command {
 	case "\n": // HeartBeat frame
-		if _, e := c.wtr.WriteString(f.Command); e != nil {
+		if c.dld.wde && c.dld.dns {
+			_ = c.netconn.SetWriteDeadline(time.Now().Add(c.dld.wdld))
+		}
+		_, e := c.wtr.WriteString(f.Command)
+		if e != nil {
+			if e.(net.Error).Timeout() {
+				if c.dld.dns {
+					c.dld.dlnotify(e, true)
+				}
+			}
 			d.errchan <- e
 			return
 		}
 	default: // Other frames
-		if e := f.writeFrame(c.wtr, c.Protocol()); e != nil {
+		if e := f.writeFrame(c.wtr, c); e != nil {
 			d.errchan <- e
 			return
 		}
 		if e := c.wtr.Flush(); e != nil {
-			d.errchan <- e
-			return
-		}
-		if e := c.wtr.WriteByte('\x00'); e != nil {
 			d.errchan <- e
 			return
 		}
@@ -97,7 +103,7 @@ func (c *Connection) wireWrite(d wiredata) {
 /*
 	Physical frame write to the wire.
 */
-func (f *Frame) writeFrame(w *bufio.Writer, l string) error {
+func (f *Frame) writeFrame(w *bufio.Writer, c *Connection) error {
 
 	var sctok bool
 	// Content type.  Always add it if the client does not suppress and does not
@@ -120,50 +126,22 @@ func (f *Frame) writeFrame(w *bufio.Writer, l string) error {
 		}
 	}
 
-	if l > SPL_10 && f.Command != CONNECT {
+	if c.Protocol() > SPL_10 && f.Command != CONNECT {
 		for i := 0; i < len(f.Headers); i += 2 {
 			f.Headers[i] = encode(f.Headers[i])
 			f.Headers[i+1] = encode(f.Headers[i+1])
 		}
 	}
-
-	/*
-		// Write the frame Command
-		if _, e := w.WriteString(f.Command + "\n"); e != nil {
-			return e
-		}
-
-		if len(f.Headers) > 0 {
-			_, e := w.WriteString(f.Headers.String())
-			if e != nil {
-				return e
+	if c.dld.wde && c.dld.dns {
+		_ = c.netconn.SetWriteDeadline(time.Now().Add(c.dld.wdld))
+	}
+	_, e := w.Write(f.Bytes(sclok))
+	if e != nil {
+		if e.(net.Error).Timeout() {
+			if c.dld.dns {
+				c.dld.dlnotify(e, true)
 			}
 		}
-		// Write the last Header LF
-		if e := w.WriteByte('\n'); e != nil {
-			return e
-		}
-		// fmt.Printf("WDBG40 ok:%v\n", sclok)
-		if sclok {
-			nz := bytes.IndexByte(f.Body, 0)
-			// fmt.Printf("WDBG41 ok:%v\n", nz)
-			if nz == 0 {
-				f.Body = []byte{}
-				// fmt.Printf("WDBG42 body:%v bodystring: %v\n", f.Body, string(f.Body))
-			} else if nz > 0 {
-				f.Body = f.Body[0:nz]
-				// fmt.Printf("WDBG43 body:%v bodystring: %v\n", f.Body, string(f.Body))
-			}
-		}
-		// Write the body
-		if len(f.Body) != 0 { // Foolish to write 0 length data
-			// fmt.Printf("WDBG99 body:%v bodystring: %v\n", f.Body, string(f.Body))
-			if _, e := w.Write(f.Body); e != nil {
-				return e
-			}
-		}
-	*/
-	if _, e := w.Write(f.Bytes(sclok)); e != nil {
 		return e
 	}
 	return nil

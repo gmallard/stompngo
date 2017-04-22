@@ -126,9 +126,10 @@ type Connection struct {
 	Hbrf              bool // Indicates a heart beat read/receive failure, which is possibly transient.  Valid for 1.1+ only.
 	Hbsf              bool // Indicates a heart beat send failure, which is possibly transient.  Valid for 1.1+ only.
 	logger            *log.Logger
-	mets              *metrics   // Client metrics
-	scc               int        // Subscribe channel capacity
-	discLock          sync.Mutex // DISCONNECT lock
+	mets              *metrics      // Client metrics
+	scc               int           // Subscribe channel capacity
+	discLock          sync.Mutex    // DISCONNECT lock
+	dld               *deadlineData // Deadline data
 }
 
 type subscription struct {
