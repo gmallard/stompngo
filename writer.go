@@ -136,14 +136,19 @@ func (f *Frame) writeFrame(w *bufio.Writer, c *Connection) error {
 		_ = c.netconn.SetWriteDeadline(time.Now().Add(c.dld.wdld))
 	}
 	_, e := w.Write(f.Bytes(sclok))
-	if e != nil {
-		if e.(net.Error).Timeout() {
-			if c.dld.dns {
-				c.log("invoking write deadline callback")
-				c.dld.dlnotify(e, true)
-			}
-		}
-		return e
+	if e == nil {
+		return e // Clean return
 	}
-	return nil
+	ne, ok := e.(net.Error)
+	if !ok {
+		return e // Some other error
+	}
+	if ne.Timeout() {
+		//c.log("is a timeout")
+		if c.dld.dns {
+			c.log("invoking write deadline callback")
+			c.dld.dlnotify(e, true)
+		}
+	}
+	return e
 }
