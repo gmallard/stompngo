@@ -79,7 +79,11 @@ func readBody(c *Connection, l int) ([]uint8, error) {
 	if c.checkReadError(e) != nil { // Other erors
 		return b, e
 	}
-	_, _ = c.rdr.ReadByte() // trailing NUL
+	c.setReadDeadline()
+	_, _ = c.rdr.ReadByte()         // trailing NUL
+	if c.checkReadError(e) != nil { // Other erors
+		return b, e
+	}
 	return b, e
 }
 

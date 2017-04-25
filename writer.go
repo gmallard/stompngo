@@ -139,6 +139,7 @@ func (f *Frame) writeFrame(w *bufio.Writer, c *Connection) error {
 	if e != nil {
 		if e.(net.Error).Timeout() {
 			if c.dld.dns {
+				c.log("invoking write deadline callback")
 				c.dld.dlnotify(e, true)
 			}
 		}

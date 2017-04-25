@@ -46,6 +46,7 @@ type deadlineData struct {
 	WriteDeadline sets the write deadline duration.
 */
 func (c *Connection) WriteDeadline(d time.Duration) {
+	c.log("Write Deadline", d)
 	c.dld.wdld = d
 	c.dld.wds = true
 }
@@ -54,6 +55,7 @@ func (c *Connection) WriteDeadline(d time.Duration) {
 	EnableWriteDeadline enables/disables the use of write deadlines.
 */
 func (c *Connection) EnableWriteDeadline(e bool) {
+	c.log("Enable Write Deadline", e)
 	c.dld.wde = e
 }
 
@@ -61,6 +63,7 @@ func (c *Connection) EnableWriteDeadline(e bool) {
 	ExpiredNotification sets the expired notification callback function.
 */
 func (c *Connection) ExpiredNotification(enf ExpiredNotification) {
+	c.log("Set ExpiredNotification")
 	c.dld.dlnotify = enf
 	c.dld.dns = true
 }
@@ -77,6 +80,7 @@ func (c *Connection) IsWriteDeadlineEnabled() bool {
 	ReadDeadline sets the write deadline duration.
 */
 func (c *Connection) ReadDeadline(d time.Duration) {
+	c.log("Read Deadline", d)
 	c.dld.rdld = d
 	c.dld.rds = true
 }
@@ -85,6 +89,7 @@ func (c *Connection) ReadDeadline(d time.Duration) {
 	EnableReadDeadline enables/disables the use of read deadlines.
 */
 func (c *Connection) EnableReadDeadline(e bool) {
+	c.log("Enable Read Deadline", e)
 	c.dld.rde = e
 }
 

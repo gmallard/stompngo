@@ -17,7 +17,6 @@
 package stompngo
 
 import (
-	"encoding/hex"
 	"fmt"
 	"net"
 	"strconv"
@@ -35,9 +34,18 @@ func (c *Connection) reader() {
 readLoop:
 	for {
 		f, e := c.readFrame()
+		//
+		select {
+		case _ = <-c.ssdc:
+			c.log("RDR_SHUTDOWN detected")
+			break readLoop
+		default:
+		}
+		//
 		c.log("RDR_RECEIVE_FRAME", f.Command, f.Headers, HexData(f.Body),
 			"RDR_RECEIVE_ERR", e)
 		if e != nil {
+			//debug.PrintStack()
 			f.Headers = append(f.Headers, "connection_read_error", e.Error())
 			md := MessageData{Message(f), e}
 			c.handleReadError(md)
@@ -136,10 +144,10 @@ func (c *Connection) readFrame() (f Frame, e error) {
 	// Read f.Command or line ends (maybe heartbeats)
 	c.setReadDeadline()
 	s, e := c.rdr.ReadString('\n')
-	if s == "" {
+	if c.checkReadError(e) != nil {
 		return f, e
 	}
-	if c.checkReadError(e) != nil {
+	if s == "" {
 		return f, e
 	}
 	if c.hbd != nil {
@@ -152,7 +160,7 @@ func (c *Connection) readFrame() (f Frame, e error) {
 
 	// Validate the command
 	if _, ok := validCmds[f.Command]; !ok {
-		ev := fmt.Errorf("%s\n%s", EINVBCMD, hex.Dump([]byte(f.Command)))
+		ev := fmt.Errorf("%s\n%s", EINVBCMD, HexData([]byte(f.Command)))
 		return f, ev
 	}
 	// Read f.Headers
@@ -222,11 +230,19 @@ func (c *Connection) setReadDeadline() {
 }
 
 func (c *Connection) checkReadError(e error) error {
-	if e != nil {
-		if e.(net.Error).Timeout() {
-			if c.dld.dns {
-				c.dld.dlnotify(e, false)
-			}
+	//c.log("checkReadError", e)
+	if e == nil {
+		return e
+	}
+	ne, ok := e.(net.Error)
+	if !ok {
+		return e
+	}
+	if ne.Timeout() {
+		//c.log("is a timeout")
+		if c.dld.dns {
+			c.log("invoking read deadline callback")
+			c.dld.dlnotify(e, false)
 		}
 	}
 	return e
