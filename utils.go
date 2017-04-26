@@ -17,7 +17,6 @@
 package stompngo
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"strings"
@@ -52,9 +51,10 @@ func decode(s string) string {
 /*
 	A network helper.  Read from the wire until a 0x00 byte is encountered.
 */
-func readUntilNul(r *bufio.Reader) ([]uint8, error) {
-	b, e := r.ReadBytes(0)
-	if e != nil {
+func readUntilNul(c *Connection) ([]uint8, error) {
+	c.setReadDeadline()
+	b, e := c.rdr.ReadBytes(0)
+	if c.checkReadError(e) != nil {
 		return b, e
 	}
 	if len(b) == 1 {
@@ -69,16 +69,22 @@ func readUntilNul(r *bufio.Reader) ([]uint8, error) {
 	A network helper.  Read a full message body with a known length that is
 	> 0.  Then read the trailing 'null' byte expected for STOMP frames.
 */
-func readBody(r *bufio.Reader, l int) ([]uint8, error) {
+func readBody(c *Connection, l int) ([]uint8, error) {
 	b := make([]byte, l)
-	n, e := io.ReadFull(r, b)
+	c.setReadDeadline()
+	n, e := io.ReadFull(c.rdr, b)
 	if n < l { // Short read, e is ErrUnexpectedEOF
+		c.log("SHORT READ", n, l, e)
 		return b[0 : n-1], e
 	}
-	if e != nil { // Other erors
+	if c.checkReadError(e) != nil { // Other erors
 		return b, e
 	}
-	_, _ = r.ReadByte() // trailing NUL
+	c.setReadDeadline()
+	_, _ = c.rdr.ReadByte()         // trailing NUL
+	if c.checkReadError(e) != nil { // Other erors
+		return b, e
+	}
 	return b, e
 }
 

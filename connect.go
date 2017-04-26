@@ -78,7 +78,8 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 		DisconnectReceipt: MessageData{},
 		ssdc:              make(chan struct{}),
 		wtrsdc:            make(chan struct{}),
-		scc:               1}
+		scc:               1,
+		dld:               &deadlineData{}}
 
 	// Bsaic metric data
 	c.mets = &metrics{st: time.Now()}

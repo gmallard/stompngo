@@ -171,3 +171,14 @@ func (h Headers) String() string {
 	}
 	return string(b)
 }
+
+/*
+	Bytes returns a byte slice of the headers
+*/
+func (h Headers) Bytes() []byte {
+	b := make([]byte, 0, 1024)
+	for i := 0; i < len(h); i += 2 {
+		b = append(b, h[i]+":"+h[i+1]+"\n"...)
+	}
+	return b
+}

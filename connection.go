@@ -167,7 +167,7 @@ func (c *Connection) log(v ...interface{}) {
 	if c.logger == nil {
 		return
 	}
-	_, fn, ld, ok := runtime.Caller(0)
+	_, fn, ld, ok := runtime.Caller(1)
 
 	if ok {
 		c.logger.Printf("%s %s %d %v\n", c.session, fn, ld, v)
