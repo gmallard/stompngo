@@ -135,9 +135,14 @@ func (f *Frame) writeFrame(w *bufio.Writer, c *Connection) error {
 	if c.dld.wde && c.dld.dns {
 		_ = c.netconn.SetWriteDeadline(time.Now().Add(c.dld.wdld))
 	}
-	_, e := w.Write(f.Bytes(sclok))
+	wba := f.Bytes(sclok)
+	c.log("WIRE WRITE START")
+	n, e := w.Write(wba)
 	if e == nil {
 		return e // Clean return
+	}
+	if n < len(wba) {
+		c.log("SHORT WRITE", n, len(wba), e)
 	}
 	ne, ok := e.(net.Error)
 	if !ok {

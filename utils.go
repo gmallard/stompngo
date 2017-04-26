@@ -74,6 +74,7 @@ func readBody(c *Connection, l int) ([]uint8, error) {
 	c.setReadDeadline()
 	n, e := io.ReadFull(c.rdr, b)
 	if n < l { // Short read, e is ErrUnexpectedEOF
+		c.log("SHORT READ", n, l, e)
 		return b[0 : n-1], e
 	}
 	if c.checkReadError(e) != nil { // Other erors
