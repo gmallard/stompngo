@@ -198,6 +198,10 @@ func (f *Frame) writeFrame(w *bufio.Writer, c *Connection) error {
 	if c.checkWriteError(e) != nil {
 		return e
 	}
+	// End of write loop - set no deadline
+	if c.dld.wde {
+		_ = c.netconn.SetWriteDeadline(c.dld.t0)
+	}
 	return nil
 }
 
