@@ -40,6 +40,7 @@ type deadlineData struct {
 	rde  bool          // Read deadline data enabled
 	rdld time.Duration // Read deadline duration
 	rds  bool          // True if read duration has been set
+	t0   time.Time     // 0 value of Time
 }
 
 /*

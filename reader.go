@@ -213,7 +213,10 @@ func (c *Connection) readFrame() (f Frame, e error) {
 	if c.hbd != nil {
 		c.updateHBReads()
 	}
-	//
+	// End of read loop - set no deadline
+	if c.dld.rde {
+		_ = c.netconn.SetReadDeadline(c.dld.t0)
+	}
 	return f, e
 }
 
