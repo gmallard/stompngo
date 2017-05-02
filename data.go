@@ -324,7 +324,7 @@ const (
 	HK_CONTENT_LENGTH = "content-length"
 	HK_DESTINATION    = "destination"
 	HK_HEART_BEAT     = "heart-beat"
-	HK_HOST           = "host"
+	HK_HOST           = "host" // HK_VHOST aloas
 	HK_ID             = "id"
 	HK_LOGIN          = "login"
 	HK_MESSAGE        = "message"
@@ -339,6 +339,7 @@ const (
 	HK_SUBSCRIPTION   = "subscription"
 	HK_TRANSACTION    = "transaction"
 	HK_VERSION        = "version"
+	HK_VHOST          = "host" // HK_HOST alias
 )
 
 /*

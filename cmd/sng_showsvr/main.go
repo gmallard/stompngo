@@ -34,13 +34,17 @@ func main() {
 	host, port := senv.HostAndPort()
 	hap := net.JoinHostPort(host, port)
 	n, err := net.Dial(sng.NetProtoTCP, hap)
+	log.Printf("Connect Host and Port: %s\n", hap)
+	log.Printf("Connect Login: %s\n", senv.Login())
+	log.Printf("Connect Passcode: %s\n", senv.Passcode())
 	if err != nil {
 		log.Fatalln("Net Connect error for:", hap, "error:", err)
 	}
 	//
 	connect_headers := sng.Headers{sng.HK_LOGIN, senv.Login(),
 		sng.HK_PASSCODE, senv.Passcode(),
-		sng.HK_HOST, senv.Vhost(),
+		sng.HK_VHOST, senv.Vhost(),
+		sng.HK_HEART_BEAT, senv.Heartbeats(),
 		sng.HK_ACCEPT_VERSION, senv.Protocol(),
 	}
 	//
