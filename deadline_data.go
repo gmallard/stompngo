@@ -41,6 +41,8 @@ type deadlineData struct {
 	rdld time.Duration // Read deadline duration
 	rds  bool          // True if read duration has been set
 	t0   time.Time     // 0 value of Time
+	//
+	rfsw bool // Attempt to recover from short writes
 }
 
 /*
@@ -100,4 +102,12 @@ func (c *Connection) EnableReadDeadline(e bool) {
 */
 func (c *Connection) IsReadDeadlineEnabled() bool {
 	return c.dld.rde
+}
+
+/*
+	ShortWriteRecovery enables / disables short write recovery.
+	enablement.
+*/
+func (c *Connection) ShortWriteRecovery(ro bool) {
+	c.dld.rfsw = ro // Set recovery option
 }

@@ -183,10 +183,7 @@ func (f *Frame) writeFrame(w *bufio.Writer, c *Connection) error {
 	// Write the body
 	if len(f.Body) != 0 { // Foolish to write 0 length data
 		// fmt.Println("WRBDY", f.Body)
-		if c.dld.wde && c.dld.dns {
-			_ = c.netconn.SetWriteDeadline(time.Now().Add(c.dld.wdld))
-		}
-		_, e = w.Write(f.Body)
+		e := c.writeBody(f)
 		if c.checkWriteError(e) != nil {
 			return e
 		}
@@ -220,4 +217,39 @@ func (c *Connection) checkWriteError(e error) error {
 		}
 	}
 	return e
+}
+
+func (c *Connection) writeBody(f *Frame) error {
+	// fmt.Printf("WDBG99 body:%v bodystring: %v\n", f.Body, string(f.Body))
+	var n = 0
+	var e error
+	for {
+		if c.dld.wde && c.dld.dns {
+			_ = c.netconn.SetWriteDeadline(time.Now().Add(c.dld.wdld))
+		}
+		n, e = c.wtr.Write(f.Body)
+		if n == len(f.Body) {
+			return e
+		}
+		c.log("SHORT WRITE", n, len(f.Body))
+		if !c.dld.rfsw {
+			return e
+		}
+		if c.dld.wde && c.dld.dns && isErrorTimeout(e) {
+			c.log("invoking write deadline callback 2")
+			c.dld.dlnotify(e, true)
+		}
+		f.Body = f.Body[n:]
+	}
+}
+
+func isErrorTimeout(e error) bool {
+	if e == nil {
+		return false
+	}
+	_, ok := e.(net.Error)
+	if !ok {
+		return false
+	}
+	return true
 }
