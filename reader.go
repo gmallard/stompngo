@@ -126,6 +126,7 @@ readLoop:
 		c.log("RDR_RELOOP")
 	}
 	close(c.input)
+	c.connected = false
 	c.log("RDR_SHUTDOWN", time.Now())
 }
 

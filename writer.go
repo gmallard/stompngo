@@ -50,6 +50,7 @@ writerLoop:
 		}
 	} // of for
 	//
+	c.connected = false
 	c.log("WTR_SHUTDOWN", time.Now())
 }
 
