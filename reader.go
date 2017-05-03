@@ -18,6 +18,7 @@ package stompngo
 
 import (
 	"fmt"
+	"io"
 	"net"
 	"strconv"
 	"strings"
@@ -49,7 +50,11 @@ readLoop:
 			f.Headers = append(f.Headers, "connection_read_error", e.Error())
 			md := MessageData{Message(f), e}
 			c.handleReadError(md)
-			c.log("RDR_CONN_ERR", e)
+			if e == io.EOF && !c.connected {
+				c.log("RDR_SHUTDOWN_EOF", e)
+			} else {
+				c.log("RDR_CONN_GENL_ERR", e)
+			}
 			break readLoop
 		}
 

@@ -233,6 +233,9 @@ func (c *Connection) writeBody(f *Frame) error {
 			return e
 		}
 		c.log("SHORT WRITE", n, len(f.Body))
+		if n == 0 { // Zero bytes would mean something is seriously wrong.
+			return e
+		}
 		if !c.dld.rfsw {
 			return e
 		}
@@ -240,6 +243,10 @@ func (c *Connection) writeBody(f *Frame) error {
 			c.log("invoking write deadline callback 2")
 			c.dld.dlnotify(e, true)
 		}
+		// *Any* error from a bufio.Writer is *not* recoverable.  See code in
+		// bufio.go to understand this.  We get a new writer here, to clear any
+		// error condition.
+		c.wtr = bufio.NewWriter(c.netconn) // Create new writer
 		f.Body = f.Body[n:]
 	}
 }
