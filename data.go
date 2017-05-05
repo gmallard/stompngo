@@ -63,7 +63,7 @@ var supported = []string{SPL_10, SPL_11, SPL_12}
 	information about STOMP frame headers.
 
 	Key values are found at even numbered indices.  Values
-	are found at odd numbered incices.  Headers are validated for an even
+	are found at odd numbered indices.  Headers are validated for an even
 	number of slice elements.
 */
 type Headers []string
@@ -101,6 +101,45 @@ type MessageData struct {
 type wiredata struct {
 	frame   Frame
 	errchan chan error
+}
+
+/*
+	STOMPConnector is an interface that encapsulates the Connection struct.
+*/
+type STOMPConnector interface {
+	Abort(h Headers) error
+	Ack(headers Headers) error
+	Begin(h Headers) error
+	Commit(h Headers) error
+	Connected() bool
+	Disconnect(headers Headers) error
+	Nack(headers Headers) error
+	Send(Headers, string) error
+	Subscribe(headers Headers) (<-chan MessageData, error)
+	Unsubscribe(headers Headers) error
+	Session() string
+	Protocol() string
+	SetLogger(l *log.Logger)
+	SendTickerInterval() int64
+	ReceiveTickerInterval() int64
+	SendTickerCount() int64
+	ReceiveTickerCount() int64
+	FramesRead() int64
+	BytesRead() int64
+	FramesWritten() int64
+	BytesWritten() int64
+	Running() time.Duration
+	SubChanCap() int
+	SetSubChanCap(nc int)
+	WriteDeadline(d time.Duration)
+	EnableWriteDeadline(e bool)
+	ExpiredNotification(enf ExpiredNotification)
+	IsWriteDeadlineEnabled() bool
+	ReadDeadline(d time.Duration)
+	EnableReadDeadline(e bool)
+	IsReadDeadlineEnabled() bool
+	ShortWriteRecovery(ro bool)
+	SendBytes(h Headers, b []byte) error
 }
 
 /*
@@ -154,7 +193,7 @@ const (
 	// ERROR Frame returned by broker on connect.
 	ECONERR = Error("broker returned ERROR frame, CONNECT")
 
-	// ERRRORs for Headers.
+	// ERRORs for Headers.
 	EHDRLEN  = Error("unmatched headers, bad length")
 	EHDRUTF8 = Error("header string not UTF8")
 	EHDRNIL  = Error("headers can not be nil")
@@ -210,10 +249,10 @@ const (
 	EDUPSID = Error("duplicate subscription-id")
 	EBADSID = Error("invalid subscription-id")
 
-	// Scubscribe errors.
+	// Subscribe errors.
 	ESBADAM = Error("invalid ackmode, SUBSCRIBE")
 
-	// Unscubscribe error.
+	// Unsubscribe error.
 	EUNOSID  = Error("id required, UNSUBSCRIBE")
 	EUNODSID = Error("destination or id required, UNSUBSCRIBE") // 1.0
 
@@ -315,7 +354,7 @@ const (
 )
 
 /*
-	Commom Header keys
+	Common Header keys
 */
 const (
 	HK_ACCEPT_VERSION = "accept-version"

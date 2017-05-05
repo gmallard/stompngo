@@ -37,4 +37,4 @@ coverage.out
 *.cvd
 # Logging output
 *.log
-
+.idea

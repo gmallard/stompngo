@@ -24,6 +24,13 @@ import (
 )
 
 /*
+	Wrapper for primary STOMP Connect function that returns an interface.
+*/
+func NewConnector(n net.Conn, h Headers) (STOMPConnector, error) {
+	return Connect(n, h)
+}
+
+/*
 	Primary STOMP Connect.
 
 	For STOMP 1.1+ the Headers parameter MUST contain the headers required
@@ -81,13 +88,13 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 		scc:               1,
 		dld:               &deadlineData{}}
 
-	// Bsaic metric data
+	// Basic metric data
 	c.mets = &metrics{st: time.Now()}
 
 	// Assumed for now
 	c.MessageData = c.input
 
-	// Check that the cilent wants a version we support
+	// Check that the client wants a version we support
 	if e := c.checkClientVersions(h); e != nil {
 		return c, e
 	}
