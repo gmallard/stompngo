@@ -189,7 +189,7 @@ func TestHBConnect(t *testing.T) {
 */
 func TestHBNoSend(t *testing.T) {
 	if !testhbrd.testhbl {
-		t.Skip("TestHBNoSend norun, set STOMP_HBLONG")
+		t.Skip("TestHBNoSend norun, set STOMP_HB11LONG")
 	}
 	if brokerid == TEST_ARTEMIS {
 		t.Skip("TestHBNoSend norun, unset STOMP_ARTEMIS")
@@ -248,7 +248,7 @@ func TestHBNoSend(t *testing.T) {
 */
 func TestHBNoReceive(t *testing.T) {
 	if !testhbrd.testhbl {
-		t.Skip("TestHBNoReceive norun, set STOMP_HBLONG")
+		t.Skip("TestHBNoReceive norun, set STOMP_HB11LONG")
 	}
 	for _, sp := range oneOnePlusProtos {
 		n, _ = openConn(t)
@@ -297,7 +297,7 @@ func TestHBNoReceive(t *testing.T) {
 */
 func TestHBSendReceive(t *testing.T) {
 	if !testhbrd.testhbl {
-		t.Skip("TestHBSendReceive norun, set STOMP_HBLONG")
+		t.Skip("TestHBSendReceive norun, set STOMP_HB11LONG")
 	}
 	for _, sp := range oneOnePlusProtos {
 		n, _ = openConn(t)
@@ -355,7 +355,7 @@ func TestHBSendReceive(t *testing.T) {
 */
 func TestHBSendReceiveApollo(t *testing.T) {
 	if !testhbrd.testhbl {
-		t.Skip("TestHBSendReceiveApollo norun, set STOMP_HBLONG")
+		t.Skip("TestHBSendReceiveApollo norun, set STOMP_HB11LONG")
 	}
 	for _, sp := range oneOnePlusProtos {
 		n, _ = openConn(t)
@@ -415,7 +415,7 @@ func TestHBSendReceiveApollo(t *testing.T) {
 */
 func TestHBSendReceiveRevApollo(t *testing.T) {
 	if !testhbrd.testhbl {
-		t.Skip("TestHBSendReceiveRevApollo norun, set STOMP_HBLONG")
+		t.Skip("TestHBSendReceiveRevApollo norun, set STOMP_HB11LONG")
 	}
 	if brokerid == TEST_AMQ {
 		t.Skip("TestHBSendReceiveRevApollo norun, unset STOMP_AMQ")

@@ -157,10 +157,16 @@ hbSend:
 */
 func (c *Connection) receiveTicker() {
 	c.hbd.rc = 0
-	var first, last int64
+	var first, last, nd int64
 hbGet:
 	for {
-		ticker := time.NewTicker(time.Duration(c.hbd.rti - (last - first)))
+		nd = c.hbd.rti - (last - first)
+		// Check if receives are supposed to be "fast" *and* we spent a
+		// lot of time in the previous loop.
+		if nd <= 0 {
+			nd = c.hbd.rti
+		}
+		ticker := time.NewTicker(time.Duration(nd))
 		select {
 		case ct := <-ticker.C:
 			first = time.Now().UnixNano()
