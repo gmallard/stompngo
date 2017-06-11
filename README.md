@@ -116,7 +116,7 @@ Kelsey Hightower
 2014-02-03
 </td>
 <td style="border: 1px solid black;padding-left: 10px;" >
-(0075)
+(0101)
 </td>
 <td style="border: 1px solid black;padding-left: 10px;" >
 <span style="font-weight: bold;" >
@@ -176,9 +176,37 @@ Joakim Sernbrant
 </td>
 <td style="border: 1px solid black;padding-left: 10px;" >
 <span style="font-weight: bold;" >
-Daniel Corin
+Dan Corin
 </span>
  / danielcorin@users.noreply.github.com
+</td>
+</tr>
+<tr>
+<td style="border: 1px solid black;padding-left: 10px;" >
+2017-05-05
+</td>
+<td style="border: 1px solid black;padding-left: 10px;" >
+(0001)
+</td>
+<td style="border: 1px solid black;padding-left: 10px;" >
+<span style="font-weight: bold;" >
+Jason Libbey
+</span>
+ / jlibbey@uber.com
+</td>
+</tr>
+<tr>
+<td style="border: 1px solid black;padding-left: 10px;" >
+2017-06-05
+</td>
+<td style="border: 1px solid black;padding-left: 10px;" >
+(0001)
+</td>
+<td style="border: 1px solid black;padding-left: 10px;" >
+<span style="font-weight: bold;" >
+Dan Corin
+</span>
+ / dancorin@uber.com
 </td>
 </tr>
 </table>

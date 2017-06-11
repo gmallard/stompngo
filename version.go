@@ -35,9 +35,9 @@ var (
 
 	minor = "0" // Minor
 
-	//patch = "7" // Patch
+	patch = "8" // Patch
 
-	patch = "7.plvl.001" // Patch
+	//patch = "8.plvl.001" // Patch
 )
 
 func Version() string {
