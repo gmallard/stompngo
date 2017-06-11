@@ -104,33 +104,49 @@ type wiredata struct {
 }
 
 /*
-	STOMPConnector is an interface that encapsulates the Connection struct.
+	Stomper is an interface that models STOMP specification commands.
 */
-type STOMPConnector interface {
+type Stomper interface {
 	Abort(h Headers) error
 	Ack(headers Headers) error
 	Begin(h Headers) error
 	Commit(h Headers) error
-	Connected() bool
 	Disconnect(headers Headers) error
 	Nack(headers Headers) error
 	Send(Headers, string) error
 	Subscribe(headers Headers) (<-chan MessageData, error)
 	Unsubscribe(headers Headers) error
-	Session() string
-	Protocol() string
-	SetLogger(l *log.Logger)
-	SendTickerInterval() int64
-	ReceiveTickerInterval() int64
-	SendTickerCount() int64
-	ReceiveTickerCount() int64
+	//
+	SendBytes(h Headers, b []byte) error
+}
+
+/*
+	StatsReader is an interface that modela a reader for the statistics
+	maintained by the stompngo package.
+*/
+type StatsReader interface {
 	FramesRead() int64
 	BytesRead() int64
 	FramesWritten() int64
 	BytesWritten() int64
-	Running() time.Duration
-	SubChanCap() int
-	SetSubChanCap(nc int)
+}
+
+/*
+	HBDataReader is an interface that modela a reader for the heart beat
+	data maintained by the stompngo package.
+*/
+type HBDataReader interface {
+	SendTickerInterval() int64
+	ReceiveTickerInterval() int64
+	SendTickerCount() int64
+	ReceiveTickerCount() int64
+}
+
+/*
+	Deadliner is an interface that models the optional network deadline
+	functionality implemented by the stompngo package.
+*/
+type Deadliner interface {
 	WriteDeadline(d time.Duration)
 	EnableWriteDeadline(e bool)
 	ExpiredNotification(enf ExpiredNotification)
@@ -139,7 +155,39 @@ type STOMPConnector interface {
 	EnableReadDeadline(e bool)
 	IsReadDeadlineEnabled() bool
 	ShortWriteRecovery(ro bool)
-	SendBytes(h Headers, b []byte) error
+}
+
+/*
+	Monitor is an interface that models monitoring a stompngo connection.
+*/
+type Monitor interface {
+	Connected() bool
+	Session() string
+	Protocol() string
+	Running() time.Duration
+	SubChanCap() int
+}
+
+/*
+	ParmHandler is an interface that models stompngo client parameter
+	specification.
+*/
+type ParmHandler interface {
+	SetLogger(l *log.Logger)
+	SetSubChanCap(nc int)
+}
+
+/*
+	STOMPConnector is an interface that encapsulates the Connection struct.
+*/
+type STOMPConnector interface {
+	Stomper
+	StatsReader
+	HBDataReader
+	Deadliner
+	Monitor
+	ParmHandler
+	//
 }
 
 /*
