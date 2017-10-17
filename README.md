@@ -39,6 +39,7 @@ The tests for this STOMP client package run against recent releases of:
 * [stompserver_ng](https://github.com/gmallard/stompserver_ng)
 * [Apache Apollo](http://activemq.apache.org/apollo/)
 * [RabbitMQ](http://www.rabbitmq.com/)
+* [Artemis](https://activemq.apache.org/artemis/)
 
 See the tests for **relevant environment variables**.
 
@@ -88,13 +89,13 @@ Name / E-mail
 2011-10-10
 </td>
 <td style="border: 1px solid black;padding-left: 10px;" >
-(0251)
+(0240)
 </td>
 <td style="border: 1px solid black;padding-left: 10px;" >
 <span style="font-weight: bold;" >
 gmallard
 </span>
- / allard.guy.m@gmail.com
+ / &lt;allard.guy.m@gmail.com&gt;
 </td>
 </tr>
 <tr>
@@ -108,21 +109,7 @@ gmallard
 <span style="font-weight: bold;" >
 Kelsey Hightower
 </span>
- / kelsey.hightower@gmail.com
-</td>
-</tr>
-<tr>
-<td style="border: 1px solid black;padding-left: 10px;" >
-2014-02-03
-</td>
-<td style="border: 1px solid black;padding-left: 10px;" >
-(0101)
-</td>
-<td style="border: 1px solid black;padding-left: 10px;" >
-<span style="font-weight: bold;" >
-Guy M. Allard
-</span>
- / allard.guy.m@gmail.com
+ / &lt;kelsey.hightower@gmail.com&gt;
 </td>
 </tr>
 <tr>
@@ -136,7 +123,7 @@ Guy M. Allard
 <span style="font-weight: bold;" >
 Logan Attwood
 </span>
- / logan@therounds.ca
+ / &lt;logan@therounds.ca&gt;
 </td>
 </tr>
 <tr>
@@ -150,7 +137,7 @@ Logan Attwood
 <span style="font-weight: bold;" >
 Max Garvey
 </span>
- / mgarvey@monsooncommerce.com
+ / &lt;mgarvey@monsooncommerce.com&gt;
 </td>
 </tr>
 <tr>
@@ -164,7 +151,21 @@ Max Garvey
 <span style="font-weight: bold;" >
 Joakim Sernbrant
 </span>
- / joakim.sernbrant@trioptima.com
+ / &lt;joakim.sernbrant@trioptima.com&gt;
+</td>
+</tr>
+<tr>
+<td style="border: 1px solid black;padding-left: 10px;" >
+2016-07-30
+</td>
+<td style="border: 1px solid black;padding-left: 10px;" >
+(0091)
+</td>
+<td style="border: 1px solid black;padding-left: 10px;" >
+<span style="font-weight: bold;" >
+Guy M. Allard
+</span>
+ / &lt;allard.guy.m@gmail.com&gt;
 </td>
 </tr>
 <tr>
@@ -178,7 +179,7 @@ Joakim Sernbrant
 <span style="font-weight: bold;" >
 Dan Corin
 </span>
- / danielcorin@users.noreply.github.com
+ / &lt;danielcorin@users.noreply.github.com&gt;
 </td>
 </tr>
 <tr>
@@ -192,7 +193,7 @@ Dan Corin
 <span style="font-weight: bold;" >
 Jason Libbey
 </span>
- / jlibbey@uber.com
+ / &lt;jlibbey@uber.com&gt;
 </td>
 </tr>
 <tr>
@@ -206,7 +207,7 @@ Jason Libbey
 <span style="font-weight: bold;" >
 Dan Corin
 </span>
- / dancorin@uber.com
+ / &lt;dancorin@uber.com&gt;
 </td>
 </tr>
 </table>
