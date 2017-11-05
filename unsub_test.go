@@ -102,7 +102,7 @@ func TestUnSubBool(t *testing.T) {
 			sc, e = conn.Subscribe(sh)
 			if e == nil && sc == nil {
 				t.Fatalf("TestUnSubBool[%d] SUBSCRIBE proto:%s expected OK, got <%v> <%v>\n",
-					ti, e, sc)
+					ti, conn.protocol, e, sc)
 			}
 			if sc == nil {
 				t.Fatalf("TestUnSubBool[%d] SUBSCRIBE, proto:[%s], channel is nil\n",

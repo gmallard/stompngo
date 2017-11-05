@@ -101,12 +101,12 @@ func checkReceivedMD(t *testing.T, conn *Connection,
 	case md = <-sc:
 	case md = <-conn.MessageData:
 		debug.PrintStack()
-		t.Fatalf("id: read channel error:  expected [nil], got: [%v]\n",
+		t.Fatalf("id: read channel error:  expected [nil], got: [%v] [%v]\n",
 			id, md.Message.Command)
 	}
 	if md.Error != nil {
 		debug.PrintStack()
-		t.Fatalf("id: receive error: [%v]\n",
+		t.Fatalf("id: receive error: [%v] [%v]\n",
 			id, md.Error)
 	}
 	return
