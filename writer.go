@@ -62,7 +62,7 @@ func (c *Connection) wireWrite(d wiredata) {
 	// fmt.Printf("WWD01 f:[%v]\n", f)
 	switch f.Command {
 	case "\n": // HeartBeat frame
-		if c.dld.wde && c.dld.dns {
+		if c.dld.wde && c.dld.wds {
 			_ = c.netconn.SetWriteDeadline(time.Now().Add(c.dld.wdld))
 		}
 		_, e := c.wtr.WriteString(f.Command)
@@ -147,7 +147,7 @@ func (f *Frame) writeFrame(w *bufio.Writer, c *Connection) error {
 		}
 	}
 
-	if c.dld.wde && c.dld.dns {
+	if c.dld.wde && c.dld.wds {
 		_ = c.netconn.SetWriteDeadline(time.Now().Add(c.dld.wdld))
 	}
 
@@ -161,7 +161,7 @@ func (f *Frame) writeFrame(w *bufio.Writer, c *Connection) error {
 	// fmt.Println("WRCMD", f.Command)
 	// Write the frame Headers
 	for i := 0; i < len(f.Headers); i += 2 {
-		if c.dld.wde && c.dld.dns {
+		if c.dld.wde && c.dld.wds {
 			_ = c.netconn.SetWriteDeadline(time.Now().Add(c.dld.wdld))
 		}
 		_, e := w.WriteString(f.Headers[i] + ":" + f.Headers[i+1] + "\n")
@@ -172,7 +172,7 @@ func (f *Frame) writeFrame(w *bufio.Writer, c *Connection) error {
 	}
 
 	// Write the last Header LF
-	if c.dld.wde && c.dld.dns {
+	if c.dld.wde && c.dld.wds {
 		_ = c.netconn.SetWriteDeadline(time.Now().Add(c.dld.wdld))
 	}
 	e = w.WriteByte('\n')
@@ -189,7 +189,7 @@ func (f *Frame) writeFrame(w *bufio.Writer, c *Connection) error {
 			return e
 		}
 	}
-	if c.dld.wde && c.dld.dns {
+	if c.dld.wde && c.dld.wds {
 		_ = c.netconn.SetWriteDeadline(time.Now().Add(c.dld.wdld))
 	}
 	e = w.WriteByte(0)
@@ -225,7 +225,7 @@ func (c *Connection) writeBody(f *Frame) error {
 	var n = 0
 	var e error
 	for {
-		if c.dld.wde && c.dld.dns {
+		if c.dld.wde && c.dld.wds {
 			_ = c.netconn.SetWriteDeadline(time.Now().Add(c.dld.wdld))
 		}
 		n, e = c.wtr.Write(f.Body)
@@ -239,7 +239,7 @@ func (c *Connection) writeBody(f *Frame) error {
 		if !c.dld.rfsw {
 			return e
 		}
-		if c.dld.wde && c.dld.dns && isErrorTimeout(e) {
+		if c.dld.wde && c.dld.wds && isErrorTimeout(e) {
 			c.log("invoking write deadline callback 2")
 			c.dld.dlnotify(e, true)
 		}
