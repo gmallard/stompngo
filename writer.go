@@ -239,7 +239,7 @@ func (c *Connection) writeBody(f *Frame) error {
 		if !c.dld.rfsw {
 			return e
 		}
-		if c.dld.wde && c.dld.wds && isErrorTimeout(e) {
+		if c.dld.wde && c.dld.wds && c.dld.dns && isErrorTimeout(e) {
 			c.log("invoking write deadline callback 2")
 			c.dld.dlnotify(e, true)
 		}
