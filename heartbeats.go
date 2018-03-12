@@ -121,6 +121,7 @@ func (c *Connection) initializeHeartBeats(ch Headers) (e error) {
 func (c *Connection) sendTicker() {
 	c.hbd.sc = 0
 	ticker := time.NewTicker(time.Duration(c.hbd.sti))
+	defer ticker.Stop()
 hbSend:
 	for {
 		select {
@@ -186,8 +187,10 @@ hbGet:
 			c.hbd.rdl.Unlock()
 			last = time.Now().UnixNano()
 		case _ = <-c.hbd.rsd:
+			ticker.Stop()
 			break hbGet
 		case _ = <-c.ssdc:
+			ticker.Stop()
 			break hbGet
 		} // End of select
 	} // End of for
