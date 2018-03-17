@@ -87,7 +87,7 @@ func checkReceived(t *testing.T, conn *Connection) {
 	select {
 	case md = <-conn.MessageData:
 		debug.PrintStack()
-		t.Fatalf("Unexpected frame received, got [%v]\n", md)
+		t.Fatalf("Unexpected frame received, got [%#v]\n", md)
 	default:
 	}
 }
@@ -101,12 +101,12 @@ func checkReceivedMD(t *testing.T, conn *Connection,
 	case md = <-sc:
 	case md = <-conn.MessageData:
 		debug.PrintStack()
-		t.Fatalf("id: read channel error:  expected [nil], got: [%v] [%v]\n",
+		t.Fatalf("id: read channel error:  expected [nil], got: [%#v] [%#v]\n",
 			id, md.Message.Command)
 	}
 	if md.Error != nil {
 		debug.PrintStack()
-		t.Fatalf("id: receive error: [%v] [%v]\n",
+		t.Fatalf("id: receive error: [%#v] [%#v]\n",
 			id, md.Error)
 	}
 	return
@@ -119,7 +119,7 @@ func closeConn(t *testing.T, n net.Conn) error {
 	err := n.Close()
 	if err != nil {
 		debug.PrintStack()
-		t.Fatalf("Unexpected n.Close() error: %v\n", err)
+		t.Fatalf("Unexpected n.Close() error: %#v\n", err)
 	}
 	return err
 }
@@ -134,7 +134,7 @@ func getMessageData(sc <-chan MessageData, conn *Connection, t *testing.T) (md M
 	case md = <-sc:
 	case md = <-conn.MessageData:
 		debug.PrintStack()
-		t.Fatalf("read channel error:  expected [nil], got: [%v]\n",
+		t.Fatalf("read channel error:  expected [nil], got: [%#v]\n",
 			md.Message.Command)
 	}
 	return md
@@ -149,7 +149,7 @@ func openConn(t *testing.T) (net.Conn, error) {
 	n, err := net.Dial(NetProtoTCP, hap)
 	if err != nil {
 		debug.PrintStack()
-		t.Fatalf("Unexpected net.Dial error: %v\n", err)
+		t.Fatalf("Unexpected net.Dial error: %#v\n", err)
 	}
 	return n, err
 }
@@ -227,7 +227,7 @@ func checkDisconnectError(t *testing.T, e error) {
 		return
 	}
 	debug.PrintStack()
-	t.Fatalf("DISCONNECT Error:  expected nil, got:<%v>\n", e)
+	t.Fatalf("DISCONNECT Error:  expected nil, got:<%#v>\n", e)
 }
 
 /*
