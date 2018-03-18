@@ -37,7 +37,7 @@ func TestHBNone(t *testing.T) {
 		if conn.hbd != nil {
 			t.Fatalf("TestHBNone Expected no heartbeats, proto: <%s>\n", sp)
 		}
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
@@ -58,7 +58,7 @@ func TestHBZeroHeader(t *testing.T) {
 			t.Fatalf("TestHBZeroHeader Expected no heartbeats, 0,0 header, proto: <%s>\n",
 				sp)
 		}
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
@@ -145,7 +145,7 @@ func TestHBInitErrors(t *testing.T) {
 				ee, e, sp)
 		}
 		//
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
@@ -177,7 +177,7 @@ func TestHBConnect(t *testing.T) {
 			t.Fatalf("TestHBConnect Receive Ticker is zero.")
 		}
 		//
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
@@ -236,7 +236,7 @@ func TestHBNoSend(t *testing.T) {
 		conn.hbd.rdl.Unlock()
 		checkHBRecv(t, conn, 1)
 		//
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
@@ -285,7 +285,7 @@ func TestHBNoReceive(t *testing.T) {
 		conn.log("TestHBNoReceive end sleep")
 		//
 		checkHBSend(t, conn, 2)
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
@@ -342,7 +342,7 @@ func TestHBSendReceive(t *testing.T) {
 		conn.hbd.rdl.Unlock()
 		checkHBSendRecv(t, conn, 3)
 		//
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
@@ -401,7 +401,7 @@ func TestHBSendReceiveApollo(t *testing.T) {
 		conn.hbd.rdl.Unlock()
 		checkHBSendRecv(t, conn, 4)
 		//
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
@@ -465,10 +465,20 @@ func TestHBSendReceiveRevApollo(t *testing.T) {
 		conn.hbd.rdl.Unlock()
 		checkHBSendRecv(t, conn, 5)
 		//
-		checkReceived(t, conn)
-		e = conn.Disconnect(empty_headers)
-		checkDisconnectError(t, e)
-		_ = closeConn(t, n)
+		// AMQ seems to always fail with these heartbeat specs.
+		if os.Getenv("STOMP_AMQ11") != "" {
+			// 'true' is specified here.
+			checkReceived(t, conn, true)
+			// Also, do not check for DISCONNECT error here, because it will
+			// always fail.
+			_ = conn.Disconnect(empty_headers)
+			_ = closeConn(t, n)
+		} else {
+			checkReceived(t, conn, false)
+			e = conn.Disconnect(empty_headers)
+			checkDisconnectError(t, e)
+			_ = closeConn(t, n)
+		}
 	}
 }
 

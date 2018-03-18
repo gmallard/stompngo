@@ -34,7 +34,7 @@ func TestConnBadValVer(t *testing.T) {
 			t.Errorf("TestConnBadValVer Expected <%v>, got <%v>, proto: %s\n",
 				EBADVERCLI, e, p)
 		}
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		// We are not connected by test design, check nothing around
 		// DISCONNECT.
 		_ = closeConn(t, n)
@@ -57,7 +57,7 @@ func TestConnBadValHost(t *testing.T) {
 			t.Errorf("TestConnBadValHost Expected <%v>, got <%v>, proto: %s\n",
 				EREQHOST, e, p)
 		}
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		// We are not connected by test design, check nothing around
 		// DISCONNECT.
 		_ = closeConn(t, n)

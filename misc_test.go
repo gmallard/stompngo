@@ -44,7 +44,7 @@ func TestMiscBytes0(t *testing.T) {
 			t.Fatalf("TestMiscBytes0 Expected nil error, got [%v]\n", e)
 		}
 		//
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
@@ -90,7 +90,7 @@ func TestMiscBytes0(t *testing.T) {
 		}
 		//
 		//tlg.Printf("TestMiscBytes0 CLEANUP\n")
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
@@ -121,7 +121,7 @@ func TestMiscBytes1(t *testing.T) {
 			t.Fatalf("TestMiscBytes1 Expected nil error, got [%v]\n", e)
 		}
 		//
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
@@ -167,7 +167,7 @@ func TestMiscBytes1(t *testing.T) {
 		}
 		//
 		//tlg.Printf("TestMiscBytes1 CLEANUP\n")
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)

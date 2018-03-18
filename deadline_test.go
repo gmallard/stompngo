@@ -38,7 +38,7 @@ func TestDeadlineEnablement(t *testing.T) {
 	if dle != wdleInit {
 		t.Errorf("TestDeadlineEnablement expected false, got true\n")
 	}
-	checkReceived(t, conn)
+	checkReceived(t, conn, false)
 	e = conn.Disconnect(empty_headers)
 	checkDisconnectError(t, e)
 	_ = closeConn(t, n)

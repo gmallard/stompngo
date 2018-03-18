@@ -54,7 +54,7 @@ func TestTransErrors(t *testing.T) {
 					sp, tv.action, ti, tv.te, e)
 			}
 		}
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
@@ -100,7 +100,7 @@ func TestTransSendCommit(t *testing.T) {
 			}
 		}
 		//
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
@@ -146,7 +146,7 @@ func TestTransSendAbort(t *testing.T) {
 			}
 		}
 		//
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)

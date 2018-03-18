@@ -77,7 +77,7 @@ func TestSuppressContentLength(t *testing.T) {
 				e)
 		}
 
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
@@ -154,7 +154,7 @@ func TestSuppressContentType(t *testing.T) {
 				e)
 		}
 
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)

@@ -47,7 +47,7 @@ func TestUnSubNoHeader(t *testing.T) {
 		}
 	}
 	//
-	checkReceived(t, conn)
+	checkReceived(t, conn, false)
 	e = conn.Disconnect(empty_headers)
 	checkDisconnectError(t, e)
 	_ = closeConn(t, n)
@@ -74,7 +74,7 @@ func TestUnSubNoID(t *testing.T) {
 		}
 	}
 	//
-	checkReceived(t, conn)
+	checkReceived(t, conn, false)
 	e = conn.Disconnect(empty_headers)
 	checkDisconnectError(t, e)
 	_ = closeConn(t, n)
@@ -124,7 +124,7 @@ func TestUnSubBool(t *testing.T) {
 		}
 	}
 	//
-	checkReceived(t, conn)
+	checkReceived(t, conn, false)
 	e = conn.Disconnect(empty_headers)
 	checkDisconnectError(t, e)
 	_ = closeConn(t, n)

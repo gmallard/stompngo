@@ -92,7 +92,7 @@ func TestConnCDDisc(t *testing.T) {
 			t.Fatalf("TestConnCDDisc Expected non-zero runtime, got [0]\n")
 		}
 		//
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
@@ -112,7 +112,7 @@ func TestConnCDDiscNoDiscReceipt(t *testing.T) {
 			t.Fatalf("TestConnCDDiscNoDiscReceipt Expected no connect error, got [%v]\n", e)
 		}
 		// DISCONNECT Here
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(NoDiscReceipt)
 		checkDisconnectError(t, e)
 		if e != nil {
@@ -141,7 +141,7 @@ func TestConnCDDiscStompDiscReceipt(t *testing.T) {
 				e)
 		}
 		// DISCONNECT Here
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(Headers{HK_RECEIPT, rid})
 		if e != nil {
 
@@ -205,7 +205,7 @@ func TestConnCDProto(t *testing.T) {
 		if conn.Protocol() != sp {
 			t.Fatalf("TestConnCDProto Expected protocol %v, got [%v]\n", sp, conn.Protocol())
 		}
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		if e != nil {
 			t.Fatalf("TestConnCDProto Expected no disconnect error, got [%v]\n", e)
@@ -247,7 +247,7 @@ func TestConnCDEconBad(t *testing.T) {
 		if e != nil {
 			t.Fatalf("TestConnCDEconBad Expected no connect error, got [%v]\n", e)
 		}
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		if e != nil {
 			t.Fatalf("TestConnCDEconBad Expected no disconnect error, got [%v]\n", e)
@@ -334,7 +334,7 @@ func TestConnCDCDSetProtocolLevel(t *testing.T) {
 			}
 		}
 		//
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
@@ -359,7 +359,7 @@ func TestConnCDRespData(t *testing.T) {
 				t.Fatalf("TestConnCDRespData Index [%v], expected [%v], got [%v]\n", i, f.resp, e)
 			}
 		}
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)

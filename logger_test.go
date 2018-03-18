@@ -54,7 +54,7 @@ func TestLoggerBasic(t *testing.T) {
 		}
 		//
 
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		time.Sleep(testlgslt * time.Millisecond)
@@ -138,7 +138,7 @@ func TestLoggerMiscBytes0(t *testing.T) {
 				ms, string(md.Message.Body))
 		}
 		//
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)

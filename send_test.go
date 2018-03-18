@@ -48,7 +48,7 @@ func TestSendBasic(t *testing.T) {
 		if e != EREQDSTSND {
 			t.Fatalf("TestSendBasic Expected [%v], got [%v]\n", EREQDSTSND, e)
 		}
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
@@ -77,7 +77,7 @@ func TestSendMultiple(t *testing.T) {
 			t.Fatalf("TestSendMultiple Expected nil error, got [%v]\n", e)
 		}
 		//
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)

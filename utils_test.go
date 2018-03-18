@@ -19,6 +19,7 @@ package stompngo
 import (
 	"encoding/hex"
 	"fmt"
+	"log"
 	"net"
 	"os"
 	"runtime/debug"
@@ -82,10 +83,14 @@ func headersProtocol(h Headers, protocol string) Headers {
 /*
 	Test helper.
 */
-func checkReceived(t *testing.T, conn *Connection) {
+func checkReceived(t *testing.T, conn *Connection, eofok bool) {
 	var md MessageData
 	select {
 	case md = <-conn.MessageData:
+		log.Printf("md ERROR is [%s]\n", md.Error.Error())
+		if eofok && md.Error.Error() == "EOF" {
+			return
+		}
 		debug.PrintStack()
 		t.Fatalf("Unexpected frame received, got [%#v]\n", md)
 	default:

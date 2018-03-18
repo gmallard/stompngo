@@ -44,7 +44,7 @@ func TestAckErrors(t *testing.T) {
 				tv.proto, tv.errval, e)
 		}
 	}
-	checkReceived(t, conn)
+	checkReceived(t, conn, false)
 	e = conn.Disconnect(empty_headers)
 	checkDisconnectError(t, e)
 	_ = closeConn(t, n)
@@ -142,7 +142,7 @@ func TestAckSameConn(t *testing.T) {
 		}
 
 		//
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
@@ -184,7 +184,7 @@ func TestAckDiffConn(t *testing.T) {
 			t.Fatalf("TestAckDiffConn SEND expected [nil], got: [%v]\n", e)
 		}
 		//
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
@@ -249,7 +249,7 @@ func TestAckDiffConn(t *testing.T) {
 			t.Fatalf("TestAckDiffConn UNSUBSCRIBE expected [nil], got: [%v]\n", e)
 		}
 		//
-		checkReceived(t, conn)
+		checkReceived(t, conn, false)
 		e = conn.Disconnect(empty_headers)
 		checkDisconnectError(t, e)
 		_ = closeConn(t, n)
