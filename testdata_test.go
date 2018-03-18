@@ -4,6 +4,8 @@ import (
 	"log"
 	"net"
 	"os"
+
+	"github.com/gmallard/stompngo/senv"
 )
 
 func init() {
@@ -935,8 +937,8 @@ var (
 	hv               string
 	ok               bool
 	empty_headers    = Headers{}
-	testuser         = "guest" // "guest" is required by some brokers
-	testpw           = "guest"
+	testuser         = senv.Login()
+	testpw           = senv.Passcode()
 	login_headers    = Headers{HK_LOGIN, testuser, HK_PASSCODE, testpw}
 	rid              = "receipt-12345"
 	oneOnePlusProtos = []string{SPL_11, SPL_12}
