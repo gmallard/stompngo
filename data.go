@@ -174,6 +174,7 @@ type Monitor interface {
 */
 type ParmHandler interface {
 	SetLogger(l *log.Logger)
+	GetLogger() *log.Logger
 	SetSubChanCap(nc int)
 }
 

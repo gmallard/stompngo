@@ -62,6 +62,13 @@ func (c *Connection) SetLogger(l *log.Logger) {
 }
 
 /*
+	GetLogger - returns the current connection logger.
+*/
+func (c *Connection) GetLogger() *log.Logger {
+	return c.logger
+}
+
+/*
 	SendTickerInterval returns any heartbeat send ticker interval in ms.  A return
 	value of zero means	no heartbeats are being sent.
 */
