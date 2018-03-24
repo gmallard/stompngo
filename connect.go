@@ -18,9 +18,13 @@ package stompngo
 
 import (
 	"bufio"
+	"log"
+	"os"
 	// "fmt"
 	"net"
 	"time"
+
+	"github.com/gmallard/stompngo/senv"
 )
 
 /*
@@ -98,7 +102,13 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 	if e := c.checkClientVersions(h); e != nil {
 		return c, e
 	}
-	//fmt.Printf("CONDB02\n")
+	// Optional logging from connection start
+	ln := senv.WantLogger()
+	if ln != "" {
+		c.SetLogger(log.New(os.Stdout, ln+" ",
+			log.Ldate|log.Lmicroseconds|log.Lshortfile))
+	}
+
 	// OK, put a CONNECT on the wire
 	c.wtr = bufio.NewWriter(n)        // Create the writer
 	go c.writer()                     // Start it

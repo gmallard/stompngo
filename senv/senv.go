@@ -184,3 +184,8 @@ func MaxBodyLength() int {
 	}
 	return maxbl
 }
+
+// Optional set logger during connection start
+func WantLogger() string {
+	return os.Getenv("STOMP_LOGGER")
+}
