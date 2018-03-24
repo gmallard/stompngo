@@ -121,7 +121,8 @@ func (c *Connection) checkSubscribeHeaders(h Headers) error {
 	Handle subscribe id.
 */
 func (c *Connection) establishSubscription(h Headers) (*subscription, error, Headers) {
-	// c.log(SUBSCRIBE, "start establishSubscription")
+	c.log(SUBSCRIBE, "start establishSubscription")
+	defer c.log(SUBSCRIBE, "end establishSubscription")
 	//
 	id, hid := h.Contains(HK_ID)
 	uuid1 := Uuid()
@@ -191,6 +192,6 @@ func (c *Connection) establishSubscription(h Headers) (*subscription, error, Hea
 	c.subsLock.Lock()
 	c.subs[sd.id] = sd // Add subscription to the connection subscription map
 	c.subsLock.Unlock()
-	//c.log(SUBSCRIBE, "end establishSubscription")
+	//
 	return sd, nil, h // Return the subscription pointer
 }
