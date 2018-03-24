@@ -37,7 +37,7 @@ var (
 
 	patch = "9" // Patch
 
-	mod = "m1" // Modification level
+	mod = "m2" // Modification level
 )
 
 func Version() string {
