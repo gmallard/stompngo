@@ -163,7 +163,7 @@ func (c *Connection) establishSubscription(h Headers) (*subscription, error, Hea
 		// traffic.
 		switch c.Protocol() {
 		case SPL_10:
-			nsid := sha11 // This will be unique for a given estination
+			nsid := sha11 // This will be unique for a given destination
 			sd.id = nsid
 			h = h.Add(HK_ID, nsid)
 		case SPL_11:
