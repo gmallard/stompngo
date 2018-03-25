@@ -41,17 +41,13 @@ func TestLoggerBasic(t *testing.T) {
 			}
 		}
 		//
-		l := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds)
+		l := log.New(os.Stdout, "TLB ", log.Ldate|log.Lmicroseconds)
 		// Show broker's CONNECT response (CONNECTED frame).
 		l.Printf("TestLoggerBasic ConnectResponse:\n%v\n", conn.ConnectResponse)
 
-		// The original purpose of these tests was merely to show that setting
-		// a logger produced output.  However this makes the test output very noisy.
-		// Do not set a logger inless spectifically requested by test environment
-		// variables.
-		if os.Getenv("STOMP_SETLOGGER") == "Y" {
-			conn.SetLogger(l)
-		}
+		// We force a logger for this test.
+		conn.SetLogger(l)
+
 		//
 
 		checkReceived(t, conn, false)
@@ -79,9 +75,7 @@ func TestLoggerMiscBytes0(t *testing.T) {
 		if e != nil {
 			t.Fatalf("TestLoggerMiscBytes0 CONNECT expected nil, got %v\n", e)
 		}
-		if os.Getenv("STOMP_SETLOGGER") == "Y" {
-			conn.SetLogger(ll)
-		}
+		conn.SetLogger(ll) // Force a logger here
 		//
 		ms := "" // No data
 		d := tdest("/queue/logger.zero.byte.msg." + sp)
@@ -100,9 +94,7 @@ func TestLoggerMiscBytes0(t *testing.T) {
 		ch = headersProtocol(ch, sp)
 		conn, _ = Connect(n, ch)
 		ll = log.New(os.Stdout, "TLM02 ", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-		if os.Getenv("STOMP_SETLOGGER") == "Y" {
-			conn.SetLogger(ll)
-		}
+		conn.SetLogger(ll) // Force a logger here
 		//
 		sbh := sh.Add(HK_ID, d)
 		sc, e = conn.Subscribe(sbh)

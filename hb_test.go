@@ -200,7 +200,7 @@ func TestHBNoSend(t *testing.T) {
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
 		ch = ch.Delete(HK_HEART_BEAT).Add(HK_HEART_BEAT, "0,6000")
-		l := log.New(os.Stderr, "", log.Ldate|log.Lmicroseconds)
+		l := log.New(os.Stderr, "THBNS ", log.Ldate|log.Lmicroseconds)
 		l.Printf("ConnHeaders: %v\n", ch)
 		conn, e = Connect(n, ch)
 		// Error checks
@@ -255,7 +255,7 @@ func TestHBNoReceive(t *testing.T) {
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
 		ch = ch.Delete(HK_HEART_BEAT).Add(HK_HEART_BEAT, "10000,0")
-		l := log.New(os.Stderr, "", log.Ldate|log.Lmicroseconds)
+		l := log.New(os.Stderr, "THBNR ", log.Ldate|log.Lmicroseconds)
 		l.Printf("ConnHeaders: %v\n", ch)
 		conn, e = Connect(n, ch)
 		// Error checks
@@ -304,7 +304,7 @@ func TestHBSendReceive(t *testing.T) {
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
 		ch = ch.Delete(HK_HEART_BEAT).Add(HK_HEART_BEAT, "10000,600")
-		l := log.New(os.Stderr, "", log.Ldate|log.Lmicroseconds)
+		l := log.New(os.Stderr, "THBSR ", log.Ldate|log.Lmicroseconds)
 		l.Printf("ConnHeaders: %v\n", ch)
 		conn, e = Connect(n, ch)
 		// Error checks
@@ -362,7 +362,7 @@ func TestHBSendReceiveApollo(t *testing.T) {
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
 		ch = ch.Delete(HK_HEART_BEAT).Add(HK_HEART_BEAT, "10000,100")
-		l := log.New(os.Stderr, "", log.Ldate|log.Lmicroseconds)
+		l := log.New(os.Stderr, "THBSRA ", log.Ldate|log.Lmicroseconds)
 		l.Printf("ConnHeaders: %v\n", ch)
 		conn, e = Connect(n, ch)
 		// Error checks
@@ -425,7 +425,7 @@ func TestHBSendReceiveRevApollo(t *testing.T) {
 		ch := login_headers
 		ch = headersProtocol(ch, sp)
 		ch = ch.Delete(HK_HEART_BEAT).Add(HK_HEART_BEAT, "100,10000")
-		l := log.New(os.Stderr, "", log.Ldate|log.Lmicroseconds)
+		l := log.New(os.Stderr, "THBSRRA ", log.Ldate|log.Lmicroseconds)
 		l.Printf("ConnHeaders: %v\n", ch)
 		conn, e = Connect(n, ch)
 		// Error checks
