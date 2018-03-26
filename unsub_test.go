@@ -110,7 +110,7 @@ func TestUnSubBool(t *testing.T) {
 			}
 			if e != tv.exe1 {
 				t.Fatalf("TestUnSubBool[%d] SUBSCRIBE NEQCHECK proto:%s expected:%v got:%q\n",
-					ti, tv.proto, tv.exe2, e)
+					ti, tv.proto, tv.exe1, e)
 			}
 		}
 
@@ -124,7 +124,7 @@ func TestUnSubBool(t *testing.T) {
 		}
 	}
 	//
-	checkReceived(t, conn, false)
+	checkReceived(t, conn, true) // true for this test
 	e = conn.Disconnect(empty_headers)
 	checkDisconnectError(t, e)
 	_ = closeConn(t, n)
