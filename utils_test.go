@@ -87,7 +87,10 @@ func checkReceived(t *testing.T, conn *Connection, eofok bool) {
 	var md MessageData
 	select {
 	case md = <-conn.MessageData:
-		log.Printf("md ERROR is [%s]\n", md.Error.Error())
+		log.Printf("md is [%q]\n", md)
+		if eofok && md.Error == nil {
+			return
+		}
 		if eofok && md.Error.Error() == "EOF" {
 			return
 		}
