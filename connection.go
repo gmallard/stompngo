@@ -185,6 +185,20 @@ func (c *Connection) log(v ...interface{}) {
 }
 
 /*
+	Log data if possible (extended / abbreviated) logic).
+*/
+func (c *Connection) logx(v ...interface{}) {
+	_, fn, ld, ok := runtime.Caller(1)
+
+	if ok {
+		c.logger.Printf("%s %s %d %v\n", c.session, fn, ld, v)
+	} else {
+		c.logger.Print(c.session, v)
+	}
+	return
+}
+
+/*
 	Shutdown heartbeats
 */
 func (c *Connection) shutdownHeartBeats() {
