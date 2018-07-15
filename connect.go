@@ -120,14 +120,14 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 	e := <-r // Retrieve any error
 	//
 	if e != nil {
-		close(c.ssdc) // Shutdown,  we are done with errors
+		c.sysAbort() // Shutdown,  we are done with errors
 		return c, e
 	}
 	//fmt.Printf("CONDB03\n")
 	//
 	e = c.connectHandler(ch)
 	if e != nil {
-		close(c.ssdc) // Shutdown ,  we are done with errors
+		c.sysAbort() // Shutdown ,  we are done with errors
 		return c, e
 	}
 	//fmt.Printf("CONDB04\n")
