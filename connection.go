@@ -238,6 +238,14 @@ func (c *Connection) shutdown() {
 }
 
 /*
+	Connection Abort logic. Shutdown connection system on problem happens
+*/
+func (c *Connection) sysAbort() {
+	c.abortOnce.Do(func() { close(c.ssdc) })
+	return
+}
+
+/*
 	Read error handler.
 */
 func (c *Connection) handleReadError(md MessageData) {

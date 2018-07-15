@@ -80,7 +80,9 @@ func (c *Connection) Subscribe(h Headers) (<-chan MessageData, error) {
 	f := Frame{SUBSCRIBE, ch, NULLBUFF}
 	//
 	r := make(chan error)
-	c.output <- wiredata{f, r}
+	if e = c.writeWireData(wiredata{f, r}); e != nil {
+		return nil, e
+	}
 	e = <-r
 	c.log(SUBSCRIBE, "end", ch, c.Protocol())
 	return sub.md, e

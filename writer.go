@@ -26,6 +26,20 @@ import (
 )
 
 /*
+	Write data to logical network writer.  Writer will take care of the output wire data.
+	If the underlying connection goes bad and writer give up working, the closed ssdc chan
+	will make sure write action aware that happens.
+*/
+func (c *Connection) writeWireData(wd wiredata) error {
+	select {
+	case c.output <- wd:
+	case <-c.ssdc:
+		return ECONBAD
+	}
+	return nil
+}
+
+/*
 	Logical network writer.  Read wiredata structures from the communication
 	channel, and put the frame on the wire.
 */
@@ -55,6 +69,7 @@ writerLoop:
 	} // of for
 	//
 	c.connected = false
+	c.sysAbort()
 	c.log("WTR_SHUTDOWN", time.Now())
 }
 

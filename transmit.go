@@ -23,7 +23,9 @@ func (c *Connection) transmitCommon(v string, h Headers) error {
 	ch := h.Clone()
 	f := Frame{v, ch, NULLBUFF}
 	r := make(chan error)
-	c.output <- wiredata{f, r}
+	if e := c.writeWireData(wiredata{f, r}); e != nil {
+		return e
+	}
 	e := <-r
 	return e
 }

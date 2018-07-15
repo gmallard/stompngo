@@ -140,6 +140,7 @@ readLoop:
 	}
 	close(c.input)
 	c.connected = false
+	c.sysAbort()
 	c.log("RDR_SHUTDOWN", time.Now())
 }
 

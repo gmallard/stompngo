@@ -72,7 +72,9 @@ func (c *Connection) Disconnect(h Headers) error {
 	f := Frame{DISCONNECT, ch, NULLBUFF}
 	//
 	r := make(chan error)
-	c.output <- wiredata{f, r}
+	if e = c.writeWireData(wiredata{f, r}); e != nil {
+		return e
+	}
 	e = <-r
 	// Drive shutdown logic
 	c.shutdown()
