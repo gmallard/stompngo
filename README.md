@@ -43,6 +43,8 @@ The tests for this STOMP client package run against recent releases of:
 
 See the tests for **relevant environment variables**.
 
+**NOTE:** For testing with rabbitmq, you also need `export STOMP_RMQ="/"` due to the default vhost of rabbitmq is "/" instead of "localhost".
+
 ## Contributions ##
 
 Any and all are welcome by pull request or e-mail patch.
