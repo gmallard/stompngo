@@ -35,14 +35,6 @@ func (c *Connection) reader() {
 readLoop:
 	for {
 		f, e := c.readFrame()
-		//
-		select {
-		case _ = <-c.ssdc:
-			c.log("RDR_SHUTDOWN detected")
-			break readLoop
-		default:
-		}
-		//
 		logLock.Lock()
 		if c.logger != nil {
 			c.logx("RDR_RECEIVE_FRAME", f.Command, f.Headers, HexData(f.Body),
@@ -140,6 +132,7 @@ readLoop:
 	}
 	close(c.input)
 	c.connected = false
+	c.sysAbort()
 	c.log("RDR_SHUTDOWN", time.Now())
 }
 

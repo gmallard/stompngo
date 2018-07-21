@@ -72,10 +72,11 @@ func (c *Connection) Disconnect(h Headers) error {
 	f := Frame{DISCONNECT, ch, NULLBUFF}
 	//
 	r := make(chan error)
-	c.output <- wiredata{f, r}
+	if e = c.writeWireData(wiredata{f, r}); e != nil {
+		return e
+	}
 	e = <-r
 	// Drive shutdown logic
-	c.shutdown()
 	// Only set DisconnectReceipt if we sucessfully received one.
 	if !cwr && e == nil {
 		// Receipt
@@ -83,7 +84,8 @@ func (c *Connection) Disconnect(h Headers) error {
 		c.log(DISCONNECT, "dr", ch, c.DisconnectReceipt)
 	}
 	c.log(DISCONNECT, "ends", ch)
-	close(c.ssdc)
+	c.shutdown()
+	c.sysAbort()
 	c.log(DISCONNECT, "system shutdown cannel closed")
 	return e
 }

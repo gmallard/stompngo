@@ -238,13 +238,24 @@ func (c *Connection) shutdown() {
 }
 
 /*
+	Connection Abort logic. Shutdown connection system on problem happens
+*/
+func (c *Connection) sysAbort() {
+	c.abortOnce.Do(func() { close(c.ssdc) })
+	return
+}
+
+/*
 	Read error handler.
 */
 func (c *Connection) handleReadError(md MessageData) {
 	c.log("HDRERR", "starts", md)
 	c.shutdownHeartBeats() // We are done here
 	// Notify any general subscriber of error
-	c.input <- md
+	select {
+	case c.input <- md:
+	default:
+	}
 	// Notify all individual subscribers of error
 	// This is a read lock
 	c.subsLock.RLock()

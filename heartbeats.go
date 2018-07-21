@@ -130,7 +130,10 @@ hbSend:
 			// Send a heartbeat
 			f := Frame{"\n", Headers{}, NULLBUFF} // Heartbeat frame
 			r := make(chan error)
-			c.output <- wiredata{f, r}
+			if e := c.writeWireData(wiredata{f, r}); e != nil {
+				c.Hbsf = true
+				break hbSend
+			}
 			e := <-r
 			//
 			c.hbd.sdl.Lock()

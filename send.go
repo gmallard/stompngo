@@ -47,7 +47,9 @@ func (c *Connection) Send(h Headers, b string) error {
 	ch := h.Clone()
 	f := Frame{SEND, ch, []uint8(b)}
 	r := make(chan error)
-	c.output <- wiredata{f, r}
+	if e = c.writeWireData(wiredata{f, r}); e != nil {
+		return e
+	}
 	e = <-r
 	c.log(SEND, "end", ch)
 	return e // nil or not

@@ -22,6 +22,15 @@ import (
 	"strings"
 )
 
+type CONNERROR struct {
+	err  error
+	desc string
+}
+
+func (e *CONNERROR) Error() string {
+	return e.err.Error() + ":" + e.desc
+}
+
 /*
 	Connection handler, one time use during initial connect.
 
@@ -44,7 +53,7 @@ func (c *Connection) connectHandler(h Headers) (e error) {
 	//
 	c.ConnectResponse = &Message{f.Command, f.Headers, f.Body}
 	if c.ConnectResponse.Command == ERROR {
-		return ECONERR
+		return &CONNERROR{ECONERR, string(f.Body)}
 	}
 	//fmt.Printf("CHDB04\n")
 	//

@@ -207,6 +207,7 @@ type Connection struct {
 	subs              map[string]*subscription
 	subsLock          sync.RWMutex
 	ssdc              chan struct{} // System shutdown channel
+	abortOnce         sync.Once     // Ensure close ssdc once
 	wtrsdc            chan struct{} // Special writer shutdown channel
 	hbd               *heartBeatData
 	wtr               *bufio.Writer

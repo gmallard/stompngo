@@ -110,22 +110,24 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 	}
 
 	// OK, put a CONNECT on the wire
-	c.wtr = bufio.NewWriter(n)        // Create the writer
-	go c.writer()                     // Start it
-	f := Frame{CONNECT, ch, NULLBUFF} // Create actual CONNECT frame
-	r := make(chan error)             // Make the error channel for a write
-	c.output <- wiredata{f, r}        // Send the CONNECT frame
-	e := <-r                          // Retrieve any error
+	c.wtr = bufio.NewWriter(n)                          // Create the writer
+	go c.writer()                                       // Start it
+	f := Frame{CONNECT, ch, NULLBUFF}                   // Create actual CONNECT frame
+	r := make(chan error)                               // Make the error channel for a write
+	if e := c.writeWireData(wiredata{f, r}); e != nil { // Send the CONNECT frame
+		return c, e
+	}
+	e := <-r // Retrieve any error
 	//
 	if e != nil {
-		close(c.ssdc) // Shutdown,  we are done with errors
+		c.sysAbort() // Shutdown,  we are done with errors
 		return c, e
 	}
 	//fmt.Printf("CONDB03\n")
 	//
 	e = c.connectHandler(ch)
 	if e != nil {
-		close(c.ssdc) // Shutdown ,  we are done with errors
+		c.sysAbort() // Shutdown ,  we are done with errors
 		return c, e
 	}
 	//fmt.Printf("CONDB04\n")
