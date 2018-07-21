@@ -161,7 +161,7 @@ Joakim Sernbrant
 2016-07-30
 </td>
 <td style="border: 1px solid black;padding-left: 10px;" >
-(0115)
+(0120)
 </td>
 <td style="border: 1px solid black;padding-left: 10px;" >
 <span style="font-weight: bold;" >
@@ -217,7 +217,7 @@ Dan Corin
 2017-11-06
 </td>
 <td style="border: 1px solid black;padding-left: 10px;" >
-(0001)
+(0006)
 </td>
 <td style="border: 1px solid black;padding-left: 10px;" >
 <span style="font-weight: bold;" >
