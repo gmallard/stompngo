@@ -252,8 +252,9 @@ const (
 	EHDRMTV  = Error("header value can not be empty")
 
 	// ERRORs for response to CONNECT.
-	EUNKFRM = Error("unrecognized frame returned, CONNECT")
-	EBADFRM = Error("Malformed frame")
+	EUNKFRM  = Error("unrecognized frame returned, CONNECT")
+	EBADFRM  = Error("Malformed frame")
+	EBADSSLP = Error("Got HandShake data, worng SSL port?")
 
 	// No body allowed error
 	EBDYDATA = Error("body data not allowed")
@@ -402,6 +403,8 @@ var logLock sync.Mutex
 const (
 	NetProtoTCP = "tcp" // Protocol Name
 )
+
+var HandShake = []byte{0x15, 0x03, 0x03, 0x00}
 
 /*
 	Common Header keys

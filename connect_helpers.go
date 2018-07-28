@@ -18,6 +18,7 @@ package stompngo
 
 import (
 	"bufio"
+	"bytes"
 	// "fmt"
 	"strings"
 )
@@ -96,6 +97,12 @@ func connectResponse(s string) (*Frame, error) {
 	// Get f.Command
 	c := strings.SplitN(s, "\n", 2)
 	if len(c) < 2 {
+		if len(c) == 1 {
+			// fmt.Printf("lenc is: %d, data:%#v\n", len(c), c[0])
+			if bytes.Compare(HandShake, []byte(c[0])) == 0 {
+				return nil, EBADSSLP
+			}
+		}
 		return nil, EBADFRM
 	}
 	f.Command = c[0]
