@@ -179,7 +179,7 @@ func (c *Connection) log(v ...interface{}) {
 	if ok {
 		c.logger.Printf("%s %s %d %v\n", c.session, fn, ld, v)
 	} else {
-		c.logger.Print(c.session, v)
+		c.logger.Printf("%s %v\n", c.session, v)
 	}
 	return
 }
@@ -193,7 +193,7 @@ func (c *Connection) logx(v ...interface{}) {
 	if ok {
 		c.logger.Printf("%s %s %d %v\n", c.session, fn, ld, v)
 	} else {
-		c.logger.Print(c.session, v)
+		c.logger.Printf("%s %v\n", c.session, v)
 	}
 	return
 }
