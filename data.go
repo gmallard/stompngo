@@ -461,6 +461,7 @@ const (
 */
 const (
 	StompPlusDrainAfter = "sng_drafter" // SUBSCRIBE Header
+	StompPlusDrainNow   = "sng_drnow"   // UNSUBSCRIBE Header
 )
 
 var (

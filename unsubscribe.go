@@ -16,9 +16,10 @@
 
 package stompngo
 
-//import (
-//	"fmt"
-//)
+import (
+	"strconv"
+	"time"
+)
 
 /*
 	Unsubscribe from a STOMP subscription.
@@ -73,9 +74,10 @@ func (c *Connection) Unsubscribe(h Headers) error {
 	//
 	shaid := Sha1(h.Value(HK_DESTINATION)) // Special for 1.0
 	c.subsLock.RLock()
-	_, p := c.subs[shid]
-	_, ps := c.subs[shaid]
+	s1x, p := c.subs[shid]
+	s10, ps := c.subs[shaid] // Special for 1.0
 	c.subsLock.RUnlock()
+	var usesp *subscription
 	usekey := ""
 
 	switch c.Protocol() {
@@ -89,23 +91,61 @@ func (c *Connection) Unsubscribe(h Headers) error {
 			return EBADSID // invalid subscription-id
 		}
 		usekey = shid
+		usesp = s1x
 	case SPL_10:
 		if !p && !ps {
 			return EUNODSID
 		}
 		usekey = shaid
+		usesp = s10
 	default:
 		panic("unsubscribe version not supported: " + c.Protocol())
 	}
 
-	e = c.transmitCommon(UNSUBSCRIBE, h) // transmitCommon Clones() the headers
-	if e != nil {
-		return e
-	}
+	sdn, ok := h.Contains(StompPlusDrainNow) // STOMP Protocol Extension
 
+	if !ok {
+		e = c.transmitCommon(UNSUBSCRIBE, h) // transmitCommon Clones() the headers
+		if e != nil {
+			return e
+		}
+
+		c.subsLock.Lock()
+		delete(c.subs, usekey)
+		c.subsLock.Unlock()
+		c.log(UNSUBSCRIBE, "end", h)
+		return nil
+	}
+	//
+	// STOMP Protocol Extension
+	//
+	c.log("sngdrnow extension detected")
+	idn, err := strconv.ParseInt(sdn, 10, 64)
+	if err != nil {
+		idn = 100 // 100 milliseconds if bad parameter
+	}
+	ival := time.Duration(idn * 1000000)
+	dmc := 0
+forsel:
+	for {
+		ticker := time.NewTicker(ival)
+		select {
+		case mi, ok := <-usesp.md:
+			if !ok {
+				break forsel
+			}
+			dmc++
+			c.log("sngdrnow DROP", dmc, mi.Message.Command, mi.Message.Headers)
+		case _ = <-ticker.C:
+			c.log("sngdrnow extension BREAK")
+			break forsel
+		}
+	}
+	//
+	c.log("sngdrnow extension at very end")
 	c.subsLock.Lock()
 	delete(c.subs, usekey)
 	c.subsLock.Unlock()
-	c.log(UNSUBSCRIBE, "end", h)
+	c.log(UNSUBSCRIBE, "endsngdrnow", h)
 	return nil
 }
