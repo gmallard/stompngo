@@ -131,7 +131,9 @@ readLoop:
 		c.log("RDR_RELOOP")
 	}
 	close(c.input)
+	c.connLock.Lock()
 	c.connected = false
+	c.connLock.Unlock()
 	c.sysAbort()
 	c.log("RDR_SHUTDOWN", time.Now())
 }

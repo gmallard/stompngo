@@ -20,6 +20,7 @@ import (
 	"bufio"
 	"bytes"
 	"net"
+
 	// "bytes"
 	"strconv"
 	"time"
@@ -68,7 +69,9 @@ writerLoop:
 		}
 	} // of for
 	//
+	c.connLock.Lock()
 	c.connected = false
+	c.connLock.Unlock()
 	c.sysAbort()
 	c.log("WTR_SHUTDOWN", time.Now())
 }

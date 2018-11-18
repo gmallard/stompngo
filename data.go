@@ -199,8 +199,11 @@ type Connection struct {
 	DisconnectReceipt MessageData        // If receipt requested on DISCONNECT.
 	MessageData       <-chan MessageData // Inbound data for the client.
 	connected         bool
+	connLock          sync.Mutex // connected variable lock
 	session           string
+	sessLock          sync.Mutex // session variable lock
 	protocol          string
+	protoLock         sync.Mutex // protocol variable lock
 	input             chan MessageData
 	output            chan wiredata
 	netconn           net.Conn

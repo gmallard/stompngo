@@ -19,6 +19,7 @@ package stompngo
 import (
 	"bufio"
 	"bytes"
+
 	// "fmt"
 	"strings"
 )
@@ -65,7 +66,9 @@ func (c *Connection) connectHandler(h Headers) (e error) {
 	//fmt.Printf("CHDB05\n")
 	//
 	if s, ok := c.ConnectResponse.Headers.Contains(HK_SESSION); ok {
+		c.sessLock.Lock()
 		c.session = s
+		c.sessLock.Unlock()
 	}
 
 	if c.Protocol() >= SPL_11 {

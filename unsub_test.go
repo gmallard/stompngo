@@ -92,7 +92,9 @@ func TestUnSubBool(t *testing.T) {
 	}
 	//
 	for ti, tv := range unsubBoolDataList {
+		conn.protoLock.Lock()
 		conn.protocol = tv.proto // Cheat, fake all protocols
+		conn.protoLock.Unlock()
 
 		// SUBSCRIBE Phase (depending on test data)
 		if tv.subfirst {

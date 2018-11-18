@@ -42,6 +42,8 @@ func (c *Connection) Session() string {
 	Protocol returns the current connection protocol level.
 */
 func (c *Connection) Protocol() string {
+	c.protoLock.Lock()
+	defer c.protoLock.Unlock()
 	return c.protocol
 }
 
@@ -190,11 +192,13 @@ func (c *Connection) log(v ...interface{}) {
 func (c *Connection) logx(v ...interface{}) {
 	_, fn, ld, ok := runtime.Caller(1)
 
+	c.sessLock.Lock()
 	if ok {
 		c.logger.Printf("%s %s %d %v\n", c.session, fn, ld, v)
 	} else {
 		c.logger.Printf("%s %v\n", c.session, v)
 	}
+	c.sessLock.Unlock()
 	return
 }
 
@@ -231,7 +235,9 @@ func (c *Connection) shutdown() {
 		close(c.subs[key].md)
 		c.subs[key].cs = true
 	}
+	c.connLock.Lock()
 	c.connected = false
+	c.connLock.Unlock()
 	c.subsLock.Unlock()
 	c.log("SHUTDOWN", "ends")
 	return
