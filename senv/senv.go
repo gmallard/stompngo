@@ -27,6 +27,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"sync"
 )
 
 var (
@@ -41,6 +42,8 @@ var (
 	scc        = 1                                     // Subchannel capacity
 	nmsgs      = 1                                     // default number of messages (useful at times)
 	maxbl      = -1                                    // Max body length to dump (-1 => no limit)
+	vhLock     sync.Mutex                              // vhsost set lock
+	nmLock     sync.Mutex                              // nmsgs set lock
 )
 
 // Destination
@@ -94,6 +97,8 @@ func Login() string {
 // Number of messages
 func Nmsgs() int {
 	// Number of messages
+	nmLock.Lock()
+	defer nmLock.Unlock()
 	ns := os.Getenv("STOMP_NMSGS")
 	if ns == "" {
 		return nmsgs
@@ -164,6 +169,8 @@ func SubChanCap() int {
 // Vhost returns a default vhost name.
 func Vhost() string {
 	// Vhost
+	vhLock.Lock()
+	defer vhLock.Unlock()
 	vh := os.Getenv("STOMP_VHOST")
 	if vh != "" {
 		vhost = vh
