@@ -17,6 +17,7 @@
 package stompngo
 
 import (
+	"log"
 	"testing"
 )
 
@@ -85,7 +86,9 @@ func TestTransSendCommit(t *testing.T) {
 					pi, ti, tv.exe, e)
 			}
 			// SEND
-			sh := Headers{HK_DESTINATION, tdest("/queue/" + tv.tid + ".1"),
+			qn := tdest("/queue/" + tv.tid + ".1")
+			log.Println("TSCQN:", qn)
+			sh := Headers{HK_DESTINATION, qn,
 				HK_TRANSACTION, tv.tid}
 			e = conn.Send(sh, tm)
 			if e != nil {

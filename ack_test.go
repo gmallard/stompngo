@@ -18,6 +18,7 @@ package stompngo
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"testing"
 	"time"
@@ -100,8 +101,8 @@ func TestAckSameConn(t *testing.T) {
 		select {
 		case md = <-sc:
 		case md = <-conn.MessageData:
-			t.Fatalf("TestAckSameConn read channel error:  expected [nil], got: [%v]\n",
-				md.Message.Command)
+			t.Fatalf("TestAckSameConn read channel error:  expected [nil], got: [%v] msg: [%v] err: [%v]\n",
+				md.Message.Command, md.Message, md.Error)
 		}
 		if md.Error != nil {
 			t.Fatalf("TestAckSameConn read error:  expected [nil], got: [%v]\n",
@@ -163,10 +164,11 @@ func TestAckDiffConn(t *testing.T) {
 			t.Fatalf("TestAckDiffConn CONNECT expected nil, got %v\n", e)
 		}
 		//
+		qname := "jms.queue.acktest1"
 		// Basic headers
 		wh := Headers{HK_DESTINATION,
-			tdest(TEST_TDESTPREF + "acksc1-" + conn.Protocol())}
-		ms := "acksc1 message 1"
+			qname}
+		ms := "ackdc1 message 1"
 		// Send
 		sh := wh.Clone()
 		// For RabbitMQ and STOMP 1.0, do not add current-time header, where the
@@ -199,9 +201,10 @@ func TestAckDiffConn(t *testing.T) {
 		//
 		// Subscribe Headers
 		sbh := wh.Add(HK_ACK, AckModeClient)
-		id := TEST_TDESTPREF + "acksc1.chkprotocol-" + conn.Protocol()
+		id := "ackdc1.chkprotocol-" + conn.Protocol()
 		sbh = sbh.Add(HK_ID, id) // Always use an 'id'
 		// Subscribe
+		log.Printf("SUB Headers: [%q]\n", sbh)
 		sc, e = conn.Subscribe(sbh)
 		if e != nil {
 			t.Fatalf("TestAckDiffConn SUBSCRIBE expected [nil], got: [%v]\n", e)
@@ -210,8 +213,8 @@ func TestAckDiffConn(t *testing.T) {
 		select {
 		case md = <-sc:
 		case md = <-conn.MessageData:
-			t.Fatalf("TestAckDiffConn read channel error:  expected [nil], got: [%v]\n",
-				md.Message.Command)
+			t.Fatalf("TestAckDiffConn read channel error:  expected [nil], got: [%v], msg: [%v], err: [%v]\n",
+				md.Message.Command, md.Message, md.Error)
 		}
 		if md.Error != nil {
 			t.Fatalf("read error:  expected [nil], got: [%v]\n", md.Error)
