@@ -164,10 +164,9 @@ func TestAckDiffConn(t *testing.T) {
 			t.Fatalf("TestAckDiffConn CONNECT expected nil, got %v\n", e)
 		}
 		//
-		qname := "jms.queue.acktest1"
 		// Basic headers
 		wh := Headers{HK_DESTINATION,
-			qname}
+			tdest(TEST_TDESTPREF + "ackdc1-" + conn.Protocol())}
 		ms := "ackdc1 message 1"
 		// Send
 		sh := wh.Clone()
