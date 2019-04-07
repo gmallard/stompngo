@@ -156,12 +156,14 @@ func TestCodecSendRecvCodec(t *testing.T) {
 					e, p)
 			}
 			// Check headers
-			//log.Printf("Receive Headers: %v\n", md.Message.Headers)
+			log.Printf("Receive Headers: %v\n", md.Message.Headers)
+			log.Printf("Check map: %v\n", v.rv)
 			for key, value := range v.rv {
+				log.Printf("Want Key: [%v] Value: [%v] \n", key, value)
 				hv, ok = md.Message.Headers.Contains(key)
 				if !ok {
 					t.Fatalf("TestCodecSendRecvCodec Header key expected: [%v] got: [%v] protocol:%s\n",
-						key, ok, p)
+						key, hv, p)
 				}
 				if value != hv {
 					t.Fatalf("TestCodecSendRecvCodec Header value expected: [%v] got: [%v] protocol:%s\n",
