@@ -190,10 +190,9 @@ func (c *Connection) readFrame() (f Frame, e error) {
 		if len(p) != 2 {
 			return f, EUNKHDR
 		}
-		if c.Protocol() != SPL_10 {
-			p[0] = decode(p[0])
-			p[1] = decode(p[1])
-		}
+		// Always decode regardless of protocol level. See issue #47.
+		p[0] = decode(p[0])
+		p[1] = decode(p[1])
 		f.Headers = append(f.Headers, p[0], p[1])
 	}
 	//
