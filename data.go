@@ -257,7 +257,7 @@ const (
 	// ERRORs for response to CONNECT.
 	EUNKFRM  = Error("unrecognized frame returned, CONNECT")
 	EBADFRM  = Error("Malformed frame")
-	EBADSSLP = Error("Got HandShake data, worng SSL port?")
+	EBADSSLP = Error("Got HandShake data, wrong SSL port?")
 
 	// No body allowed error
 	EBDYDATA = Error("body data not allowed")
