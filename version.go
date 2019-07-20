@@ -37,9 +37,9 @@ var (
 
 	patch = "11" // Patch
 
-	mod = "m1" // Modification level
+	mod = "m2" // Modification level
 )
 
 func Version() string {
-	return fmt.Sprintf("%s%s.%s.%s %s", pref, major, minor, patch, mod)
+	return fmt.Sprintf("%s%s.%s.%s-%s", pref, major, minor, patch, mod)
 }
