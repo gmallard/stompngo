@@ -35,9 +35,11 @@ var (
 
 	minor = "0" // Minor
 
-	patch = "11" // Patch
+	patch = "12" // Patch
 
-	mod = "-m.3" // Modification level
+	// mod = "-m.3" // Modification level
+
+	mod = ""
 )
 
 func Version() string {
