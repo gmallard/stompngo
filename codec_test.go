@@ -77,6 +77,9 @@ func BenchmarkCodecDecode(b *testing.B) {
 	Test STOMP 1.1 Send / Receive - no codec error.
 */
 func TestCodecSendRecvCodec(t *testing.T) {
+	if os.Getenv("STOMP_ARTEMIS") != "" {
+		return
+	}
 	//
 	for _, p := range Protocols() {
 		usemap := srcdmap[p]
