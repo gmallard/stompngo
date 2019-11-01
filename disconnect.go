@@ -16,6 +16,8 @@
 
 package stompngo
 
+import "fmt"
+
 /*
 	Disconnect from a STOMP broker.
 
@@ -68,6 +70,9 @@ func (c *Connection) Disconnect(h Headers) error {
 			ch = append(ch, HK_RECEIPT, Uuid())
 		}
 	}
+	wrid := ""
+	wrid, _ = ch.Contains(HK_RECEIPT)
+	_ = wrid
 	//
 	f := Frame{DISCONNECT, ch, NULLBUFF}
 	//
@@ -77,11 +82,30 @@ func (c *Connection) Disconnect(h Headers) error {
 	}
 	e = <-r
 	// Drive shutdown logic
-	// Only set DisconnectReceipt if we sucessfully received one.
+	// Only set DisconnectReceipt if we sucessfully received one, and it is
+	// the one we were expecting.
 	if !cwr && e == nil {
-		// Receipt
-		c.DisconnectReceipt = <-c.input
-		c.log(DISCONNECT, "dr", ch, c.DisconnectReceipt)
+		// Can be RECEIPT or ERROR frame
+		mds := <-c.input
+		//
+		// fmt.Println(DISCONNECT, "sanchek", mds)
+		//
+		switch mds.Message.Command {
+		case ERROR:
+			e = fmt.Errorf("DISBRKERR -> %q", mds.Message)
+			c.log(DISCONNECT, "errf", e)
+		case RECEIPT:
+			gr := mds.Message.Headers.Value(HK_RECEIPT_ID)
+			if wrid != gr {
+				e = fmt.Errorf("%s wanted:%s got:%s", EBADRID, wrid, gr)
+				c.log(DISCONNECT, "nadrid", e)
+			} else {
+				c.DisconnectReceipt = mds
+			}
+		default:
+			e = fmt.Errorf("DISBADFRM -> %q", mds.Message)
+			c.log(DISCONNECT, "badf", e)
+		}
 	}
 	c.log(DISCONNECT, "ends", ch)
 	c.shutdown()

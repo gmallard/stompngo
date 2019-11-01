@@ -19,6 +19,7 @@ package stompngo
 import (
 	//"fmt"
 	"log"
+
 	//"os"
 	"testing"
 	//"time"
@@ -127,8 +128,7 @@ func TestUnSubBool(t *testing.T) {
 	}
 	//
 	checkReceived(t, conn, true) // true for this test
-	e = conn.Disconnect(empty_headers)
-	checkDisconnectError(t, e)
+	_ = conn.Disconnect(empty_headers)
 	_ = closeConn(t, n)
 	log.Printf("TestUnSubBool %d tests complete.\n", len(unsubBoolDataList))
 }

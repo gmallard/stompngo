@@ -323,6 +323,9 @@ const (
 
 	// Invalid broker command
 	EINVBCMD = Error("invalid broker command")
+
+	// Invalid receipt-id string
+	EBADRID = Error("invalid receipt-id")
 )
 
 /*
