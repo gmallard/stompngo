@@ -28,7 +28,7 @@ import (
 	Connected returns the current connection status.
 */
 func (c *Connection) Connected() bool {
-	return c.connected
+	return c.isConnected()
 }
 
 /*
@@ -235,9 +235,7 @@ func (c *Connection) shutdown() {
 		close(c.subs[key].md)
 		c.subs[key].cs = true
 	}
-	c.connLock.Lock()
-	c.connected = false
-	c.connLock.Unlock()
+	c.setConnected(false)
 	c.subsLock.Unlock()
 	c.log("SHUTDOWN", "ends")
 	return
@@ -265,7 +263,7 @@ func (c *Connection) handleReadError(md MessageData) {
 	// Notify all individual subscribers of error
 	// This is a read lock
 	c.subsLock.RLock()
-	if c.connected {
+	if c.isConnected() {
 		for key := range c.subs {
 			c.subs[key].md <- md
 		}
@@ -276,4 +274,22 @@ func (c *Connection) handleReadError(md MessageData) {
 	c.log("HDRERR", "ends")
 	// Let further shutdown logic proceed normally.
 	return
+}
+
+/*
+	Connected check
+*/
+func (c *Connection) isConnected() bool {
+	c.connLock.Lock()
+	defer c.connLock.Unlock()
+	return c.connected
+}
+
+/*
+	Connected set
+*/
+func (c *Connection) setConnected(to bool) {
+	c.connLock.Lock()
+	defer c.connLock.Unlock()
+	c.connected = to
 }

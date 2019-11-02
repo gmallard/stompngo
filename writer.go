@@ -69,9 +69,7 @@ writerLoop:
 		}
 	} // of for
 	//
-	c.connLock.Lock()
-	c.connected = false
-	c.connLock.Unlock()
+	c.setConnected(false)
 	c.sysAbort()
 	c.log("WTR_SHUTDOWN", time.Now())
 }

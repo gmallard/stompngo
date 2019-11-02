@@ -41,7 +41,7 @@ package stompngo
 */
 func (c *Connection) Ack(h Headers) error {
 	c.log(ACK, "start", h, c.Protocol())
-	if !c.connected {
+	if !c.isConnected() {
 		return ECONBAD
 	}
 	e := checkHeaders(h, c.Protocol())

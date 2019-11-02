@@ -40,7 +40,7 @@ import (
 func (c *Connection) Unsubscribe(h Headers) error {
 	c.log(UNSUBSCRIBE, "start", h)
 	// fmt.Printf("Unsub Headers: %v\n", h)
-	if !c.connected {
+	if !c.isConnected() {
 		return ECONBAD
 	}
 	e := checkHeaders(h, c.Protocol())

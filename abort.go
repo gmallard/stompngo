@@ -31,7 +31,7 @@ package stompngo
 */
 func (c *Connection) Abort(h Headers) error {
 	c.log(ABORT, "start", h)
-	if !c.connected {
+	if !c.isConnected() {
 		return ECONBAD
 	}
 	// We must have a transaction header here

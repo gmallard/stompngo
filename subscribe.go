@@ -57,7 +57,7 @@ var _ = fmt.Println
 */
 func (c *Connection) Subscribe(h Headers) (<-chan MessageData, error) {
 	c.log(SUBSCRIBE, "start", h, c.Protocol())
-	if !c.connected {
+	if !c.isConnected() {
 		return nil, ECONBAD
 	}
 	e := checkHeaders(h, c.Protocol())

@@ -51,7 +51,7 @@ func (c *Connection) Disconnect(h Headers) error {
 	c.discLock.Lock()
 	defer c.discLock.Unlock()
 	//
-	if !c.connected {
+	if !c.isConnected() {
 		return ECONBAD
 	}
 	c.log(DISCONNECT, "start", h)

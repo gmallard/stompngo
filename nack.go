@@ -48,7 +48,7 @@ var _ = fmt.Println
 */
 func (c *Connection) Nack(h Headers) error {
 	c.log(NACK, "start", h, c.Protocol())
-	if !c.connected {
+	if !c.isConnected() {
 		return ECONBAD
 	}
 	if c.Protocol() == SPL_10 {

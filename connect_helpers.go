@@ -79,7 +79,7 @@ func (c *Connection) connectHandler(h Headers) (e error) {
 	}
 	//fmt.Printf("CHDB06\n")
 
-	c.connected = true
+	c.setConnected(true)
 	c.mets.tfr += 1
 	c.mets.tbr += c.ConnectResponse.Size(false)
 	return nil

@@ -47,7 +47,7 @@ func TestConnCDDisc(t *testing.T) {
 			t.Fatalf("TestConnCDDisc Expected command [%v], got [%v]\n", CONNECTED,
 				conn.ConnectResponse.Command)
 		}
-		if !conn.connected {
+		if !conn.isConnected() {
 			t.Fatalf("TestConnCDDisc Expected connected [true], got [false]\n")
 		}
 		if !conn.Connected() {

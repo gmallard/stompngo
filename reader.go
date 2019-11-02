@@ -46,7 +46,7 @@ readLoop:
 			f.Headers = append(f.Headers, "connection_read_error", e.Error())
 			md := MessageData{Message(f), e}
 			c.handleReadError(md)
-			if e == io.EOF && !c.connected {
+			if e == io.EOF && !c.isConnected() {
 				c.log("RDR_SHUTDOWN_EOF", e)
 			} else {
 				c.log("RDR_CONN_GENL_ERR", e)
@@ -131,9 +131,7 @@ readLoop:
 		c.log("RDR_RELOOP")
 	}
 	close(c.input)
-	c.connLock.Lock()
-	c.connected = false
-	c.connLock.Unlock()
+	c.setConnected(false)
 	c.sysAbort()
 	c.log("RDR_SHUTDOWN", time.Now())
 }
