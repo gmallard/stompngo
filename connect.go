@@ -20,6 +20,7 @@ import (
 	"bufio"
 	"log"
 	"os"
+
 	// "fmt"
 	"net"
 	"time"
@@ -110,9 +111,14 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 	}
 
 	// OK, put a CONNECT on the wire
-	c.wtr = bufio.NewWriter(n)                          // Create the writer
-	go c.writer()                                       // Start it
-	f := Frame{CONNECT, ch, NULLBUFF}                   // Create actual CONNECT frame
+	c.wtr = bufio.NewWriter(n) // Create the writer
+	go c.writer()              // Start it
+	var f Frame
+	if senv.UseStomp() {
+		f = Frame{STOMP, ch, NULLBUFF} // Create actual STOMP frame
+	} else {
+		f = Frame{CONNECT, ch, NULLBUFF} // Create actual CONNECT frame
+	}
 	r := make(chan error)                               // Make the error channel for a write
 	if e := c.writeWireData(wiredata{f, r}); e != nil { // Send the CONNECT frame
 		return c, e

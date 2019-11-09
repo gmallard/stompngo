@@ -44,6 +44,7 @@ var (
 	maxbl      = -1                                    // Max body length to dump (-1 => no limit)
 	vhLock     sync.Mutex                              // vhsost set lock
 	nmLock     sync.Mutex                              // nmsgs set lock
+	useStomp   = false                                 // use STOMP, not CONNECT
 )
 
 // Destination
@@ -195,4 +196,14 @@ func MaxBodyLength() int {
 // Optional set logger during connection start
 func WantLogger() string {
 	return os.Getenv("STOMP_LOGGER")
+}
+
+// UseStomp returns true is user wants STOMP frames instead of CONNECT
+func UseStomp() bool {
+	// Protocol
+	t := os.Getenv("STOMP_USESTOMP")
+	if t != "" {
+		useStomp = true
+	}
+	return useStomp
 }
