@@ -115,9 +115,15 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 	go c.writer()              // Start it
 	var f Frame
 	if senv.UseStomp() {
-		f = Frame{STOMP, ch, NULLBUFF} // Create actual STOMP frame
+		if ch.Value("accept-version") == SPL_11 || ch.Value("accept-version") == SPL_12 {
+			f = Frame{STOMP, ch, NULLBUFF} // Create actual STOMP frame
+		} else {
+			f = Frame{CONNECT, ch, NULLBUFF} // Create actual STOMP frame
+		}
+		// fmt.Printf("Frame: %q\n", f)
 	} else {
 		f = Frame{CONNECT, ch, NULLBUFF} // Create actual CONNECT frame
+		// fmt.Printf("Frame: %q\n", f)
 	}
 	r := make(chan error)                               // Make the error channel for a write
 	if e := c.writeWireData(wiredata{f, r}); e != nil { // Send the CONNECT frame
