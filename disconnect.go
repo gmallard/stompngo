@@ -16,7 +16,11 @@
 
 package stompngo
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+	"time"
+)
 
 /*
 	Disconnect from a STOMP broker.
@@ -86,7 +90,7 @@ func (c *Connection) Disconnect(h Headers) error {
 	// the one we were expecting.
 	if !cwr && e == nil {
 		// Can be RECEIPT or ERROR frame
-		mds := <-c.input
+		mds, e := c.getMessageData()
 		//
 		// fmt.Println(DISCONNECT, "sanchek", mds)
 		//
@@ -113,4 +117,32 @@ func (c *Connection) Disconnect(h Headers) error {
 	c.sysAbort()
 	c.log(DISCONNECT, "system shutdown cannel closed")
 	return e
+}
+
+func (c *Connection) getMessageData() (MessageData, error) {
+	var md MessageData
+	var me error
+	me = nil
+	if os.Getenv("STOMP_MAXDISCTO") != "" {
+		d, e := time.ParseDuration(os.Getenv("STOMP_MAXDISCTO"))
+		if e != nil {
+			c.log("DISCGETMD PDERROR -> ", e)
+			md = <-c.input
+		} else {
+			c.log("DISCGETMD DUR -> ", d)
+			ticker := time.NewTicker(d)
+			select {
+			case _ = <-ticker.C:
+				me = EDISCTO
+				ticker.Stop()
+			case md = <-c.input:
+				ticker.Stop()
+			}
+		}
+	} else {
+		c.log("DISNOMAX", me)
+		md = <-c.input
+	}
+	//
+	return md, me
 }

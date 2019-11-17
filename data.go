@@ -326,6 +326,9 @@ const (
 
 	// Invalid receipt-id string
 	EBADRID = Error("invalid receipt-id")
+
+	// DISCONNECT timeout
+	EDISCTO = Error("DISCONNECT timeout")
 )
 
 /*
