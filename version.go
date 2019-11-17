@@ -35,7 +35,7 @@ var (
 
 	minor = "0" // Minor
 
-	patch = "12" // Patch
+	patch = "13" // Patch
 
 	// mod = "-m.3" // Modification level
 

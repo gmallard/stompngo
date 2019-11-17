@@ -1,4 +1,4 @@
-# stompngo - A STOMP 1.1+ Client Package #
+# stompngo - A STOMP 1.0, 1.1 and 1.2 Client Package #
 
 ## Features ##
 
@@ -22,6 +22,9 @@ issue:
 * go get github.com/gmallard/stompngo
 
 The GOPATH environment variable must be set properly.
+
+It is also possible to just clone the stompngo repository to any location of
+choice, and use go modules to locate it.
 
 ## Examples ##
 
