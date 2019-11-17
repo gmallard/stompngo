@@ -101,6 +101,7 @@ func (c *Connection) Disconnect(h Headers) error {
 				c.log(DISCONNECT, "nadrid", e)
 			} else {
 				c.DisconnectReceipt = mds
+				c.log(DISCONNECT, "OK")
 			}
 		default:
 			e = fmt.Errorf("DISBADFRM -> %q", mds.Message)
