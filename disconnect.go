@@ -130,13 +130,10 @@ func (c *Connection) getMessageData() (MessageData, error) {
 			md = <-c.input
 		} else {
 			c.log("DISCGETMD DUR -> ", d)
-			ticker := time.NewTicker(d)
 			select {
-			case _ = <-ticker.C:
+			case <-time.After(d):
 				me = EDISCTO
-				ticker.Stop()
 			case md = <-c.input:
-				ticker.Stop()
 			}
 		}
 	} else {
