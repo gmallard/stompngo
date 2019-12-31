@@ -110,6 +110,12 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 			log.Ldate|log.Lmicroseconds|log.Lshortfile))
 	}
 
+	// Initialize elapsed time tracking data if needed
+	c.eltd = nil
+	if os.Getenv("STOMP_TRACKELT") != "" {
+		c.eltd = &eltmets{}
+	}
+
 	// OK, put a CONNECT on the wire
 	c.wtr = bufio.NewWriter(n) // Create the writer
 	go c.writer()              // Start it

@@ -32,9 +32,21 @@ import (
 	structures from the received data, and push the MessageData to the client.
 */
 func (c *Connection) reader() {
+	var f Frame
+	var e error
+	//
 readLoop:
 	for {
-		f, e := c.readFrame()
+		if c.eltd != nil {
+			// fmt.Println("DEROV", c.eltd.rov.ens)
+			st := time.Now().UnixNano()
+			f, e = c.readFrame()
+			c.eltd.rov.ens += time.Now().UnixNano() - st
+			c.eltd.rov.ec++
+		} else {
+			f, e = c.readFrame()
+		}
+		//
 		logLock.Lock()
 		if c.logger != nil {
 			c.logx("RDR_RECEIVE_FRAME", f.Command, f.Headers, HexData(f.Body),
@@ -146,11 +158,21 @@ readLoop:
 	if running against a non-compliant STOMP server.
 */
 func (c *Connection) readFrame() (f Frame, e error) {
+	var s string
 	f = Frame{"", Headers{}, NULLBUFF}
 
 	// Read f.Command or line ends (maybe heartbeats)
 	c.setReadDeadline()
-	s, e := c.rdr.ReadString('\n')
+
+	if c.eltd != nil {
+		st := time.Now().UnixNano()
+		s, e = c.rdr.ReadString('\n')
+		c.eltd.rcmd.ens += time.Now().UnixNano() - st
+		c.eltd.rcmd.ec++
+	} else {
+		s, e = c.rdr.ReadString('\n')
+	}
+
 	if c.checkReadError(e) != nil {
 		return f, e
 	}
@@ -173,7 +195,17 @@ func (c *Connection) readFrame() (f Frame, e error) {
 	// Read f.Headers
 	for {
 		c.setReadDeadline()
-		s, e := c.rdr.ReadString('\n')
+
+		if c.eltd != nil {
+			st := time.Now().UnixNano()
+			s, e = c.rdr.ReadString('\n')
+			c.eltd.rivh.ens += time.Now().UnixNano() - st
+			c.eltd.rivh.ec++
+
+		} else {
+			s, e = c.rdr.ReadString('\n')
+		}
+
 		if c.checkReadError(e) != nil {
 			return f, e
 		}
