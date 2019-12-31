@@ -159,6 +159,7 @@ readLoop:
 */
 func (c *Connection) readFrame() (f Frame, e error) {
 	var s string
+	var bx []byte
 	f = Frame{"", Headers{}, NULLBUFF}
 
 	// Read f.Command or line ends (maybe heartbeats)
@@ -166,11 +167,16 @@ func (c *Connection) readFrame() (f Frame, e error) {
 
 	if c.eltd != nil {
 		st := time.Now().UnixNano()
-		s, e = c.rdr.ReadString('\n')
+		// s, e = c.rdr.ReadString('\n')
+		bx, e = c.rdr.ReadBytes('\n')
+		s = string(bx)
 		c.eltd.rcmd.ens += time.Now().UnixNano() - st
 		c.eltd.rcmd.ec++
+		// fmt.Println("DERCMD", s)
 	} else {
-		s, e = c.rdr.ReadString('\n')
+		// s, e = c.rdr.ReadString('\n')
+		bx, e = c.rdr.ReadBytes('\n')
+		s = string(bx)
 	}
 
 	if c.checkReadError(e) != nil {
@@ -186,7 +192,7 @@ func (c *Connection) readFrame() (f Frame, e error) {
 	if s == "\n" {
 		return f, e
 	}
-
+	// fmt.Println("DERCMD2", f.Command)
 	// Validate the command
 	if _, ok := validCmds[f.Command]; !ok {
 		ev := fmt.Errorf("%s\n%s", EINVBCMD, HexData([]byte(f.Command)))
