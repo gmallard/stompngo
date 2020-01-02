@@ -16,7 +16,10 @@
 
 package stompngo
 
-import "log"
+import (
+	"fmt"
+	"log"
+)
 
 type eltd struct {
 	ens int64 // nanoseconds
@@ -81,5 +84,38 @@ func (c *Connection) ShowEltd(ll *log.Logger) {
 		c.eltd.wivh.ens, c.eltd.wivh.ec)
 	//
 	ll.Printf("Body - ns %d count %d\n",
+		c.eltd.wbdy.ens, c.eltd.wbdy.ec)
+}
+
+func (c *Connection) ShowEltdCsv() {
+	//
+	fmt.Println("SECTION,ELTNS,COUNT")
+	//
+	fmt.Printf("ROV,%d,%d\n",
+		c.eltd.rov.ens, c.eltd.rov.ec)
+	//
+	fmt.Printf("RCMD,%d,%d\n",
+		c.eltd.rcmd.ens, c.eltd.rcmd.ec)
+	//
+	fmt.Printf("RIVH,%d,%d\n",
+		c.eltd.rivh.ens, c.eltd.rivh.ec)
+	//
+	fmt.Printf("RUN,%d,%d\n",
+		c.eltd.run.ens, c.eltd.run.ec)
+	//
+	fmt.Printf("RBDY,%d,%d\n",
+		c.eltd.rbdy.ens, c.eltd.rbdy.ec)
+
+	//
+	fmt.Printf("WOV,%d,%d\n",
+		c.eltd.wov.ens, c.eltd.wov.ec)
+	//
+	fmt.Printf("WCMD,%d,%d\n",
+		c.eltd.wcmd.ens, c.eltd.wcmd.ec)
+	//
+	fmt.Printf("WIVH,%d,%d\n",
+		c.eltd.wivh.ens, c.eltd.wivh.ec)
+	//
+	fmt.Printf("WBDY,%d,%d\n",
 		c.eltd.wbdy.ens, c.eltd.wbdy.ec)
 }
