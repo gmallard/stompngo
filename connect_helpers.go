@@ -21,6 +21,7 @@ import (
 	"bytes"
 
 	// "fmt"
+	"github.com/gmallard/stompngo/senv"
 	"strings"
 )
 
@@ -41,7 +42,7 @@ func (e *CONNERROR) Error() string {
 */
 func (c *Connection) connectHandler(h Headers) (e error) {
 	//fmt.Printf("CHDB01\n")
-	c.rdr = bufio.NewReader(c.netconn)
+	c.rdr = bufio.NewReaderSize(c.netconn, senv.ReadBufsz())
 	b, e := c.rdr.ReadBytes(0)
 	if e != nil {
 		return e

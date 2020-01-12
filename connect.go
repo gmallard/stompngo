@@ -117,8 +117,9 @@ func Connect(n net.Conn, h Headers) (*Connection, error) {
 	}
 
 	// OK, put a CONNECT on the wire
-	c.wtr = bufio.NewWriter(n) // Create the writer
-	go c.writer()              // Start it
+	c.wtr = bufio.NewWriterSize(n, senv.WriteBufsz()) // Create the writer
+	// fmt.Println("TCDBG", c.wtr.Size())
+	go c.writer() // Start it
 	var f Frame
 	if senv.UseStomp() {
 		if ch.Value("accept-version") == SPL_11 || ch.Value("accept-version") == SPL_12 {
