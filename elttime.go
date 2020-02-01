@@ -22,8 +22,8 @@ import (
 )
 
 type eltd struct {
-	ens int64 // nanoseconds
-	ec  int64 // count
+	ens int64 // elapsed nanoseconds
+	ec  int64 // call count
 }
 
 type eltmets struct {
@@ -88,6 +88,9 @@ func (c *Connection) ShowEltd(ll *log.Logger) {
 }
 
 func (c *Connection) ShowEltdCsv() {
+	if c.eltd == nil {
+		return
+	}
 	//
 	fmt.Println("SECTION,ELTNS,COUNT")
 	//
