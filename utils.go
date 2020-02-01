@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
 )
 
 /*
@@ -52,8 +53,20 @@ func decode(s string) string {
 	A network helper.  Read from the wire until a 0x00 byte is encountered.
 */
 func readUntilNul(c *Connection) ([]uint8, error) {
+	var b []byte
+	var e error
 	c.setReadDeadline()
-	b, e := c.rdr.ReadBytes(0)
+
+	if c.eltd != nil {
+		st := time.Now().UnixNano()
+		b, e = c.rdr.ReadBytes(0)
+		c.eltd.run.ens += time.Now().UnixNano() - st
+		c.eltd.run.ec++
+
+	} else {
+		b, e = c.rdr.ReadBytes(0)
+	}
+
 	if c.checkReadError(e) != nil {
 		return b, e
 	}
@@ -72,7 +85,17 @@ func readUntilNul(c *Connection) ([]uint8, error) {
 func readBody(c *Connection, l int) ([]uint8, error) {
 	b := make([]byte, l)
 	c.setReadDeadline()
-	n, e := io.ReadFull(c.rdr, b)
+	var n int
+	var e error
+	if c.eltd != nil {
+		st := time.Now().UnixNano()
+		n, e = io.ReadFull(c.rdr, b)
+		c.eltd.rbdy.ens += time.Now().UnixNano() - st
+		c.eltd.rbdy.ec++
+	} else {
+		n, e = io.ReadFull(c.rdr, b)
+	}
+
 	if n < l && n != 0 { // Short read, e is ErrUnexpectedEOF
 		c.log("SHORT READ", n, l, e)
 		return b[0 : n-1], e
