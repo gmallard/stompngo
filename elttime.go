@@ -92,33 +92,38 @@ func (c *Connection) ShowEltdCsv() {
 		return
 	}
 	//
-	fmt.Println("SECTION,ELTNS,COUNT")
+	fmt.Println("SECTION,ELTNS,COUNT,PCT")
 	//
-	fmt.Printf("ROV,%d,%d\n",
-		c.eltd.rov.ens, c.eltd.rov.ec)
+	fmt.Printf("ROV,%d,%d,%s\n",
+		c.eltd.rov.ens, c.eltd.rov.ec, "100.00")
 	//
-	fmt.Printf("RCMD,%d,%d\n",
-		c.eltd.rcmd.ens, c.eltd.rcmd.ec)
+	fmt.Printf("RCMD,%d,%d,%s\n",
+		c.eltd.rcmd.ens, c.eltd.rcmd.ec, getpct(c.eltd.rcmd.ens, c.eltd.rov.ens))
 	//
-	fmt.Printf("RIVH,%d,%d\n",
-		c.eltd.rivh.ens, c.eltd.rivh.ec)
+	fmt.Printf("RIVH,%d,%d,%s\n",
+		c.eltd.rivh.ens, c.eltd.rivh.ec, getpct(c.eltd.rivh.ens, c.eltd.rov.ens))
 	//
-	fmt.Printf("RUN,%d,%d\n",
-		c.eltd.run.ens, c.eltd.run.ec)
+	fmt.Printf("RUN,%d,%d,%s\n",
+		c.eltd.run.ens, c.eltd.run.ec, getpct(c.eltd.run.ens, c.eltd.rov.ens))
 	//
-	fmt.Printf("RBDY,%d,%d\n",
-		c.eltd.rbdy.ens, c.eltd.rbdy.ec)
+	fmt.Printf("RBDY,%d,%d,%s\n",
+		c.eltd.rbdy.ens, c.eltd.rbdy.ec, getpct(c.eltd.rbdy.ens, c.eltd.rov.ens))
 
 	//
-	fmt.Printf("WOV,%d,%d\n",
-		c.eltd.wov.ens, c.eltd.wov.ec)
+	fmt.Printf("WOV,%d,%d,%s\n",
+		c.eltd.wov.ens, c.eltd.wov.ec, "100.00")
 	//
-	fmt.Printf("WCMD,%d,%d\n",
-		c.eltd.wcmd.ens, c.eltd.wcmd.ec)
+	fmt.Printf("WCMD,%d,%d,%s\n",
+		c.eltd.wcmd.ens, c.eltd.wcmd.ec, getpct(c.eltd.wcmd.ens, c.eltd.wov.ens))
 	//
-	fmt.Printf("WIVH,%d,%d\n",
-		c.eltd.wivh.ens, c.eltd.wivh.ec)
+	fmt.Printf("WIVH,%d,%d,%s\n",
+		c.eltd.wivh.ens, c.eltd.wivh.ec, getpct(c.eltd.wivh.ens, c.eltd.wov.ens))
 	//
-	fmt.Printf("WBDY,%d,%d\n",
-		c.eltd.wbdy.ens, c.eltd.wbdy.ec)
+	fmt.Printf("WBDY,%d,%d,%s\n",
+		c.eltd.wbdy.ens, c.eltd.wbdy.ec, getpct(c.eltd.wbdy.ens, c.eltd.wov.ens))
+}
+
+func getpct(num, den int64) string {
+	fv := float64(num) / float64(den)
+	return fmt.Sprintf("%f", 100.0*fv)
 }
