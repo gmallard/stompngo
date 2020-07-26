@@ -124,19 +124,21 @@ func (c *Connection) Unsubscribe(h Headers) error {
 	if err != nil {
 		idn = 100 // 100 milliseconds if bad parameter
 	}
-	ival := time.Duration(idn * 1000000)
+	//ival := time.Duration(idn * 1000000)
+	ival := time.Duration(time.Duration(idn) * time.Millisecond)
 	dmc := 0
 forsel:
 	for {
-		ticker := time.NewTicker(ival)
+		// ticker := time.NewTicker(ival)
 		select {
 		case mi, ok := <-usesp.md:
 			if !ok {
 				break forsel
 			}
 			dmc++
-			c.log("sngdrnow DROP", dmc, mi.Message.Command, mi.Message.Headers)
-		case _ = <-ticker.C:
+			c.log("\nsngdrnow DROP", dmc, mi.Message.Command, mi.Message.Headers)
+		// case _ = <-ticker.C:
+		case <-time.After(ival):
 			c.log("sngdrnow extension BREAK")
 			break forsel
 		}
